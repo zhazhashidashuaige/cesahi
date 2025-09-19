@@ -7509,6 +7509,17 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 </div>
 <!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
 
+<!-- ▼▼▼ 在这里粘贴新的“显示状态栏”开关代码 ▼▼▼ -->
+<div class="form-group">
+    <label for="show-status-bar-toggle" class="toggle-switch-label">
+        <span class="toggle-switch-text">显示状态栏</span>
+        <input type="checkbox" id="show-status-bar-toggle">
+        <span class="toggle-switch-slider"></span>
+    </label>
+</div>
+<!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
+
+
         <button class="form-button" onclick="document.getElementById('wallpaper-upload-input').click();">上传壁纸</button>
         <input type="file" id="wallpaper-upload-input" accept="image/*">
 
@@ -25393,19 +25404,51 @@ async function handleCharacterDataDeletion(dataType, index) {
     function initialize() {
         // --- 这是我们新加的锁屏逻辑 ---
         const enableLockScreenToggle = document.getElementById('enable-lock-screen-toggle');
-        
-        // 从浏览器缓存中读取设置。如果找不到，就默认'true' (启用锁屏)
-        const lockScreenEnabled = localStorage.getItem('lockScreenEnabled') !== 'false'; 
-        
-        // 根据读取到的设置，更新开关的UI状态（是打开还是关闭）
-        enableLockScreenToggle.checked = lockScreenEnabled;
 
-        // 根据设置，决定应用启动时第一个显示的屏幕
-        if (lockScreenEnabled) {
-            showScreen('lock-screen');
-        } else {
-            showScreen('home-screen');
-        }
+// ▼▼▼ 在这里添加新行 ▼▼▼
+const showStatusBarToggle = document.getElementById('show-status-bar-toggle');
+
+        
+      // ▼▼▼ 用下面这整块代码，替换掉你刚才找到的那块旧代码 ▼▼▼
+
+// --- 初始化并监听所有设置 ---
+
+// 1. 读取、应用并监听“启用锁屏”设置
+const lockScreenEnabled = localStorage.getItem('lockScreenEnabled') !== 'false';
+enableLockScreenToggle.checked = lockScreenEnabled;
+enableLockScreenToggle.addEventListener('change', () => {
+    localStorage.setItem('lockScreenEnabled', enableLockScreenToggle.checked);
+    // 提示：锁屏设置的更改通常在下次启动时生效
+});
+
+// 2. 读取、应用并监听“显示状态栏”设置
+const statusBar = document.getElementById('status-bar');
+// 如果找不到设置，默认显示状态栏 (true)
+const showStatusBar = localStorage.getItem('showStatusBar') !== 'false'; 
+showStatusBarToggle.checked = showStatusBar;
+// 根据读取的设置，立即决定是否显示状态栏
+if (showStatusBar) {
+    statusBar.style.display = 'flex';
+} else {
+    statusBar.style.display = 'none';
+}
+// 当用户点击开关时，保存设置并立即应用
+showStatusBarToggle.addEventListener('change', () => {
+    const isChecked = showStatusBarToggle.checked;
+    localStorage.setItem('showStatusBar', isChecked);
+    statusBar.style.display = isChecked ? 'flex' : 'none';
+});
+
+
+// --- 根据锁屏设置，决定应用启动时第一个显示的屏幕 ---
+if (lockScreenEnabled) {
+    showScreen('lock-screen');
+} else {
+    showScreen('home-screen');
+}
+
+// ▲▲▲ 替换结束 ▲▲▲
+
         // --- 锁屏逻辑结束 ---
 
         // 这里可以放您其他的初始化代码，比如加载数据等
