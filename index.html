@@ -27,7 +27,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 
 <!-- 7. (备用) 标准浏览器页签图标 -->
-<link rel="icon" type="image/png" href="https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg">
+<link rel="icon" type="image/png" href="https://i.postimg.cc/LsDj0HsL/99985605cd73e222fa4ad523333b0706.jpg">
 <!-- ▲▲▲ 替换结束 ▲▲▲ -->
 
 
@@ -61,7 +61,7 @@ body {
 /* ▼▼▼ 请用这块【最终修正版】的代码，替换掉你现有的 #phone-screen 样式 ▼▼▼ */
 #phone-screen {
     width: 100%;
-    height: 100%; /* ★ 核心修改：从 100vh 改为 100% */
+    height: 100vh;
     position: relative;
     overflow: hidden;
     display: flex;
@@ -138,7 +138,6 @@ body {
 /* ▼▼▼ 【终极合并修正版】请用这块代码完整替换掉旧的 #home-screen, #clock-container, .app-grid 样式 ▼▼▼ */
         
 /* 1. (核心) 为锁屏和主屏幕应用相同的全屏布局 (此部分保持不变) */
-/* 1. (核心) 让锁屏和主屏幕的背景强制铺满整个物理屏幕 */
 #lock-screen, 
 #home-screen {
     display: flex;
@@ -147,26 +146,27 @@ body {
     height: 100%;
     background-size: cover;
     background-position: center;
+    
+    /* 用padding把内容挤进来，同时让背景铺满安全区 */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: 20px;
+    padding-right: 20px;
+    
     box-sizing: border-box;
-    /* ★ 关键：移除所有 padding，让这个容器本身是 edge-to-edge 的 */
 }
 
-/* 2. (核心) 让锁屏的内容遵守安全区域 */
+/* 2. (核心) 单独处理锁屏的文字，让它自动贴底 (这是本次的唯一修改) */
 #lock-screen-content {
-    margin-top: auto; /* 自动推到底部 */
-    margin-bottom: 40px; /* 内容距离底部的间距 */
+    margin-top: auto; /* 关键：自动将此元素推到容器底部 */
+    margin-bottom: 40px; /* ★ 核心修正：使用 margin-bottom 向上推开，而不是padding */
     text-align: center;
     color: white;
     text-shadow: 0 2px 6px rgba(0,0,0,0.5);
     font-size: 16px;
     font-weight: 500;
-    
-    /* ★ 关键：用 padding 把内容从屏幕边缘“挤”进来 */
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-bottom: env(safe-area-inset-bottom); /* 避开底部小黑条 */
-    box-sizing: border-box;
 }
+
 /* 3. 保持主屏幕的时钟和App图标布局不变 */
 #clock-container {
     text-align: center;
