@@ -135,9 +135,9 @@ body {
 
         .header .action-btn img { height: 26px; }
         .header .save-btn { font-size: 16px; color: var(--accent-color); font-weight: 600; cursor: pointer; }
-/* ▼▼▼ 【终极合并修正版】请用这块代码完整替换掉旧的 #home-screen, #clock-container, .app-grid 样式 ▼▼▼ */
-        
-/* 1. (核心) 为锁屏和主屏幕应用相同的全屏布局 (此部分保持不变) */
+/* ▼▼▼ 【强制全屏最简修正版】请用这块代码替换你现有的【终极合并修正版】整块代码 ▼▼▼ */
+
+/* 1. (核心修正) 让背景层铺满全屏，但用padding把所有内容挤进来 */
 #lock-screen, 
 #home-screen {
     display: flex;
@@ -147,19 +147,25 @@ body {
     background-size: cover;
     background-position: center;
     
-    /* 用padding把内容挤进来，同时让背景铺满安全区 */
+    /* 关键：我们依然使用padding来为内容创建安全区 */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: 20px;
     padding-right: 20px;
     
     box-sizing: border-box;
+
+    /* ★★★ 新增核心代码 ★★★ */
+    /* 强制背景延伸到边框外边缘，覆盖padding区域 */
+    background-clip: border-box; 
+    /* 为了兼容旧版浏览器，可以加上 -webkit- 前缀 */
+    -webkit-background-clip: border-box;
 }
 
-/* 2. (核心) 单独处理锁屏的文字，让它自动贴底 (这是本次的唯一修改) */
+/* 2. (保持不变) 锁屏文字的布局逻辑是正确的 */
 #lock-screen-content {
-    margin-top: auto; /* 关键：自动将此元素推到容器底部 */
-    margin-bottom: 40px; /* ★ 核心修正：使用 margin-bottom 向上推开，而不是padding */
+    margin-top: auto; 
+    margin-bottom: 40px; 
     text-align: center;
     color: white;
     text-shadow: 0 2px 6px rgba(0,0,0,0.5);
@@ -167,7 +173,7 @@ body {
     font-weight: 500;
 }
 
-/* 3. 保持主屏幕的时钟和App图标布局不变 */
+/* 3. (保持不变) 主屏幕布局也是正确的 */
 #clock-container {
     text-align: center;
     color: white;
