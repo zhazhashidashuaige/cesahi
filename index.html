@@ -137,8 +137,9 @@ body {
         .header .save-btn { font-size: 16px; color: var(--accent-color); font-weight: 600; cursor: pointer; }
 /* ▼▼▼ 【强制全屏终极修正版】请用这块代码完整替换掉旧的 #lock-screen, #home-screen, #lock-screen-content 等样式的代码块 ▼▼▼ */
 
-/* 1. (核心修正) 让背景层铺满全屏，同时用 padding 约束内部所有内容的左右边距 */
-#lock-screen, 
+/* ▼▼▼ 【终极全屏修正】请用这整块代码替换掉你现有的 #lock-screen, #home-screen, #clock-container, .app-grid 样式 ▼▼▼ */
+
+/* 1. (保持) 主屏幕布局不变，它的内容需要被padding挤进来 */
 #home-screen {
     display: flex;
     flex-direction: column;
@@ -147,35 +148,51 @@ body {
     background-size: cover;
     background-position: center;
     
-    /* 关键：只保留左右padding，移除上下的padding，让背景可以延伸到屏幕边缘 */
+    /* 主屏幕的内容（图标）需要被安全区padding约束 */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
     padding-left: 20px;
     padding-right: 20px;
     
     box-sizing: border-box;
-    
-    /* 关键：为顶部和底部的内容腾出空间，让它们自己处理安全区 */
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* 2. (核心修正) 单独处理锁屏的文字，让它自动贴底 */
+/* 2. (核心修正) 锁屏单独处理：背景层自身不加padding，让背景图铺满整个物理屏幕 */
+#lock-screen {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    box-sizing: border-box;
+    
+    /* 关键：移除了上下padding，让背景可以延伸到屏幕最顶部和最底部 */
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+/* 3. (核心修正) 把安全区距离应用到锁屏的内部内容上 */
 #lock-screen-content {
-    margin-top: auto; /* 关键：自动将此元素推到容器底部 */
-    margin-bottom: 40px; /* 使用 margin-bottom 向上推开，这个值是你希望的额外间距 */
+    margin-top: auto; /* 自动推到底部 */
     text-align: center;
     color: white;
     text-shadow: 0 2px 6px rgba(0,0,0,0.5);
     font-size: 16px;
     font-weight: 500;
+    
+    /* 关键：用 margin-bottom 把文字从底部安全区推上来。40px是额外间距。 */
+    margin-bottom: calc(40px + env(safe-area-inset-bottom));
 }
 
-/* 3. 保持主屏幕的时钟和App图标布局不变 (这些样式现在是正确的，因为父级的padding会处理安全区) */
+/* 4. (保持) 主屏幕的时钟和App图标布局不变 */
 #clock-container {
     text-align: center;
     color: white;
     text-shadow: 0 3px 8px rgba(0,0,0,0.4);
     margin-bottom: 20px;
     flex-shrink: 0;
+    /* 这里的 margin-top 会被父级 #home-screen 的 padding-top 进一步推下 */
     margin-top: 60px; 
 }
 .app-grid {
@@ -186,6 +203,7 @@ body {
     gap: 20px;
     width: 100%;
     padding: 20px;
+    /* 这里的 margin-bottom 会被父级 #home-screen 的 padding-bottom 进一步推上 */
     margin-bottom: 30px; 
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
