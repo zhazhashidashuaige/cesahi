@@ -237,7 +237,12 @@ body {
         .chat-list-item .name { font-weight: 500; color: var(--text-primary); }
         .chat-list-item .group-tag { font-size: 10px; color: var(--accent-color); background-color: #e7f3ff; padding: 2px 6px; border-radius: 4px; font-weight: bold; flex-shrink: 0; }
         .chat-list-item .last-msg { font-size: 13px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
-        #chat-interface-screen { background-size: cover; background-position: center; position: relative; }
+        /* 修改后的代码 */
+#chat-interface-screen { 
+    background-size: cover; 
+    background-position: center; 
+}
+
         #selection-cancel-btn, #selection-delete-btn { font-size: 16px; color: var(--accent-color); cursor: pointer; padding: 5px; }
         #selection-delete-btn { color: #ff3b30; }
 
@@ -11121,8 +11126,7 @@ function displayFilteredFavorites(items) {
             document.getElementById('post-hidden-text').value = '';
             document.getElementById('switch-to-image-mode').click();
         }
-
-// ▼▼▼ 粘贴这个唯一的、经典的导出函数 ▼▼▼
+// ▼▼▼ 用这个【真正修复版】，完整替换掉你现在的 exportBackup 函数 ▼▼▼
 async function exportBackup() {
     try {
         const backupData = {
@@ -11130,22 +11134,86 @@ async function exportBackup() {
             timestamp: Date.now()
         };
 
-        // 从数据库获取所有表的数据
-        const tables = db.tables.map(table => table.toArray());
-        const results = await Promise.all(tables);
+        // --- 核心修复：我们恢复使用精确的、逐个导出的方式 ---
+        // 这样可以确保单条记录的表（如 globalSettings）被正确导出为对象，而不是数组
+        const [
+            chats, worldBooks, userStickers, apiConfig, globalSettings,
+            personaPresets, musicLibrary, qzoneSettings, qzonePosts,
+            qzoneAlbums, qzonePhotos, favorites, qzoneGroups, memories,
+            worldBookCategories, callRecords, customAvatarFrames, themes,
+            apiPresets, bubbleStylePresets
+        ] = await Promise.all([
+            db.chats.toArray(),
+            db.worldBooks.toArray(),
+            db.userStickers.toArray(),
+            db.apiConfig.get('main'),          // <--- 看这里，使用 .get('main')
+            db.globalSettings.get('main'),     // <--- 看这里，使用 .get('main')
+            db.personaPresets.toArray(),
+            db.musicLibrary.get('main'),       // <--- 看这里，使用 .get('main')
+            db.qzoneSettings.get('main'),      // <--- 看这里，使用 .get('main')
+            db.qzonePosts.toArray(),
+            db.qzoneAlbums.toArray(),
+            db.qzonePhotos.toArray(),
+            db.favorites.toArray(),
+            db.qzoneGroups.toArray(),
+            db.memories.toArray(),
+            db.worldBookCategories.toArray(),
+            db.callRecords.toArray(),
+            db.customAvatarFrames.toArray(),
+            db.themes.toArray(),
+            db.apiPresets.toArray(),
+            db.bubbleStylePresets.toArray()
+        ]);
 
-        // 将表名和数据对应起来
-        db.tables.forEach((table, index) => {
-            backupData[table.name] = results[index];
+        // 将所有从数据库获取的数据正确地存入备份对象
+        Object.assign(backupData, {
+            chats, worldBooks, userStickers, apiConfig, globalSettings,
+            personaPresets, musicLibrary, qzoneSettings, qzonePosts,
+            qzoneAlbums, qzonePhotos, favorites, qzoneGroups, memories,
+            worldBookCategories, callRecords, customAvatarFrames, themes,
+            apiPresets, bubbleStylePresets
         });
         
-        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+        // --- ▼▼▼ 这是你新添加的功能，我们把它保留在这里 ▼▼▼ ---
+        // 它现在会包含所有主屏幕和锁屏的外观元素
+        // 注意：因为 globalSettings 已经被正确导出了，这里的壁纸、图标等数据其实是冗余的，
+        // 但为了完全保留你的新功能逻辑，我们暂时留着它。
+        // 未来的导入函数如果需要，就可以从 homeScreenState 中读取这些UI状态。
+        backupData.homeScreenState = {
+            // 1. 原有的个人资料卡和小组件数据
+            'profile-banner-img': document.getElementById('profile-banner-img').src,
+            'profile-avatar-img': document.getElementById('profile-avatar-img').src,
+            'profile-username': document.getElementById('profile-username').textContent,
+            'profile-sub-username': document.getElementById('profile-sub-username').textContent,
+            'profile-bio': document.getElementById('profile-bio').textContent,
+            'profile-location': document.getElementById('profile-location').innerHTML,
+            'widget-bubble-1': document.getElementById('widget-bubble-1').textContent,
+            'widget-image-1': document.getElementById('widget-image-1').src,
+            'widget-subtext-1': document.getElementById('widget-subtext-1').textContent,
+            'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
+            'widget-image-2': document.getElementById('widget-image-2').src,
+            'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
+
+            // 2. 【全新添加】壁纸和图标数据
+            'wallpaper': state.globalSettings.wallpaper,
+            'lockscreenWallpaper': state.globalSettings.lockscreenWallpaper,
+            'appIcons': state.globalSettings.appIcons,
+        };
+        // --- ▲▲▲ 新功能保留结束 ▲▲▲
+
+        // 后续的下载逻辑保持不变
+        const blob = new Blob(
+            [JSON.stringify(backupData, null, 2)], 
+            { type: 'application/json' }
+        );
         const url = URL.createObjectURL(blob);
         const link = Object.assign(document.createElement('a'), {
             href: url,
             download: `EPhone-Full-Backup-${new Date().toISOString().split('T')[0]}.json`
         });
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
         URL.revokeObjectURL(url);
         
         await showCustomAlert('导出成功', '已成功导出所有数据！');
@@ -11155,16 +11223,17 @@ async function exportBackup() {
         await showCustomAlert('导出失败', `发生了一个错误: ${error.message}`);
     }
 }
-// ▲▲▲ 粘贴结束 ▲▲▲
 
 
-// ▼▼▼ 用这个【已包含 memories】的版本，完整替换旧的 importBackup 函数 ▼▼▼
+
+
+// ▼▼▼ 请用这【一整块终极修复版】的代码，完整替换掉你旧的 importBackup 函数 ▼▼▼
 async function importBackup(file) {
     if (!file) return;
 
     const confirmed = await showCustomConfirm(
         '严重警告！',
-        '导入备份将完全覆盖您当前的所有数据，包括聊天、动态、设置等。此操作不可撤销！您确定要继续吗？',
+        '导入备份将完全覆盖您当前的所有数据，包括聊天、设置等。此操作不可撤销！您确定要继续吗？',
         { confirmButtonClass: 'btn-danger' }
     );
 
@@ -11175,32 +11244,91 @@ async function importBackup(file) {
         const data = JSON.parse(text);
 
         await db.transaction('rw', db.tables, async () => {
+            // 1. 清空所有现有表格
             for (const table of db.tables) {
                 await table.clear();
             }
 
-            if (Array.isArray(data.chats)) await db.chats.bulkPut(data.chats);
-            if (Array.isArray(data.worldBooks)) await db.worldBooks.bulkPut(data.worldBooks);
-            if (Array.isArray(data.worldBookCategories)) await db.worldBookCategories.bulkPut(data.worldBookCategories);
-            if (Array.isArray(data.userStickers)) await db.userStickers.bulkPut(data.userStickers);
-            if (Array.isArray(data.personaPresets)) await db.personaPresets.bulkPut(data.personaPresets);
-            if (Array.isArray(data.qzonePosts)) await db.qzonePosts.bulkPut(data.qzonePosts);
-            if (Array.isArray(data.qzoneAlbums)) await db.qzoneAlbums.bulkPut(data.qzoneAlbums);
-            if (Array.isArray(data.qzonePhotos)) await db.qzonePhotos.bulkPut(data.qzonePhotos);
-            if (Array.isArray(data.favorites)) await db.favorites.bulkPut(data.favorites);
-            if (Array.isArray(data.qzoneGroups)) await db.qzoneGroups.bulkPut(data.qzoneGroups);
-if (Array.isArray(data.memories)) await db.memories.bulkPut(data.memories);
-if (Array.isArray(data.apiPresets)) await db.apiPresets.bulkPut(data.apiPresets);
-if (Array.isArray(data.bubbleStylePresets)) await db.bubbleStylePresets.bulkPut(data.bubbleStylePresets);
-if (Array.isArray(data.callRecords)) await db.callRecords.bulkPut(data.callRecords);             // <--- 新增
-if (Array.isArray(data.customAvatarFrames)) await db.customAvatarFrames.bulkPut(data.customAvatarFrames); // <--- 新增
-            if (Array.isArray(data.themes)) await db.themes.bulkPut(data.themes);
+            // 2. 【核心修复】智能、安全地导入数据
+            // 我们会检查备份文件中的每一项数据，只有当当前代码的数据库里也存在对应的表格时，才进行导入
+            
+            // 导入数组类型的数据
+            const arrayTables = [
+                'chats', 'worldBooks', 'worldBookCategories', 'userStickers', 
+                'personaPresets', 'qzonePosts', 'qzoneAlbums', 'qzonePhotos', 
+                'favorites', 'qzoneGroups', 'memories', 'callRecords', 
+                'customAvatarFrames', 'themes', 'apiPresets', 'bubbleStylePresets',
+                // 就算备份文件里有下面这些新版才有的数据，这段代码也能安全跳过
+                'fontPresets', 'homeScreenPresets' 
+            ];
 
-            if (data.apiConfig) await db.apiConfig.put(data.apiConfig);
-            if (data.globalSettings) await db.globalSettings.put(data.globalSettings);
-            if (data.musicLibrary) await db.musicLibrary.put(data.musicLibrary);
-            if (data.qzoneSettings) await db.qzoneSettings.put(data.qzoneSettings);
+// ▼▼▼ 【全新】世界书格式兼容转换代码 ▼▼▼
+for (const tableName of arrayTables) {
+    if (Array.isArray(data[tableName]) && db[tableName]) {
+        let itemsToPut = data[tableName];
+
+        // 【核心逻辑】当处理世界书表格时，执行特别的转换操作
+        if (tableName === 'worldBooks') {
+            console.log("正在检查并转换世界书数据格式以兼容...");
+            itemsToPut.forEach(book => {
+                // 如果 content 是数组 (别人的格式)，则将其转换为字符串 (我的格式)
+                if (Array.isArray(book.content)) {
+                    console.log(`检测到数组格式的世界书: "${book.name}"，正在转换为字符串...`);
+                    
+                    // 将数组中的每个条目对象转换为格式化的字符串
+                    const convertedEntries = book.content.map(entry => {
+                        const stringParts = [];
+                        if (entry.comment) {
+                            stringParts.push(`[备注: ${entry.comment}]`);
+                        }
+                        if (entry.keys && entry.keys.length > 0) {
+                            stringParts.push(`[关键词: ${entry.keys.join(', ')}]`);
+                        }
+                        stringParts.push(entry.content); // 条目主要内容
+                        return stringParts.join('\n'); // 每个条目的内部用换行分隔
+                    });
+                    
+                    // 将所有转换后的条目字符串用一个明显的分隔符连接起来
+                    book.content = convertedEntries.join('\n\n---\n\n');
+                }
+            });
+        }
+        
+        // 过滤并保存数据 (这部分逻辑保持不变)
+        const validItems = itemsToPut.filter(item => item && (item.id || typeof item.id === 'number'));
+        if (validItems.length > 0) {
+            console.log(`正在导入 ${validItems.length} 条数据到表格: ${tableName}...`);
+            await db[tableName].bulkPut(validItems);
+        }
+
+    } else {
+        console.log(`跳过导入: ${tableName} (在备份文件或当前数据库中不存在)`);
+    }
+}
+// ▲▲▲ 代码粘贴结束 ▲▲▲
+
+            
+            // 导入对象类型的数据（通常是设置）
+            const objectTables = ['apiConfig', 'globalSettings', 'musicLibrary', 'qzoneSettings'];
+            for (const tableName of objectTables) {
+                if (data[tableName] && db[tableName]) {
+                    console.log(`正在导入设置: ${tableName}...`);
+                    await db[tableName].put(data[tableName]);
+                }
+            }
         });
+
+        // 导入主屏幕样式的逻辑保持不变，因为它不直接操作数据库的多个表
+        if (data.homeScreenState) {
+            const settings = await db.globalSettings.get('main') || { id: 'main' };
+            settings.widgetData = data.homeScreenState;
+            if (data.homeScreenState.wallpaper) settings.wallpaper = data.homeScreenState.wallpaper;
+            if (data.homeScreenState.lockscreenWallpaper) settings.lockscreenWallpaper = data.homeScreenState.lockscreenWallpaper;
+            if (data.homeScreenState.appIcons) settings.appIcons = data.homeScreenState.appIcons;
+            await db.globalSettings.put(settings);
+            console.log("已成功导入主屏幕样式数据。");
+        }
+
 
         await showCustomAlert('导入成功', '所有数据已成功恢复！应用即将刷新以应用所有更改。');
         
@@ -17719,9 +17847,7 @@ function closeAiAvatarLibraryModal() {
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
 /* ▼▼▼ 步骤 3.2：将这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼ */
 
-/**
- * 【全新】在页面加载时，应用已保存的小组件数据
- */
+// ▼▼▼ 用下面这【一整块】代码，替换你旧的 applyWidgetData 函数 ▼▼▼
 function applyWidgetData() {
     if (!state.globalSettings.widgetData) return;
     for (const elementId in state.globalSettings.widgetData) {
@@ -17730,12 +17856,21 @@ function applyWidgetData() {
         if (element) {
             if (element.tagName === 'IMG') {
                 element.src = savedValue;
-            } else {
-                element.textContent = savedValue;
+            } 
+            // --- ▼▼▼ 这是我们新增的修复逻辑 ▼▼▼ ---
+            // 如果是地点这个特殊元素，就用 innerHTML 来正确显示图标
+            else if (elementId === 'profile-location') {
+                element.innerHTML = savedValue;
+            } 
+            // --- ▲▲▲ 修复逻辑结束 ▲▲▲ ---
+            else {
+                // 其他普通文本元素，保持原来的逻辑不变
+                element.textContent = savedValue; 
             }
         }
     }
 }
+// ▲▲▲ 替换结束 ▲▲▲
 
 /**
  * 【全新辅助函数】打开文件选择器，并返回本地图片的Base64编码
@@ -20689,7 +20824,7 @@ ${npcContext}
         const aiResponseContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content)
             .replace(/^```json\s*|```$/g, '');
 
-        const newData = JSON.parse(aiResponseContent);
+        const newData = parseAiResponse(aiResponseContent);
 
         let phoneData = chat.characterPhoneData;
         phoneData.lastGenerated = Date.now();
@@ -21518,18 +21653,22 @@ async function applySelectedHomeScreenPreset() {
     const preset = await db.homeScreenPresets.get(activeHomePresetId);
     if (preset && preset.data) {
         state.globalSettings.widgetData = preset.data;
-        await db.globalSettings.put(state.globalSettings);
-        applyWidgetData(); // 应用数据
-                // ▼▼▼ 在这里添加下面这整块新代码 ▼▼▼
-        // 【核心新增】检查预设里是否存了图标数据
+
+        // ▼▼▼ 核心修改：检查并应用预设中的壁纸 ▼▼▼
+        if (preset.data.wallpaper) {
+            state.globalSettings.wallpaper = preset.data.wallpaper;
+            applyGlobalWallpaper(); // 立刻应用壁纸到主屏幕
+        }
+        // ▲▲▲ 修改结束 ▲▲▲
+
         if (preset.data.appIcons) {
-            // 如果有，就用预设里的图标数据覆盖掉当前的全局设置
             state.globalSettings.appIcons = { ...preset.data.appIcons };
-            await db.globalSettings.put(state.globalSettings);
-            // 立刻应用新的图标到主屏幕上
             applyAppIcons();
         }
-        // ▲▲▲ 新代码添加结束 ▲▲▲
+        
+        await db.globalSettings.put(state.globalSettings);
+        applyWidgetData(); 
+
         alert(`已成功应用预设: "${preset.name}"！`);
         showScreen('home-screen');
     }
@@ -21557,12 +21696,15 @@ async function saveCurrentHomeScreenAsPreset() {
         'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
         'widget-image-2': document.getElementById('widget-image-2').src,
         'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
-        'appIcons': { ...state.globalSettings.appIcons } 
+        'appIcons': { ...state.globalSettings.appIcons },
+        // ▼▼▼ 核心修改：在这里添加壁纸数据 ▼▼▼
+        'wallpaper': state.globalSettings.wallpaper 
     };
     await db.homeScreenPresets.add({ name: presetName.trim(), data: presetData });
     await loadHomeScreenPresetsToDropdown();
     alert(`预设 "${presetName.trim()}" 已保存！`);
 }
+
 
 /**
  * 重命名选中的预设
