@@ -66,9 +66,10 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background-color: #ffffff;
+    background-color: #ffffff; /* ★ 修改这里为白色 */
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
+
 /* 3. 【核心】隐藏掉模拟器的状态栏 */
 #status-bar {
     display: none;
@@ -134,8 +135,9 @@ body {
 
         .header .action-btn img { height: 26px; }
         .header .save-btn { font-size: 16px; color: var(--accent-color); font-weight: 600; cursor: pointer; }
-/* ▼▼▼ 【最终修正版】请用这块代码完整替换掉旧的 #lock-screen, #home-screen, #lock-screen-content, #clock-container, .app-grid 样式 ▼▼▼ */
-
+/* ▼▼▼ 【终极合并修正版】请用这块代码完整替换掉旧的 #home-screen, #clock-container, .app-grid 样式 ▼▼▼ */
+        
+/* 1. (核心) 为锁屏和主屏幕应用相同的全屏布局 (此部分保持不变) */
 /* 1. (核心) 让锁屏和主屏幕的背景强制铺满整个物理屏幕 */
 #lock-screen, 
 #home-screen {
@@ -165,8 +167,7 @@ body {
     padding-bottom: env(safe-area-inset-bottom); /* 避开底部小黑条 */
     box-sizing: border-box;
 }
-
-/* 3. (核心) 让主屏幕的内容遵守安全区域 */
+/* 3. 保持主屏幕的时钟和App图标布局不变 */
 #clock-container {
     text-align: center;
     color: white;
@@ -174,12 +175,6 @@ body {
     margin-bottom: 20px;
     flex-shrink: 0;
     margin-top: 60px; 
-    
-    /* ★ 关键：用 padding 把内容从屏幕边缘“挤”进来 */
-    padding-top: env(safe-area-inset-top); /* 避开顶部刘海 */
-    padding-left: 20px;
-    padding-right: 20px;
-    box-sizing: border-box;
 }
 .app-grid {
     margin-top: auto;
@@ -188,12 +183,8 @@ body {
     align-items: center;
     gap: 20px;
     width: 100%;
-    padding: 20px; /* 保持原有的内边距 */
+    padding: 20px;
     margin-bottom: 30px; 
-    
-    /* ★ 关键：用 padding-bottom 再次确保避开底部小黑条 */
-    padding-bottom: calc(20px + env(safe-area-inset-bottom));
-    box-sizing: border-box;
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
