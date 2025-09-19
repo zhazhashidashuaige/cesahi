@@ -92,7 +92,9 @@ body {
 
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
-        #status-bar { position: absolute; top: 0; left: 0; width: 100%; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;     color: var(--status-bar-text-color); /* <-- 应用变量 */ z-index: 10; font-size: 14px; box-sizing: border-box; pointer-events: none; }
+      /* 修改后的代码块 */
+#status-bar { position: absolute; top: 0; left: 0; width: 100%; padding: 12px 20px; display: none; justify-content: space-between; align-items: center;     color: var(--status-bar-text-color); /* <-- 应用变量 */ z-index: 10; font-size: 14px; box-sizing: border-box; pointer-events: none; }
+
         #status-bar-time { font-weight: 600; }
         .battery-container { display: flex; align-items: center; gap: 5px; }
         .battery-icon { width: 25px; height: 12px;     border: 1px solid currentColor; border-radius: 3px; position: relative; padding: 1px; }
@@ -135,9 +137,9 @@ body {
 
         .header .action-btn img { height: 26px; }
         .header .save-btn { font-size: 16px; color: var(--accent-color); font-weight: 600; cursor: pointer; }
-/* ▼▼▼ 【强制全屏终极修正版】请用这块代码完整替换掉旧的 #lock-screen, #home-screen, #clock-container 等样式的代码块 ▼▼▼ */
-
-/* 1. (核心修正) 让背景层铺满全屏，只保留左右的通用内边距 */
+/* ▼▼▼ 【终极合并修正版】请用这块代码完整替换掉旧的 #home-screen, #clock-container, .app-grid 样式 ▼▼▼ */
+        
+/* 1. (核心) 为锁屏和主屏幕应用相同的全屏布局 (此部分保持不变) */
 #lock-screen, 
 #home-screen {
     display: flex;
@@ -147,18 +149,19 @@ body {
     background-size: cover;
     background-position: center;
     
-    /* ★ 核心修正：移除上下padding，让背景可以延伸到屏幕边缘 */
+    /* 用padding把内容挤进来，同时让背景铺满安全区 */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
     padding-left: 20px;
     padding-right: 20px;
     
     box-sizing: border-box;
 }
 
-/* 2. (核心修正) 单独处理锁屏的文字，将安全区距离加到margin上 */
+/* 2. (核心) 单独处理锁屏的文字，让它自动贴底 (这是本次的唯一修改) */
 #lock-screen-content {
-    margin-top: auto; /* 保持推到底部的特性 */
-    /* ★ 核心修正：用 calc() 把你原来的40px间距和底部安全区距离加起来 */
-    margin-bottom: calc(40px + env(safe-area-inset-bottom));
+    margin-top: auto; /* 关键：自动将此元素推到容器底部 */
+    margin-bottom: 40px; /* ★ 核心修正：使用 margin-bottom 向上推开，而不是padding */
     text-align: center;
     color: white;
     text-shadow: 0 2px 6px rgba(0,0,0,0.5);
@@ -166,15 +169,14 @@ body {
     font-weight: 500;
 }
 
-/* 3. (核心修正) 同样地，为主屏幕的时钟和App图标加上安全区距离 */
+/* 3. 保持主屏幕的时钟和App图标布局不变 */
 #clock-container {
     text-align: center;
     color: white;
     text-shadow: 0 3px 8px rgba(0,0,0,0.4);
     margin-bottom: 20px;
     flex-shrink: 0;
-    /* ★ 核心修正：用 calc() 把你原来的60px间距和顶部安全区距离加起来 */
-    margin-top: calc(60px + env(safe-area-inset-top)); 
+    margin-top: 60px; 
 }
 .app-grid {
     margin-top: auto;
@@ -184,8 +186,7 @@ body {
     gap: 20px;
     width: 100%;
     padding: 20px;
-    /* ★ 核心修正：同样为App图标区域的底部加上安全区距离 */
-    margin-bottom: calc(30px + env(safe-area-inset-bottom)); 
+    margin-bottom: 30px; 
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
