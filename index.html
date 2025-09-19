@@ -61,15 +61,14 @@ body {
 /* ▼▼▼ 请用这块【最终修正版】的代码，替换掉你现有的 #phone-screen 样式 ▼▼▼ */
 #phone-screen {
     width: 100%;
-    height: 100vh;
+    height: 100%; /* ★ 核心修改：从 100vh 改为 100% */
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background-color: #ffffff; /* ★ 修改这里为白色 */
+    background-color: #ffffff;
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
-
 /* 3. 【核心】隐藏掉模拟器的状态栏 */
 #status-bar {
     display: none;
