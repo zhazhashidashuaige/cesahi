@@ -135,9 +135,9 @@ body {
 
         .header .action-btn img { height: 26px; }
         .header .save-btn { font-size: 16px; color: var(--accent-color); font-weight: 600; cursor: pointer; }
-/* ▼▼▼ 【终极合并修正版】请用这块代码完整替换掉旧的 #home-screen, #clock-container, .app-grid 样式 ▼▼▼ */
-        
-/* 1. (核心) 为锁屏和主屏幕应用相同的全屏布局 (此部分保持不变) */
+/* ▼▼▼ 【最终修正版】请用这块代码完整替换掉旧的 #lock-screen, #home-screen, #lock-screen-content, #clock-container, .app-grid 样式 ▼▼▼ */
+
+/* 1. (核心) 让锁屏和主屏幕的背景强制铺满整个物理屏幕 */
 #lock-screen, 
 #home-screen {
     display: flex;
@@ -146,28 +146,28 @@ body {
     height: 100%;
     background-size: cover;
     background-position: center;
-    
-    /* 用padding把内容挤进来，同时让背景铺满安全区 */
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: 20px;
-    padding-right: 20px;
-    
     box-sizing: border-box;
+    /* ★ 关键：移除所有 padding，让这个容器本身是 edge-to-edge 的 */
 }
 
-/* 2. (核心) 单独处理锁屏的文字，让它自动贴底 (这是本次的唯一修改) */
+/* 2. (核心) 让锁屏的内容遵守安全区域 */
 #lock-screen-content {
-    margin-top: auto; /* 关键：自动将此元素推到容器底部 */
-    margin-bottom: 40px; /* ★ 核心修正：使用 margin-bottom 向上推开，而不是padding */
+    margin-top: auto; /* 自动推到底部 */
+    margin-bottom: 40px; /* 内容距离底部的间距 */
     text-align: center;
     color: white;
     text-shadow: 0 2px 6px rgba(0,0,0,0.5);
     font-size: 16px;
     font-weight: 500;
+    
+    /* ★ 关键：用 padding 把内容从屏幕边缘“挤”进来 */
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: env(safe-area-inset-bottom); /* 避开底部小黑条 */
+    box-sizing: border-box;
 }
 
-/* 3. 保持主屏幕的时钟和App图标布局不变 */
+/* 3. (核心) 让主屏幕的内容遵守安全区域 */
 #clock-container {
     text-align: center;
     color: white;
@@ -175,6 +175,12 @@ body {
     margin-bottom: 20px;
     flex-shrink: 0;
     margin-top: 60px; 
+    
+    /* ★ 关键：用 padding 把内容从屏幕边缘“挤”进来 */
+    padding-top: env(safe-area-inset-top); /* 避开顶部刘海 */
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
 }
 .app-grid {
     margin-top: auto;
@@ -183,8 +189,12 @@ body {
     align-items: center;
     gap: 20px;
     width: 100%;
-    padding: 20px;
+    padding: 20px; /* 保持原有的内边距 */
     margin-bottom: 30px; 
+    
+    /* ★ 关键：用 padding-bottom 再次确保避开底部小黑条 */
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    box-sizing: border-box;
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
