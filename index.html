@@ -9931,6 +9931,30 @@ const DEFAULT_APP_ICONS = {
                 showCustomModal();
             });
         }
+// ▼▼▼ 把这一整块全新的函数，粘贴到 <script> 标签的最开始 ▼▼▼
+/**
+ * 【全新】一个专门清除HTML标签和代码的函数
+ * @param {string} text - 包含HTML或代码的原始文本
+ * @returns {string} - 清理后的纯文本
+ */
+function stripHtmlAndCode(text) {
+    if (!text || typeof text !== 'string') {
+        return ''; // 如果输入为空或不是字符串，返回空字符串
+    }
+    // 1. 移除所有HTML标签 (例如 <b>, <div>)
+    let cleanedText = text.replace(/<\/?[^>]+(>|$)/g, "");
+    
+    // 2. 移除所有Markdown代码块 (例如 ```code``` 或 `code`)
+    cleanedText = cleanedText.replace(/```[\s\S]*?```/g, ''); // 移除多行代码块
+    cleanedText = cleanedText.replace(/`[^`]*`/g, '');     // 移除行内代码
+    
+    // 3. 将HTML实体 (例如 &lt; &gt;) 转换回正常字符 (< >)
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = cleanedText;
+    
+    return tempDiv.textContent || tempDiv.innerText || "";
+}
+// ▲▲▲ 粘贴结束 ▲▲▲
 
 // ▼▼▼ 把这【一整块】全新的代码，粘贴到 <script> 标签内的【变量定义区域】的末尾 ▼▼▼
 
@@ -13366,7 +13390,9 @@ let geminiConfig = toGeminiRequestData(model,apiKey,'', messagesForDecision,isGe
         if (chat.settings.linkedWorldBookIds && chat.settings.linkedWorldBookIds.length > 0) {
             const linkedContents = chat.settings.linkedWorldBookIds.map(bookId => {
                 const worldBook = state.worldBooks.find(wb => wb.id === bookId);
-                return worldBook && worldBook.content ? `\n\n## 世界书: ${worldBook.name}\n${worldBook.content}` : '';
+                // ▼▼▼ 把它修改为 ▼▼▼
+return worldBook && worldBook.content ? `\n\n## 世界书: ${worldBook.name}\n${stripHtmlAndCode(worldBook.content)}` : '';
+
             }).filter(Boolean).join('');
             if (linkedContents) {
                 worldBookContent = `\n\n# 核心世界观设定 (必须严格遵守以下所有设定)\n${linkedContents}\n`;
@@ -16747,9 +16773,9 @@ async function handleInitiateCall() {
             throw new Error('API未配置，无法发起通话。');
         }
 
-        // 提取通话前的最后5条消息作为上下文
+        // 提取通话前的最后20条消息作为上下文
         videoCallState.preCallContext = chat.history
-            .slice(-5)
+            .slice(-20)
             .map(msg => `${msg.role === 'user' ? (chat.settings.myNickname || '我') : (msg.senderName || chat.name)}: ${String(msg.content).substring(0, 50)}...`)
             .join('\n');
         
