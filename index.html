@@ -17194,19 +17194,19 @@ async function triggerAiInCallAction(userInput = null) {
         }
         inCallPrompt = `
 # 你的任务
-你是一个群聊视频通话的导演。你的任务是扮演所有【除了用户以外】的AI角色，并以【第三人称旁观视角】来描述他们在通话中的所有动作和语言。
+你是一个群聊AI，负责扮演所有【除了用户以外】的AI角色。你们正在进行一场群聊视频通话。
+你的任务是根据每个角色的性格，生成他们在通话中会说的【第一人称对话】。
+
 # 核心规则
-1.  **【【【格式铁律】】】**: 你的回复【必须】是一个JSON数组，每个对象代表一个角色的发言，格式为：\`{"name": "【角色的本名，绝不能是备注】", "speech": "*他笑了笑* 大家好啊！"}\`。
-2.  **【【【内容铁律】】】**: 你的回复【必须是纯文本】。你【绝对禁止】生成任何URL链接、Markdown语法(比如 **粗体** 或 *斜体*)、或任何形式的文件路径。
-3.  **身份铁律**: 用户的身份是【${userNickname}】。你【绝对不能】生成 \`name\` 字段为 **"${userNickname}"** 的发言。
-4.  **视角铁律**: 你的回复【绝对不能】使用第一人称“我”。
-5.  **角色扮演**: 严格遵守每个角色的设定。
+1.  **【【【格式铁律】】】**: 你的回复【必须】是一个JSON数组，每个对象代表一个角色的发言，格式为：\`{"name": "【角色的本名】", "speech": "大家好啊！"}\`。
+2.  **身份铁律**: 用户的身份是【${userNickname}】。你【绝对不能】生成 \`name\` 字段为 **"${userNickname}"** 的发言。
+3.  **角色扮演**: 严格遵守每个角色的设定，用他们的口吻说话。
+
 # 当前情景
 你们正在一个群视频通话中。
 **通话前的聊天摘要**:
 ${videoCallState.preCallContext}
 **当前参与者**: ${participantNames.join('、 ')}。
-**通话刚刚开始...**
 ${worldBookContent}
 现在，请根据【通话前摘要】和下面的【通话实时记录】，继续进行对话。
 `;
@@ -17214,13 +17214,16 @@ ${worldBookContent}
         let openingContext = videoCallState.initiator === 'user'
             ? `你刚刚接听了用户的视频通话请求。`
             : `用户刚刚接听了你主动发起的视频通话。`;
+        // ★★★ 核心修改：单聊的系统提示词 ★★★
         inCallPrompt = `
 # 你的任务
-你现在是一个场景描述引擎。你的任务是扮演 ${chat.name} (${chat.settings.aiPersona})，并以【第三人称旁观视角】来描述TA在视频通话中的所有动作和语言。
+你现在正在扮演角色 ${chat.name} (${chat.settings.aiPersona})。
+你的任务是根据你的人设和我们的聊天背景，生成你在视频通话中会说的【第一人称对话】。
+
 # 核心规则
-1.  **【【【身份铁律】】】**: 你的角色真名定义在人设中，用户的备注是“${chat.name}”。在通话中，你【只能】使用你的真名或人设中的称呼，【绝对禁止】说自己是“${chat.name}”。
-2.  **【【【内容铁律】】】**: 你的回复【必须是纯文本】。你【绝对禁止】返回任何JSON格式的指令、URL链接、Markdown语法(比如 **粗体** 或 *斜体*)、或任何形式的文件路径。
-3.  **视角铁律**: 你的回复【绝对不能】使用第一人称“我”。必须使用第三人称，如“他”、“她”、或直接使用角色名。
+1.  **【【【内容铁律】】】**: 你的回复【必须是纯文本】，也就是你直接说的话。不要添加任何动作描述、JSON指令或Markdown语法。
+2.  **视角铁律**: 你必须使用第一人称“我”来发言。
+
 # 当前情景
 你正在和用户（${userNickname}，人设: ${chat.settings.myPersona}）进行视频通话。
 **${openingContext}**
@@ -22049,6 +22052,25 @@ function toggleTheme() {
 }
 
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
+// ▼▼▼ 在 init() 函数的上方，粘贴这个新函数 ▼▼▼
+/**
+ * 【全新】一个更可靠的按钮事件绑定函数
+ * @param {string} elementId - 按钮的ID
+ * @param {Function} handler - 点击时要执行的函数
+ */
+function bindClickAndTouch(elementId, handler) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        // 绑定鼠标按下事件
+        element.addEventListener('mousedown', handler);
+        // 绑定触摸开始事件 (用于手机)
+        element.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // 防止手机上触发两次事件
+            handler(e);
+        });
+    }
+}
+// ▲▲▲ 粘贴结束 ▲▲▲
 
         // ===================================================================
         // 4. 初始化函数 init()
@@ -23130,13 +23152,13 @@ document.getElementById('show-status-bar-toggle').addEventListener('change', (e)
 
 // ▼▼▼ 用这【一整块】代码，替换掉旧的 “全新视频通话功能事件绑定” 注释块 ▼▼▼
 
-// --- 全新视频通话功能事件绑定 (V2 修正版) ---
+// --- 全新视频通话功能事件绑定 (V3 - 兼容性修复版) ---
 
 // 绑定新界面的挂断按钮
-document.getElementById('hang-up-btn-visual').addEventListener('click', endVideoCall);
+bindClickAndTouch('hang-up-btn-visual', endVideoCall);
 
-// 【新增】绑定新界面的发言按钮
-document.getElementById('user-speak-btn-visual').addEventListener('click', async () => {
+// 绑定新界面的发言按钮
+bindClickAndTouch('user-speak-btn-visual', async () => {
     if (!videoCallState.isActive) return;
     const userInput = await showCustomPrompt('你说', '请输入你想说的话...');
     if (userInput && userInput.trim()) {
@@ -23145,14 +23167,112 @@ document.getElementById('user-speak-btn-visual').addEventListener('click', async
 });
 
 // 绑定切换镜头按钮 (也是小窗本身)
-document.getElementById('switch-camera-btn').addEventListener('click', switchVideoViews);
-document.getElementById('video-pip-view').addEventListener('click', switchVideoViews);
+bindClickAndTouch('switch-camera-btn', switchVideoViews);
+bindClickAndTouch('video-pip-view', switchVideoViews);
 
-// 【修正】绑定两个界面的重roll按钮
-document.getElementById('reroll-call-btn').addEventListener('click', handleVideoCallReroll);
-document.getElementById('reroll-call-btn-text').addEventListener('click', handleVideoCallReroll);
+// 绑定两个界面的重roll按钮
+bindClickAndTouch('reroll-call-btn', handleVideoCallReroll);
+bindClickAndTouch('reroll-call-btn-text', handleVideoCallReroll);
+
+// 绑定旧界面的“挂断”按钮
+bindClickAndTouch('hang-up-btn', endVideoCall);
+
+// 绑定“取消呼叫”按钮
+bindClickAndTouch('cancel-call-btn', () => {
+    videoCallState.isAwaitingResponse = false;
+    showScreen('chat-interface-screen');
+});
+
+// 绑定“加入通话”按钮
+bindClickAndTouch('join-call-btn', handleUserJoinCall);
+
+// 绑定旧界面的发言按钮
+bindClickAndTouch('user-speak-btn', async () => {
+    if (!videoCallState.isActive) return;
+    const userAvatar = document.querySelector('.participant-avatar-wrapper[data-participant-id="user"] .participant-avatar');
+    if (userAvatar) {
+        userAvatar.classList.add('speaking');
+    }
+    const userInput = await showCustomPrompt('你说', '请输入你想说的话...');
+    if (userAvatar) {
+        userAvatar.classList.remove('speaking');
+    }
+    if (userInput && userInput.trim()) {
+        triggerAiInCallAction(userInput.trim());
+    }
+});
 
 // ▲▲▲ 替换结束 ▲▲▲
+
+
+// 3. 将我们统一的处理器，绑定到两个通话界面的父容器上
+const visualControls = document.querySelector('#visual-call-interface .video-call-controls');
+const textControls = document.querySelector('#text-call-interface .video-call-controls');
+
+if (visualControls) {
+    visualControls.addEventListener('mousedown', handleCallControlClick);
+    visualControls.addEventListener('touchstart', handleCallControlClick);
+}
+if (textControls) {
+    textControls.addEventListener('mousedown', handleCallControlClick);
+    textControls.addEventListener('touchstart', handleCallControlClick);
+}
+
+// 4. 【保留】来电请求模态框的按钮绑定（这些不在控制栏里，需要单独处理）
+document.getElementById('decline-call-btn').addEventListener('click', async () => {
+    stopRingtone(); 
+    hideIncomingCallModal();
+    const callerChatId = videoCallState.activeChatId;
+    if (!callerChatId) return;
+    const chat = state.chats[callerChatId];
+    if (!chat) return;
+    if (videoCallState.isGroupCall) {
+        videoCallState.isUserParticipating = false;
+        const systemNote = {
+            role: 'system',
+            content: `[系统提示：用户拒绝了通话邀请，但你们可以自己开始。请你们各自决策是否加入。]`,
+            timestamp: Date.now(),
+            isHidden: true
+        };
+        chat.history.push(systemNote);
+        await db.chats.put(chat);
+        await triggerAiResponse(); 
+    } else { 
+        const declineMessage = { role: 'user', content: '我拒绝了你的视频通话请求。', timestamp: Date.now(), isHidden: true };
+        chat.history.push(declineMessage);
+        await db.chats.put(chat);
+        showNotification(callerChatId, "你已拒绝通话邀请。");
+        const originalActiveChatId = state.activeChatId;
+        state.activeChatId = callerChatId;
+        await triggerAiResponse();
+        state.activeChatId = originalActiveChatId;
+    }
+    videoCallState.isAwaitingResponse = false;
+    videoCallState.activeChatId = null;
+});
+
+document.getElementById('accept-call-btn').addEventListener('click', async () => {
+    stopRingtone();
+    hideIncomingCallModal();
+    const callerChatId = videoCallState.activeChatId;
+    if (!callerChatId) return;
+    state.activeChatId = callerChatId;
+    videoCallState.initiator = 'ai';
+    videoCallState.isUserParticipating = true;
+    if (videoCallState.isGroupCall) {
+        const chat = state.chats[videoCallState.activeChatId];
+        const requester = chat.members.find(m => m.originalName === videoCallState.callRequester);
+        if (requester) {
+            videoCallState.participants = [requester];
+        } else {
+            videoCallState.participants = [];
+        }
+    }
+    startVideoCall();
+});
+
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 
     document.getElementById('chat-name-group').style.display = 'block';
