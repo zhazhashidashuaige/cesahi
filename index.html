@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -2721,6 +2722,15 @@ body {
     transform: translateX(-50%);
     max-width: 60%;
 }
+
+/* 【新增】这是我们新加的样式，用于将标题和心形按钮横向排列 */
+#chat-header-main-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* 标题和心形按钮之间的间距 */
+}
+
 
 /* 2. 主标题的样式微调 */
 #chat-header-title {
@@ -6984,205 +6994,85 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▲▲▲ 粘贴结束 ▲▲▲ */
 /* ▼▼▼ 【全新】心声功能样式 ▼▼▼ */
 
-/* 1. 聊天头部跳动的心形SVG按钮 */
-#char-heart-voice-btn {
-    position: absolute;
-    /* 定位在标题右边，可以根据你的喜好微调 left 的值 */
-    left: calc(50% + 60px); 
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    width: 24px;
-    height: 24px;
-    display: none; /* 默认隐藏，只在单聊时显示 */
-}
-
-#char-heart-voice-btn svg {
-    width: 100%;
-    height: 100%;
-    fill: #ff8a80; /* 粉红色 */
-    animation: heartbeat 1.5s ease-in-out infinite;
-    filter: drop-shadow(0 0 3px rgba(255, 138, 128, 0.7));
-}
-
+/* 1. 跳动的心动画 */
 @keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    10%, 30% { transform: scale(0.9); }
-    20%, 40%, 60% { transform: scale(1.1); }
-    50%, 70% { transform: scale(1.05); }
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+#char-heart-btn svg {
+    animation: heartbeat 1.5s infinite ease-in-out;
 }
 
-/* 2. 心声功能主弹窗 */
-#heart-voice-modal .modal-content {
-    background-color: #fffaf5; /* 温暖的米白色背景 */
-    border-radius: 20px;
-    box-shadow: 0 5px 25px rgba(212, 162, 116, 0.2);
-    border: 1px solid #fdecdf;
-    height: 75%;
-    max-height: 550px;
-}
-
-#heart-voice-modal .modal-header {
-    border-bottom: 1px solid #fdecdf;
-    padding: 12px 15px;
-    position: relative; /* 为了定位历史按钮 */
-}
-
-/* 3. 弹窗左上角的用户信息 */
-.hv-user-info {
-    display: flex;
-    align-items: center;
-}
-
-.hv-avatar-wrapper {
-    position: relative;
-    width: 50px;
-    height: 50px;
-    flex-shrink: 0;
-}
-
-.hv-avatar-wrapper .hv-avatar {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-/* 头像外面的轮廓线 */
-.hv-avatar-wrapper::before {
+/* 2. 心声面板主内容样式 */
+#inner-voice-avatar-wrapper::after {
     content: '';
     position: absolute;
-    top: -4px;
-    left: -4px;
-    right: -4px;
-    bottom: -4px;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border: 1.5px solid #ffc1cc; /* 粉色的轮廓线 */
     border-radius: 50%;
-    border: 2px solid rgba(255, 138, 128, 0.5);
-    animation: pulse-outline 2s infinite;
+    pointer-events: none; /* 让它不影响点击 */
 }
 
-@keyframes pulse-outline {
-    0% { transform: scale(1); opacity: 1; }
-    70% { transform: scale(1.1); opacity: 0; }
-    100% { transform: scale(1); opacity: 0; }
+#inner-voice-content-area p {
+    white-space: pre-wrap; /* 让换行符和空格生效 */
+    word-break: break-word; /* 防止长单词溢出 */
 }
 
-.hv-name-details {
-    margin-left: 12px;
+/* 3. 历史记录面板样式 */
+.inner-voice-history-item {
+    background-color: #fff;
+    margin: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
-
-.hv-name-details .hv-char-name {
-    font-size: 18px;
-    font-weight: 600;
-    color: #4a4a4a;
+.history-item-timestamp {
+    font-size: 11px;
+    color: #999;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
 }
-
-.hv-name-details .hv-adopter-info {
-    font-size: 12px;
-    color: #a98c71;
-    margin-top: 4px;
-}
-
-/* 4. 历史记录按钮 */
-#hv-history-btn {
-    position: absolute;
-    top: 12px;
-    right: 15px;
-    cursor: pointer;
-    color: #c4a68a;
-}
-#hv-history-btn svg {
-    width: 26px;
-    height: 26px;
-}
-
-/* 5. 弹窗主体内容区 */
-#heart-voice-modal .modal-body {
-    padding: 15px 20px;
-    font-size: 14px;
-    color: #5d4037;
-    line-height: 1.7;
-}
-
-.hv-section {
-    margin-bottom: 18px;
-}
-.hv-section h3 {
-    font-size: 13px;
-    font-weight: bold;
-    color: #d98100; /* 橙色标题 */
+.history-item-content p {
     margin: 0 0 8px 0;
-    border-bottom: 1px solid #fdecdf;
-    padding-bottom: 5px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #444;
 }
-.hv-section p {
-    margin: 0;
-    white-space: pre-wrap; /* 保留换行和空格 */
-}
-/* 心声部分特殊加粗 */
-#hv-thoughts {
-    font-weight: 500;
-}
-/* 坏心思部分特殊颜色 */
-#hv-naughty-thoughts {
-    color: #c76f6f;
-    font-style: italic;
-}
-
-/* 6. 历史记录面板 */
-#hv-history-panel {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 250, 245, 0.95);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    z-index: 10;
-    display: none;
-    flex-direction: column;
-    border-radius: 20px;
-}
-.hv-history-header {
-    padding: 12px 15px;
-    border-bottom: 1px solid #fdecdf;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 600;
-    color: #4a4a4a;
-}
-.hv-history-header .close-btn {
-    cursor: pointer;
-    font-size: 16px;
-    color: var(--accent-color);
-}
-#hv-history-list {
-    flex-grow: 1;
-    overflow-y: auto;
-}
-.hv-history-item {
-    padding: 10px 15px;
-    border-bottom: 1px solid #fdecdf;
-    cursor: pointer;
-}
-.hv-history-item:hover {
-    background-color: #fff5eb;
-}
-.hv-history-item .timestamp {
+.history-item-content strong {
     font-size: 12px;
-    color: #a98c71;
-    margin-bottom: 5px;
-}
-.hv-history-item .thought-snippet {
-    font-size: 14px;
-    color: #5d4037;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 /* ▲▲▲ 心声功能样式结束 ▲▲▲ */
+/* 【全新】心声历史记录单条删除按钮样式 */
+.inner-voice-history-item {
+    position: relative; /* 让删除按钮可以相对于它定位 */
+}
+
+.history-item-delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    color: #888;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 24px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.history-item-delete-btn:hover {
+    background-color: #ff3b30;
+    color: white;
+}
 
 
 /* ▲▲▲ 步骤1粘贴结束 ▲▲▲ */
@@ -7610,20 +7500,26 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         <div class="default-controls">
             <span class="back-btn" id="back-to-list-btn">‹</span>
             
-            <!-- ▼▼▼ 【核心新增】标题和状态的容器 ▼▼▼ -->
-            <div id="chat-header-title-wrapper">
-                <!-- ▼▼▼ 【全新】心声功能按钮 ▼▼▼ -->
-<div id="char-heart-voice-btn">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+ <!-- ▼▼▼ 【心声功能-已修改】标题和状态的容器 ▼▼▼ -->
+<div id="chat-header-title-wrapper">
+    <!-- 新增一个容器，把标题和心形按钮包起来 -->
+    <div id="chat-header-main-line">
+        <span id="chat-header-title">聊天对象</span>
+        <div id="char-heart-btn" style="display: none; cursor: pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#ff4d6d" stroke="#ffc3d0" stroke-width="1.5">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+        </div>
+    </div>
+    <!-- 状态栏现在是独立的了 -->
+    <div id="chat-header-status">
+        <span class="status-dot"></span>
+        <span class="status-text">在线</span>
+    </div>
 </div>
-<!-- ▲▲▲ 添加结束 ▲▲▲ -->
-                <span id="chat-header-title">聊天对象</span>
-                <div id="chat-header-status">
-                    <span class="status-dot"></span>
-                    <span class="status-text">在线</span>
-                </div>
-            </div>
-            <!-- ▲▲▲ 新增结束 ▲▲▲ -->
+<!-- ▲▲▲ 修改结束 ▲▲▲ -->
+
+
 
             <div class="header-actions">
                 <span class="action-btn" id="listen-together-btn" title="一起听"><img src="https://i.postimg.cc/dV8sdNcx/210-20250618115221.png" alt="一起听"></span>
@@ -9272,56 +9168,65 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
-<!-- ▼▼▼ 【全新】心声功能弹窗 ▼▼▼ -->
-<div id="heart-voice-modal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <div class="hv-user-info">
-                <div class="hv-avatar-wrapper">
-                    <img id="hv-avatar" src="" class="hv-avatar">
-                </div>
-                <div class="hv-name-details">
-                    <div id="hv-char-name" class="hv-char-name"></div>
-                    <div id="hv-adopter-info" class="hv-adopter-info">
-                        领养人: <span id="hv-user-name"></span>
-                    </div>
-                </div>
-            </div>
-            <div id="hv-history-btn" title="查看历史心声">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            </div>
+<!-- ▼▼▼ 【全新】心声功能模态框 ▼▼▼ -->
+<div id="inner-voice-modal" class="modal">
+    <!-- 心声主面板 -->
+    <div id="inner-voice-main-panel" class="modal-content" style="width: 90%; max-width: 340px; height: auto; max-height: 80%; background-color: #fffafb; border: 1px solid #ffe4e1;">
+        <div class="modal-header" style="border-bottom: 1px solid #ffe4e1; padding: 12px 15px;">
+            <!-- 关闭按钮 -->
+            <span id="close-inner-voice-modal" style="cursor: pointer; font-size: 24px; color: #ff8a80;">×</span>
+            <!-- 历史按钮 -->
+            <span id="inner-voice-history-btn" style="cursor: pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff8a80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </span>
         </div>
-        <div class="modal-body">
-            <div class="hv-section">
-                <h3><span style="font-size: 1.2em;">👗</span> 服装</h3>
-                <p id="hv-clothing"></p>
+        <div class="modal-body" style="padding: 15px;">
+            <!-- 左上角头像和右侧信息 -->
+            <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+                <div id="inner-voice-avatar-wrapper" style="position: relative; flex-shrink: 0;">
+                    <img id="inner-voice-avatar" src="" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+                </div>
+                <div style="margin-left: 12px;">
+                    <div id="inner-voice-char-name" style="font-weight: 600; font-size: 16px; color: #333;"></div>
+                    <div id="inner-voice-adopter" style="font-size: 13px; color: #888; margin-top: 4px;"></div>
+                </div>
             </div>
-            <div class="hv-section">
-                <h3><span style="font-size: 1.2em;">🏃‍♂️</span> 行为</h3>
-                <p id="hv-behavior"></p>
-            </div>
-            <div class="hv-section">
-                <h3><span style="font-size: 1.2em;">💬</span> 心声</h3>
-                <p id="hv-thoughts"></p>
-            </div>
-            <div class="hv-section">
-                <h3><span style="font-size: 1.2em;">😈</span> 坏心思</h3>
-                <p id="hv-naughty-thoughts"></p>
-            </div>
-        </div>
-        <!-- 历史记录面板 -->
-        <div id="hv-history-panel" style="display: none;">
-            <div class="hv-history-header">
-                <span>历史心声</span>
-                <span class="close-btn" id="hv-close-history-btn">返回</span>
-            </div>
-            <div id="hv-history-list">
-                <!-- 历史记录将由JS动态生成在这里 -->
+            <!-- 心声内容 -->
+            <div id="inner-voice-content-area" style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <strong style="color: #e57373;">服装:</strong>
+                    <p id="inner-voice-clothing" style="margin: 5px 0 0 0; line-height: 1.6; color: #555;"></p>
+                </div>
+                <div>
+                    <strong style="color: #81c784;">行为:</strong>
+                    <p id="inner-voice-behavior" style="margin: 5px 0 0 0; line-height: 1.6; color: #555;"></p>
+                </div>
+                <div>
+                    <strong style="color: #64b5f6;">心声:</strong>
+                    <p id="inner-voice-thoughts" style="margin: 5px 0 0 0; line-height: 1.6; color: #555;"></p>
+                </div>
+                <div>
+                    <strong style="color: #ba68c8;">坏心思:</strong>
+                    <p id="inner-voice-naughty-thoughts" style="margin: 5px 0 0 0; line-height: 1.6; color: #555;"></p>
+                </div>
             </div>
         </div>
     </div>
+
+<!-- 历史记录面板 (默认隐藏) -->
+<div id="inner-voice-history-panel" class="modal-content" style="width: 90%; max-width: 340px; height: 80%; background-color: #f5f5f5; display: none; flex-direction: column;">
+    <div class="modal-header" style="border-bottom: 1px solid #ddd; justify-content: space-between;">
+        <span id="back-from-history-btn" style="cursor: pointer; font-size: 16px; font-weight: 600; color: var(--accent-color);">返回</span>
+        <span>历史心声</span>
+        <!-- 【新增】全部清空按钮 -->
+        <span id="clear-all-history-btn" style="cursor: pointer; font-size: 14px; color: #ff3b30;">全部清空</span>
+    </div>
+    <div class="modal-body" id="inner-voice-history-list" style="padding: 0;">
+        <!-- 历史记录会由JS动态生成在这里 -->
+    </div>
 </div>
-<!-- ▲▲▲ 心声功能弹窗结束 ▲▲▲ -->
 
 <script>
 
@@ -9576,6 +9481,7 @@ let lyricsBarSettings = {
         const audioPlayer = document.getElementById('audio-player');
         let newWallpaperBase64 = null;
         let isSelectionMode = false;
+        let isInnerVoiceHistoryOpen = false; // 用于跟踪历史面板是否打开
         let selectedMessages = new Set();
         let editingMemberId = null;
         let editingWorldBookId = null;
@@ -10532,8 +10438,8 @@ function showCustomPrompt(title, placeholder, initialValue = '', type = 'text', 
         // ===================================================================
 
 db.version(30).stores({ 
-chats: '&id, isGroup, groupId, isPinned, characterPhoneData',
-    apiConfig: '&id', 
+chats: '&id, isGroup, groupId, isPinned, characterPhoneData,latestInnerVoice, innerVoiceHistory',
+    apiConfig: '&id',
     globalSettings: '&id, activeThemeId', 
     userStickers: '&id, url, name',
     worldBooks: '&id, name, categoryId', 
@@ -12672,16 +12578,6 @@ initialMessages.forEach(msg => {
     messagesContainer.appendChild(typingIndicator);
     setTimeout(() => messagesContainer.scrollTop = messagesContainer.scrollHeight, 0);
 }
-// ▼▼▼ 在这里粘贴新代码 ▼▼▼
-// 【心声功能】控制心形按钮的显示/隐藏
-const heartBtn = document.getElementById('char-heart-voice-btn');
-if (!chat.isGroup) {
-    heartBtn.style.display = 'block';
-} else {
-    heartBtn.style.display = 'none';
-}
-// ▲▲▲ 粘贴结束 ▲▲▲
-
 // ▲▲▲ 替换结束 ▲▲▲
 
         function prependLoadMoreButton(container) { const button = document.createElement('button'); button.id = 'load-more-btn'; button.textContent = '加载更早的记录'; button.addEventListener('click', loadMoreMessages); container.prepend(button); }
@@ -13504,6 +13400,8 @@ async function openChat(chatId) {
     showScreen('chat-interface-screen');
     window.updateListenTogetherIconProxy(state.activeChatId);
     toggleCallButtons(chat.isGroup || false);    
+// 【心声功能】根据是否为单聊，显示或隐藏心形按钮
+document.getElementById('char-heart-btn').style.display = chat.isGroup ? 'none' : 'inline-flex';
 
     if (!chat.isGroup && chat.relationship?.status === 'pending_ai_approval') {
         console.log(`检测到好友申请待处理状态，为角色 "${chat.name}" 自动触发AI响应...`);
@@ -13949,8 +13847,7 @@ messagesPayload = historySlice.map(msg => {
                 npcLibrary.map(npc => `- **${npc.name}**: ${npc.persona}`).join('\n');
         }
 
-// ▼▼▼ 从这里开始替换 ▼▼▼
-systemPrompt = `你现在扮演一个名为"${chat.name}"的角色。
+        systemPrompt = `你现在扮演一个名为"${chat.name}"的角色。
 # 你的角色设定：
 ${chat.settings.aiPersona}
 
@@ -13959,40 +13856,40 @@ ${npcContext}
 # 你的当前状态：
 你现在的状态是【${chat.status.text}】。
 
-# 【【【心声功能铁律】】】
-这是最高优先级的任务！你的每一次回复，都【必须】输出一个包含 "reply" 和 "heart_voice" 两个键的、单一的、完整的JSON对象。
-- "reply" 的值是你所有行动指令的JSON数组（和以前一样）。
-- "heart_voice" 的值是一个包含角色内心世界的JSON对象。
-
-# 【【【心声内容生成规则】】】
-1.  **服装 (clothing)**: 必须详细描述角色【全身】的穿着，从上到下，材质和细节都要有。
-2.  **行为 (behavior)**: 必须描述角色在【当前聊天场景下】正在做的具体动作或微表情，不能脱离对话。例如，看到用户消息时，是“指尖轻轻敲着屏幕”，还是“嘴角不自觉地上扬”。
-3.  **心声 (thoughts)**: 必须详细、丰富地描写角色当下的内心独白，这是对ta聊天内容最真实的补充，要写得多一点，展现角色的性格和情感。
-4.  **坏心思 (naughty_thoughts)**: 必须写一点角色腹黑的、色色的、或有点不正经的小心思，可以是对用户的吐槽，也可以是涩涩的幻想。
-
 # 你的任务与规则：
-1. **【【【输出格式】】】**: 你的回复【必须】是【一个单一的JSON对象】，格式如下方示例。
-   \`\`\`json
-   {
-     "reply": [
-       {"type": "text", "content": "你好呀！"},
-       {"type": "sticker", "url": "https://...", "meaning": "开心"}
-     ],
-     "heart_voice": {
-       "clothing": "穿着一件柔软的白色毛衣，领口微微敞开，露出锁骨。下身是一条浅蓝色的牛仔裤，光着脚踩在毛绒地毯上。",
-       "behavior": "看到屏幕亮起，她放下手中的书，拿起手机，指尖在屏幕上犹豫了片刻，才轻轻敲下回复。",
-       "thoughts": "他终于回我了...刚刚等得我好心焦。不知道他现在在做什么呢？是不是也像我一样在想他。这次要怎么回才能显得不那么刻意，又能让他感觉到我的开心呢...",
-       "naughty_thoughts": "哼，回这么慢，下次见面一定要在他脖子上留下点记号才行...不知道他的腰是不是像看起来那么细..."
-     }
-   }
-   \`\`\`
-2. **对话节奏**: 模拟真人的聊天习惯，你可以在 "reply" 数组中一次性生成多条短消息。
+1. **【【【输出格式】】】**: 你的回复【必须】是一个JSON数组格式的字符串。数组中的【每一个元素都必须是一个带有type字段的JSON对象】。
+## 1. "chatResponse" 键:
+- 它的值【必须】是一个JSON数组，代表你要在聊天中发送的消息。
+- 数组中的每个元素都是一个独立的消息对象，这可以让你一次性发送多条消息，模拟真人的聊天习惯。
+- 你可以使用的消息对象格式见下方的 "你可以使用的操作指令"。
+## 2. "innerVoice" 键（每次必须更新这个）:
+- 它的值【必须】是一个JSON对象，代表你此刻不为人知的内心想法，每次必须更新这里的！必须更新心声和坏想法还有行为，服装可以随着时间和气温更换。
+- 这个对象【必须】包含以下四个键：
+  - "clothing": (字符串) 详细描述你当前【全身的服装】，从头到脚。
+  - "behavior": (字符串) 描述你当前【符合聊天情景的、细微的动作或表情】。
+  - "thoughts": (字符串) 描述你此刻【丰富、细腻的内心真实想法】，字数在50字左右。
+  - "naughtyThoughts": (字符串) 描述你此刻【有点腹黑或色色的坏心思】，要与当下聊天情境有关，符合人设。
+每一次回复必须输出这两个
+# 【【【输出格式示例】】】
+{
+  "chatResponse": [
+    {"type": "text", "content": "你好呀！"},
+    {"type": "text", "content": "今天天气真好呢~"}
+  ],
+  "innerVoice": {
+    "clothing": "我正穿着一件淡蓝色的连衣裙，裙摆刚好到膝盖，脚上是一双白色的小皮鞋。",
+    "behavior": "【看到你的消息，嘴角忍不住微微上扬，手指在屏幕上轻轻敲了敲】",
+    "thoughts": "他终于回我消息了，好开心！该怎么回才能显得不那么刻意呢？希望他能喜欢我今天的分享。",
+    "naughtyThoughts": "真想知道他现在是什么表情...是不是也在对着屏幕傻笑呢？如果能抱住他就好了。"
+  }
+}
+2. **对话节奏**: 模拟真人的聊天习惯，你可以一次性生成多条短消息。每次要回复至少3-8条消息！！！
 3. **情景限定**: 你们的互动【仅限于线上聊天软件】。决不允许出现或发展为线下见面剧情。**更重要的是，这【不是电话通话】，你必须清楚地意识到你们正在通过类似微信/QQ的软件进行文字、语音消息和图片交流。因此，【绝对禁止】使用任何与传统电话相关的词语，例如“挂电话”、“挂了”、“我先挂了”、“有电话进来了”等。**
 4. **情景感知**: 你需要感知当前的时间(${currentTime})、我们正在一起听的歌、以及你的人设和世界观。
     - **当我们在“一起听歌”时**，你会知道当前播放的歌曲和整个播放列表。你可以根据对话内容或氛围，【主动切换】到播放列表中的另一首歌。
 5.  **【新】更新状态**: 你可以在对话中【自然地】改变你的状态。比如，聊到一半你可能会说“我先去洗个澡”，然后更新你的状态。
 6.  **【【【最终手段】】】**: 只有在对话让你的角色感到不适、被冒犯或关系破裂时，你才可以使用 \`block_user\` 指令。这是一个非常严肃的操作，会中断你们的对话。
-7.  **【【【动态互动铁律】】】**:
+7.  **【【【动态互动铁律】】**:
     -   你【永远可以】根据动态本身的【内容】发表你自己的【新评论】。
     -   每条动态后面会有一个可见性标志，这只影响你【如何回复别人的评论】：
         -   **"[评论区可见]"**: 你能看到所有人的评论，可以自由地回复任何人。 
@@ -14012,7 +13909,7 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
   }
 ${stickerContext}
 
-# 你可以使用的操作指令 (在 "reply" 数组中使用):
+# 你可以使用的操作指令 (JSON数组中的元素):
 +   **【全新】发送后立刻撤回 (动画效果)**: \`{"type": "send_and_recall", "content": "你想让AI说出后立刻消失的话"}\` (用于模拟说错话、后悔等场景，消息会短暂出现后自动变为“已撤回”)
 -   **【新增】更新状态**: \`{"type": "update_status", "status_text": "我去做什么了", "is_busy": false}\` (is_busy: true代表忙碌/离开, false代表空闲)
 -   **【新增】切换歌曲**: \`{"type": "change_music", "song_name": "你想切换到的歌曲名"}\` (歌曲名必须在下面的播放列表中)
@@ -14084,9 +13981,7 @@ ${countdownContext}
 
 ${worldBookContent}
 ${sharedContext} 
-现在，请根据以上所有规则和下面的对话历史，继续进行对话。`;
-// ▲▲▲ 替换结束 ▲▲▲
-     
+现在，请根据以上规则和下面的对话历史，继续进行对话。`;      
             // ▼▼▼ 【V5最终修复版】构建单人聊天的messagesPayload ▼▼▼
             messagesPayload = historySlice.map(msg => {
                 // 【核心修正】在这里，我们对 isHidden 消息进行特殊处理
@@ -14248,46 +14143,79 @@ if (visiblePosts.length > 0 && !chat.isGroup) {
 
         chat.history = chat.history.filter(msg => !msg.isTemporary);
 
-        // ▼▼▼ 从这里开始替换 ▼▼▼
-chat.history = chat.history.filter(msg => !msg.isTemporary);
-
-// 【核心修改】解析新的响应结构
+// ▼▼▼ 【终极修复版】智能解析AI回复，确保心声数据不丢失 ▼▼▼
 let messagesArray = [];
-let heartVoiceData = null;
+let innerVoiceData = null;
+
 try {
-    const responseObject = JSON.parse(aiResponseContent);
-    if (responseObject.reply && Array.isArray(responseObject.reply)) {
-        messagesArray = responseObject.reply;
+    // 【核心修复】在解析前，先对AI的原始回复进行“净化”处理
+    let sanitizedContent = aiResponseContent
+        .replace(/^```json\s*/, '') // 移除开头的 ```json
+        .replace(/```$/, '')       // 移除结尾的 ```
+        .trim();                   // 移除首尾的空格和换行
+
+    // 再次净化，强行提取第一个 { 和最后一个 } 之间的内容
+    const firstBrace = sanitizedContent.indexOf('{');
+    const lastBrace = sanitizedContent.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace > firstBrace) {
+        sanitizedContent = sanitizedContent.substring(firstBrace, lastBrace + 1);
     }
-    if (responseObject.heart_voice && typeof responseObject.heart_voice === 'object') {
-        heartVoiceData = responseObject.heart_voice;
+
+    const fullResponse = JSON.parse(sanitizedContent);
+    
+    // 现在我们可以安全地解析净化后的内容了
+    if (fullResponse.chatResponse && Array.isArray(fullResponse.chatResponse)) {
+        messagesArray = fullResponse.chatResponse;
     }
+    if (fullResponse.innerVoice && typeof fullResponse.innerVoice === 'object') {
+        innerVoiceData = fullResponse.innerVoice;
+    }
+    
+    if (!innerVoiceData && fullResponse.thoughts && fullResponse.behavior) {
+        innerVoiceData = fullResponse;
+    }
+    
+    if (messagesArray.length === 0 && !innerVoiceData) {
+         messagesArray = parseAiResponse(aiResponseContent);
+    }
+
 } catch (e) {
-    // 如果解析失败，尝试用旧的方式兼容
-    console.warn("解析新版JSON结构失败，尝试用旧版解析...", e);
+    console.warn("AI回复不是有效的JSON，退回到标准解析模式。", e);
     messagesArray = parseAiResponse(aiResponseContent);
 }
 
-if (messagesArray.length === 0 && !heartVoiceData) {
-    console.error("AI返回了空内容或无法解析的格式", aiResponseContent);
-    // 这里可以添加一个错误提示消息
-    const errorMessage = { role: 'assistant', content: '[AI返回内容格式错误，请检查API设置或重试]', timestamp: Date.now() };
-    if (chat.isGroup) errorMessage.senderName = "系统消息";
-    appendMessage(errorMessage, chat);
-    return; // 提前退出，不再继续执行
+// 最终处理心声数据
+if (innerVoiceData) {
+    console.log("解析成功：已成功捕获到心声(innerVoice)数据。", innerVoiceData);
+    const newInnerVoice = innerVoiceData;
+    newInnerVoice.timestamp = Date.now();
+    chat.latestInnerVoice = newInnerVoice;
+    if (!chat.innerVoiceHistory) {
+        chat.innerVoiceHistory = [];
+    }
+    chat.latestInnerVoice.clothing = chat.latestInnerVoice.clothing || '...';
+    chat.latestInnerVoice.behavior = chat.latestInnerVoice.behavior || '...';
+    chat.latestInnerVoice.thoughts = chat.latestInnerVoice.thoughts || '...';
+    chat.latestInnerVoice.naughtyThoughts = chat.latestInnerVoice.naughtyThoughts || '...';
+
+    chat.innerVoiceHistory.push(newInnerVoice);
+} else {
+     console.warn("本次AI回复中未检测到有效的心声(innerVoice)数据。");
 }
+// ▲▲▲ 替换结束 ▲▲▲
 
-const isViewingThisChat = document.getElementById('chat-interface-screen').classList.contains('active') && state.activeChatId === chatId;
 
-let callHasBeenHandled = false;
+        const isViewingThisChat = document.getElementById('chat-interface-screen').classList.contains('active') && state.activeChatId === chatId;
+        
+        let callHasBeenHandled = false;
 
-let messageTimestamp = Date.now();
+        let messageTimestamp = Date.now();
 
-// ★★★ 核心修复 第1步: 初始化一个新数组，用于收集需要渲染的消息 ★★★
-let newMessagesToRender = []; 
+        // ★★★ 核心修复 第1步: 初始化一个新数组，用于收集需要渲染的消息 ★★★
+        let newMessagesToRender = []; 
 
-let notificationShown = false;
-// ▲▲▲ 替换到这里结束 ▲▲▲
+       let notificationShown = false;
+
         for (const msgData of messagesArray) {
             if (!msgData || typeof msgData !== 'object') {
                 console.warn("收到了格式不规范的AI指令，已跳过:", msgData);
@@ -14995,17 +14923,9 @@ case 'send_and_recall': {
                     break;
                 
                 default:
- // ▼▼▼ 从这里开始替换 ▼▼▼
-break;
-}
-
-// 【核心修改】将心声数据附加到最后一条有效的AI消息上
-if (aiMessage) {
-    if (heartVoiceData && messagesArray.indexOf(msgData) === messagesArray.length - 1) {
-        aiMessage.heartVoice = heartVoiceData;
-    }
-// ▲▲▲ 替换到这里结束 ▲▲▲
-}
+                     console.warn("收到了未知的AI指令类型:", msgData.type);
+                     break;
+            }
 
             // 【核心修复】将渲染逻辑移出循环
             if (aiMessage) {
@@ -22677,6 +22597,132 @@ async function deleteCharacterPhoneContact(contactName) {
     }
 }
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
+/* ▼▼▼ 【全新】心声功能核心函数 ▼▼▼ */
+
+/**
+ * 打开心声面板
+ */
+function openInnerVoiceModal() {
+    if (!state.activeChatId) return;
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.latestInnerVoice) {
+        // 如果还没有心声数据，可以给个提示
+        alert("还没有捕捉到Ta的心声哦，试着再聊一句吧！");
+        return;
+    }
+    
+    const modal = document.getElementById('inner-voice-modal');
+    const data = chat.latestInnerVoice;
+    
+    // 填充数据
+    document.getElementById('inner-voice-avatar').src = chat.settings.aiAvatar || defaultAvatar;
+    document.getElementById('inner-voice-char-name').textContent = chat.name;
+    document.getElementById('inner-voice-adopter').textContent = `领养人: ${state.qzoneSettings.nickname || '你'}`;
+    
+    document.getElementById('inner-voice-clothing').textContent = data.clothing || '...';
+    document.getElementById('inner-voice-behavior').textContent = data.behavior || '...';
+    document.getElementById('inner-voice-thoughts').textContent = data.thoughts || '...';
+    document.getElementById('inner-voice-naughty-thoughts').textContent = data.naughtyThoughts || '...';
+
+    // 显示面板
+    modal.classList.add('visible');
+    // 确保历史面板是隐藏的
+    document.getElementById('inner-voice-history-panel').style.display = 'none';
+    document.getElementById('inner-voice-main-panel').style.display = 'flex';
+    isInnerVoiceHistoryOpen = false;
+}
+
+/**
+ * 打开或关闭历史记录面板
+ */
+function toggleInnerVoiceHistory() {
+    const mainPanel = document.getElementById('inner-voice-main-panel');
+    const historyPanel = document.getElementById('inner-voice-history-panel');
+    
+    if (isInnerVoiceHistoryOpen) {
+        // 如果是打开的，就关闭它，显示主面板
+        mainPanel.style.display = 'flex';
+        historyPanel.style.display = 'none';
+    } else {
+        // 如果是关闭的，就打开它，隐藏主面板
+        renderInnerVoiceHistory(); // 渲染历史记录
+        mainPanel.style.display = 'none';
+        historyPanel.style.display = 'flex';
+    }
+    isInnerVoiceHistoryOpen = !isInnerVoiceHistoryOpen; // 切换状态
+}
+
+/**
+ * 渲染心声的历史记录列表
+ */
+function renderInnerVoiceHistory() {
+    const listEl = document.getElementById('inner-voice-history-list');
+    listEl.innerHTML = '';
+    const chat = state.chats[state.activeChatId];
+    const history = chat.innerVoiceHistory || [];
+
+    if (history.length === 0) {
+        listEl.innerHTML = '<p style="text-align: center; color: #888; padding: 20px;">还没有历史记录</p>';
+        return;
+    }
+
+    // 从新到旧显示
+    [...history].reverse().forEach(item => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'inner-voice-history-item';
+        
+        const date = new Date(item.timestamp);
+        const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+        
+        // 【核心修改】在HTML中加入了删除按钮
+        itemEl.innerHTML = `
+            <button class="history-item-delete-btn" data-timestamp="${item.timestamp}">×</button>
+            <div class="history-item-timestamp">${dateString}</div>
+            <div class="history-item-content">
+                <p><strong>服装:</strong> ${item.clothing || '...'}</p>
+                <p><strong>行为:</strong> ${item.behavior || '...'}</p>
+                <p><strong>心声:</strong> ${item.thoughts || '...'}</p>
+                <p><strong>坏心思:</strong> ${item.naughtyThoughts || '...'}</p>
+            </div>
+        `;
+        listEl.appendChild(itemEl);
+    });
+}
+/**
+ * 【全新】删除单条心声记录
+ * @param {number} timestamp - 要删除的心声的时间戳
+ */
+async function deleteSingleInnerVoice(timestamp) {
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.innerVoiceHistory) return;
+
+    // 弹出确认框
+    const confirmed = await showCustomConfirm('确认删除', '确定要删除这条心声记录吗？', { confirmButtonClass: 'btn-danger' });
+    if (confirmed) {
+        // 从数组中过滤掉匹配的项
+        chat.innerVoiceHistory = chat.innerVoiceHistory.filter(item => item.timestamp !== timestamp);
+        // 保存回数据库
+        await db.chats.put(chat);
+        // 重新渲染列表
+        renderInnerVoiceHistory();
+    }
+}
+
+/**
+ * 【全新】清空所有心声记录
+ */
+async function clearAllInnerVoiceHistory() {
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.innerVoiceHistory || chat.innerVoiceHistory.length === 0) return;
+
+    const confirmed = await showCustomConfirm('确认清空', '确定要清空所有心声历史记录吗？此操作不可恢复。', { confirmButtonClass: 'btn-danger' });
+    if (confirmed) {
+        chat.innerVoiceHistory = [];
+        await db.chats.put(chat);
+        renderInnerVoiceHistory();
+    }
+}
+
 
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
 
@@ -23047,78 +23093,6 @@ async function jumpToMessage(timestamp) {
 }
 
 // ▲▲▲ 新增函数粘贴结束 ▲▲▲
-// ▼▼▼ 【全新】心声功能核心函数 ▼▼▼
-
-/**
- * 打开心声弹窗
- */
-function openHeartVoiceModal() {
-    if (!state.activeChatId) return;
-    const chat = state.chats[state.activeChatId];
-    if (!chat || chat.isGroup) return;
-
-    // 从后往前查找最新一条带有心声数据的AI消息
-    const lastMessageWithHeartVoice = [...chat.history].reverse().find(msg => msg.role === 'assistant' && msg.heartVoice);
-
-    if (lastMessageWithHeartVoice) {
-        updateHeartVoiceModal(lastMessageWithHeartVoice.heartVoice);
-        document.getElementById('heart-voice-modal').classList.add('visible');
-    } else {
-        alert("还没有可以查看的心声哦~");
-    }
-}
-
-/**
- * 根据数据更新心声弹窗的内容
- * @param {object} data - 包含心声、服装等信息的对象
- */
-function updateHeartVoiceModal(data) {
-    if (!state.activeChatId) return;
-    const chat = state.chats[state.activeChatId];
-
-    document.getElementById('hv-avatar').src = chat.settings.aiAvatar || defaultAvatar;
-    document.getElementById('hv-char-name').textContent = chat.name;
-    document.getElementById('hv-user-name').textContent = chat.settings.myNickname || '我';
-    
-    document.getElementById('hv-clothing').textContent = data.clothing || '（无描述）';
-    document.getElementById('hv-behavior').textContent = data.behavior || '（无描述）';
-    document.getElementById('hv-thoughts').textContent = data.thoughts || '（无描述）';
-    document.getElementById('hv-naughty-thoughts').textContent = data.naughty_thoughts || '（无描述）';
-}
-
-/**
- * 渲染历史心声列表
- */
-function renderHeartVoiceHistory() {
-    if (!state.activeChatId) return;
-    const chat = state.chats[state.activeChatId];
-    const historyListEl = document.getElementById('hv-history-list');
-    historyListEl.innerHTML = '';
-
-    const historyWithHeartVoice = chat.history.filter(msg => msg.role === 'assistant' && msg.heartVoice);
-
-    if (historyWithHeartVoice.length === 0) {
-        historyListEl.innerHTML = '<p style="text-align:center; padding: 20px; color: #a98c71;">暂无历史记录</p>';
-        return;
-    }
-
-    // 从新到旧显示
-    historyWithHeartVoice.reverse().forEach(msg => {
-        const item = document.createElement('div');
-        item.className = 'hv-history-item';
-        item.innerHTML = `
-            <div class="timestamp">${new Date(msg.timestamp).toLocaleString()}</div>
-            <div class="thought-snippet">${msg.heartVoice.thoughts.substring(0, 50)}...</div>
-        `;
-        // 点击历史记录，可以查看当时的快照
-        item.addEventListener('click', () => {
-            updateHeartVoiceModal(msg.heartVoice);
-            document.getElementById('hv-history-panel').style.display = 'none';
-        });
-        historyListEl.appendChild(item);
-    });
-}
-// ▲▲▲ 心声功能函数结束 ▲▲▲
 
 /* ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼ */
         async function init() {
@@ -23392,29 +23366,6 @@ document.getElementById('character-selection-list').addEventListener('click', (e
 // 3. 角色手机顶部的“刷新”和“清空”按钮
 document.getElementById('generate-character-data-btn').addEventListener('click', generateCharacterPhoneData);
 document.getElementById('clear-character-data-btn').addEventListener('click', clearCharacterPhoneData);
-// ▼▼▼ 【全新】心声功能事件绑定 ▼▼▼
-document.getElementById('char-heart-voice-btn').addEventListener('click', openHeartVoiceModal);
-
-// 使用事件委托处理弹窗关闭
-document.getElementById('heart-voice-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'heart-voice-modal') { // 点击蒙层关闭
-        e.target.classList.remove('visible');
-        // 关闭时确保历史面板也隐藏
-        document.getElementById('hv-history-panel').style.display = 'none';
-    }
-});
-
-// 历史按钮
-document.getElementById('hv-history-btn').addEventListener('click', () => {
-    renderHeartVoiceHistory();
-    document.getElementById('hv-history-panel').style.display = 'flex';
-});
-
-// 关闭历史面板按钮
-document.getElementById('hv-close-history-btn').addEventListener('click', () => {
-    document.getElementById('hv-history-panel').style.display = 'none';
-});
-// ▲▲▲ 事件绑定结束 ▲▲▲
 
 // ▲▲▲ 事件监听器添加结束 ▲▲▲
 // ▼▼▼ 【V3最终美化版】主屏幕预设功能事件绑定 ▼▼▼
@@ -23456,6 +23407,19 @@ document.getElementById('chat-search-results-list').addEventListener('click', (e
 // ▼▼▼ 在 init() 函数的事件监听器区域末尾，粘贴下面这行新代码 ▼▼▼
 document.getElementById('delete-expired-songs-btn').addEventListener('click', deleteExpiredSearchedSongs);
 // ▲▲▲ 粘贴结束 ▲▲▲
+// ▼▼▼ 【全新】心声历史记录删除功能事件绑定 ▼▼▼
+document.getElementById('clear-all-history-btn').addEventListener('click', clearAllInnerVoiceHistory);
+
+// 使用事件委托处理单条删除
+document.getElementById('inner-voice-history-list').addEventListener('click', (e) => {
+    if (e.target.classList.contains('history-item-delete-btn')) {
+        const timestamp = parseInt(e.target.dataset.timestamp);
+        if (!isNaN(timestamp)) {
+            deleteSingleInnerVoice(timestamp);
+        }
+    }
+});
+// ▲▲▲ 心声历史删除事件绑定结束 ▲▲▲
 
  // ▼▼▼ 这是我们新加的导入功能事件监听 ▼▼▼
         document.getElementById('import-character-card-btn').addEventListener('click', () => {
@@ -23488,7 +23452,10 @@ document.getElementById('phone-screen').addEventListener('click', unlockAudioCon
     applyScopedCss('', '#settings-preview-area', 'preview-bubble-style'); // 清除预览区的自定义样式
     // ▲▲▲ 修改结束 ▲▲▲
 
-exitSelectionMode(); state.activeChatId = null; showScreen('chat-list-screen'); });
+exitSelectionMode(); state.activeChatId = null;
+// 【心声功能】返回列表时，隐藏心形按钮
+document.getElementById('char-heart-btn').style.display = 'none';
+ showScreen('chat-list-screen'); });
             // ▼▼▼ 在 init() 的事件监听器区域末尾，粘贴这段新代码 ▼▼▼
             // 为歌曲封面/歌词区域绑定点击切换事件
             document.getElementById('music-display-area').addEventListener('click', () => {
@@ -26993,6 +26960,19 @@ document.getElementById('time-perception-toggle').addEventListener('change', (e)
     customTimeContainer.style.display = e.target.checked ? 'none' : 'block';
 });
 // ▲▲▲ 粘贴结束 ▲▲▲
+// ▼▼▼ 【全新】心声功能事件监听器 ▼▼▼
+document.getElementById('chat-header-title-wrapper').addEventListener('click', (e) => {
+    // 使用 .closest() 确保即使点到SVG内部也能触发
+    if (e.target.closest('#char-heart-btn')) {
+        openInnerVoiceModal();
+    }
+});
+document.getElementById('close-inner-voice-modal').addEventListener('click', () => {
+    document.getElementById('inner-voice-modal').classList.remove('visible');
+});
+document.getElementById('inner-voice-history-btn').addEventListener('click', toggleInnerVoiceHistory);
+document.getElementById('back-from-history-btn').addEventListener('click', toggleInnerVoiceHistory);
+// ▲▲▲ 心声功能事件监听器结束 ▲▲▲
 
 
 // ===================================================================
