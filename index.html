@@ -17565,7 +17565,7 @@ function hideIncomingCallModal() {
     stopRingtone(); // <-- 在这里添加这一行
 }
 
-// ▼▼▼ 用这个【全新的、已添加严格规则的函数】，完整替换掉你旧的 triggerAiInCallAction 函数 ▼▼▼
+// ▼▼▼ 【这是修正后的版本】请用这一整块代码，完整替换你旧的 triggerAiInCallAction 函数 ▼▼▼
 async function triggerAiInCallAction(userInput = null) {
     if (!videoCallState.isActive) return;
 
@@ -17606,38 +17606,15 @@ async function triggerAiInCallAction(userInput = null) {
         videoCallState.callHistory.push({ role: 'user', content: userInput });
     }
 
-// ▼▼▼ 用下面这【一整块 if/else】，替换掉旧的 inCallPrompt 定义 ▼▼▼
     let inCallPrompt;
     if (videoCallState.isGroupCall) {
-        const participantNames = videoCallState.participants.map(p => p.originalName); // 使用本名
+        // ★★★ 核心修复1：在这里，我们提前定义好 participantNames ★★★
+        const participantNames = videoCallState.participants.map(p => p.originalName); 
         if(videoCallState.isUserParticipating) {
             participantNames.unshift(userNickname);
         }
-inCallPrompt = `
-# 你的任务
-你是一个群聊AI，负责扮演所有【除了用户以外】的AI角色。你们正在进行一场群聊视频通话。
-你的任务是根据每个角色的性格，生成他们在通话中会说的【第一人称对话】。
+        // ★★★ 修复结束 ★★★
 
-# 核心规则
-1.  **【【【格式铁律】】】**: 你的回复【必须】是一个JSON数组，每个对象代表一个角色的发言，格式为：\`{"name": "【角色的本名】", "speech": "【在这里加入带动作的对话】"}\`。
-2.  **【【【表现力铁律】】】**: 在 "speech" 字段中，你【必须】为角色的对话加入【动作、表情或心理活动】，并用【】符号包裹。这非常重要！
-3.  **示例**: \`{"name": "张三", "speech": "【挠了挠头】啊？我刚刚走神了，你们说到哪了？"}\`
-4.  **身份铁律**: 用户的身份是【${userNickname}】。你【绝对不能】生成 \`name\` 字段为 **"${userNickname}"** 的发言。
-5.  **角色扮演**: 严格遵守每个角色的设定，用他们的口吻说话。
-
-# 当前情景
-你们正在一个群视频通话中。
-**通话前的聊天摘要**:
-${videoCallState.preCallContext}
-**当前参与者**: ${participantNames.join('、 ')}。
-${worldBookContent}
-现在，请根据【通话前摘要】和下面的【通话实时记录】，继续进行对话。
-`;
-    } else { 
-        let openingContext = videoCallState.initiator === 'user'
-            ? `你刚刚接听了用户的视频通话请求。`
-            : `用户刚刚接听了你主动发起的视频通话。`;
-        // ★★★ 核心修改：单聊的系统提示词 ★★★
         inCallPrompt = `
 # 你的任务
 你是一个群聊AI，负责扮演所有【除了用户以外】的AI角色。你们正在进行一场群聊视频通话。
@@ -17659,12 +17636,37 @@ ${videoCallState.preCallContext}
 ${worldBookContent}
 现在，请根据【通话前摘要】和下面的【通话实时记录】，继续进行对话。
 `;
+    } else {
+        // ★★★ 核心修复2：为单人通话提供一个完全独立的、正确的Prompt ★★★
+        let openingContext = videoCallState.initiator === 'user'
+            ? `你刚刚接听了用户的视频通话请求。`
+            : `用户刚刚接听了你主动发起的视频通话。`;
+            
+        inCallPrompt = `
+# 你的任务
+你正在扮演角色 "${chat.name}"。你正在和用户 (${userNickname}) 进行一对一视频通话。
+${openingContext}
+你的任务是根据你的人设和我们的聊天情景，生成你在通话中会说的【第一人称对话】。
+
+# 核心规则
+1.  **【【【格式铁律】】】**: 你的回复【必须且只能】是一段纯文本字符串，代表你的发言。绝对不要输出JSON格式。
+2.  **【【【表现力铁律】】】**: 在你的对话中，你【必须】加入【动作、表情或心理活动】，并用【】符号包裹。
+3.  **示例**: "【歪了歪头，好奇地看着你】真的吗？快跟我说说看！"
+4.  **禁止出戏**: 绝不能透露你是AI或模型。
+
+# 当前情景
+**通话前的聊天摘要**:
+${videoCallState.preCallContext}
+${worldBookContent}
+现在，请根据【通话前摘要】和下面的【通话实时记录】，继续进行对话。
+`;
+        // ★★★ 修复结束 ★★★
     }
-// ▲▲▲ 替换结束 ▲▲▲
+    
     const messagesForApi = [
-        { role: 'system', content: inCallPrompt },
         ...videoCallState.callHistory.map(h => ({ role: h.role, content: h.content }))
     ];
+
     if (videoCallState.callHistory.length === 0) {
         const firstLineTrigger = videoCallState.initiator === 'user' ? `*你按下了接听键...*` : `*对方按下了接听键...*`;
         messagesForApi.push({ role: 'user', content: firstLineTrigger });
@@ -17676,16 +17678,13 @@ ${worldBookContent}
         const response = isGemini ? await fetch(geminiConfig.url, geminiConfig.data) : await fetch(`${proxyUrl}/v1/chat/completions`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
-            body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.8 })
+            body: JSON.stringify({ model: model, messages: [{ role: 'system', content: inCallPrompt }, ...messagesForApi], temperature: 0.8 })
         });
         if (!response.ok) throw new Error((await response.json()).error.message);
 
         const data = await response.json();
         const aiResponse = isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content;
-        // ▼▼▼ 在获取到 aiResponse 的下一行，插入这行代码 ▼▼▼
-const sanitizedResponse = aiResponse.replace(/!\[.*?\]\(.*?\)|https?:\/\/\S+/gi, '').trim();
-// ▲▲▲ 插入结束 ▲▲▲
-
+        const sanitizedResponse = aiResponse.replace(/!\[.*?\]\(.*?\)|https?:\/\/\S+/gi, '').trim();
 
         const connectingElement = callFeed.querySelector('em');
         if (connectingElement) connectingElement.remove();
@@ -17693,9 +17692,9 @@ const sanitizedResponse = aiResponse.replace(/!\[.*?\]\(.*?\)|https?:\/\/\S+/gi,
         if (isVisualMode) {
             const aiBubble = document.createElement('div');
             aiBubble.className = 'visual-call-bubble ai';
-aiBubble.textContent = sanitizedResponse;
-callFeed.appendChild(aiBubble);
-videoCallState.callHistory.push({ role: 'assistant', content: sanitizedResponse });
+            aiBubble.textContent = sanitizedResponse;
+            callFeed.appendChild(aiBubble);
+            videoCallState.callHistory.push({ role: 'assistant', content: sanitizedResponse });
         } else {
             if (videoCallState.isGroupCall) {
                 const speechArray = parseAiResponse(sanitizedResponse); 
@@ -17707,7 +17706,7 @@ videoCallState.callHistory.push({ role: 'assistant', content: sanitizedResponse 
                     callFeed.appendChild(aiBubble);
                     videoCallState.callHistory.push({ role: 'assistant', content: `${turn.name}: ${turn.speech}` });
                     
-                    const speaker = videoCallState.participants.find(p => p.name === turn.name);
+                    const speaker = videoCallState.participants.find(p => p.originalName === turn.name);
                     if (speaker) {
                         const speakingAvatar = document.querySelector(`.participant-avatar-wrapper[data-participant-id="${speaker.id}"] .participant-avatar`);
                         if(speakingAvatar) {
@@ -17720,8 +17719,8 @@ videoCallState.callHistory.push({ role: 'assistant', content: sanitizedResponse 
                 const aiBubble = document.createElement('div');
                 aiBubble.className = 'call-message-bubble ai-speech';
                 aiBubble.textContent = sanitizedResponse;
-callFeed.appendChild(aiBubble);
-videoCallState.callHistory.push({ role: 'assistant', content: sanitizedResponse });
+                callFeed.appendChild(aiBubble);
+                videoCallState.callHistory.push({ role: 'assistant', content: sanitizedResponse });
                 const speakingAvatar = document.querySelector(`.participant-avatar-wrapper .participant-avatar`);
                 if(speakingAvatar) {
                     speakingAvatar.classList.add('speaking');
@@ -17748,8 +17747,6 @@ videoCallState.callHistory.push({ role: 'assistant', content: sanitizedResponse 
         videoCallState.callHistory.push({ role: 'assistant', content: `[ERROR: ${error.message}]` });
     }
 }
-// ▲▲▲ 替换结束 ▲▲▲
-
 
 // ▼▼▼ 将这个【全新函数】粘贴到JS功能函数定义区 ▼▼▼
 function toggleCallButtons(isGroup) {
