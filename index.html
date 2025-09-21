@@ -183,7 +183,28 @@ body {
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
         .screen.active { opacity: 1; visibility: visible; z-index: 1; }
-        .header { position: relative; z-index: 15; flex-shrink: 0; padding: 15px 20px; padding-top: 45px; background-color: rgba(247, 247, 247, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 600; }
+       .header {
+    position: relative;
+    z-index: 15;
+    flex-shrink: 0;
+    padding: 15px 20px;
+    padding-top: 45px;
+    background-color: rgba(247, 247, 247, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 600;
+    
+    /* ▼▼▼ 新增下面这两行 ▼▼▼ */
+    height: 92px;               /* ★ 新增：强制设置一个统一的高度 */
+    box-sizing: border-box;     /* ★ 新增：确保高度计算包含内边距 */
+    /* ▲▲▲ 新增结束 ▲▲▲ */
+}
+
         .header .header-actions { display: flex; align-items: center; gap: 15px; }
         .header .back-btn, .header .action-btn { font-size: 24px; cursor: pointer; width: 30px; text-align: center; color: var(--accent-color); display: flex; align-items: center; justify-content: center; }
 
@@ -2709,17 +2730,20 @@ body {
 
 /* === 【全新】聊天界面头部状态栏样式 === */
 
+/* === 【全新】聊天界面头部状态栏样式 === */
+
 /* 1. 标题和状态的总容器，使用flex布局让它们垂直排列 */
 #chat-header-title-wrapper {
+    /* ▼▼▼ 新增下面这3行 ▼▼▼ */
+    position: absolute;         /* ★ 核心：让它脱离文档流，不再被挤压 */
+    left: 50%;                  /* ★ 核心：定位到屏幕中线 */
+    transform: translateX(-50%); /* ★ 核心：将自身向左移动一半宽度，实现完美居中 */
+    /* ▲▲▲ 新增结束 ▲▲▲ */
+    
     display: flex;
     flex-direction: column;
     align-items: center; /* 水平居中 */
     gap: 2px; /* 标题和状态之间的微小间距 */
-    
-    /* 为了让它能在flex布局中正确居中 */
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
     max-width: 60%;
 }
 
@@ -7494,51 +7518,46 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 <!-- ▼▼▼ 请用这【一整块】全新的代码，完整替换掉您文件中旧的 #chat-interface-screen 及其所有内容 ▼▼▼ -->
 <div id="chat-interface-screen" class="screen">
 
-    <!-- 【最终修正版】Header，已将状态栏和搜索功能正确整合 -->
-    <div class="header">
-        <!-- 默认控件：包含标题、状态栏和常规按钮 -->
-        <div class="default-controls">
-            <span class="back-btn" id="back-to-list-btn">‹</span>
-            
- <!-- ▼▼▼ 【心声功能-已修改】标题和状态的容器 ▼▼▼ -->
-<div id="chat-header-title-wrapper">
-    <!-- 新增一个容器，把标题和心形按钮包起来 -->
-    <div id="chat-header-main-line">
-        <span id="chat-header-title">聊天对象</span>
-        <div id="char-heart-btn" style="display: none; cursor: pointer;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#ff4d6d" stroke="#ffc3d0" stroke-width="1.5">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
+<div class="header">
+    <!-- 默认控件：包含标题、状态栏和常规按钮 -->
+    <div class="default-controls">
+        <span class="back-btn" id="back-to-list-btn">‹</span>
+        
+        <!-- 标题和状态的容器 -->
+        <div id="chat-header-title-wrapper">
+            <div id="chat-header-main-line">
+                <span id="chat-header-title">聊天对象</span>
+            </div>
+            <div id="chat-header-status">
+                <span class="status-dot"></span>
+                <span class="status-text">在线</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <!-- 【正确位置】心声按钮在这里 -->
+            <span class="action-btn" id="char-heart-btn" title="心声" style="display: none; cursor: pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#ff4d6d" stroke="#ffc3d0" stroke-width="1.5">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </span>
+            <span class="action-btn" id="listen-together-btn" title="一起听"><img src="https://i.postimg.cc/dV8sdNcx/210-20250618115221.png" alt="一起听"></span>
+            <span class="action-btn" id="chat-settings-btn" title="聊天设置"><img src="https://i.postimg.cc/bvPq64cv/CCA834-BA-5-A90-408-D-94-FA-7-EE156-B6-A765.png" alt="设置"></span>
         </div>
     </div>
-    <!-- 状态栏现在是独立的了 -->
-    <div id="chat-header-status">
-        <span class="status-dot"></span>
-        <span class="status-text">在线</span>
+
+    <!-- 多选模式控件 -->
+    <div class="selection-controls">
+        <span id="selection-cancel-btn">取消</span>
+        <span id="selection-count"></span>
+        <div class="header-actions">
+           <span id="selection-favorite-btn" class="action-btn">收藏</span>
+           <span id="selection-share-btn" class="action-btn">分享</span> 
+           <span id="selection-delete-btn" class="action-btn" style="color: #ff3b30;">删除</span>
+        </div>
     </div>
 </div>
-<!-- ▲▲▲ 修改结束 ▲▲▲ -->
 
-
-
-            <div class="header-actions">
-                <span class="action-btn" id="listen-together-btn" title="一起听"><img src="https://i.postimg.cc/dV8sdNcx/210-20250618115221.png" alt="一起听"></span>
-                <span class="action-btn" id="chat-settings-btn" title="聊天设置"><img src="https://i.postimg.cc/bvPq64cv/CCA834-BA-5-A90-408-D-94-FA-7-EE156-B6-A765.png" alt="设置"></span>
-            </div>
-        </div>
-
-        <!-- 多选模式控件 (保持不变) -->
-        <div class="selection-controls">
-            <span id="selection-cancel-btn">取消</span>
-            <span id="selection-count"></span>
-            <div class="header-actions">
-               <span id="selection-favorite-btn" class="action-btn">收藏</span>
-       <span id="selection-share-btn" class="action-btn">分享</span> 
-               <span id="selection-delete-btn" class="action-btn" style="color: #ff3b30;">删除</span>
-            </div>
-        </div>
-    </div>
-    
     <!-- 聊天消息区域 (保持不变) -->
     <div id="chat-messages"><div id="typing-indicator">对方正在输入...</div></div>
 
@@ -10522,6 +10541,20 @@ function toggleTheme() {
     const newTheme = toggleSwitch.checked ? 'dark' : 'light';
     applyTheme(newTheme);
 }
+/**
+ * 【全新】在应用启动时，预加载所有已保存的字体预设
+ */
+async function loadAllFontPresetsOnStartup() {
+    console.log("正在预加载所有字体预设...");
+    const presets = await db.fontPresets.toArray();
+    if (presets && presets.length > 0) {
+        presets.forEach(preset => {
+            // 我们复用已有的 loadFontForPreview 函数来加载每个字体
+            loadFontForPreview(preset);
+        });
+        console.log(`成功预加载了 ${presets.length} 个字体。`);
+    }
+}
 
 // ▼▼▼ 【全新】字体预设功能核心函数 ▼▼▼
 
@@ -10552,8 +10585,6 @@ async function renderFontPresets() {
                     <button class="preset-btn delete-btn delete" data-preset-id="${preset.id}">删除</button>
                 </div>
             `;
-            // 加载字体用于预览
-            loadFontForPreview(preset);
         } else {
             // --- 如果这个卡槽是空的 ---
             slot.classList.add('empty');
@@ -12047,74 +12078,85 @@ function showChoiceModal(title, options) {
         modal.classList.add('visible');
     });
 }
-// ▼▼▼ 把这一整块全新的函数，粘贴到你的JS代码里 ▼▼▼
+// ▼▼▼ 【最终正确版】请用这整块代码，完整替换旧的 deleteExpiredSearchedSongs 函数 ▼▼▼
+
 /**
- * 一键删除所有临时的、通过搜索添加的歌曲
+ * 【全新重构】检查并删除所有失效的API歌曲
+ * 核心逻辑：不再依赖任何标签，直接根据链接特征识别需要检查的歌曲。
  */
 async function deleteExpiredSearchedSongs() {
-    // 1. 筛选出所有被标记为 isTemporary 的歌曲
-    // ▼▼▼ 只用下面这块代码替换上面那一行 ▼▼▼
-const twentyFourHoursAgo = Date.now() - (24 * 60 * 60 * 1000);
-const songsToDelete = musicState.playlist.filter(track => 
-    // 条件1：必须是临时歌曲
-    track.isTemporary &&
-    // 条件2：这首歌的添加时间早于24小时前
-    // (为了兼容你之前添加的、没有时间戳的临时歌曲，我们把它们也视为过期)
-    (!track.addedTimestamp || track.addedTimestamp < twentyFourHoursAgo)
-);
-// ▲▲▲ 替换结束 ▲▲▲
+    await showCustomAlert("请稍候...", "正在检查播放列表中所有在线歌曲的有效性...");
 
+    // 1. 【核心改变】我们不再寻找 isTemporary 标签！
+    // 而是直接找出所有 src 链接来自于 API 服务器的歌曲。
+    // 这是一个绝对可靠的识别方法，无论它有没有被正确保存。
+    const songsToCheck = musicState.playlist.filter(track => track.src && track.src.includes('api.vkeys.cn'));
 
-    if (songsToDelete.length === 0) {
-        await showCustomAlert('提示', '播放列表中没有需要清理的搜索歌曲。');
+    if (songsToCheck.length === 0) {
+        await showCustomAlert('提示', '播放列表中没有需要检查的在线歌曲。');
         return;
     }
 
-    // 2. 弹窗让用户确认
+    const songsToDelete = [];
+    const twentyFourHoursAgo = Date.now() - (24 * 60 * 60 * 1000);
+
+    // 2. 对每一首识别出的歌曲，进行严格的“体检”
+    await Promise.all(songsToCheck.map(async (track) => {
+        // 条件1：检查链接本身是否已经失效（无法播放）
+        const isUrlInvalid = !(await checkAudioAvailability(track.src));
+        
+        // 条件2：检查添加时间是否超过24小时（作为双重保险）
+        const isOlderThan24h = track.addedTimestamp && track.addedTimestamp < twentyFourHoursAgo;
+
+        // 只要满足【任意一个】条件，就判定为“失效”
+        if (isUrlInvalid || isOlderThan24h) {
+            songsToDelete.push(track);
+            console.log(`标记删除: ${track.name} (原因: ${isUrlInvalid ? '链接失效' : ''} ${isOlderThan24h ? '超过24小时' : ''})`);
+        }
+    }));
+
+    // 3. 根据检查结果进行反馈和操作 (这部分逻辑不变)
+    if (songsToDelete.length === 0) {
+        await showCustomAlert('检查完成', '播放列表中的所有在线歌曲当前均有效。');
+        return;
+    }
+
     const confirmed = await showCustomConfirm(
         '确认清理',
-        `确定要删除 ${songsToDelete.length} 首24h后会失效的搜索歌曲吗？`,
+        `检测到 ${songsToDelete.length} 首已失效的在线歌曲。确定要将它们从列表中移除吗？`,
         { confirmButtonClass: 'btn-danger' }
     );
 
     if (!confirmed) return;
 
-    // 3. 执行删除逻辑
-    // 记录下当前正在播放的歌曲
+    // 执行删除...
     const currentTrack = musicState.currentIndex > -1 ? musicState.playlist[musicState.currentIndex] : null;
-
-    // 创建一个新的播放列表，只包含那些不是临时的歌曲
-    musicState.playlist = musicState.playlist.filter(track => !track.isTemporary);
-
-    // 4. 处理当前播放状态
+    musicState.playlist = musicState.playlist.filter(track => !songsToDelete.includes(track));
     const newIndex = currentTrack ? musicState.playlist.findIndex(t => t.src === currentTrack.src && t.name === currentTrack.name) : -1;
 
-    if (newIndex === -1) { // 如果当前播放的歌曲被删了
+    if (newIndex === -1) {
         if (musicState.isPlaying) {
             audioPlayer.pause();
             audioPlayer.src = '';
         }
         musicState.isPlaying = false;
-        // 如果列表里还有歌，就从第一首开始播放
         if (musicState.playlist.length > 0) {
             playSong(0); 
         } else {
-            // 如果列表空了，就重置播放器
             musicState.currentIndex = -1;
             updatePlayerUI();
         }
     } else {
-        // 如果当前播放的歌曲没被删，就更新它的新位置
         musicState.currentIndex = newIndex;
         updatePlayerUI();
     }
     
-    // 5. 保存永久播放列表并更新UI
-    await saveGlobalPlaylist(); // 这会把过滤后的、只剩永久歌曲的列表保存到数据库
-    updatePlaylistUI(); // 刷新播放列表界面
+    await saveGlobalPlaylist();
+    updatePlaylistUI();
     await showCustomAlert('清理完成', `${songsToDelete.length} 首歌曲已从列表中移除。`);
 }
-// ▲▲▲ 粘贴结束 ▲▲▲
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 
 /**
@@ -12266,7 +12308,6 @@ function renderBackgroundFrequencySelector() {
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
 
         window.renderApiSettingsProxy = renderApiSettings;
-
 // ▼▼▼ 请用这个【全新修正版】替换旧的 renderChatList 函数 ▼▼▼
 async function renderChatList() {
     const chatListEl = document.getElementById('chat-list');
@@ -12315,18 +12356,19 @@ async function renderChatList() {
         
         if (groupChats.length === 0) return; // 如果这个分组里没有未置顶的好友，就跳过
 
-                // ... 省略前面的代码 ...
         const groupContainer = document.createElement('div');
         groupContainer.className = 'chat-group-container';
+        
+        // 【核心修改】下面这两行代码里，我已经删除了 collapsed 类，这样默认就是展开的了！
         groupContainer.innerHTML = `
-            <div class="chat-group-header collapsed">
+            <div class="chat-group-header">
                 <span class="arrow">▼</span>
                 <span class="group-name">${group.name}</span>
             </div>
-            <div class="chat-group-content collapsed"></div>
+            <div class="chat-group-content"></div>
         `;
         const contentEl = groupContainer.querySelector('.chat-group-content');
-        // ... 省略后面的代码 ...
+
         groupChats.forEach(chat => {
             const item = createChatListItem(chat);
             contentEl.appendChild(item);
@@ -12353,6 +12395,7 @@ async function renderChatList() {
     });
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
 
 // ▼▼▼ 用这个【最终修正版】替换你项目中那个导致错误的 createChatListItem 函数 ▼▼▼
 function createChatListItem(chat) {
@@ -13673,8 +13716,13 @@ const countdownContext = await getCountdownContext(); // <--- 就是这一行
 
     // 【核心修改】
 let sharedContext = '';
-// 1. 找到AI上一次说话的位置
-const lastAiTurnIndex = chat.history.findLastIndex(msg => msg.role === 'assistant');
+    let lastAiTurnIndex = -1;
+    for (let i = chat.history.length - 1; i >= 0; i--) {
+        if (chat.history[i].role === 'assistant') {
+            lastAiTurnIndex = i;
+            break;
+        }
+    }
 
 // 2. 获取从那时起用户发送的所有新消息
 const recentUserMessages = chat.history.slice(lastAiTurnIndex + 1);
@@ -17618,7 +17666,7 @@ async function triggerAiInCallAction(userInput = null) {
         inCallPrompt = `
 # 你的任务
 你是一个群聊AI，负责扮演所有【除了用户以外】的AI角色。你们正在进行一场群聊视频通话。
-你的任务是根据每个角色的性格，生成他们在通话中会说的【第一人称对话】。
+你的任务是根据每个角色的性格，生成他们在通话中会说的【第一人称对话】，注意是在视频通话，绝对不能以为是在现实！每次回复的字数多些，50字以上。
 
 # 核心规则
 1.  **【【【语言铁律】】】**: 无论角色人设是什么国籍或说什么语言，在本次视频通话中，所有角色【必须】全程使用【中文】进行交流。
@@ -19939,19 +19987,18 @@ function renderNpcList() {
     });
 }
 
-// ▼▼▼ 从这里开始替换 ▼▼▼
-/**
- * 【V2 - 完整版】打开NPC编辑器（用于新建或编辑）
- * @param {string|null} npcId - 如果是编辑，则传入NPC的ID；如果是新建，则为null
- */
-// ▼▼▼ 用这个全新的函数，完整替换旧的 openNpcEditor 函数 ▼▼▼
+// ▼▼▼ 用这个【全新的、已修复两个Bug的函数】，完整替换旧的 openNpcEditor 函数 ▼▼▼
 async function openNpcEditor(npcId = null) {
     editingNpcId = npcId;
+    // 【核心修复1】使用正确的 state.activeChatId 来获取当前聊天对象
     const chat = state.chats[state.activeChatId];
+    if (!chat) return; // 安全检查
+
     let npc = { name: '', persona: '', avatar: defaultGroupMemberAvatar };
     
     if (npcId) {
-        npc = (chat.npcs || []).find(n => n.id === npcId) || npc;
+        // 【核心修复2】从正确的 chat.npcLibrary 中查找数据
+        npc = (chat.npcLibrary || []).find(n => n.id === npcId) || npc;
         document.getElementById('persona-editor-title').textContent = `编辑NPC: ${npc.name}`;
     } else {
         document.getElementById('persona-editor-title').textContent = '添加新NPC';
@@ -19966,8 +20013,7 @@ async function openNpcEditor(npcId = null) {
     document.getElementById('npc-editor-name-group').style.display = 'block';
     document.getElementById('persona-editor-change-frame-btn').style.display = 'none';
 
-    // 【【【这就是您代码中的正确做法！】】】
-    // 我们直接覆盖保存按钮的 onclick 事件，强制它只执行保存NPC的函数
+    // 绑定正确的保存函数
     document.getElementById('save-persona-preset-btn').onclick = saveNpc;
 
     // 最后才显示弹窗
@@ -19979,12 +20025,14 @@ async function openNpcEditor(npcId = null) {
 
 
 
+
 // ▼▼▼ 从这里开始替换 ▼▼▼
 /**
  * 【V2 - 完整版】保存NPC（新建或更新）
  */
 async function saveNpc() {
     const chat = state.chats[state.activeChatId];
+
     
     // 从编辑器中获取所有数据
     const name = document.getElementById('npc-editor-name-input').value.trim();
@@ -23308,6 +23356,7 @@ function importHomeScreenPreset(file) {
             window.renderWorldBookScreenProxy = renderWorldBookScreen;
 
             await loadAllDataFromDB();
+            await loadAllFontPresetsOnStartup(); // <---- 在这里添加这一行新代码
             await addDefaultDarkModeThemeIfNeeded();
             applyWidgetData();
 
@@ -26957,13 +27006,9 @@ document.getElementById('time-perception-toggle').addEventListener('change', (e)
     customTimeContainer.style.display = e.target.checked ? 'none' : 'block';
 });
 // ▲▲▲ 粘贴结束 ▲▲▲
-// ▼▼▼ 【全新】心声功能事件监听器 ▼▼▼
-document.getElementById('chat-header-title-wrapper').addEventListener('click', (e) => {
-    // 使用 .closest() 确保即使点到SVG内部也能触发
-    if (e.target.closest('#char-heart-btn')) {
-        openInnerVoiceModal();
-    }
-});
+// 请用这段新代码替换上面的错误代码
+document.getElementById('char-heart-btn').addEventListener('click', openInnerVoiceModal);
+
 document.getElementById('close-inner-voice-modal').addEventListener('click', () => {
     document.getElementById('inner-voice-modal').classList.remove('visible');
 });
