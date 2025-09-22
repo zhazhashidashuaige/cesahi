@@ -402,9 +402,10 @@ body {
 
         .message-bubble.user { flex-direction: row-reverse; }
         #typing-indicator { align-self: flex-start; display: none; margin: 0 10px 10px; color: var(--text-secondary); }
-       /* 修改聊天输入框区域的 padding */
+        /* 修改聊天输入框区域的 padding */
 #chat-input-area { 
     flex-shrink: 0; 
+    /* ▼▼▼ 核心修改1：增加了上、左、右的内边距，让整个区域更“宽敞” ▼▼▼ */
     padding: 10px 12px; 
     background-color: rgba(247, 247, 247, 0.8); 
     backdrop-filter: blur(10px); 
@@ -414,7 +415,6 @@ body {
     flex-direction: column; 
     gap: 5px; 
 }
-
 
 /* 修改iPhone底部安全区的适配 */
 #chat-input-area {
@@ -721,7 +721,6 @@ body {
     -webkit-backdrop-filter: blur(10px);
 }
 
-
 .nav-item {
     flex: 1;
     text-align: center;
@@ -732,6 +731,7 @@ body {
     cursor: pointer;
     transition: color 0.2s;
 }
+
 
 .nav-item.active {
     color: var(--accent-color);
