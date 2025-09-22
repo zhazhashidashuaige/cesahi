@@ -404,20 +404,15 @@ body {
         #typing-indicator { align-self: flex-start; display: none; margin: 0 10px 10px; color: var(--text-secondary); }
        /* 修改聊天输入框区域的 padding */
 #chat-input-area { 
-    flex-shrink: 0;
-    padding: 10px 12px;
-    background-color: rgba(247, 247, 247, 0.8);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    justify-content: center; /* ★ 新增：让输入框在垂直方向上居中 */
-
-    /* ▼▼▼ 核心修改 ▼▼▼ */
-    min-height: 83px;          /* ★ 新增：设置一个和上面完全一样的最小高度 */
-    box-sizing: border-box;    /* ★ 新增：确保高度计算包含内边距 */
+    flex-shrink: 0; 
+    padding: 10px 12px; 
+    background-color: rgba(247, 247, 247, 0.8); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); 
+    border-top: 1px solid var(--border-color); 
+    display: flex; 
+    flex-direction: column; 
+    gap: 5px; 
 }
 
 
