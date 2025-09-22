@@ -8524,15 +8524,23 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 </div>
 <!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
 
-<!-- ▼▼▼ 【全新】气泡样式预设选择器 ▼▼▼ -->
+<!-- ▼▼▼ 【全新】气泡样式预设选择器 (已添加导入导出功能) ▼▼▼ -->
 <div class="form-group">
     <label>气泡样式预设</label>
     <div class="bubble-preset-manager">
         <select id="bubble-style-preset-select" class="form-group select"></select>
         <button id="manage-bubble-presets-btn" class="action-btn">管理</button>
     </div>
+    <!-- ▼▼▼ 这是我们新加的导入和导出按钮 ▼▼▼ -->
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button id="export-bubble-preset-btn" class="form-button form-button-secondary" style="flex:1; margin:0;">导出气泡</button>
+        <button id="import-bubble-preset-btn" class="form-button form-button-secondary" style="flex:1; margin:0;">导入气泡</button>
+    </div>
+    <input type="file" id="import-bubble-preset-input" accept=".json" style="display: none;">
+    <!-- ▲▲▲ 添加结束 ▲▲▲ -->
 </div>
 <!-- ▲▲▲ 新HTML粘贴结束 ▲▲▲ -->
+
 
 <!-- ▼▼▼ 请将这段新代码粘贴到“聊天字体大小”的 form-group 之后 ▼▼▼ -->
 <div class="form-group">
@@ -8567,10 +8575,21 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                 <img id="bg-preview" class="bg-preview-img">
                 <input type="file" id="bg-input" accept="image/*" style="display: none;">
             </div>
-<hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;">
-<button class="form-button form-button-secondary" id="block-chat-btn" style="background-color: #ff3b30; color: white; border-color: #ff3b30;">拉黑对方</button>
+<!-- ▼▼▼ 把这一整块全新的代码，粘贴到你刚刚删除代码的位置 ▼▼▼ -->
+
+<!-- 记录管理区 -->
+<div class="form-group" style="display: flex; gap: 10px;">
+    <button class="form-button form-button-secondary" id="import-chat-history-btn" style="flex: 1; margin: 0;">导入聊天记录</button>
+    <button class="form-button form-button-secondary" id="export-chat-history-btn" style="flex: 1; margin: 0;">导出聊天记录</button>
+</div>
+<input type="file" id="import-chat-history-input" accept="application/json" style="display: none;">
 <button class="form-button form-button-secondary" id="search-chat-btn">查找聊天记录</button>
-<button class="form-button form-button-secondary" id="clear-chat-btn">清空聊天记录</button></div><div class="modal-footer"><button class="cancel" id="cancel-chat-settings-btn">取消</button><button class="save" id="save-chat-settings-btn">保存</button></div></div></div>
+<button class="form-button form-button-secondary" id="clear-chat-btn">清空聊天记录</button>
+<button class="form-button form-button-secondary" id="block-chat-btn" style="background-color: #ff3b30; color: white; border-color: #ff3b30;">拉黑对方</button>
+
+<!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
+
+</div><div class="modal-footer"><button class="cancel" id="cancel-chat-settings-btn">取消</button><button class="save" id="save-chat-settings-btn">保存</button></div></div></div>
     
     <div id="persona-library-modal" class="modal"><div class="modal-content"><div class="modal-header"><span>我的人设库</span><button id="add-persona-preset-btn" class="action-button">添加</button></div><div class="modal-body"><div id="persona-library-grid"></div></div><div class="modal-footer"><button class="cancel" id="close-persona-library-btn">关闭</button></div></div></div>
     
@@ -10643,7 +10662,7 @@ async function renderFontPresets() {
     // 从数据库读取所有已保存的预设
     const presets = await db.fontPresets.toArray();
 
-    // 循环5次，创建5个卡槽
+    // 循环5次，创建5个卡槽的HTML
     for (let i = 0; i < 5; i++) {
         const slot = document.createElement('div');
         slot.className = 'font-preset-slot';
@@ -10651,7 +10670,7 @@ async function renderFontPresets() {
         const preset = presets[i];
 
         if (preset) {
-            // --- 如果这个卡槽有数据 ---
+            // 如果这个卡槽有数据
             slot.innerHTML = `
                 <div class="font-preview-text" data-preset-id="${preset.id}">Abc 你好</div>
                 <div class="font-preset-info">名称: ${preset.name}</div>
@@ -10661,7 +10680,7 @@ async function renderFontPresets() {
                 </div>
             `;
         } else {
-            // --- 如果这个卡槽是空的 ---
+            // 如果这个卡槽是空的
             slot.classList.add('empty');
             slot.innerHTML = `
                 <div class="font-preset-info">卡槽 ${i + 1} 为空</div>
@@ -10674,15 +10693,24 @@ async function renderFontPresets() {
         container.appendChild(slot);
     }
     
+    // ▼▼▼ 【核心修复】在这里，我们等所有HTML都创建好后，再统一加载预览字体 ▼▼▼
+    presets.forEach(preset => {
+        if (preset) {
+            // 为每一个有数据的预设，调用加载预览函数
+            loadFontForPreview(preset);
+        }
+    });
+    // ▲▲▲ 修复结束 ▲▲▲
+
     // 为所有新生成的按钮绑定事件
     addFontPresetButtonListeners();
 }
+
 
 /**
  * 【终极修复版】为单个预设加载字体以供预览
  * @param {object} preset - 字体预设对象 {id, name, url}
  */
-// ▼▼▼ 用下面这整块代码，替换掉你旧的 loadFontForPreview 函数 ▼▼▼
 function loadFontForPreview(preset) {
     const styleId = `font-style-${preset.id}`;
     if (document.getElementById(styleId)) return;
@@ -10706,7 +10734,8 @@ function loadFontForPreview(preset) {
     
     document.head.appendChild(style);
 }
-// ▲▲▲ 替换结束 ▲▲▲
+
+
 
 
 /**
@@ -10751,7 +10780,6 @@ async function handleUploadFontUrl(slotIndex) {
  */
 function handleUploadFontLocal(slotIndex) {
     const input = document.getElementById('font-preset-local-upload');
-    // 绑定一个一次性的change事件
     input.onchange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -10765,16 +10793,15 @@ function handleUploadFontLocal(slotIndex) {
         // 使用FileReader将字体文件转为Base64 Data URL
         const reader = new FileReader();
         reader.onload = async (event) => {
-            // 核心修改：将读取到的文件内容转换成 Blob 对象
-            const fontBlob = new Blob([event.target.result], { type: file.type });
-            // 把这个 Blob 对象存进去，而不是原来的超长文本
-            await saveFontPreset(slotIndex, name.trim(), fontBlob); 
+            // 核心修改：event.target.result 现在就是我们需要的 data:font/ttf;base64,... 格式的完整文本
+            await saveFontPreset(slotIndex, name.trim(), event.target.result);
         };
-        // 核心修改：改变读取文件的方式
-        reader.readAsArrayBuffer(file);
+        // 核心修改：使用 readAsDataURL 来读取文件
+        reader.readAsDataURL(file);
     };
     input.click(); // 触发文件选择框
 }
+
 
 /**
  * 将新的字体预设保存到数据库
@@ -11301,66 +11328,69 @@ async function renderQzonePosts() {
 
     const userSettings = state.qzoneSettings;
     
-    // ★★★★★ 这就是我们这次修复的核心 ★★★★★
-    // 1. 在渲染所有帖子之前，我们先创建一个包含所有AI角色名字的集合(Set)，方便快速查找。
-    const allAiCharacterNames = new Set(Object.values(state.chats).filter(chat => !chat.isGroup).map(chat => chat.name));
-    // ★★★★★ 修复结束 ★★★★★
+// ▼▼▼ 从这里开始替换 ▼▼▼
+// ★★★★★ 这就是我们这次修复的核心 ★★★★★
+// 1. 在渲染所有帖子之前，我们先创建一个包含所有AI角色名字的集合(Set)，方便快速查找。
+const allAiCharacterNames = new Set(Object.values(state.chats).filter(chat => !chat.isGroup).map(chat => chat.name));
+// ★★★★★ 修复结束 ★★★★★
 
-    posts.forEach(post => {
-        const postContainer = document.createElement('div');
-        postContainer.className = 'qzone-post-container';
-        postContainer.dataset.postId = post.id;
+posts.forEach(post => {
+    const postContainer = document.createElement('div');
+    postContainer.className = 'qzone-post-container';
+    postContainer.dataset.postId = post.id;
 
-        const postEl = document.createElement('div');
-        postEl.className = 'qzone-post-item';
+    const postEl = document.createElement('div');
+    postEl.className = 'qzone-post-item';
 
-        let authorAvatar = '', authorNickname = '', commentAvatar = userSettings.avatar; 
+    let authorAvatar = '', authorNickname = '', commentAvatar = userSettings.avatar; 
 
-        if (post.authorId === 'user') {
-            authorAvatar = userSettings.avatar;
-            authorNickname = userSettings.nickname;
-        } else if (state.chats[post.authorId]) {
-            const authorChat = state.chats[post.authorId];
-            authorAvatar = authorChat.settings.aiAvatar || defaultAvatar;
-            authorNickname = authorChat.name;
-        } else {
-            authorAvatar = defaultAvatar;
-            authorNickname = '{{char}}';
-        }
-        
-        let contentHtml = '';
-        const publicTextHtml = post.publicText ? `<div class="post-content">${post.publicText.replace(/\n/g, '<br>')}</div>` : '';
+    if (post.authorId === 'user') {
+        authorAvatar = userSettings.avatar;
+        authorNickname = userSettings.nickname;
+    } else if (state.chats[post.authorId]) {
+        const authorChat = state.chats[post.authorId];
+        authorAvatar = authorChat.settings.aiAvatar || defaultAvatar;
+        authorNickname = authorChat.name;
+    } else {
+        authorAvatar = defaultAvatar;
+        authorNickname = '{{char}}';
+    }
+    
+    let contentHtml = '';
+    const publicTextHtml = post.publicText ? `<div class="post-content">${post.publicText.replace(/\n/g, '<br>')}</div>` : '';
 
-        if (post.type === 'shuoshuo') {
-            contentHtml = `<div class="post-content" style="margin-bottom: 10px;">${post.content.replace(/\n/g, '<br>')}</div>`;
-        } 
-        else if (post.type === 'image_post' && post.imageUrl) {
-            contentHtml = publicTextHtml ? `${publicTextHtml}<div style="margin-top:10px;"><img src="${post.imageUrl}" class="chat-image"></div>` : `<img src="${post.imageUrl}" class="chat-image">`;
-        } 
-        else if (post.type === 'text_image') {
-            contentHtml = publicTextHtml ? `${publicTextHtml}<div style="margin-top:10px;"><img src="https://i.postimg.cc/KYr2qRCK/1.jpg" class="chat-image" style="cursor: pointer;" data-hidden-text="${post.hiddenContent}"></div>` : `<img src="https://i.postimg.cc/KYr2qRCK/1.jpg" class="chat-image" style="cursor: pointer;" data-hidden-text="${post.hiddenContent}">`;
-        }
+    if (post.type === 'shuoshuo') {
+        contentHtml = `<div class="post-content" style="margin-bottom: 10px;">${post.content.replace(/\n/g, '<br>')}</div>`;
+    } 
+    else if (post.type === 'image_post' && post.imageUrl) {
+        contentHtml = publicTextHtml ? `${publicTextHtml}<div style="margin-top:10px;"><img src="${post.imageUrl}" class="chat-image"></div>` : `<img src="${post.imageUrl}" class="chat-image">`;
+    } 
+    else if (post.type === 'text_image') {
+        contentHtml = publicTextHtml ? `${publicTextHtml}<div style="margin-top:10px;"><img src="https://i.postimg.cc/KYr2qRCK/1.jpg" class="chat-image" style="cursor: pointer;" data-hidden-text="${post.hiddenContent}"></div>` : `<img src="https://i.postimg.cc/KYr2qRCK/1.jpg" class="chat-image" style="cursor: pointer;" data-hidden-text="${post.hiddenContent}">`;
+    }
 
-        let likesHtml = '';
-        if (post.likes && post.likes.length > 0) {
-            likesHtml = `<div class="post-likes-section"><svg class="like-icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span>${post.likes.join('、')} 觉得很赞</span></div>`;
-        }
-        
-        let commentsHtml = '';
-        if (post.comments && post.comments.length > 0) {
-            // ★★★★★ 这就是我们这次修复的核心 ★★★★★
-            // 2. 修改这里的过滤逻辑
-            const commentsToShow = post.areCommentsVisible === false 
-                ? post.comments.filter(comment => 
-                    // 条件1: 评论者是你自己
-                    comment.commenterName === userSettings.nickname || 
-                    // 条件2: 评论者的名字在我们刚才创建的AI角色名字列表里
-                    allAiCharacterNames.has(comment.commenterName)
-                  )
-                : post.comments; // 如果开关是开的，就显示所有评论
-            // ★★★★★ 修复结束 ★★★★★
+    let likesHtml = '';
+    if (post.likes && post.likes.length > 0) {
+        likesHtml = `<div class="post-likes-section"><svg class="like-icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span>${post.likes.join('、')} 觉得很赞</span></div>`;
+    }
+    
+    let commentsHtml = '';
+    if (post.comments && post.comments.length > 0) {
+        // ★★★★★ 这就是我们这次修复的核心 ★★★★★
+        // 2. 修改这里的过滤逻辑
+        const commentsToShow = post.areCommentsVisible === false 
+            ? post.comments.filter(comment => 
+                // 条件1: 评论者是你自己
+                comment.commenterName === userSettings.nickname || 
+                // 条件2: 评论者的名字在我们刚才创建的AI角色名字列表里
+                allAiCharacterNames.has(comment.commenterName)
+              )
+            : post.comments; // 如果开关是开的，就显示所有评论
+        // ★★★★★ 修复结束 ★★★★★
 
-            if (commentsToShow.length > 0) {
+        if (commentsToShow.length > 0) {
+// ▲▲▲ 替换到这里结束 ▲▲▲
+
                 commentsHtml = '<div class="post-comments-container">';
                 commentsToShow.forEach(comment => {
                     const originalIndex = post.comments.indexOf(comment);
@@ -11869,33 +11899,42 @@ for (const tableName of arrayTables) {
     }
 }
 
-        function applyCustomFont(fontUrl, isPreviewOnly = false) {
-            if (!fontUrl) {
-                dynamicFontStyle.innerHTML = '';
-                document.getElementById('font-preview').style.fontFamily = '';
-                return;
-            }
-            const fontName = 'custom-user-font';
-            const newStyle = `
-                @font-face {
-                  font-family: '${fontName}';
-                  src: url('${fontUrl}');
-                  font-display: swap;
-                }`;
-            if (isPreviewOnly) {
-                const previewStyle = document.getElementById('preview-font-style') || document.createElement('style');
-                previewStyle.id = 'preview-font-style';
-                previewStyle.innerHTML = newStyle;
-                if (!document.getElementById('preview-font-style')) document.head.appendChild(previewStyle);
-                document.getElementById('font-preview').style.fontFamily = `'${fontName}', 'bulangni', sans-serif`;
-            } else {
-                dynamicFontStyle.innerHTML = `
-                    ${newStyle}
-                    body {
-                      font-family: '${fontName}', 'bulangni', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                    }`;
-            }
-        }
+function applyCustomFont(fontUrl, isPreviewOnly = false) {
+    if (!fontUrl) {
+        // 如果没有提供字体链接（比如恢复默认），就清空样式
+        dynamicFontStyle.innerHTML = '';
+        document.getElementById('font-preview').style.fontFamily = '';
+        return;
+    }
+
+    // 这是一个统一的内部名字
+    const fontName = 'custom-user-font';
+    
+    // 这是定义字体的样式规则
+    const newStyle = `
+        @font-face {
+          font-family: '${fontName}';
+          src: url('${fontUrl}');
+          font-display: swap;
+        }`;
+
+    if (isPreviewOnly) {
+        // 如果只是预览，这个逻辑保持不变
+        const previewStyle = document.getElementById('preview-font-style') || document.createElement('style');
+        previewStyle.id = 'preview-font-style';
+        previewStyle.innerHTML = newStyle;
+        if (!document.getElementById('preview-font-style')) document.head.appendChild(previewStyle);
+        document.getElementById('font-preview').style.fontFamily = `'${fontName}', 'bulangni', sans-serif`;
+    } else {
+        // 【核心】如果是全局应用，就同时定义字体并告诉整个 body 去使用它
+        dynamicFontStyle.innerHTML = `
+            ${newStyle}
+            body {
+              font-family: '${fontName}', 'bulangni', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+            }`;
+    }
+}
+
 
         async function resetToDefaultFont() {
             // 1. 清除全局字体样式
@@ -18945,7 +18984,27 @@ async function triggerGroupAiAction(chatId) {
         const timeSinceLastMessage = lastMessage ? (Date.now() - lastMessage.timestamp) / 1000 / 60 : Infinity; // in minutes
         
         const membersList = chat.members.map(m => `- ${m.groupNickname} (人设: ${m.persona})`).join('\n');
-        
+          const myNickname = chat.settings.myNickname || '我';
+  
+        let worldBookContent = '';
+    if (chat.settings.linkedWorldBookIds && chat.settings.linkedWorldBookIds.length > 0) {
+        const linkedContents = chat.settings.linkedWorldBookIds.map(bookId => {
+            const worldBook = state.worldBooks.find(wb => wb.id === bookId);
+            return worldBook && worldBook.content ? `\n\n## 世界书: ${worldBook.name}\n${worldBook.content}` : '';
+        }).filter(Boolean).join('');
+        if (linkedContents) {
+            worldBookContent = `\n\n# 核心世界观设定 (你必须严格遵守)\n${linkedContents}\n`;
+        }
+    }
+    let musicContext = '';
+    // 注意：后台群聊活动通常不与特定的“一起听歌”会话绑定，因此这里我们提供一个空的音乐上下文。
+    // 如果未来需要更复杂的功能，可以在此扩展。
+
+    const countdownContext = await getCountdownContext(); 
+    
+    let sharedContext = '';
+    // 后台群聊活动中不存在用户分享聊天记录的上下文，因此这里为空。
+
 // ▼▼▼ 从这里开始完整替换 ▼▼▼
     const systemPrompt = `
 # 任务
@@ -23944,6 +24003,20 @@ document.getElementById('show-status-bar-toggle').addEventListener('change', (e)
 
 // --- ▲▲▲ 粘贴结束 ▲▲▲ ---
 
+// ▼▼▼ 【全新】为气泡导入/导出按钮绑定事件 ▼▼▼
+document.getElementById('export-bubble-preset-btn').addEventListener('click', exportSelectedBubblePreset);
+
+document.getElementById('import-bubble-preset-btn').addEventListener('click', () => {
+    // 点击“导入”按钮时，触发隐藏的文件选择框
+    document.getElementById('import-bubble-preset-input').click();
+});
+
+document.getElementById('import-bubble-preset-input').addEventListener('change', (e) => {
+    // 当用户选择了文件后，调用导入函数处理
+    importBubblePreset(e.target.files[0]);
+    e.target.value = null; // 每次用完后清空，方便下次选择同一个文件
+});
+// ▲▲▲ 新事件绑定结束 ▲▲▲
 
 // --- 全新视频通话功能事件绑定 (V2 修正版) ---
 
@@ -24248,7 +24321,29 @@ chat.settings.customTime = document.getElementById('custom-time-input').value;
     renderChatList();
 });
             document.getElementById('clear-chat-btn').addEventListener('click', async () => { if (!state.activeChatId) return; const chat = state.chats[state.activeChatId]; const confirmed = await showCustomConfirm('清空聊天记录', '此操作将永久删除此聊天的所有消息，无法恢复。确定要清空吗？', { confirmButtonClass: 'btn-danger' }); if (confirmed) { chat.history = []; await db.chats.put(chat); renderChatInterface(state.activeChatId); renderChatList(); chatSettingsModal.classList.remove('visible'); } });
-            
+            // ▼▼▼ 在 init() 的事件监听器区域末尾，粘贴这段新代码 ▼▼▼
+
+// 导出聊天记录按钮
+document.getElementById('export-chat-history-btn').addEventListener('click', exportChatHistory);
+
+// “导入聊天记录”这个可见的按钮
+document.getElementById('import-chat-history-btn').addEventListener('click', () => {
+    // 点击它时，我们去触发那个隐藏的文件选择框
+    document.getElementById('import-chat-history-input').click();
+});
+
+// 隐藏的文件选择框
+document.getElementById('import-chat-history-input').addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        importChatHistory(file);
+    }
+    // 每次选择后清空，这样下次还能选择同一个文件
+    event.target.value = null; 
+});
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
             const setupFileUpload = (inputId, callback) => { document.getElementById(inputId).addEventListener('change', async (event) => { const file = event.target.files[0]; if (file) { const dataUrl = await new Promise((res, rej) => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.onerror = () => rej(reader.error); reader.readAsDataURL(file); }); callback(dataUrl); event.target.value = null; } }); };
             setupFileUpload('ai-avatar-input', (base64) => document.getElementById('ai-avatar-preview').src = base64);
             setupFileUpload('my-avatar-input', (base64) => document.getElementById('my-avatar-preview').src = base64);
@@ -27098,6 +27193,169 @@ document.getElementById('close-inner-voice-modal').addEventListener('click', () 
 document.getElementById('inner-voice-history-btn').addEventListener('click', toggleInnerVoiceHistory);
 document.getElementById('back-from-history-btn').addEventListener('click', toggleInnerVoiceHistory);
 // ▲▲▲ 心声功能事件监听器结束 ▲▲▲
+// ▼▼▼ 把下面这一整块新函数，粘贴到你的JS功能函数定义区 ▼▼▼
+
+/**
+ * 【全新】导出当前角色的聊天记录
+ */
+async function exportChatHistory() {
+    if (!state.activeChatId) return;
+    const chat = state.chats[state.activeChatId];
+    if (!chat) return;
+
+    // 1. 创建一个只包含聊天记录和角色名的对象
+    const exportData = {
+        characterName: chat.name,
+        exportedAt: new Date().toISOString(),
+        history: chat.history
+    };
+
+    // 2. 将这个对象转换为格式化的JSON字符串
+    const jsonString = JSON.stringify(exportData, null, 2);
+    
+    // 3. 创建一个Blob对象
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    
+    // 4. 创建一个临时的下载链接
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    // 5. 设置下载链接的属性，包括文件名
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.href = url;
+    link.download = `[${chat.name}]-聊天记录-${dateStr}.json`;
+    
+    // 6. 模拟点击链接来触发下载
+    document.body.appendChild(link);
+    link.click();
+    
+    // 7. 清理临时创建的元素和URL
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    await showCustomAlert('导出成功', `与“${chat.name}”的聊天记录已开始下载！`);
+}
+
+/**
+ * 【全新】导入聊天记录到当前角色
+ */
+async function importChatHistory(file) {
+    if (!file) return;
+    if (!state.activeChatId) return;
+    
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+
+            // 关键验证：检查导入的文件是否包含一个名为 'history' 的数组
+            if (!data.history || !Array.isArray(data.history)) {
+                throw new Error("文件格式不正确，缺少有效的'history'数据。");
+            }
+
+            const chat = state.chats[state.activeChatId];
+            
+            // 安全警告：提醒用户这将覆盖现有记录
+            const confirmed = await showCustomConfirm(
+                '确认导入',
+                `这将会【覆盖】你与“${chat.name}”的当前所有聊天记录。此操作无法撤销，确定要继续吗？`,
+                { confirmButtonClass: 'btn-danger' }
+            );
+
+            if (confirmed) {
+                // 替换历史记录
+                chat.history = data.history;
+                // 保存到数据库
+                await db.chats.put(chat);
+                // 刷新界面
+                renderChatInterface(state.activeChatId);
+                renderChatList(); // 刷新列表以更新最后一条消息
+                await showCustomAlert('导入成功', '聊天记录已成功导入并覆盖！');
+            }
+        } catch (error) {
+            console.error("导入聊天记录失败:", error);
+            await showCustomAlert('导入失败', `无法导入文件，请检查文件是否为正确的聊天记录备份文件。\n\n错误: ${error.message}`);
+        }
+    };
+    reader.readAsText(file, 'UTF-8');
+}
+
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
+// ▼▼▼ 【全新】气泡样式预设导入/导出功能 ▼▼▼
+
+/**
+ * 导出当前选中的气泡样式预设
+ */
+async function exportSelectedBubblePreset() {
+    const selectEl = document.getElementById('bubble-style-preset-select');
+    const selectedId = parseInt(selectEl.value);
+
+    if (!selectedId) {
+        alert("请先从下拉框中选择一个要导出的预设。");
+        return;
+    }
+
+    const preset = await db.bubbleStylePresets.get(selectedId);
+    if (!preset) {
+        alert("找不到选中的预设。");
+        return;
+    }
+
+    // 准备要导出的数据
+    const exportData = {
+        presetName: preset.name,
+        presetCss: preset.css
+    };
+
+    // 创建并触发下载
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `[EPhone气泡]${preset.name}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * 处理导入的气泡样式预设文件
+ * @param {File} file - 用户选择的.json文件
+ */
+function importBubblePreset(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            // 验证文件内容是否正确
+            if (data.presetName && typeof data.presetCss !== 'undefined') {
+                const newPreset = {
+                    name: `${data.presetName} (导入)`,
+                    css: data.presetCss
+                };
+                const newId = await db.bubbleStylePresets.add(newPreset);
+
+                if (!state.bubbleStylePresets) state.bubbleStylePresets = [];
+                state.bubbleStylePresets.push({ id: newId, ...newPreset });
+
+                // 刷新下拉框并自动选中新导入的预设
+                renderBubblePresetSelector();
+                document.getElementById('bubble-style-preset-select').value = newId;
+                handlePresetSelectChange();
+                await showCustomAlert('导入成功', `气泡预设 "${newPreset.name}" 已成功导入！`);
+            } else {
+                alert("导入失败：文件格式不正确。");
+            }
+        } catch (error) {
+            alert(`导入失败：文件解析错误。 ${error.message}`);
+        }
+    };
+    reader.readAsText(file);
+}
+
+// ▲▲▲ 新增功能函数结束 ▲▲▲
 
 
 // ===================================================================
