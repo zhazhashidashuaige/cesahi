@@ -299,14 +299,19 @@ body {
 }
 
 
-/* 修改后的 #chat-list 样式，去掉了 padding 和 margin */
+/* 修改后的 #chat-list 样式，适配了iOS底部安全区 */
 #chat-list {
     flex-grow: 1;
     background-color: var(--secondary-bg);
     padding-top: 100px; 
-    padding-bottom: 50px; /* 为底部导航栏留出空间 */
+    /* 核心修复：使用 calc() 动态计算底部内边距，
+       50px是为底部导航栏预留的高度，
+       env(safe-area-inset-bottom)会自动获取iPhone底部小黑条的安全距离。
+    */
+    padding-bottom: calc(50px + env(safe-area-inset-bottom)); 
     box-sizing: border-box;
 }
+
 
         .list-item { display: flex; flex-direction: column; padding: 12px 20px; cursor: pointer; border-bottom: 1px solid var(--border-color); }
         .list-item:hover { background-color: #f5f5f5; }
@@ -402,26 +407,7 @@ body {
 
         .message-bubble.user { flex-direction: row-reverse; }
         #typing-indicator { align-self: flex-start; display: none; margin: 0 10px 10px; color: var(--text-secondary); }
-       /* 修改聊天输入框区域的 padding */
-#chat-input-area { 
-    flex-shrink: 0; 
-    /* ▼▼▼ 核心修改1：增加了上、左、右的内边距，让整个区域更“宽敞” ▼▼▼ */
-    padding: 10px 12px; 
-    background-color: rgba(247, 247, 247, 0.8); 
-    backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px); 
-    border-top: 1px solid var(--border-color); 
-    display: flex; 
-    flex-direction: column; 
-    gap: 5px; 
-}
-
-/* 修改iPhone底部安全区的适配 */
-#chat-input-area {
-    /* ▼▼▼ 核心修改2：将这里的 8px 也同步为 10px，保持一致 ▼▼▼ */
-    padding-bottom: calc(10px + env(safe-area-inset-bottom));
-}
-
+        #chat-input-area { flex-shrink: 0; padding: 8px; background-color: rgba(247, 247, 247, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 5px; }
         #chat-input-main-row { display: flex; align-items: flex-end; gap: 8px; width: 100%; }
         #chat-input { flex-grow: 1; border: none; padding: 10px 15px; border-radius: 20px; background-color: var(--secondary-bg); font-size: 16px; max-height: 100px; resize: none; }
         .action-button { border: none; color: white; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; flex-shrink: 0; }
@@ -724,7 +710,7 @@ body {
 .nav-item {
     flex: 1;
     text-align: center;
-    padding: 12px 0;
+    padding: 13px 0;
     font-size: 14px;
     color: var(--text-secondary);
     cursor: pointer;
