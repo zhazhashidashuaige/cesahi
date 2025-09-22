@@ -405,8 +405,7 @@ body {
         /* 修改聊天输入框区域的 padding */
 #chat-input-area { 
     flex-shrink: 0; 
-    /* ▼▼▼ 核心修改1：增加了上、左、右的内边距，让整个区域更“宽敞” ▼▼▼ */
-    padding: 10px 12px; 
+    padding: 8px; 
     background-color: rgba(247, 247, 247, 0.8); 
     backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px); 
@@ -416,9 +415,8 @@ body {
     gap: 5px; 
 }
 
-/* 修改iPhone底部安全区的适配 */
+/* 同时也要修改下面这行，它负责适配iPhone底部安全区 */
 #chat-input-area {
-    /* ▼▼▼ 核心修改2：将这里的 8px 也同步为 10px，保持一致 ▼▼▼ */
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
 }
 
