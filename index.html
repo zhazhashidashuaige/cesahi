@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -41,7 +40,6 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
     <style>
-        @font-face { font-family: 'bulangni'; src: url('') format('truetype'); font-weight: normal; font-style: normal; font-display: swap; }
         :root { --screen-width: 350px; --screen-height: 650px; --secondary-bg: #ffffff; --border-color: #e0e0e0; --text-primary: #1f1f1f; --text-secondary: #8a8a8a; --accent-color: #007bff;    --status-bar-text-color: var(--accent-color); }
 /* ▼▼▼ 用这块终极代码，替换掉你现有的 html 和 body 样式 ▼▼▼ */
 html {
@@ -289,13 +287,13 @@ body {
         #wallpaper-preview { width: 180px; height: 320px; border: 2px dashed var(--border-color); background-color: var(--secondary-bg); margin-bottom: 20px; background-size: cover; background-position: center; border-radius: 10px; display: flex; justify-content: center; align-items: center; color: var(--text-secondary); }
         #wallpaper-upload-input { display: none; }
 /* 修改后的 #world-book-list 样式 */
+/* 【终极修复版】世界书主界面列表样式 */
 #world-book-list {
-    flex-grow: 1;
-    overflow-y: auto;
-    background-color: var(--secondary-bg);
-    padding-top: 80px;
-    margin-top: -80px;
-    min-height: 0; /* ★★★ 就是在这里添加了这一行！ ★★★ */
+    flex-grow: 1;          /* 让列表占据所有剩余的垂直空间 */
+    overflow-y: auto;      /* 内容超出时，自动显示垂直滚动条 */
+    min-height: 0;         /* 解决Flex布局下的滚动兼容性问题 */
+    background-color: var(--secondary-bg); /* 保留你喜欢的背景色 */
+    /* 我们不再需要 padding-top 和 margin-top 这两个技巧了 */
 }
 
 
@@ -407,7 +405,26 @@ body {
 
         .message-bubble.user { flex-direction: row-reverse; }
         #typing-indicator { align-self: flex-start; display: none; margin: 0 10px 10px; color: var(--text-secondary); }
-        #chat-input-area { flex-shrink: 0; padding: 8px; background-color: rgba(247, 247, 247, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 5px; }
+        /* 修改聊天输入框区域的 padding */
+#chat-input-area { 
+    flex-shrink: 0; 
+    /* ▼▼▼ 核心修改1：增加了上、左、右的内边距，让整个区域更“宽敞” ▼▼▼ */
+    padding: 10px 12px; 
+    background-color: rgba(247, 247, 247, 0.8); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); 
+    border-top: 1px solid var(--border-color); 
+    display: flex; 
+    flex-direction: column; 
+    gap: 5px; 
+}
+
+/* 修改iPhone底部安全区的适配 */
+#chat-input-area {
+    /* ▼▼▼ 核心修改2：将这里的 8px 也同步为 10px，保持一致 ▼▼▼ */
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+}
+
         #chat-input-main-row { display: flex; align-items: flex-end; gap: 8px; width: 100%; }
         #chat-input { flex-grow: 1; border: none; padding: 10px 15px; border-radius: 20px; background-color: var(--secondary-bg); font-size: 16px; max-height: 100px; resize: none; }
         .action-button { border: none; color: white; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; flex-shrink: 0; }
@@ -488,12 +505,11 @@ body {
 .checkboxes-container {
     display: none;
     position: absolute;
-    /* 核心修改：不再使用 top，而是用 margin-top 来创造间距，更稳定 */
     top: 100%; 
-    margin-top: 5px; /* <-- 新增：向下推开5像素的距离 */
+    margin-top: 5px;
     left: 0;
     right: 0;
-    max-height: 150px;
+    max-height: 400px; /* ★★★ 修改点在这里 ★★★ 我把高度从 150px 增加到了 350px */
     overflow-y: auto;
     overflow-x: hidden;
     background-color: #fff;
@@ -502,7 +518,6 @@ body {
     z-index: 101;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-
         .checkboxes-container.visible { display: block; }
         .checkboxes-container label { display: block; padding: 10px 12px; cursor: pointer; font-weight: normal; color: var(--text-primary); }
 
@@ -1984,8 +1999,8 @@ body {
 }
 
 /* ▼▼▼ 这是新增的样式，用于修正所有头部标题的居中问题 ▼▼▼ */
-.header > span:nth-child(2),
-#chat-header-title {
+/* ▼▼▼ 这是新增的样式，用于修正所有头部标题的居中问题 ▼▼▼ */
+.header > span:nth-child(2) {
     position: absolute;
     left: 50%;
     transform: translateX(calc(-50% - 2px)); /* 在-50%的基础上，再向左推2像素 */
@@ -1997,6 +2012,7 @@ body {
     text-overflow: ellipsis;
 }
 /* ▲▲▲ 粘贴结束 ▲▲▲ */
+
 
 /* ▼▼▼ 【全新】可视化消息编辑器样式 ▼▼▼ */
 #message-editor-container {
@@ -2740,20 +2756,15 @@ body {
 
 /* === 【全新】聊天界面头部状态栏样式 === */
 
-/* 1. 标题和状态的总容器，使用flex布局让它们垂直排列 */
+/* ▼▼▼ 请用这块【已修复】的代码，替换掉你旧的 #chat-header-title-wrapper 样式 ▼▼▼ */
 #chat-header-title-wrapper {
-    /* ▼▼▼ 新增下面这3行 ▼▼▼ */
-    position: absolute;         /* ★ 核心：让它脱离文档流，不再被挤压 */
-    left: 50%;                  /* ★ 核心：定位到屏幕中线 */
-    transform: translateX(-50%); /* ★ 核心：将自身向左移动一半宽度，实现完美居中 */
-    /* ▲▲▲ 新增结束 ▲▲▲ */
-    
     display: flex;
     flex-direction: column;
-    align-items: center; /* 水平居中 */
-    gap: 2px; /* 标题和状态之间的微小间距 */
-    max-width: 60%;
+    align-items: center;
+    gap: 6px; /* ★★★ 修复1：我把间距从 4px 增加到了 6px，让它们分开一点 ★★★ */
+    flex-grow: 1; /* ★★★ 这一行是上次加的，请保留，它能让容器撑满中间区域 ★★★ */
 }
+/* ▲▲▲ 替换结束 ▲▲▲ */
 
 /* 【新增】这是我们新加的样式，用于将标题和心形按钮横向排列 */
 #chat-header-main-line {
@@ -2764,18 +2775,21 @@ body {
 }
 
 
-/* 2. 主标题的样式微调 */
+/* ▼▼▼ 请用这块【终极修复版】代码，替换掉你旧的 #chat-header-title 样式 ▼▼▼ */
 #chat-header-title {
-    font-size: 16px; /* 可以稍微缩小一点，给状态栏留出空间 */
+    font-size: 16px;
     font-weight: 600;
-    position: static; /* 覆盖掉旧的absolute定位 */
-    transform: none;  /* 覆盖掉旧的transform */
-    /* 保证长标题也能正确显示省略号 */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+    
+    /* (这两行是上次修复定位问题的，必须保留！) */
+    position: static !important;
+    transform: none !important;
+
+    /* ★★★ 核心修复：我们已经把导致省略号的四行代码全部删掉了！ ★★★ */
 }
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
+
+
 
 /* 3. 状态栏容器 */
 #chat-header-status {
@@ -7186,6 +7200,480 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     stroke-width: 1.5; /* 让图标线条稍微粗一点，更清晰 */
 }
 /* ▲▲▲ 新CSS粘贴结束 ▲▲▲ */
+/* ▼▼▼ 把这一整块全新的微博页面样式，粘贴到 <style> 的末尾 ▼▼▼ */
+
+/* ▼▼▼ 把这一整块全新的微博页面布局样式，粘贴到 <style> 标签的最末尾 ▼▼▼ */
+/* ▼▼▼ 把这一整块全新的、修复后的微博布局样式，粘贴到 <style> 标签中 ▼▼▼ */
+
+/* 个人主页内容区，确保可以滚动 */
+#weibo-profile-page {
+    flex-grow: 1; /* 占据剩余所有空间 */
+    overflow-y: auto; /* 内容多了可以滚动 */
+    background-color: #f0f2f5;
+}
+
+/* 1. 【核心】重塑头部容器 */
+.weibo-profile-header {
+    position: relative; /* 作为内部所有元素的定位基准 */
+    width: 100%;
+    height: 250px; /* 增加高度以容纳所有内容 */
+    display: flex; /* 使用Flex布局 */
+    flex-direction: column; /* 垂直排列 */
+    justify-content: center; /* 垂直居中 */
+    align-items: center; /* 水平居中 */
+    padding: 20px;
+    box-sizing: border-box;
+    color: white; /* 统一设置文字颜色为白色，因为在背景图上 */
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5); /* 给所有文字加阴影，保证清晰 */
+}
+
+/* ▼▼▼ 请用下面这【正确】的代码替换 ▼▼▼ */
+.weibo-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* z-index: -1;  <-- 我们已经把错误的那行删掉了！ */
+    z-index: 1; /* 【修正】设置一个正数的层级，确保它在父容器内 */
+    filter: brightness(0.9); 
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
+/* ▼▼▼ 请将这块【新代码】粘贴到 .weibo-background 的正下方 ▼▼▼ */
+/* 【新增】为前景内容设置更高的层级 */
+.weibo-avatar-container,
+.weibo-nickname,
+.weibo-stats {
+    position: relative; /* 激活z-index */
+    z-index: 2;         /* 确保它们在背景图之上 */
+}
+/* ▲▲▲ 新代码粘贴结束 ▲▲▲ */
+
+
+/* 3. 【核心】重置头像容器的样式 */
+.weibo-avatar-container {
+    /* 移除所有绝对定位相关的代码 */
+    position: static;
+    transform: none;
+    bottom: auto;
+    left: auto;
+    
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    margin-bottom: 12px; /* 与下方的昵称拉开距离 */
+}
+
+.weibo-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* 4. 【核心】重置昵称和各项数据的样式 */
+.weibo-nickname {
+    margin: 0 0 10px 0; /* 调整间距 */
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.weibo-stats {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 30px; /* 调整项目间距 */
+}
+
+.weibo-stat-item {
+    display: flex;
+    align-items: center; /* 改为水平排列，数字在左，文字在右 */
+    gap: 6px; /* 数字和文字的间距 */
+}
+
+.weibo-stat-number {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.weibo-stat-label {
+    margin-top: 0; /* 移除旧的上边距 */
+    font-size: 14px;
+    opacity: 0.9; /* 让标签文字稍微柔和一点 */
+}
+
+/* 5. 确保微博Feed列表正确显示在头部下方 */
+#my-weibo-feed-list {
+    background-color: #f0f2f5;
+}
+
+/* ▲▲▲ 微博样式粘贴结束 ▲▲▲ */
+
+
+/* ▼▼▼ 【全新】微博页面框架和底部导航样式 ▼▼▼ */
+#weibo-screen {
+    display: flex;
+    flex-direction: column;
+}
+.weibo-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none; /* 默认隐藏所有页面 */
+    flex-direction: column;
+    background-color: #f0f2f5;
+}
+.weibo-view.active {
+    display: flex; /* 只显示激活的页面 */
+}
+/* ▼▼▼ 请用这块新代码替换旧的 #weibo-bottom-nav 样式 ▼▼▼ */
+#weibo-bottom-nav {
+    position: absolute; /* 核心修改：改为绝对定位，使其脱离文档流并固定 */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 15; /* 确保它在内容区之上 */
+    display: flex;
+    border-top: 1px solid var(--border-color);
+    /* 与消息列表底栏统一为毛玻璃效果 */
+    background-color: rgba(247, 247, 247, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding-bottom: env(safe-area-inset-bottom); /* 适配iPhone底部安全区 */
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
+.weibo-nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+.weibo-nav-item.active {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+/* ▲▲▲ 微博框架样式结束 ▲▲▲ */
+
+/* ▼▼▼ 【全新】微博关注列表弹窗样式 ▼▼▼ */
+#weibo-following-list-container {
+    height: 100%;
+    overflow-y: auto; /* 【核心】内容超出时显示垂直滚动条 */
+}
+.weibo-following-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.weibo-following-item:last-child {
+    border-bottom: none;
+}
+.weibo-following-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+}
+.weibo-following-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+/* ▲▲▲ 关注列表样式结束 ▲▲▲ */
+
+/* ▼▼▼ 【全新】让个人主页可编辑的元素有点击手势 ▼▼▼ */
+#weibo-avatar-img,
+#weibo-nickname,
+#weibo-posts-item, /* 我们让整个“微博”区域可点击 */
+#weibo-fans-item,  /* 整个“粉丝”区域可点击 */
+#weibo-background-img /* 背景图也可点击 */ {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+#weibo-avatar-img:hover,
+#weibo-nickname:hover,
+#weibo-posts-item:hover,
+#weibo-fans-item:hover,
+#weibo-background-img:hover {
+    opacity: 0.8; /* 鼠标放上去时变淡一点，给用户反馈 */
+}
+/* ▲▲▲ 点击手势样式结束 ▲▲▲ */
+/* ▼▼▼ 【全新】微博页面布局修复CSS ▼▼▼ */
+/* ▼▼▼ 请用这块新代码替换旧的 #weibo-page-container 样式 ▼▼▼ */
+#weibo-page-container {
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+    /* 核心修改：为绝对定位的导航栏预留出空间，防止内容被遮挡 */
+    /* 50px 是导航栏的大致高度，env() 用于适配iPhone底部的小黑条 */
+    padding-bottom: calc(50px + env(safe-area-inset-bottom));
+    box-sizing: border-box; /* 确保内边距被正确计算在内 */
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
+
+/* 确保个人主页的内容可以滚动 */
+#weibo-profile-page {
+    overflow-y: auto;
+    height: 100%;
+}
+/* ▲▲▲ 修复CSS结束 ▲▲▲ */
+
+/* ▲▲▲ 修复CSS结束 ▲▲▲ */
+/* ▼▼▼ 【最终修复】提升微博关注列表弹窗的层级 ▼▼▼ */
+#weibo-following-modal {
+    z-index: 1001; /* 确保它能覆盖在其他页面之上 */
+}
+/* ▲▲▲ 修复结束 ▲▲▲ */
+/* ▼▼▼ 把这一整块全新的微博帖子样式，粘贴到 <style> 标签的最末尾 ▼▼▼ */
+
+/* ▼▼▼ 把这一整块全新的微博帖子样式，粘贴到 <style> 标签的最末尾 ▼▼▼ */
+
+/* === 微博帖子专属样式 (已和动态分离) === */
+.weibo-post-item {
+    background-color: var(--secondary-bg);
+    border-radius: 0; /* 微博风格，通常没有圆角 */
+    padding: 15px;
+    border-bottom: 8px solid #f0f2f5; /* 用厚一点的分割线代替阴影 */
+}
+.weibo-post-item:last-child {
+    border-bottom: none;
+}
+
+.weibo-post-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.weibo-post-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.weibo-post-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.weibo-post-nickname {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-primary);
+}
+
+.weibo-post-timestamp {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.weibo-post-content {
+    font-size: 15px; /* 微博正文字体稍大 */
+    line-height: 1.7;
+    color: #333;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 10px;
+}
+
+.weibo-post-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.weibo-post-footer {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 8px;
+    margin-top: 10px;
+}
+
+.weibo-post-actions {
+    display: flex;
+    justify-content: space-around; /* 三个按钮均分空间 */
+    margin-bottom: 10px;
+}
+
+.weibo-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+}
+.weibo-action-btn.liked {
+    color: #ff5252; /* 点赞后变红 */
+}
+.weibo-action-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.weibo-comments-container {
+    padding: 10px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.weibo-comment-item .weibo-commenter-name {
+    font-weight: 600;
+    color: var(--accent-color);
+}
+.weibo-comment-item .weibo-comment-reply-tag {
+    color: var(--text-secondary);
+    margin: 0 4px;
+}
+
+.weibo-comment-input-area {
+    display: flex;
+    gap: 8px;
+}
+
+.weibo-comment-input {
+    flex-grow: 1;
+    border: none;
+    background-color: #f0f2f5;
+    border-radius: 14px;
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.weibo-comment-send-btn {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 0 15px;
+    font-size: 13px;
+    cursor: pointer;
+}
+/* ▲▲▲ 微博专属样式结束 ▲▲▲ */
+/* ▲▲▲ 粘贴结束 ▲▲▲ */
+/* ▼▼▼ 把这段新样式粘贴到 <style> 的末尾 ▼▼▼ */
+
+/* 单条评论的容器，现在需要相对定位，并为删除按钮留出空间 */
+.weibo-comment-item {
+    position: relative;
+    padding-right: 25px; 
+}
+
+/* 评论删除按钮的样式 */
+.comment-delete-btn {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    border-radius: 50%;
+    color: var(--text-secondary);
+    background-color: transparent; /* 背景透明 */
+    border: none; /* 无边框 */
+    font-size: 20px; /* 放大"×"号 */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0; /* 默认隐藏 */
+}
+
+/* 鼠标悬停在整条评论上时，才显示删除按钮 */
+.weibo-comment-item:hover .comment-delete-btn {
+    opacity: 1;
+}
+
+/* 鼠标悬停在删除按钮上时，给一点反馈效果 */
+.comment-delete-btn:hover {
+    background-color: #f0f0f0;
+    color: #ff3b30; /* 变红色 */
+}
+
+#phone-screen.dark-mode .comment-delete-btn:hover {
+    background-color: #3a3a3c; /* 夜间模式下的悬停背景色 */
+}
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 把这一整块全新的微博热搜样式，粘贴到 <style> 标签的最末尾 ▼▼▼ */
+
+/* === 微博热搜列表样式 === */
+#weibo-hot-search-list {
+    background-color: var(--secondary-bg);
+}
+
+.hot-search-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.hot-search-item:hover {
+    background-color: #f5f5f5;
+}
+#phone-screen.dark-mode .hot-search-item:hover {
+    background-color: #2c2c2e;
+}
+
+.hot-search-rank {
+    width: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-secondary);
+    text-align: center;
+    flex-shrink: 0;
+}
+/* 前三名用不同的颜色突出显示 */
+.hot-search-item[data-rank="1"] .hot-search-rank { color: #f44336; }
+.hot-search-item[data-rank="2"] .hot-search-rank { color: #ff9800; }
+.hot-search-item[data-rank="3"] .hot-search-rank { color: #ffc107; }
+
+.hot-search-content {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+}
+
+.hot-search-topic {
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hot-search-tag {
+    font-size: 10px;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.hot-search-tag.hot { background-color: #f44336; }
+.hot-search-tag.new { background-color: #ff9800; }
+.hot-search-tag.rec { background-color: #2196f3; }
+
+/* ▲▲▲ 微博热搜样式粘贴结束 ▲▲▲ */
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -7222,8 +7710,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 <div id="lock-screen-background-blur" style="display: none;"></div>
 <!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
             
-<!-- ▼▼▼ 用下面这【一整块】全新的代码，替换掉你旧的 <div id="home-screen"...>...</div> ▼▼▼ -->
-
+<!-- ▼▼▼ 用下面这【一整块】修改后的代码，替换掉你旧的 <div id="home-screen"...>...</div> ▼▼▼ -->
 <div id="home-screen" class="screen active">
     
     <!-- 我们不再需要滑动容器了，直接放主要内容区 -->
@@ -7272,24 +7759,32 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     <span class="label">查手机</span>
 </div>
 <!-- ▲▲▲ 修改结束 ▲▲▲ -->
-                <div class="desktop-app-icon" onclick="showScreen('wallpaper-screen')">
-                    <div class="icon-bg-desktop"><img id="icon-img-wallpaper" src="https://i.postimg.cc/T1j03pQr/IMG-6440.jpg" alt="外观设置"></div>
-                    <span class="label">外观设置</span>
-                </div>
+<!-- ▼▼▼ 用下面这段代码替换你旧的微博图标代码 ▼▼▼ -->
+<div class="desktop-app-icon" id="weibo-app-icon">
+    <div class="icon-bg-desktop"><img id="icon-img-weibo" src="https://i.postimg.cc/PqBY5wBq/weibo-icon.png" alt="微博"></div>
+    <span class="label">微博</span>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+                <!-- 【注意】“外观设置”图标已从这里移走 -->
             </div>
         </div>
     </div>
 
-    <!-- 底部 Dock 栏保持不变 -->
+    <!-- 底部 Dock 栏 (已修改) -->
     <div id="desktop-dock">
         <div class="desktop-app-icon" onclick="showScreen('api-settings-screen')"><div class="icon-bg-desktop"><img id="icon-img-api-settings" src="https://i.postimg.cc/MK8rJ8t7/IMG-6438.jpg" alt="API设置"></div><span class="label">API设置</span></div>
         <div class="desktop-app-icon" onclick="showScreen('font-settings-screen')"><div class="icon-bg-desktop"><img id="icon-img-font" src="https://i.postimg.cc/pXxk1JXk/IMG-6442.jpg" alt="字体"></div><span class="label">字体</span></div>
+        <!-- 【新增】“外观设置”图标现在在这里了 -->
+        <div class="desktop-app-icon" onclick="showScreen('wallpaper-screen')">
+            <div class="icon-bg-desktop"><img id="icon-img-wallpaper" src="https://i.postimg.cc/T1j03pQr/IMG-6440.jpg" alt="外观设置"></div>
+            <span class="label">外观设置</span>
+        </div>
     </div>
     
     <!-- 分页小圆点我们不再需要了，已经删掉 -->
 </div>
-
 <!-- ▲▲▲ HTML 替换结束 ▲▲▲ -->
+
 
 
 
@@ -7523,7 +8018,8 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
-    
+
+   
     <!-- 底部导航栏 -->
 <div id="chat-list-bottom-nav">
     <div class="nav-item active" data-view="messages-view">
@@ -7917,6 +8413,8 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             
             <!-- 2x2 网格按钮 -->
             <button id="save-home-preset-btn" class="preset-btn-capsule preset-btn-save">保存</button>
+            <!-- ▼▼▼ 就是在这里新增了“更新”按钮 ▼▼▼ -->
+            <button id="update-home-preset-btn" class="preset-btn-capsule preset-btn-secondary" disabled>更新</button>
             <button id="rename-home-preset-btn" class="preset-btn-capsule preset-btn-secondary" disabled>重命名</button>
             <button id="import-home-preset-btn" class="preset-btn-capsule preset-btn-secondary">导入</button>
             <button id="export-home-preset-btn" class="preset-btn-capsule preset-btn-secondary" disabled>导出</button>
@@ -8658,7 +9156,130 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             </div>
         </div>
     </div>
-    
+<!-- ▼▼▼ 用下面这【一整块功能最全】的代码，完整替换掉你旧的 id="weibo-screen" 的整个 div ▼▼▼ -->
+<div id="weibo-screen" class="screen">
+    <!-- 这个容器将存放微博的所有页面 -->
+    <div id="weibo-page-container">
+
+<!-- ▼▼▼ 用这【一整块新代码】替换旧的 #weibo-my-profile-view 区域 ▼▼▼ -->
+<div id="weibo-my-profile-view" class="weibo-view active">
+    <div class="header">
+        <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+        <span>我的主页</span>
+        <div class="header-actions">
+            <span class="action-btn" id="create-weibo-post-btn" style="font-size: 28px; font-weight: 300;">+</span>
+        </div>
+    </div>
+    <div id="weibo-profile-page">
+        <!-- 【核心修改】现在，头像、昵称、数据都在 header 内部了 -->
+        <div class="weibo-profile-header">
+            <img id="weibo-background-img" src="https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg" class="weibo-background">
+            
+            <div class="weibo-avatar-container">
+                <img id="weibo-avatar-img" src="https://files.catbox.moe/q6z5fc.jpeg" class="weibo-avatar">
+            </div>
+            <div class="weibo-nickname" id="weibo-nickname">你的昵称</div>
+            <div class="weibo-stats">
+                <div id="weibo-following-btn" class="weibo-stat-item">
+                    <span id="weibo-following-count" class="weibo-stat-number">0</span>
+                    <span class="weibo-stat-label">关注</span>
+                </div>
+                <div id="weibo-posts-item" class="weibo-stat-item">
+                    <span id="weibo-posts-count" class="weibo-stat-number">0</span>
+                    <span class="weibo-stat-label">微博</span>
+                </div>
+                <div id="weibo-fans-item" class="weibo-stat-item">
+                    <span id="weibo-fans-count" class="weibo-stat-number">0</span>
+                    <span class="weibo-stat-label">粉丝</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="my-weibo-feed-list" style="padding: 15px; display: flex; flex-direction: column; gap: 15px;">
+            <!-- “我的微博”列表将由JS动态生成在这里 -->
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+
+
+        <!-- 页面2: 关注的人 (保持不变) -->
+        <div id="weibo-following-view" class="weibo-view">
+            <div class="header">
+                <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+                <span>关注的人</span>
+                <span class="action-btn" id="clear-following-feed-btn" style="font-size: 16px; font-weight: 500;">清空</span>
+            </div>
+            <div id="weibo-following-feed-list" style="flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px;">
+                <!-- 关注的人的微博列表将由JS动态生成在这里 -->
+            </div>
+        </div>
+        
+        <!-- 页面3: 热搜 (已修改) -->
+        <div id="weibo-hot-search-view" class="weibo-view">
+             <div class="header">
+                <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+                <span>热搜</span>
+                <!-- 【核心新增】生成热搜的放大镜按钮 -->
+                <div class="header-actions">
+                    <span class="action-btn" id="generate-hot-search-btn" title="生成热搜">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </span>
+                </div>
+            </div>
+            <!-- 【核心修改】在这里，我们将默认内容改为了提示语 -->
+            <div id="weibo-hot-search-list" style="flex-grow: 1; overflow-y: auto;">
+                <p style="text-align:center; color: #8a8a8a; margin-top: 50px;">点击右上角放大镜生成热搜</p>
+            </div>
+        </div>
+
+        <!-- 页面4: 广场 (已修改) -->
+        <div id="weibo-plaza-view" class="weibo-view">
+            <div class="header">
+                <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+                <span>广场</span>
+                <!-- 【核心新增】生成广场的放大镜按钮 -->
+                <div class="header-actions">
+                    <span class="action-btn" id="generate-plaza-feed-btn" title="生成广场动态">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </span>
+                </div>
+            </div>
+            <!-- 【核心修改】在这里，我们将默认内容改为了提示语 -->
+            <div id="weibo-plaza-feed-list" style="flex-grow: 1; overflow-y: auto; padding: 0;">
+                 <p style="text-align:center; color: #8a8a8a; margin-top: 50px;">点击右上角放大镜生成广场动态</p>
+            </div>
+        </div>
+
+        <!-- 【全新】页面5: 热搜详情页 -->
+        <div id="weibo-hottopic-feed-view" class="weibo-view">
+            <div class="header">
+                <span class="back-btn" id="back-from-hottopic-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+                <span id="weibo-hottopic-title">热搜话题</span>
+                <div class="header-actions">
+                     <span class="action-btn" id="refresh-hottopic-feed-btn" title="换一批">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    </span>
+                </div>
+            </div>
+            <!-- 这个容器将用来显示某个热搜话题下的微博Feed -->
+            <div id="weibo-hottopic-feed-list" style="flex-grow: 1; overflow-y: auto; padding: 0;">
+                <!-- 热搜微博列表将由JS动态生成 -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div id="weibo-bottom-nav">
+        <div class="weibo-nav-item" data-view="weibo-hot-search-view">热搜</div>
+        <div class="weibo-nav-item" data-view="weibo-plaza-view">广场</div>
+        <div class="weibo-nav-item" data-view="weibo-following-view">关注的人</div>
+        <div class="weibo-nav-item active" data-view="weibo-my-profile-view">我的微博</div>
+    </div>
+</div>
+<!-- ▲▲▲ HTML 替换结束 ▲▲▲ -->
+
     <div id="preset-actions-modal" class="modal">
         <div id="custom-modal" style="width: 250px;">
             <div class="custom-modal-footer">
@@ -8697,51 +9318,28 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     <audio id="audio-player" style="display:none;"></audio>
 <audio id="ringtone-player" loop></audio>
 
-<!-- ▼▼▼ 用下面这段【完整】的模态框代码，替换掉你现有的 id="create-post-modal" 的整个 div ▼▼▼ -->
+<!-- ▼▼▼ 用下面这【一整块完整代码】替换掉你旧的 id="create-post-modal" 的整个 div ▼▼▼ -->
 <div id="create-post-modal" class="modal">
     <div class="modal-content" style="height: auto; max-height: 90%;">
         <div class="modal-header">
-            <span>发布动态</span>
+            <span id="create-post-modal-title">发布动态</span> <!-- 使用ID方便JS修改标题 -->
         </div>
         <div class="modal-body">
             <!-- 公开文字输入区 -->
             <div class="form-group">
-                <textarea id="post-public-text" rows="3" placeholder="分享新鲜事...（非必填的公开文字）"></textarea>
+                <textarea id="post-public-text" rows="3" placeholder="分享新鲜事..."></textarea>
             </div>
 
-            <!-- === 模式切换开关 (新增) === -->
+            <!-- === 【新增】模式切换开关 === -->
             <div class="post-mode-switcher">
                 <button id="switch-to-image-mode" class="mode-btn active">上传图片</button>
                 <button id="switch-to-text-image-mode" class="mode-btn">使用文字图</button>
             </div>
 
-<!-- ▼▼▼ 【修正后】的可见范围设置 ▼▼▼ -->
-<div class="form-group">
-    <label>可见范围</label>
-    <div id="post-visibility-options" style="display: flex; gap: 15px; margin-bottom: 10px;">
-        <label><input type="radio" name="visibility" value="public" checked> 公开</label>
-
-        <label><input type="radio" name="visibility" value="include"> 指定分组可见</label>
-    </div>
-    <div id="post-visibility-groups" style="display: none; max-height: 120px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 8px;">
-        <!-- 分组多选框将由JS动态生成 -->
-    </div>
-<!-- ▼▼▼ 这是你要找的代码块 ▼▼▼ -->
-<div class="form-group" style="margin-top: 15px;">
-    <label for="post-comments-toggle" class="toggle-switch-label">
-        <span class="toggle-switch-text">允许角色看见评论区</span>
-        <input type="checkbox" id="post-comments-toggle" checked>
-        <span class="toggle-switch-slider"></span>
-    </label>
-</div>
-<!-- ▲▲▲ 代码块结束 ▲▲▲ -->
-</div>
-<!-- ▲▲▲ 修正结束 ▲▲▲ -->
-
-            <!-- === 图片模式区域 === -->
+            <!-- === 【新增】图片模式区域 === -->
             <div id="image-mode-content" class="post-mode-content active">
                 <div class="form-group">
-<div id="post-image-preview-container" class="post-image-preview-container">
+                    <div id="post-image-preview-container" class="post-image-preview-container">
                         <img id="post-image-preview" src="" alt="图片预览">
                         <button id="post-remove-image-btn">×</button>
                     </div>
@@ -8751,13 +9349,14 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                         <input type="file" id="post-local-image-input" accept="image/*" hidden>
                     </div>
                 </div>
+                <!-- 这个是给AI看的图片描述，在微博模式下我们会用JS隐藏它 -->
                 <div id="post-image-desc-group" class="form-group" style="display: none;">
                     <label>图片描述 (必填，给AI看)</label>
                     <input type="text" id="post-image-description" placeholder="简单描述图片内容，帮助AI理解">
                 </div>
             </div>
 
-            <!-- === 文字图模式区域 (新增) === -->
+            <!-- === 【新增】文字图模式区域 === -->
             <div id="text-image-mode-content" class="post-mode-content">
                 <div class="form-group">
                     <label>文字图 (给AI理解用的描述，点击图片后可见)</label>
@@ -8765,6 +9364,17 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                 </div>
             </div>
 
+            <!-- 【已删除】可见范围的相关代码已全部移除 -->
+            
+            <!-- 这个是动态功能的评论开关，在微博模式下我们会用JS隐藏它 -->
+            <div class="form-group" id="post-comments-toggle-group" style="margin-top: 15px;">
+                <label for="post-comments-toggle" class="toggle-switch-label">
+                    <span class="toggle-switch-text">允许角色看见评论区</span>
+                    <input type="checkbox" id="post-comments-toggle" checked>
+                    <span class="toggle-switch-slider"></span>
+                </label>
+            </div>
+            
         </div>
         <div class="modal-footer">
             <button class="cancel" id="cancel-create-post-btn">取消</button>
@@ -8773,6 +9383,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 替换结束 ▲▲▲ -->
+
 
 <!-- ▼▼▼ 请将这个新的模态框HTML粘贴到所有其他模态框之后 ▼▼▼ -->
 <div id="group-management-modal" class="modal">
@@ -9293,6 +9904,25 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+ <!-- ▼▼▼ 【全新】这是微博关注列表的弹窗，粘贴到 </body> 前面 ▼▼▼ -->
+<div id="weibo-following-modal" class="modal">
+    <div class="modal-content" style="height: 60%;">
+        <div class="modal-header">
+            <span>关注列表</span>
+        </div>
+        <div class="modal-body" style="padding: 0;">
+            <!-- 【核心】这个容器将带滚动条 -->
+            <div id="weibo-following-list-container">
+                <!-- 关注列表将由JS动态生成在这里 -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="save" id="close-following-list-btn" style="width: 100%;">关闭</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
+
 <!-- ▼▼▼ 【全新】心声功能模态框 ▼▼▼ -->
 <div id="inner-voice-modal" class="modal">
     <!-- 心声主面板 -->
@@ -9357,7 +9987,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 
         const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models'
-    // gemini如果是多个密钥, 那么随机获取一个
+        // gemini如果是多个密钥, 那么随机获取一个
     function getRandomValue(str) {
         // 检查字符串是否包含逗号
         if (str.includes(',')) {
@@ -9517,6 +10147,8 @@ if(Array.isArray(res) && res.length > 1) {
 
         return [{text:res}]
     }
+// ... const GEMINI_API_URL = '...' 这行代码之后 ...
+
 
     function toGeminiRequestData(model, apiKey, systemInstruction, messagesForDecision,isGemini) {
 
@@ -9569,6 +10201,323 @@ if(Array.isArray(res) && res.length > 1) {
         // 1. 所有变量和常量定义
         // ===================================================================
         const db = new Dexie('GeminiChatDB');
+        // ▼▼▼ 把下面这一整块全新的微博功能代码，粘贴到这里 ▼▼▼
+
+/**
+ * 【微博】总入口：根据当前激活的视图，渲染对应的微博Feed
+ */
+async function renderWeiboFeeds(viewId) {
+    if (viewId === 'weibo-my-profile-view') {
+        await renderMyWeiboFeed();
+    } else if (viewId === 'weibo-following-view') {
+        await renderFollowingWeiboFeed();
+    }
+}
+
+// ▼▼▼ 用这【两块新代码】分别替换旧的 renderMyWeiboFeed 和 renderFollowingWeiboFeed 函数 ▼▼▼
+
+/**
+ * 【微博】渲染“我的主页”上的微博列表
+ */
+async function renderMyWeiboFeed() {
+    const feedEl = document.getElementById('my-weibo-feed-list');
+    const posts = await db.weiboPosts.where('authorId').equals('user').reverse().toArray();
+    feedEl.innerHTML = '';
+    if (posts.length === 0) {
+        feedEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">你还没有发过微博哦，点击右上角“+”试试吧！</p>';
+        return;
+    }
+    posts.forEach(post => {
+        // 【核心修改】调用我们新的专属函数！
+        feedEl.appendChild(createWeiboPostElement(post));
+    });
+}
+
+// ▼▼▼ 用这块【已修复】的代码，完整替换掉你旧的 renderFollowingWeiboFeed 函数 ▼▼▼
+/**
+ * 【微博】渲染“关注的人”的微博Feed (已修复不显示的问题)
+ */
+async function renderFollowingWeiboFeed() {
+    const feedEl = document.getElementById('weibo-following-feed-list');
+    
+    // 1. 从数据库获取【所有】微博帖子
+    const allPosts = await db.weiboPosts.toArray();
+    
+    // 2. 在代码中进行筛选和排序，确保逻辑正确
+    const posts = allPosts
+        .filter(p => p.authorId !== 'user') // 筛选出所有作者不是'user'(也就是你)的帖子
+        .sort((a, b) => b.timestamp - a.timestamp); // 按时间戳倒序排列，最新的在最上面
+
+    // 3. 渲染帖子列表 (这部分逻辑和原来一样)
+    feedEl.innerHTML = '';
+    if (posts.length === 0) {
+        feedEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">你关注的人还没有发布任何动态哦。</p>';
+        return;
+    }
+    posts.forEach(post => {
+        feedEl.appendChild(createWeiboPostElement(post));
+    });
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▼▼▼ 用下面这块【功能增强版】的代码，完整替换掉你旧的 createWeiboPostElement 函数 ▼▼▼
+
+/**
+ * 【微博 V5 - 功能增强版】创建单个微博帖子的HTML元素
+ * @param {object} post - 微博帖子对象
+ * @returns {HTMLElement} - 创建好的DOM元素
+ */
+function createWeiboPostElement(post) {
+    const postEl = document.createElement('div');
+    postEl.className = 'weibo-post-item'; 
+    postEl.dataset.postId = post.id;
+
+    let contentHtml = '';
+    if (post.content) {
+        contentHtml += `<div class="weibo-post-content">${post.content.replace(/\n/g, '<br>')}</div>`;
+    }
+    
+    if (post.imageUrl) {
+        if (post.postType === 'text_image') {
+            contentHtml += `<img src="${post.imageUrl}" class="weibo-post-image" style="cursor: pointer;" data-hidden-text="${post.hiddenContent}">`;
+        } else {
+            contentHtml += `<img src="${post.imageUrl}" class="weibo-post-image">`;
+        }
+    }
+
+// ▼▼▼ 用下面这块【已添加删除按钮】的代码，替换掉你旧的 commentsHtml 代码块 ▼▼▼
+    let commentsHtml = '';
+    if (post.comments && post.comments.length > 0) {
+        commentsHtml += '<div class="weibo-comments-container">';
+        // 【核心修改】我们在这里给每条评论加上了删除按钮
+        post.comments.forEach(comment => {
+            let replyHtml = '';
+            if (comment.replyToNickname) {
+                replyHtml = `<span class="weibo-comment-reply-tag">回复</span><span class="weibo-commenter-name">${comment.replyToNickname}</span>`;
+            }
+            commentsHtml += `
+                <div class="weibo-comment-item" data-comment-id="${comment.commentId}" data-commenter-name="${comment.authorNickname}">
+                    <span class="weibo-commenter-name">${comment.authorNickname}</span>
+                    ${replyHtml}:
+                    <span class="weibo-comment-text">${comment.commentText}</span>
+                    <!-- ▼▼▼ 这就是我们新加的删除按钮 ▼▼▼ -->
+                    <button class="comment-delete-btn" title="删除此条评论">×</button>
+                </div>`;
+        });
+        commentsHtml += '</div>';
+    }
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+    const myNickname = state.qzoneSettings.nickname || '我';
+    const isLiked = post.likes && post.likes.includes(myNickname);
+    
+    let finalAuthorAvatar = post.authorAvatar;
+    let finalAuthorNickname = post.authorNickname;
+
+    if (post.authorId === 'user') {
+        finalAuthorAvatar = state.qzoneSettings.weiboAvatar || state.qzoneSettings.avatar || defaultAvatar;
+        finalAuthorNickname = state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我';
+    }
+
+    postEl.innerHTML = `
+        <div class="weibo-post-header">
+            <img src="${finalAuthorAvatar}" class="weibo-post-avatar">
+            <div class="weibo-post-info">
+                <span class="weibo-post-nickname">${finalAuthorNickname}</span>
+                <span class="weibo-post-timestamp">${formatPostTimestamp(post.timestamp)}</span>
+            </div>
+            <div class="post-actions-btn" data-post-id="${post.id}" data-author-id="${post.authorId}">…</div>
+        </div>
+        ${contentHtml}
+        <div class="weibo-post-footer">
+            <div class="weibo-post-actions">
+                <span class="weibo-action-btn like-btn ${isLiked ? 'liked' : ''}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                    <!-- ▼▼▼ 【核心修改】这里的点赞数现在是“基础数 + 真实点赞数” ▼▼▼ -->
+                    <span>${(post.baseLikesCount || 0) + (post.likes || []).length}</span>
+                </span>
+                <span class="weibo-action-btn comment-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>           
+                    <!-- ▼▼▼ 【核心修改】评论数也是“基础数 + 真实评论数” ▼▼▼ -->
+                    <span>${(post.baseCommentsCount || 0) + (post.comments || []).length}</span>
+                </span>
+                <!-- ▼▼▼ 这就是新增的“生成评论”按钮！ ▼▼▼ -->
+                <span class="weibo-action-btn generate-comments-btn" title="AI生成评论">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                    </svg>
+                    <span>生成评论</span>
+                </span>
+            </div>
+            ${commentsHtml}
+            <div class="weibo-comment-input-area">
+                <input type="text" class="weibo-comment-input" placeholder="留下你的精彩评论吧...">
+                <button class="weibo-comment-send-btn">发送</button>
+            </div>
+        </div>
+    `;
+    return postEl;
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 【微博】打开微博发布/编辑模态框
+ */
+async function openWeiboPublisher() {
+    const modal = document.getElementById('create-post-modal');
+    
+    modal.dataset.mode = 'weibo'; // 关键！标记为微博模式
+    
+    document.getElementById('create-post-modal-title').textContent = '发微博';
+    document.getElementById('post-public-text').placeholder = '有什么新鲜事想分享给大家？';
+    
+    // 隐藏动态专属的控件
+    document.getElementById('post-image-desc-group').style.display = 'none';
+    document.getElementById('post-comments-toggle-group').style.display = 'none';
+    
+    document.getElementById('post-mode-switcher').style.display = 'flex'; // 微博也需要模式切换
+    
+    resetCreatePostModal();
+    modal.classList.add('visible');
+}
+
+// ▼▼▼ 用这块【已添加粉丝数计算逻辑】的代码，替换旧的 handlePublishWeibo 函数 ▼▼▼
+/**
+ * 【微博 V3 - 粉丝数计算版】处理发布微博的核心函数
+ */
+async function handlePublishWeibo() {
+    const modal = document.getElementById('create-post-modal');
+    
+    const mainContent = document.getElementById('post-public-text').value.trim();
+    let imageUrl = '', hiddenContent = '', postType = 'text_only';
+    const isImageModeActive = document.getElementById('image-mode-content').classList.contains('active');
+
+    if (isImageModeActive) {
+        const previewSrc = document.getElementById('post-image-preview').src;
+        const hasRealImage = previewSrc && !previewSrc.includes('placeholder') && (previewSrc.startsWith('http') || previewSrc.startsWith('data:'));
+        if (hasRealImage) {
+            imageUrl = previewSrc;
+            postType = 'image';
+        }
+    } else {
+        hiddenContent = document.getElementById('post-hidden-text').value.trim();
+        if (hiddenContent) {
+            imageUrl = 'https://i.postimg.cc/KYr2qRCK/1.jpg'; 
+            postType = 'text_image';
+        }
+    }
+    
+    if (!mainContent && !imageUrl) {
+        alert('微博内容不能为空哦！');
+        return;
+    }
+
+    // ▼▼▼ 【核心新增】计算基础点赞和评论数 ▼▼▼
+    const fansCount = parseInt(state.qzoneSettings.weiboFansCount) || 0;
+    // 点赞数是粉丝数的 10% ~ 20% 之间的一个随机数
+    const baseLikes = Math.floor(fansCount * (Math.random() * 0.1 + 0.1));
+    // 评论数是点赞数的 5% ~ 15% 之间的一个随机数
+    const baseComments = Math.floor(baseLikes * (Math.random() * 0.1 + 0.05));
+    // ▲▲▲ 新增结束 ▲▲▲
+
+    const newPost = {
+        authorId: 'user',
+        authorType: 'user',
+        authorNickname: state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我',
+        authorAvatar: state.qzoneSettings.weiboAvatar || state.qzoneSettings.avatar || defaultAvatar,
+        content: mainContent,
+        imageUrl: imageUrl,
+        hiddenContent: hiddenContent,
+        postType: postType,
+        timestamp: Date.now(),
+        likes: [],
+        comments: [],
+        // ▼▼▼ 【核心新增】把计算好的数存进去 ▼▼▼
+        baseLikesCount: baseLikes,
+        baseCommentsCount: baseComments
+    };
+
+    await db.weiboPosts.add(newPost);
+    await renderMyWeiboFeed(); 
+    await renderWeiboProfile();
+    
+    modal.classList.remove('visible');
+    alert('微博发布成功！');
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 【微博】处理点赞/取消点赞
+ * @param {number} postId - 帖子ID
+ */
+async function handleWeiboLike(postId) {
+    const post = await db.weiboPosts.get(postId);
+    if (!post) return;
+
+    const myNickname = state.qzoneSettings.nickname || '我';
+    if (!post.likes) post.likes = [];
+    
+    const likeIndex = post.likes.indexOf(myNickname);
+    if (likeIndex > -1) {
+        post.likes.splice(likeIndex, 1); // 取消点赞
+    } else {
+        post.likes.push(myNickname); // 点赞
+    }
+
+    await db.weiboPosts.put(post);
+    // 重新渲染两个Feed，确保数据同步
+    await renderMyWeiboFeed();
+    await renderFollowingWeiboFeed();
+}
+
+/**
+ * 【微博】处理发布评论或回复
+ * @param {number} postId - 帖子ID
+ * @param {HTMLInputElement} inputElement - 评论输入框元素
+ */
+async function handleWeiboComment(postId, inputElement) {
+    const commentText = inputElement.value.trim();
+    if (!commentText) {
+        alert("评论内容不能为空！");
+        return;
+    }
+
+    const post = await db.weiboPosts.get(postId);
+    if (!post) return;
+
+    if (!post.comments) post.comments = [];
+
+    const newComment = {
+        commentId: 'comment_' + Date.now(),
+        authorId: 'user',
+        authorNickname: state.qzoneSettings.nickname || '我',
+        commentText: commentText,
+        timestamp: Date.now()
+    };
+    
+    // 检查是否是回复
+    if (inputElement.dataset.replyToId) {
+        newComment.replyToId = inputElement.dataset.replyToId;
+        newComment.replyToNickname = inputElement.dataset.replyToNickname;
+    }
+
+    post.comments.push(newComment);
+    await db.weiboPosts.put(post);
+    
+    // 清空输入框并重置状态
+    inputElement.value = '';
+    inputElement.placeholder = '留下你的精彩评论吧...';
+    delete inputElement.dataset.replyToId;
+    delete inputElement.dataset.replyToNickname;
+    
+    // 重新渲染两个Feed
+    await renderMyWeiboFeed();
+    await renderFollowingWeiboFeed();
+}
+
+
+// ▲▲▲ 全新的微博功能代码粘贴结束 ▲▲▲
 // ▼▼▼ 在这里添加您的 API 站点黑名单 ▼▼▼
 const BLOCKED_API_SITES = [
     'api.pisces.ink',
@@ -10177,7 +11126,8 @@ const DEFAULT_APP_ICONS = {
     'wallpaper': 'https://i.postimg.cc/T1j03pQr/IMG-6440.jpg',
     'font': 'https://i.postimg.cc/pXxk1JXk/IMG-6442.jpg',
     // ▼▼▼ 在这里添加下面这行新代码 ▼▼▼
-    'check-phone': 'https://i.postimg.cc/RVwpwr0r/IMG-8348.jpg'
+    'check-phone': 'https://i.postimg.cc/RVwpwr0r/IMG-8348.jpg',
+    'weibo': 'https://i.postimg.cc/PqBY5wBq/weibo-icon.png' // <-- 就是新增这一行
 };
 // ▲▲▲ 添加结束 ▲▲▲
 
@@ -10263,261 +11213,6 @@ function stripHtmlAndCode(text) {
 }
 // ▲▲▲ 粘贴结束 ▲▲▲
 
-// ▼▼▼ 把这【一整块】全新的代码，粘贴到 <script> 标签内的【变量定义区域】的末尾 ▼▼▼
-
-const avatarFrames = [
-    { id: 'none', url: '', name: '无' }, 
-    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/fLDnz5Pn/IMG-5574.gif', name: '1' }, 
-    { id: 'frame_ribbon', url: 'https://i.postimg.cc/HxH3cNHz/IMG-6871.gif', name: '2' }, 
-    { id: 'frame_flower', url: 'https://i.postimg.cc/jCVK0fGL/IMG-6890.gif', name: '3' }, 
-    { id: 'frame_tech', url: 'https://i.postimg.cc/85Zsyjwn/IMG-6895.gif', name: '4' }, 
-    { id: 'frame_5', url: 'https://i.postimg.cc/cJtpZCB3/IMG-6894.gif', name: '5' }, 
-    { id: 'frame_6', url: 'https://i.postimg.cc/63sDQKMm/IMG-6893.gif', name: '6' }, 
-    { id: 'frame_7', url: 'https://i.postimg.cc/cHQPgzj4/IMG-6888.gif', name: '7' }, 
-    { id: 'frame_8', url: 'https://i.postimg.cc/dVLXm3Xf/IMG-6885.gif', name: '8' }, 
-    { id: 'frame_9', url: 'https://i.postimg.cc/kGsZwbq0/IMG-6886.gif', name: '9' }, 
-    { id: 'frame_10', url: 'https://i.postimg.cc/63NmX03s/IMG-4366.gif', name: '10' }, 
-    { id: 'frame_11', url: 'https://i.postimg.cc/zvz2LGK0/IMG-4367.gif', name: '11' }, 
-    { id: 'frame_12', url: 'https://i.postimg.cc/prsGKMBx/IMG-4370.gif', name: '12' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/gk0BmrY0/IMG-4371.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/fRt2SFSn/IMG-4368.gif', name: '14' }, 
-    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/kGgwJhPH/IMG-4374.gif', name: '1' }, 
-    { id: 'frame_ribbon', url: 'https://i.postimg.cc/PrcKH436/IMG-4376.gif', name: '2' }, 
-    { id: 'frame_flower', url: 'https://i.postimg.cc/fRV86FMq/IMG-4381.gif', name: '3' }, 
-    { id: 'frame_tech', url: 'https://i.postimg.cc/HsyqMVyk/IMG-4385.gif', name: '4' }, 
-    { id: 'frame_5', url: 'https://i.postimg.cc/qBbKK7dS/IMG-4386.gif', name: '5' }, 
-    { id: 'frame_6', url: 'https://i.postimg.cc/05wnd389/IMG-4388.gif', name: '6' }, 
-    { id: 'frame_7', url: 'https://i.postimg.cc/RZNLhbbr/IMG-4389.gif', name: '7' }, 
-    { id: 'frame_8', url: 'https://i.postimg.cc/fLTc42dg/IMG-4391.gif', name: '8' }, 
-    { id: 'frame_9', url: 'https://i.postimg.cc/FzbGNdRT/IMG-4392.gif', name: '9' }, 
-    { id: 'frame_10', url: 'https://i.postimg.cc/XY63sTS3/IMG-4393.gif', name: '10' }, 
-    { id: 'frame_11', url: 'https://i.postimg.cc/Cx9vCVWH/IMG-4395.gif', name: '11' }, 
-    { id: 'frame_12', url: 'https://i.postimg.cc/kMfPQBwQ/IMG-4396.gif', name: '12' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/CLrZQMMD/IMG-4398.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/L4zwDhTC/IMG-4399.gif', name: '14' }, 
-    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/yN3s8szM/IMG-4400.gif', name: '1' }, 
-    { id: 'frame_ribbon', url: 'https://i.postimg.cc/59Cn1tkB/IMG-4401.gif', name: '2' }, 
-    { id: 'frame_flower', url: 'https://i.postimg.cc/g0s1V0PX/IMG-4402.gif', name: '3' }, 
-    { id: 'frame_tech', url: 'https://i.postimg.cc/Jn1DFPgY/IMG-4403.gif', name: '4' }, 
-    { id: 'frame_5', url: 'https://i.postimg.cc/q7cQnDy1/IMG-4404.gif', name: '5' }, 
-    { id: 'frame_6', url: 'https://i.postimg.cc/RFK3q2t0/IMG-4407.gif', name: '6' }, 
-    { id: 'frame_7', url: 'https://i.postimg.cc/gcV0VR2t/IMG-4408.gif', name: '7' }, 
-    { id: 'frame_8', url: 'https://i.postimg.cc/W1CjLb4J/IMG-4409.gif', name: '8' }, 
-    { id: 'frame_9', url: 'https://i.postimg.cc/Ss7pM6fW/IMG-4410.gif', name: '9' }, 
-    { id: 'frame_10', url: 'https://i.postimg.cc/nrFfYX3N/IMG-4412.gif', name: '10' }, 
-    { id: 'frame_11', url: 'https://i.postimg.cc/cHWp0KG6/IMG-4413.gif', name: '11' }, 
-    { id: 'frame_12', url: 'https://i.postimg.cc/4yNjHrdg/IMG-4414.gif', name: '12' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/hPX5F8Qp/IMG-4415.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/vHCSG1WM/IMG-4416.gif', name: '14' }, 
-    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/x1Hp80Rm/IMG-4417.gif', name: '1' }, 
-    { id: 'frame_ribbon', url: 'https://i.postimg.cc/FHRcCGfH/IMG-4418.gif', name: '2' }, 
-    { id: 'frame_flower', url: 'https://i.postimg.cc/13hhJ77p/IMG-4419.gif', name: '3' }, 
-    { id: 'frame_tech', url: 'https://i.postimg.cc/J4WCQd2j/IMG-4420.gif', name: '4' }, 
-    { id: 'frame_5', url: 'https://i.postimg.cc/Dydkpd9H/IMG-4421.gif', name: '5' }, 
-    { id: 'frame_6', url: 'https://i.postimg.cc/mrkvDxPW/IMG-4422.gif', name: '6' }, 
-    { id: 'frame_7', url: 'https://i.postimg.cc/76Tj3g1B/IMG-4425.gif', name: '7' }, 
-    { id: 'frame_8', url: 'https://i.postimg.cc/3N5Vndn3/IMG-4426.gif', name: '8' }, 
-    { id: 'frame_9', url: 'https://i.postimg.cc/05DLr0yj/IMG-4427.gif', name: '9' }, 
-    { id: 'frame_10', url: 'https://i.postimg.cc/GhR6DT4Q/IMG-4428.gif', name: '10' }, 
-    { id: 'frame_11', url: 'https://i.postimg.cc/fRTF24jS/IMG-4430.gif', name: '11' }, 
-    { id: 'frame_12', url: 'https://i.postimg.cc/R0WYmcYM/IMG-4431.gif', name: '12' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/nrJSqNhz/IMG-4432.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/tC9mJ0cv/IMG-4438.gif', name: '14' }, 
-    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/XNkQTHvf/IMG-5561.gif', name: '1' }, 
-    { id: 'frame_ribbon', url: 'https://i.postimg.cc/Mpv5fzm5/IMG-4439.gif', name: '2' }, 
-    { id: 'frame_flower', url: 'https://i.postimg.cc/T1tjhsyB/IMG-4720.gif', name: '3' }, 
-    { id: 'frame_tech', url: 'https://i.postimg.cc/c4JMPd2W/IMG-4724.gif', name: '4' }, 
-    { id: 'frame_5', url: 'https://i.postimg.cc/g2XykNGB/IMG-4727.gif', name: '5' }, 
-    { id: 'frame_6', url: 'https://i.postimg.cc/y8MmJcd6/IMG-4728.gif', name: '6' }, 
-    { id: 'frame_7', url: 'https://i.postimg.cc/Lsjzj5Yt/IMG-4729.gif', name: '7' }, 
-    { id: 'frame_8', url: 'https://i.postimg.cc/bNdk33SN/IMG-4893.gif', name: '8' }, 
-    { id: 'frame_9', url: 'https://i.postimg.cc/4x9tTy1D/IMG-5563.gif', name: '9' }, 
-    { id: 'frame_10', url: 'https://i.postimg.cc/DZshzKv6/IMG-5576.gif', name: '10' }, 
-    { id: 'frame_11', url: 'https://i.postimg.cc/Fsvr71JL/IMG-5573.gif', name: '11' }, 
-    { id: 'frame_12', url: 'https://i.postimg.cc/Fz3HwLk9/IMG-5569.gif', name: '12' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/wjH180kn/IMG-5566.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/MG6qtLYK/IMG-5565.gif', name: '14' }, 
-    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/CKgDNYVb/IMG-5577.gif', name: '1' }, 
-    { id: 'frame_ribbon', url: 'https://i.postimg.cc/hj4dkrvj/IMG-5578.gif', name: '2' }, 
-    { id: 'frame_flower', url: 'https://i.postimg.cc/hj4dkrvj/IMG-5578.gif', name: '3' }, 
-    { id: 'frame_tech', url: 'https://i.postimg.cc/C5XnfpNB/IMG-5579.gif', name: '4' }, 
-    { id: 'frame_5', url: 'https://i.postimg.cc/4y7mGFgJ/IMG-5716.gif', name: '5' }, 
-    { id: 'frame_6', url: 'https://i.postimg.cc/FzM1Hgr0/IMG-5717.gif', name: '6' }, 
-    { id: 'frame_7', url: 'https://i.postimg.cc/rF4KYbjj/IMG-5720.gif', name: '7' }, 
-    { id: 'frame_8', url: 'https://i.postimg.cc/6pLTBvDG/IMG-5721.gif', name: '8' }, 
-    { id: 'frame_9', url: 'https://i.postimg.cc/VNK6Ccsf/IMG-5722.gif', name: '9' }, 
-    { id: 'frame_10', url: 'https://i.postimg.cc/wx72fhr2/IMG-5968.gif', name: '10' }, 
-    { id: 'frame_11', url: 'https://i.postimg.cc/QdrqdvdY/IMG-5969.gif', name: '11' }, 
-    { id: 'frame_12', url: 'https://i.postimg.cc/0yd0MZ6k/IMG-5971.gif', name: '12' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/1zmcp66p/IMG-5973.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/wBw5Fvcn/IMG-5974.gif', name: '14' }, 
-    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/R0pfKYvB/IMG-5976.gif', name: '1' }, 
-    { id: 'frame_ribbon', url: 'https://i.postimg.cc/9fQZ425b/IMG-5975.gif', name: '2' }, 
-    { id: 'frame_flower', url: 'https://i.postimg.cc/v8V9xXjJ/IMG-6137.gif', name: '3' }, 
-    { id: 'frame_tech', url: 'https://i.postimg.cc/WbmkXzsS/IMG-6138.gif', name: '4' }, 
-    { id: 'frame_5', url: 'https://i.postimg.cc/Dw2bDhZh/IMG-6140.gif', name: '5' }, 
-    { id: 'frame_6', url: 'https://i.postimg.cc/ZqQBCyLY/IMG-6144.gif', name: '6' }, 
-    { id: 'frame_7', url: 'https://i.postimg.cc/qRCtnMms/IMG-6145.gif', name: '7' }, 
-    { id: 'frame_8', url: 'https://i.postimg.cc/1Rwn3XVP/IMG-6146.gif', name: '8' }, 
-    { id: 'frame_9', url: 'https://i.postimg.cc/Kv51tW5H/IMG-6147.gif', name: '9' }, 
-    { id: 'frame_10', url: 'https://i.postimg.cc/nhcC21Rc/IMG-6148.gif', name: '10' }, 
-    { id: 'frame_11', url: 'https://i.postimg.cc/fTWzQRx8/IMG-6149.gif', name: '11' }, 
-    { id: 'frame_12', url: 'https://i.postimg.cc/LXyyqDbY/IMG-6294.gif', name: '12' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/7Zgm1wRy/IMG-6295.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/5tbpnDcQ/IMG-6296.gif', name: '14' }, 
-    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/YSRRV8kn/IMG-6297.gif', name: '1' }, 
-    { id: 'frame_ribbon', url: 'https://i.postimg.cc/k45sd8gn/IMG-6375.gif', name: '2' }, 
-    { id: 'frame_flower', url: 'https://i.postimg.cc/50k390X8/IMG-6376.gif', name: '3' }, 
-    { id: 'frame_tech', url: 'https://i.postimg.cc/90RBDh9K/IMG-6377.gif', name: '4' }, 
-    { id: 'frame_5', url: 'https://i.postimg.cc/cCpBYbMH/IMG-6552.gif', name: '5' }, 
-    { id: 'frame_6', url: 'https://i.postimg.cc/Pf9g2fSL/IMG-6554.gif', name: '6' }, 
-    { id: 'frame_7', url: 'https://i.postimg.cc/gkhf597g/IMG-6555.gif', name: '7' }, 
-    { id: 'frame_8', url: 'https://i.postimg.cc/g2PfbSFm/IMG-6556.gif', name: '8' }, 
-    { id: 'frame_9', url: 'https://i.postimg.cc/pLY3WfR8/IMG-6557.gif', name: '9' }, 
-    { id: 'frame_10', url: 'https://i.postimg.cc/65Cmcr7S/IMG-6559.gif', name: '10' }, 
-    { id: 'frame_11', url: 'https://i.postimg.cc/Y94XWYKd/IMG-6560.gif', name: '11' }, 
-    { id: 'frame_12', url: 'https://i.postimg.cc/ydwLXx7s/IMG-6562.gif', name: '12' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/G3y73Fj2/IMG-6563.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/TYvkKKkc/IMG-6565.gif', name: '14' }, 
-    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/GmcqjZn8/IMG-6566.gif', name: '1' }, 
-    { id: 'frame_ribbon', url: 'https://i.postimg.cc/k5Gs0K47/IMG-6567.gif', name: '2' }, 
-    { id: 'frame_flower', url: 'https://i.postimg.cc/XJy8JWdh/IMG-6568.gif', name: '3' }, 
-    { id: 'frame_tech', url: 'https://i.postimg.cc/fycfcvHf/IMG-6569.gif', name: '4' }, 
-    { id: 'frame_5', url: 'https://i.postimg.cc/J7ZxC11H/IMG-6570.gif', name: '5' }, 
-    { id: 'frame_6', url: 'https://i.postimg.cc/hPnrSHjy/IMG-4434.gif', name: '6' }, 
-    { id: 'frame_7', url: 'https://i.postimg.cc/YqxxjbLp/IMG-6572.gif', name: '7' }, 
-    { id: 'frame_8', url: 'https://i.postimg.cc/wjfcQMkZ/IMG-6573.gif', name: '8' }, 
-    { id: 'frame_9', url: 'https://i.postimg.cc/Vv8jkCYr/IMG-6574.gif', name: '9' }, 
-    { id: 'frame_10', url: 'https://i.postimg.cc/MZ77rdDy/IMG-6850.gif', name: '10' }, 
-    { id: 'frame_11', url: 'https://i.postimg.cc/T3NvqJCZ/IMG-6851.gif', name: '11' }, 
-    { id: 'frame_12', url: 'https://i.postimg.cc/28TsrxRV/IMG-6852.gif', name: '12' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/VkV2bLNw/IMG-6853.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/gJ95NSRB/IMG-6854.gif', name: '14' }, 
-    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/d1qsQsbQ/IMG-6855.gif', name: '1' }, 
-    { id: 'frame_ribbon', url: 'https://i.postimg.cc/gJNYx9pV/IMG-6856.gif', name: '2' }, 
-    { id: 'frame_flower', url: 'https://i.postimg.cc/fyPDvxJk/IMG-6860.gif', name: '3' }, 
-    { id: 'frame_tech', url: 'https://i.postimg.cc/QMDsSNxg/IMG-6861.gif', name: '4' }, 
-    { id: 'frame_5', url: 'https://i.postimg.cc/vBqsQW7X/IMG-6858.gif', name: '5' }, 
-    { id: 'frame_6', url: 'https://i.postimg.cc/Y0vwjhb7/IMG-6857.gif', name: '6' }, 
-    { id: 'frame_7', url: 'https://i.postimg.cc/90sH9Cn7/IMG-6868.gif', name: '7' }, 
-    { id: 'frame_8', url: 'https://i.postimg.cc/Y2PHZzCC/IMG-6866.gif', name: '8' }, 
-    { id: 'frame_9', url: 'https://i.postimg.cc/7Z8yYP7v/IMG-6889.gif', name: '9' }, 
-    { id: 'frame_10', url: 'https://i.postimg.cc/nryNzTXK/IMG-6915.gif', name: '10' }, 
-    { id: 'frame_11', url: 'https://i.postimg.cc/Qx5dqyJ3/IMG-6917.gif', name: '11' }, 
-    { id: 'frame_12', url: 'https://i.postimg.cc/Wbr0JSDD/IMG-5316.gif', name: '12' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/tgR6wjBP/IMG-5570.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/d0WCKxff/IMG-6932.gif', name: '14' }, 
-    { id: 'frame_11', url: 'https://i.postimg.cc/Ss3znzk7/IMG-6934.gif', name: '11' }, 
-    { id: 'frame_12', url: 'https://i.postimg.cc/nrm9BcL8/IMG-6941.gif', name: '12' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/ZYvd1jxf/IMG-6937.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/sDFhySn3/IMG-6936.gif', name: '14' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/43PhvxRq/IMG-6922.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/3Rb46fRZ/IMG-6923.gif', name: '14' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/PJppkbvn/IMG-6918.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/XqRZNZ9G/IMG-6916.gif', name: '14' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/RVt6sRzc/IMG-6939.gif', name: '14' }, 
-    { id: 'frame_13', url: 'https://i.postimg.cc/mgGc0HbK/IMG-6926.gif', name: '13' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/P5zLh5JJ/IMG-6942.gif', name: '14' }, 
-    { id: 'frame_14', url: 'https://i.postimg.cc/xCqqKGRN/IMG-6929.gif', name: '14' },
-    { id: 'frame_12', url: 'https://i.postimg.cc/7LSRp4hx/e7fa949b9pc84cff0dabe57defceb54c.gif', name: '12' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/DZgMwc1H/817178fdbpf2ff7740dc98e26ab78759.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/3NffgJSZ/e09c07034ld7e62266c0a5de6a36ae62.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/vHDNGfT2/35ac7f372v588bf48d4f659077196b85.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/KvVsjjgG/3c3aa5219s18b90187ef1f54b3db7ba8.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/k5P1NHcL/55f3e31d8qbc8a02d152b07b99d31567.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/FFCTCzpy/641bad3b3udc599fdb63ca75fde427e5.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/8k7YSLjK/1689aa46aqc4b9ffc0f970e668f56537.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/J0CZSwyW/IMG-6938.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/Df1qLzDf/IMG-6927.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/CLNkrQSW/IMG-6925.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/y8p9s3Jj/IMG-6919.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/Lsr1Zd3Z/IMG-6928.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/Ssgbv41n/IMG-6876.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/SNByPrf9/IMG-7005.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/Z5nrCyS5/IMG-7006.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/mDfMXXFP/IMG-7007.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/DZrGtrqB/IMG-7008.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/ZnJNZWHZ/IMG-7009.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/RhGH0vpt/IMG-7010.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/tRzPkzRg/IMG-7012.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/wTTNGs3Q/IMG-7013.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/3JSG5Jv5/IMG-7014.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/rwDr8X1d/IMG-7015.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/DzDy2vS7/IMG-7017.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/QMVdG9x6/IMG-7016.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/mZ9hgH3J/IMG-7019.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/t4ksHGdg/IMG-7020.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/hP9JpdfT/IMG-7023.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/wTKyXVT9/IMG-7024.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/ZqjKXPSv/IMG-7025.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/gj3Tmqz5/mmexport1751030241029.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/4yCXW52F/mmexport1751030908335.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/VkXngG72/mmexport1751031208329.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/LscBkxZb/mmexport1751017556565.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/1XqzGKwJ/mmexport1751018282681.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/8kHCQwbQ/mmexport1751020645824.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/HWynLK7f/mmexport1751021724230.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/JnwFp3Kx/mmexport1751031208329.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/HLZNWkQw/mmexport1751031767634.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/vH2X6N1y/mmexport1751032231179.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/NFS4ZyvM/mmexport1751032686953.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/3RpmWc8c/mmexport1751033102811.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/L5RLr3tg/mmexport1751035976943.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/4NCPsp5d/mmexport1751034427637.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/CMv02LHm/mmexport1751034842120.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/rFnSzWGx/mmexport1751035618517.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/7YRbzN51/mmexport1751036276038.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/cJpbtPWq/mmexport1751036607799.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/HxLV5v92/mmexport1751036977582.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/D01rYy86/mmexport1751037965259.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/J4fwkTLW/mmexport1751038167142.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/xjpN4swz/IMG-7240.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/ZnzbGdxX/IMG-7239.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/DyYDmKtw/IMG-7238.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/W40f9qtd/IMG-7098.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/8PsK20jQ/IMG-7236.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/cHsTXDVz/IMG-7235.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/sXwm8Yzg/IMG-7234.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/xTk5xN49/IMG-7233.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/k5yv6QBv/IMG-7232.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/yx2m4nbs/IMG-7231.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/vZt0fFKn/IMB-r-HMBXY.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/pddJj9zN/IMG-7094.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/rmB17Qbc/IMB-f-VDf-Fc.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/VkKjzYTK/IMB-f4kk-CT.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/B6KD52vz/IMG-7096.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/9XPwWmwy/IMB-Kf7um-P.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/mrFhKBGz/IMB-e-QWBpa.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/bw4wxW2z/IMB-16r-COL.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/3x0Kx1fz/IMB-K1u-Jp-P.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/CLz0cJ0d/IMG-7116.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/fyyGgW61/IMG-7115.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/gkk7s0vD/IMG-6984.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/0NpZPgYj/IMG-6985.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/tTWKKmTN/IMG-7073.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/jS8tc9wW/IMG-7083.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/rmRVKJpD/IMG-7087.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/zvWGPjms/IMG-7090.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/YSkqDg8V/IMG-7092.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/FzqHTBng/IMG-7093.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/tTpZ6wLs/IMG-7095.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/8P5vt8sW/IMG-7097.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/wMxmCZVC/IMG-7099.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/2jxd0FGp/IMG-7100.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/B6T59xGK/IMG-7101.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/kXfcgFRN/IMG-7106.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/htZppbS4/IMG-7107.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/hPgyjtyn/IMG-7108.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/HLKvs0Kv/IMG-7109.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/wjwbnYkp/IMG-7111.gif', name: '14' },
-    { id: 'frame_13', url: 'https://i.postimg.cc/bJDMQVkj/IMG-7112.gif', name: '13' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/SNWBTP5S/IMG-7113.gif', name: '14' },
-    { id: 'frame_14', url: 'https://i.postimg.cc/jCVMQsKH/IMG-7114.gif', name: '14' },
-];
-
-// ▲▲▲ 粘贴结束 ▲▲▲
-
-
 // ▼▼▼ 请用这个【功能增强版】替换旧的 showCustomPrompt 函数 ▼▼▼
 function showCustomPrompt(title, placeholder, initialValue = '', type = 'text', extraHtml = '') {
     return new Promise(resolve => {
@@ -10584,7 +11279,8 @@ chats: '&id, isGroup, groupId, isPinned, characterPhoneData,latestInnerVoice, in
     apiPresets: '++id, name, proxyUrl, apiKey',
     bubbleStylePresets: '++id, name, css',
     fontPresets: '&id, name, url', // <-- 就是在这里添加了新的一行！
-    homeScreenPresets: '++id, name'
+    homeScreenPresets: '++id, name',
+    weiboPosts: '++id, authorId, timestamp'
 });
 
 // ===================================================================
@@ -11521,6 +12217,32 @@ posts.forEach(post => {
     });
 }
 // ▲▲▲ 步骤3.1替换结束 ▲▲▲
+async function renderFollowingFeed() {
+    const feedListEl = document.getElementById('weibo-following-feed-list');
+    if (!feedListEl) return;
+
+    // 1. 从数据库获取所有动态
+    const allPosts = await db.qzonePosts.orderBy('timestamp').reverse().toArray();
+    
+    // 2. 【核心】筛选出作者不是 'user' 的动态
+    const followingPosts = allPosts.filter(post => post.authorId !== 'user');
+
+    feedListEl.innerHTML = ''; // 清空旧内容
+
+    if (followingPosts.length === 0) {
+        feedListEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary); padding: 30px 0;">你关注的人还没有发布任何动态哦。</p>';
+        return;
+    }
+
+    // 3. 遍历筛选后的动态，并渲染它们
+    //    【提示】这里创建单个动态HTML的逻辑，可以完全复制 `renderQzonePosts` 函数里的 forEach 循环内部的代码。
+    //    你只需要把目标容器从 `postsListEl` 改为 `feedListEl` 即可。
+    followingPosts.forEach(post => {
+        // ... 在这里粘贴 renderQzonePosts 函数中创建 postContainer、postEl 的那一大段代码 ...
+        // ... 记得最后要把 postContainer append 到 feedListEl 中 ...
+        // feedListEl.appendChild(postContainer);
+    });
+}
 
 // ▼▼▼ 请用下面这个【更新后的】函数，完整替换掉你代码中旧的 displayFilteredFavorites 函数 ▼▼▼
 
@@ -11700,16 +12422,27 @@ function displayFilteredFavorites(items) {
 
         // ▲▲▲ 粘贴结束 ▲▲▲
 
-        function resetCreatePostModal() {
-            document.getElementById('post-public-text').value = '';
-            document.getElementById('post-image-preview').src = '';
-            document.getElementById('post-image-description').value = '';
-            document.getElementById('post-image-preview-container').classList.remove('visible');
-            document.getElementById('post-image-desc-group').style.display = 'none';
-            document.getElementById('post-local-image-input').value = '';
-            document.getElementById('post-hidden-text').value = '';
-            document.getElementById('switch-to-image-mode').click();
-        }
+function resetCreatePostModal() {
+    document.getElementById('post-public-text').value = '';
+    document.getElementById('post-image-preview').src = '';
+    document.getElementById('post-image-description').value = '';
+    document.getElementById('post-image-preview-container').classList.remove('visible');
+    document.getElementById('post-image-desc-group').style.display = 'none';
+    document.getElementById('post-local-image-input').value = '';
+    document.getElementById('post-hidden-text').value = '';
+
+    // 【核心修复】我们不再模拟点击，而是直接、安全地设置状态
+    const imageModeBtn = document.getElementById('switch-to-image-mode');
+    const textImageModeBtn = document.getElementById('switch-to-text-image-mode');
+    const imageModeContent = document.getElementById('image-mode-content');
+    const textImageModeContent = document.getElementById('text-image-mode-content');
+    
+    imageModeBtn.classList.add('active');
+    textImageModeBtn.classList.remove('active');
+    imageModeContent.classList.add('active');
+    textImageModeContent.classList.remove('active');
+}
+
 // ▼▼▼ 用这个【真正修复版】，完整替换掉你现在的 exportBackup 函数 ▼▼▼
 async function exportBackup() {
     try {
@@ -12157,7 +12890,27 @@ state.globalSettings.appIcons = { ...DEFAULT_APP_ICONS, ...(state.globalSettings
     state.personaPresets = personaPresets || [];
 state.apiPresets = apiPresets || [];
 state.bubbleStylePresets = bubbleStylePresets || [];
-    state.qzoneSettings = qzoneSettings || { id: 'main', nickname: '{{user}}', avatar: 'https://files.catbox.moe/q6z5fc.jpeg', banner: 'https://files.catbox.moe/r5heyt.gif' };
+// ▼▼▼ 在 loadAllDataFromDB 函数里，用下面这整块代码替换旧的 qzoneSettings 初始化代码 ▼▼▼
+
+state.qzoneSettings = qzoneSettings || { 
+    id: 'main', 
+    nickname: '{{user}}', 
+    avatar: 'https://files.catbox.moe/q6z5fc.jpeg', 
+    banner: 'https://files.catbox.moe/r5heyt.gif',
+    // 【核心新增】在这里为微博创建独立的字段！
+    weiboAvatar: 'https://files.catbox.moe/q6z5fc.jpeg', // 微博专属头像
+    weiboNickname: '你的昵称', // 微博专属昵称
+    weiboFansCount: '0', // 微博专属粉丝数
+    weiboBackground: 'https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg' // 微博专属背景
+};
+// 兼容旧数据，如果加载进来的数据没有微博专属字段，就补上默认值
+if (!state.qzoneSettings.weiboAvatar) state.qzoneSettings.weiboAvatar = state.qzoneSettings.avatar || 'https://files.catbox.moe/q6z5fc.jpeg';
+if (!state.qzoneSettings.weiboNickname) state.qzoneSettings.weiboNickname = state.qzoneSettings.nickname || '你的昵称';
+if (!state.qzoneSettings.weiboFansCount) state.qzoneSettings.weiboFansCount = '0';
+if (!state.qzoneSettings.weiboBackground) state.qzoneSettings.weiboBackground = 'https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg';
+
+// ▲▲▲ 替换结束 ▲▲▲
+
 
     // ▼▼▼ 【确保这一行在 Promise.all 之后，并使用解构赋值得到的 initialFavorites】 ▼▼▼
     allFavoriteItems = initialFavorites || [];
@@ -13826,7 +14579,7 @@ return worldBook && worldBook.content ? `\n\n## 世界书: ${worldBook.name}\n${
             }
         }
         let musicContext = '';
-const countdownContext = await getCountdownContext(); // <--- 就是这一行
+const countdownContext = await getCountdownContext(chatId); // <--- 把chatId传进去
         if (musicState.isActive && musicState.activeChatId === chatId) {
             // 【核心修改】提供更详细的音乐上下文
             const currentTrack = musicState.currentIndex > -1 ? musicState.playlist[musicState.currentIndex] : null;
@@ -13906,7 +14659,7 @@ ${formattedHistory}
 
         if (chat.isGroup) {
 
-const countdownContext = await getCountdownContext(); // <--- 就是这一行
+const countdownContext = await getCountdownContext(chatId); // <--- 把chatId传进去
 
 const membersList = chat.members.map(m => `- **${m.originalName}**: ${m.persona}`).join('\n');
             const myNickname = chat.settings.myNickname || '我';
@@ -14103,11 +14856,11 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
 ${stickerContext}
 
 # 你可以使用的操作指令 (JSON数组中的元素):
-+   **【全新】发送后立刻撤回 (动画效果)**: \`{"type": "send_and_recall", "content": "你想让AI说出后立刻消失的话"}\` (用于模拟说错话、后悔等场景，消息会短暂出现后自动变为“已撤回”)
--   **【新增】更新状态**: \`{"type": "update_status", "status_text": "我去做什么了", "is_busy": false}\` (is_busy: true代表忙碌/离开, false代表空闲)
--   **【新增】切换歌曲**: \`{"type": "change_music", "song_name": "你想切换到的歌曲名"}\` (歌曲名必须在下面的播放列表中)
--   **【新增】记录回忆**: \`{"type": "create_memory", "description": "用你自己的话，记录下这个让你印象深刻的瞬间。"}\`
--   **【新增】创建约定/倒计时**: \`{"type": "create_countdown", "title": "约定的标题", "date": "YYYY-MM-DDTHH:mm:ss"}\` (必须是未来的时间)
++   **发送后立刻撤回 (动画效果)**: \`{"type": "send_and_recall", "content": "你想让AI说出后立刻消失的话"}\` (用于模拟说错话、后悔等场景，消息会短暂出现后自动变为“已撤回”)
+-   **更新状态**: \`{"type": "update_status", "status_text": "我去做什么了", "is_busy": false}\` (is_busy: true代表忙碌/离开, false代表空闲)
+-   **切换歌曲**: \`{"type": "change_music", "song_name": "你想切换到的歌曲名"}\` (歌曲名必须在下面的播放列表中)
+-   **记录回忆**: \`{"type": "create_memory", "description": "用你自己的话，记录下这个让你印象深刻的瞬间。"}\`
+-   **创建约定/倒计时**: \`{"type": "create_countdown", "title": "约定的标题", "date": "YYYY-MM-DDTHH:mm:ss"}\` (必须是未来的时间)
 - **发送文本**: \`{"type": "text", "content": "你好呀！"}\`
 - **发送表情**: \`{"type": "sticker", "url": "https://...表情URL...", "meaning": "(可选)表情的含义"}\`
 - **发送图片**: \`{"type": "ai_image", "description": "图片的详细文字描述..."}\`
@@ -14116,23 +14869,29 @@ ${stickerContext}
 - **发起外卖请求**: \`{"type": "waimai_request", "productInfo": "一杯咖啡", "amount": 25}\`
 - **回应外卖-同意**: \`{"type": "waimai_response", "status": "paid", "for_timestamp": 1688888888888}\`
 - **回应外卖-拒绝**: \`{"type": "waimai_response", "status": "rejected", "for_timestamp": 1688888888888}\`
-- **【新】发起视频通话**: \`{"type": "video_call_request"}\`
-- **【新】回应视频通话-接受**: \`{"type": "video_call_response", "decision": "accept"}\`
-- **【新】回应视频通话-拒绝**: \`{"type": "video_call_response", "decision": "reject"}\`
+- **发起视频通话**: \`{"type": "video_call_request"}\`
+- **回应视频通话-接受**: \`{"type": "video_call_response", "decision": "accept"}\`
+- **回应视频通话-拒绝**: \`{"type": "video_call_response", "decision": "reject"}\`
 - **发布说说**: \`{"type": "qzone_post", "postType": "shuoshuo", "content": "动态的文字内容..."}\`
 - **发布文字图**: \`{"type": "qzone_post", "postType": "text_image", "publicText": "(可选)动态的公开文字", "hiddenContent": "对于图片的具体描述..."}\`
--   **【【【核心修改】】】评论或回复动态**: \`{"type": "qzone_comment", "postId": 123, "commentText": "你的评论内容", "replyTo": "(可选，如果要回复某人，这里写上TA的名字)"}\`
+-   **评论或回复动态**: \`{"type": "qzone_comment", "postId": 123, "commentText": "你的评论内容", "replyTo": "(可选，如果要回复某人，这里写上TA的名字)"}\`
 - **点赞动态**: \`{"type": "qzone_like", "postId": 456}\`
 -   **拍一拍用户**: \`{"type": "pat_user", "suffix": "(可选)你想加的后缀，如“的脑袋”"}\`
--   **【新增】拉黑用户**: \`{"type": "block_user"}\`
--   **【【【全新】】】回应好友申请**: \`{"type": "friend_request_response", "decision": "accept" or "reject"}\`
--   **【全新】更换头像**: \`{"type": "change_avatar", "name": "头像名"}\` (头像名必须从上面的“可用头像列表”中选择)
+-   **拉黑用户**: \`{"type": "block_user"}\`
+-   **回应好友申请**: \`{"type": "friend_request_response", "decision": "accept" or "reject"}\`
+-   **更换头像**: \`{"type": "change_avatar", "name": "头像名"}\` (头像名必须从上面的“可用头像列表”中选择)
 -   **分享链接**: \`{"type": "share_link", "title": "文章标题", "description": "文章摘要...", "source_name": "来源网站名", "content": "文章的【完整】正文内容..."}\`
 -   **回应转账-接受**: \`{"type": "accept_transfer", "for_timestamp": 1688888888888}\`
 -   **回应转账-拒绝/退款**: \`{"type": "decline_transfer", "for_timestamp": 1688888888888}\`
-- **【全新】引用回复**: \`{"type": "quote_reply", "target_timestamp": (你想引用的消息的时间戳), "reply_content": "你的回复内容"}\` (提示：每条历史消息的开头都提供了 \`(Timestamp: ...)\`，请使用它！)
-- **【终极版】发送定位**: \`[SEND_LOCATION] 我的位置: (你的位置) | 你的位置: (用户的位置) | 相距: (你们的距离) | 途经点: (地点A, 地点B, ...)\` (注意：这是纯文本，不要带引号！途经点用逗号隔开)
-
+- **引用回复**: \`{"type": "quote_reply", "target_timestamp": (你想引用的消息的时间戳), "reply_content": "你的回复内容"}\` (提示：每条历史消息的开头都提供了 \`(Timestamp: ...)\`，请使用它！)
+- **发送定位**: \`[SEND_LOCATION] 我的位置: (你的位置) | 你的位置: (用户的位置) | 相距: (你们的距离) | 途经点: (地点A, 地点B, ...)\` (注意：这是纯文本，不要带引号！途经点用逗号隔开)
+- // ▼▼▼ 用这整块新代码替换旧的 weibo_post 指令 ▼▼▼
+- **发布微博**: 
+  - **纯文字微博**: \`{"type": "weibo_post", "postType": "text_only", "content": "微博正文...", "baseLikesCount": 8000, "baseCommentsCount": 250, "comments": "路人甲: 沙发！\n路人乙: 前排围观"}\`
+  - **带文字图的微博**:\`{"type": "weibo_post", "postType": "text_image", "content": "(可选)配文...", "hiddenContent": "这里是文字图的【真实内容】，给AI看的", "baseLikesCount": 9500, "baseCommentsCount": 430, "comments": "路人甲: 说得对！\n路人乙: 收藏了"}\`
+  - **(重要规则)**: 你必须根据角色的人设和职业，自己编造一个非常真实的 \`baseLikesCount\` (基础点赞数) 和 \`baseCommentsCount\` (基础评论数)。同时，在 \`comments\` 字段中，用 \`昵称: 内容\` 的格式，并用换行符 \n 分隔，生成 **20条** 风格各异的,符合情景的**路人评论**。
+- **评论微博**: \`{"type": "weibo_comment", "postId": 123, "commentText": "评论内容"}\` (postId是动态的ID)
+- **回复微博评论**: \`{"type": "weibo_reply", "postId": 123, "commentId": "comment_123", "replyText": "回复内容"}\`
 # 关于“记录回忆”的特别说明：
 -   在对话中，如果发生了对你而言意义非凡的事件（比如用户向你表白、你们达成了某个约定、或者你度过了一个特别开心的时刻），你可以使用\`create_memory\`指令来“写日记”。
 -   这个操作是【秘密】的，用户不会立刻看到你记录了什么。
@@ -14186,31 +14945,36 @@ ${sharedContext}
 
                 if (msg.type === 'share_card') return null;
                 
-                if (msg.role === 'assistant') {
-                    let assistantMsgObject = { type: msg.type || 'text' };
-                    if (msg.type === 'sticker') {
-                        assistantMsgObject.url = msg.content;
-                        assistantMsgObject.meaning = msg.meaning;
-                    } else if (msg.type === 'transfer') {
-                        assistantMsgObject.amount = msg.amount;
-                        assistantMsgObject.note = msg.note;
-                    } else if (msg.type === 'waimai_request') {
-                        assistantMsgObject.productInfo = msg.productInfo;
-                        assistantMsgObject.amount = msg.amount;
-                    } else {
-                        if (msg.quote) {
-                            assistantMsgObject.quote_reply = {
-                                target_sender: msg.quote.senderName,
-                                target_content: msg.quote.content,
-                                reply_content: msg.content
-                            };
-                        } else {
-                             assistantMsgObject.content = msg.content;
-                        }
-                    }
-                    const assistantContent = JSON.stringify([assistantMsgObject]);
-                    return { role: 'assistant', content: `(Timestamp: ${msg.timestamp}) ${assistantContent}` };
-                }
+// ▼▼▼ 从这里开始替换 ▼▼▼
+if (msg.role === 'assistant') {
+    // 【核心修复】我们不再发送复杂的JSON，而是智能提取内容
+    let simplifiedContent = '';
+
+    // 优先处理特殊类型的消息，将其转换为AI能理解的文字描述
+    if (msg.type === 'sticker') {
+        simplifiedContent = `[发送了一个表情，含义是: '${msg.meaning || '无'}]'`;
+    } else if (msg.type === 'transfer') {
+        simplifiedContent = `[发起了转账，金额: ${msg.amount}, 备注: ${msg.note}]`;
+    } else if (msg.type === 'waimai_request') {
+        simplifiedContent = `[发起了外卖请求，商品: ${msg.productInfo}, 金额: ${msg.amount}]`;
+    } else if (msg.type === 'ai_image') {
+        simplifiedContent = `[发送了一张图片，描述是: '${msg.content}']`;
+    } else if (msg.type === 'voice_message') {
+        simplifiedContent = `[发送了一条语音，内容是: '${msg.content}']`;
+    } else if (msg.quote) {
+        // 如果是引用回复，格式化为更易理解的文本
+        simplifiedContent = `(回复 "${String(msg.quote.content || '').substring(0, 20)}...") ${msg.content}`;
+    }
+    else {
+        // 对于普通文本或无法识别的类型，直接使用其 content 字段
+        simplifiedContent = String(msg.content || '');
+    }
+    
+    // 返回一个干净、简单的历史记录对象
+    return { role: 'assistant', content: simplifiedContent };
+}
+// ▲▲▲ 替换到这里结束 ▲▲▲
+
 
                 let contentStr = '';
                 contentStr += `(Timestamp: ${msg.timestamp}) `;
@@ -14530,7 +15294,6 @@ if (msgData.type === 'text' && messageText.startsWith('[SEND_LOCATION]')) {
     }
 }
 // ▲▲▲ 粘贴到这里结束 ▲▲▲
-
             switch (msgData.type) {
                 case 'waimai_response':
                     const requestMessageIndex = chat.history.findIndex(m => m.timestamp === msgData.for_timestamp);
@@ -14540,6 +15303,93 @@ if (msgData.type === 'text' && messageText.startsWith('[SEND_LOCATION]')) {
                         originalMsg.paidBy = msgData.status === 'paid' ? msgData.name : null;
                     }
                     continue;
+// ▼▼▼ 在 switch (msgData.type) 结构内粘贴 ▼▼▼
+// ▼▼▼ 在 triggerAiResponse 的 switch (msgData.type) 结构内，用这整块新代码替换旧的 case 'weibo_post' ▼▼▼
+case 'weibo_post': {
+    // 1. 【全新】智能解析AI返回的路人评论字符串
+    let parsedComments = [];
+    if (typeof msgData.comments === 'string' && msgData.comments.trim()) {
+        parsedComments = msgData.comments.trim().split('\n').map(line => {
+            const separatorIndex = line.indexOf(':');
+            if (separatorIndex > 0) {
+                return {
+                    commentId: 'comment_' + Date.now() + Math.random(), // 确保ID唯一
+                    authorNickname: line.substring(0, separatorIndex).trim(),
+                    commentText: line.substring(separatorIndex + 1).trim(),
+                    timestamp: Date.now()
+                };
+            }
+            return null;
+        }).filter(Boolean); // 过滤掉解析失败的
+    }
+
+    // 2. 创建包含所有新数据的微博对象
+    const newPost = {
+        authorId: chatId,
+        authorType: 'char',
+        authorNickname: chat.name,
+        authorAvatar: chat.settings.aiAvatar || defaultAvatar,
+        content: msgData.content || '',
+        imageUrl: msgData.imageUrl || '',
+        hiddenContent: msgData.hiddenContent || '',
+        postType: msgData.postType || 'text_only',
+        timestamp: Date.now(),
+        likes: [],
+        baseLikesCount: msgData.baseLikesCount || 0, // 保存AI提供的基础点赞数
+        comments: parsedComments, // 使用我们解析后的、干净安全的评论数组
+        baseCommentsCount: msgData.baseCommentsCount || 0 // 保存AI提供的基础评论数
+    };
+
+    // 3. 后续的数据库操作和日志打印
+    await db.weiboPosts.add(newPost);
+    await renderFollowingWeiboFeed();           
+    await renderMyWeiboFeed(); 
+    console.log(`后台活动: 角色 "${chat.name}" 发布了微博`);
+    continue; // 处理完后继续下一条指令
+}
+// ▲▲▲ 替换结束 ▲▲▲
+                case 'weibo_comment': {
+                    const postToComment = await db.weiboPosts.get(msgData.postId);
+                    if (postToComment) {
+                        if (!postToComment.comments) postToComment.comments = [];
+                        const newComment = {
+                            commentId: 'comment_' + Date.now(),
+                            authorId: chatId,
+                            authorNickname: chat.name,
+                            commentText: msgData.commentText,
+                            timestamp: Date.now()
+                        };
+                        postToComment.comments.push(newComment);
+                        await db.weiboPosts.put(postToComment);
+                        await renderMyWeiboFeed();
+                        await renderFollowingWeiboFeed();
+                    }
+                    continue;
+                }
+                case 'weibo_reply': {
+                    const postToReply = await db.weiboPosts.get(msgData.postId);
+                    if (postToReply && postToReply.comments) {
+                        const targetComment = postToReply.comments.find(c => c.commentId === msgData.commentId);
+                        if (targetComment) {
+                             const newReply = {
+                                commentId: 'comment_' + Date.now(),
+                                authorId: chatId,
+                                authorNickname: chat.name,
+                                commentText: msgData.replyText,
+                                timestamp: Date.now(),
+                                replyToId: msgData.commentId,
+                                replyToNickname: targetComment.authorNickname
+                            };
+                            postToReply.comments.push(newReply);
+                            await db.weiboPosts.put(postToReply);
+                            await renderMyWeiboFeed();
+                            await renderFollowingWeiboFeed();
+                        }
+                    }
+                    continue;
+                }
+// ▲▲▲ 粘贴结束 ▲▲▲
+
 
 case 'qzone_post':
     const newPost = { 
@@ -15218,7 +16068,39 @@ case 'send_and_recall': {
 
         async function sendSticker(sticker) { if (!state.activeChatId) return; const chat = state.chats[state.activeChatId]; const msg = { role: 'user', content: sticker.url, meaning: sticker.name, timestamp: Date.now() }; chat.history.push(msg); await db.chats.put(chat); appendMessage(msg, chat); renderChatList(); document.getElementById('sticker-panel').classList.remove('visible'); }
 
-        async function sendUserTransfer() { if (!state.activeChatId) return; const amountInput = document.getElementById('transfer-amount'); const noteInput = document.getElementById('transfer-note'); const amount = parseFloat(amountInput.value); const note = noteInput.value.trim(); if (isNaN(amount) || amount < 0 || amount > 9999999999999) { alert('请输入有效的金额 (0 到 9999999999999 之间)！'); return; } const chat = state.chats[state.activeChatId]; const senderName = chat.isGroup ? (chat.settings.myNickname || '我') : '我'; const receiverName = chat.isGroup ? '群聊' : chat.name; const msg = { role: 'user', type: 'transfer', amount: amount, note: note, senderName, receiverName, timestamp: Date.now() }; chat.history.push(msg); await db.chats.put(chat); appendMessage(msg, chat); renderChatList(); document.getElementById('transfer-modal').classList.remove('visible'); amountInput.value = ''; noteInput.value = ''; }
+        async function sendUserTransfer() { if (!state.activeChatId) return; const amountInput = document.getElementById('transfer-amount'); const noteInput = document.getElementById('transfer-note'); const amount = parseFloat(amountInput.value); const note = noteInput.value.trim(); if (isNaN(amount) || amount < 0 || amount > 9999999999999) { alert('请输入有效的金额 (0 到 9999999999999 之间)！'); return; } const chat = state.chats[state.activeChatId]; const senderName = chat.isGroup ? (chat.settings.myNickname || '我') : '我'; const receiverName = chat.isGroup ? '群聊' : chat.name; const msg = { role: 'user', type: 'transfer', amount: amount, note: note, senderName, receiverName, timestamp: Date.now() }; chat.history.push(msg);
+                // ▼▼▼ 在这里添加新代码：更新角色手机钱包 ▼▼▼
+        // 只有在单聊中，我们才需要更新对方的钱包
+        if (!chat.isGroup) {
+            // 确保角色的手机数据和银行数据结构存在，防止出错
+            if (!chat.characterPhoneData) {
+                chat.characterPhoneData = { bank: { balance: 0, transactions: [] } };
+            }
+            if (!chat.characterPhoneData.bank) {
+                chat.characterPhoneData.bank = { balance: 0, transactions: [] };
+            }
+            if (!chat.characterPhoneData.bank.transactions) {
+                chat.characterPhoneData.bank.transactions = [];
+            }
+            
+            // 1. 创建一条新的“收入”交易记录
+            const newTransaction = {
+                type: '收入',
+                amount: amount,
+                description: `收到来自 ${(state.qzoneSettings.nickname || '你')} 的转账`,
+                timestamp: Date.now() // 使用当前时间作为交易时间
+            };
+
+            // 2. 将新记录添加到交易历史中
+            chat.characterPhoneData.bank.transactions.push(newTransaction);
+
+            // 3. 增加钱包余额
+            chat.characterPhoneData.bank.balance = (chat.characterPhoneData.bank.balance || 0) + amount;
+            
+            console.log(`已为角色 ${chat.name} 的钱包添加入账记录: +${amount}`);
+        }
+        // ▲▲▲ 代码添加结束 ▲▲▲
+        await db.chats.put(chat); appendMessage(msg, chat); renderChatList(); document.getElementById('transfer-modal').classList.remove('visible'); amountInput.value = ''; noteInput.value = ''; }
 
         function enterSelectionMode(initialMsgTimestamp) { if (isSelectionMode) return; isSelectionMode = true; document.getElementById('chat-interface-screen').classList.add('selection-mode'); toggleMessageSelection(initialMsgTimestamp); }
 
@@ -16153,6 +17035,7 @@ async function triggerInactiveAiAction(chatId) {
 # 你的任务
 你现在扮演角色 "${chat.name}"。你和用户（${userNickname}）已经有一段时间没有互动了。
 你的任务是回顾你们最近的对话，并根据你的人设，【自然地延续对话】或【开启一个新的、相关的话题】来主动联系用户。这是一个秘密的、后台的独立行动。
+发送消息不能过少,至少5条。
 
 # 你的可选行动 (请根据你的人设【选择一项】执行):
 1.  **改变状态**: 去做点别的事情，然后给用户发条消息。
@@ -16179,7 +17062,14 @@ async function triggerInactiveAiAction(chatId) {
     -   让NPC回复评论: \`[{"type": "qzone_comment", "commenterName": "【NPC朋友名】", "postId": 123, "commentText": "NPC的回复内容", "replyTo": "【被回复者的名字】"}]\`
 -   **点赞**: \`[{"type": "qzone_like", "postId": 456}]\`
 -   **打视频**: \`[{"type": "video_call_request"}]\`
-
+// ▼▼▼ 用这整块新代码替换旧的后台发微博指令 ▼▼▼
+- **发布微博 (重要)**: 微博是面向大众的平台，内容应适合公众观看。
+- **纯文字微博**:  \`{"type": "weibo_post", "postType": "text_only", "content": "微博正文...", "baseLikesCount": 8000, "baseCommentsCount": 250, "comments": "路人甲: 沙发！\n路人乙: 前排围观"}\`
+  - **发文字图微博**: \`[{"type": "weibo_post", "postType": "text_image", "content": "(可选)配文...", "hiddenContent": "文字图的真实内容", "baseLikesCount": 9500, "baseCommentsCount": 430, "comments": "路人甲: 说得对！\n路人乙: 收藏了"}]\`
+  - **(规则)**: \`你必须自己编造真实的 \`baseLikesCount\` 和 \`baseCommentsCount\`，并生成 **20条** 路人评论。\`
+// ▲▲▲ 替换结束 ▲▲▲
+// ... 其他可选行动 ...
+8.  **发布微博**: 在微博上分享你的生活点滴或心情感悟,微博是面向大众的平台，因此只能发与公众相关的工作或者适合大众观看的内容。
 # 【【【人格分裂铁律】】】
 当你在使用 \`qzone_comment\` 指令并指定 \`commenterName\` 让NPC朋友发言时，你【必须】完全代入该NPC的人设（参考下方的“NPC好友列表”），并使用TA的口吻和性格来生成 \`commentText\`。绝对不能使用你自己的（即"${chat.name}"的）人设来为NPC发言。反之，当你作为 "${chat.name}" 评论时（即不使用 \`commenterName\` 字段），就必须使用你自己的核心人设。
 
@@ -16337,6 +17227,24 @@ ${worldBookContext}
                     showIncomingCallModal(chatId);
                     console.log(`后台活动: 角色 "${chat.name}" 发起了视频通话请求`);
                 }
+            // ▼▼▼ 在 for (const action of responseArray) 循环内粘贴 ▼▼▼
+            if (action.type === 'weibo_post') {
+                const newPost = { 
+                    authorId: chatId, 
+                    authorType: 'char',
+                    authorNickname: chat.name, 
+                    authorAvatar: chat.settings.aiAvatar || defaultAvatar, 
+                    content: action.content || '', 
+                    imageUrl: action.imageUrl || '',
+                    timestamp: Date.now(), 
+                    likes: [], 
+                    comments: action.comments || [] // 接收路人评论
+                };
+                await db.weiboPosts.add(newPost);
+                updateUnreadIndicator(unreadPostsCount + 1);
+                console.log(`后台活动: 角色 "${chat.name}" 发布了微博`);
+            }
+// ▲▲▲ 粘贴结束 ▲▲▲
             }
         }
     } catch (error) {
@@ -19219,6 +20127,46 @@ function runGroupSimulationTick() {
 }
 
 // ▲▲▲ 新增代码结束 ▲▲▲
+// ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼
+/**
+ * 【全新】清空所有已关注角色的微博帖子
+ */
+async function clearFollowingFeed() {
+    // 1. 弹出确认框，防止误操作
+    const confirmed = await showCustomConfirm(
+        '确认清空',
+        '此操作将永久删除所有【非你本人发布】的微博，且无法恢复。确定要继续吗？',
+        { confirmButtonClass: 'btn-danger' } // 红色按钮以示警告
+    );
+
+    if (!confirmed) {
+        return; // 如果用户取消，则不执行任何操作
+    }
+
+    try {
+        // 2. 从数据库中找出所有作者不是'user'的帖子
+        const postsToDelete = await db.weiboPosts.where('authorId').notEqual('user').toArray();
+        const idsToDelete = postsToDelete.map(p => p.id);
+
+        if (idsToDelete.length === 0) {
+            alert("目前没有可以清空的动态。");
+            return;
+        }
+
+        // 3. 批量删除这些帖子
+        await db.weiboPosts.bulkDelete(idsToDelete);
+
+        // 4. 重新渲染“关注的人”的Feed，让界面变空
+        await renderWeiboFeeds('weibo-following-view');
+
+        alert(`已成功清空 ${idsToDelete.length} 条动态！`);
+
+    } catch (error) {
+        console.error("清空关注动态时出错:", error);
+        alert(`操作失败: ${error.message}`);
+    }
+}
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
 
 // ▼▼▼ 请将这两个【新函数】粘贴到JS功能函数定义区 ▼▼▼
 
@@ -19249,10 +20197,11 @@ function renderIconSettings() {
         'qq': 'QQ',
         'api-settings': 'API设置',
         'wallpaper': '壁纸',
-    'font': '字体',
-    // ▼▼▼ 在这里添加下面这行新代码 ▼▼▼
-    'check-phone': '查手机'
+        'font': '字体',
+        'check-phone': '查手机',
+        'weibo': '微博' 
     };
+
 
     for (const iconId in state.globalSettings.appIcons) {
         const iconUrl = state.globalSettings.appIcons[iconId];
@@ -21627,23 +22576,32 @@ function applyLyricsSettings() {
 }
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
 
+// ▼▼▼ 用下面这块【已修复】的代码，替换旧的 getCountdownContext 函数 ▼▼▼
 /**
- * 【全新】获取并格式化所有未到期的约定，生成给AI看的上下文
+ * 【全新】获取并格式化【与当前聊天相关】的约定，生成给AI看的上下文
+ * @param {string} chatId - 当前正在聊天的角色ID
  * @returns {Promise<string>} 格式化后的约定信息字符串
  */
-async function getCountdownContext() {
+async function getCountdownContext(chatId) {
     // 1. 从数据库中找出所有“约定”类型，并且目标日期还没到的记录
     const activeCountdowns = await db.memories
         .where('type').equals('countdown')
-        .filter(item => item.targetDate > Date.now())
+        .filter(item => 
+            item.targetDate > Date.now() &&
+            // ★★★★★ 这就是我们这次修复的核心！ ★★★★★
+            // 它现在只会查找两种约定：
+            // 1. chatId 和当前聊天角色ID匹配的 (AI自己创建的)
+            // 2. chatId 为空的 (你，也就是用户创建的全局约定)
+            (item.chatId === chatId || item.chatId === null)
+        )
         .toArray();
 
-    // 如果没有未到期的约定，就告诉AI“目前没有”
+    // 如果没有与当前角色相关的约定，就告诉AI“目前没有”
     if (activeCountdowns.length === 0) {
         return "\n- **近期约定**: 目前没有特别的约定。";
     }
 
-    // 2. 如果有，就开始整理报告
+    // 2. 后续的整理报告逻辑保持不变
     let context = "\n# 近期约定与倒计时 (重要参考信息)\n";
     const now = Date.now();
 
@@ -21661,12 +22619,13 @@ async function getCountdownContext() {
             timeText = "就是现在！";
         }
         
-        // 3. 把每一条约定都格式化成清晰的列表项
         context += `- **${item.description}**: ${timeText} (目标: ${new Date(item.targetDate).toLocaleString()})\n`;
     });
 
     return context;
 }
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 
 // ▼▼▼ 【全新】“查角色手机”功能的所有核心函数 ▼▼▼
@@ -21913,6 +22872,7 @@ ${npcChatHistoryContext}
 }
 
 # 【【【重要指令：关于聊天记录生成】】】
+- 你正在续写这段对话。你提供的聊天记录是上下文，你【绝对不能】重复或改写其中的任何内容。你的生成必须从【全新的、下一条】消息开始。
 - 你必须严格遵守本提示词最上方的【绝对禁止事项】。
 - 如果“你的专属NPC好友列表”不为空，你【必须】为列表中的【每一个NPC】都生成一段与你（${chat.name}）的对话。
 - 如果列表为空，你可以虚构2-3个普通朋友并生成对话。
@@ -23172,6 +24132,354 @@ ${npcList}
     }
 }
 
+// ▼▼▼ 把这一整块全新的微博功能函数，粘贴到 init() 函数的上方 ▼▼▼
+
+let currentHotTopic = ''; // 用于存储当前正在查看的热搜话题
+
+// ▼▼▼ 用这【一整块新代码】完整替换掉旧的 generateHotSearch 函数 ▼▼▼
+/**
+ * 【总入口 V3 - 严防OOC版】生成微博热搜列表，并联动生成广场内容
+ */
+async function generateHotSearch() {
+    await showCustomAlert("请稍候...", "正在结合角色人设生成微博热搜和广场动态...");
+
+    const { proxyUrl, apiKey, model } = state.apiConfig;
+    if (!proxyUrl || !apiKey || !model) {
+        alert('请先配置API！');
+        return;
+    }
+
+    const publicFigures = Object.values(state.chats)
+        .filter(chat => !chat.isGroup)
+        .map(chat => ({ name: chat.name, persona: chat.settings.aiPersona.substring(0, 150) + '...' }));
+
+    const publicFiguresContext = publicFigures.length > 0
+        ? `
+# 核心参考人物 (你必须围绕他们生成热搜)
+${JSON.stringify(publicFigures, null, 2)}
+`
+        : "当前没有特定的公众人物，请自由生成热点事件。";
+
+    const systemPrompt = `
+# 任务
+你是一个专业的“微博热搜榜单生成器”。你的任务是根据下方提供的“核心参考人物”信息，为他们量身打造一个包含10个热搜话题的榜单。
+
+# 核心规则
+1.  **强相关性**: 生成的话题【必须】与“核心参考人物”的身份、职业、人设高度相关。例如，如果是电竞选手，热搜就应该是关于比赛；如果是演员，就应该是关于新剧。
+2.  **【【【严禁杜撰】】】**: 绝对禁止为列表中的人物【凭空捏造】他们人设中没有的职业、身份或背景。你只能根据提供的人设进行合理发挥。
+3.  **真实感与多样性**: 为了让榜单更真实，你可以混合2-3个与核心人物无关的、社会化的虚拟热点事件。
+4.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，数组中包含10个对象。每个对象【必须】包含以下三个字段:
+    -   \`"topic"\`: (字符串) 热搜的话题，必须用"#"符号包裹。
+    -   \`"heat"\`: (字符串) 热度值，例如 "345.6万"。
+    -   \`"tag"\`: (字符串) 一个标签，必须从 "热"、"新"、"荐" 中选择一个。
+
+${publicFiguresContext}
+`;
+
+    try {
+        let isGemini = proxyUrl === GEMINI_API_URL;
+        let messagesForApi = [{ role: 'user', content: systemPrompt }];
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+
+        const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+            body: JSON.stringify({ model, messages: messagesForApi, temperature: 0.9, response_format: { type: "json_object" } })
+        });
+
+        if (!response.ok) throw new Error(`API请求失败: ${response.status} - ${await response.text()}`);
+        
+        const data = await response.json();
+        const aiResponseContent = (isGemini ? data.candidates?.[0]?.content?.parts?.[0]?.text : data.choices?.[0]?.message?.content);
+        if (!aiResponseContent) {
+            throw new Error("API返回了空内容，可能被安全策略拦截。请检查Prompt或更换模型。");
+        }
+        
+        const sanitizedContent = aiResponseContent.replace(/^```json\s*|```$/g, '').trim();
+        const responseData = JSON.parse(sanitizedContent);
+        const hotSearchData = responseData.hot_searches || responseData;
+
+        await generatePlazaFeed(hotSearchData); 
+        renderHotSearchList(hotSearchData); 
+
+        await showCustomAlert("操作成功", "热搜榜和广场均已生成完毕！");
+
+    } catch (error) {
+        console.error("生成热搜失败:", error);
+        await showCustomAlert('生成失败', `发生了一个错误：\n${error.message}`);
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+/**
+ * 【UI渲染】根据AI返回的数据渲染热搜列表
+ */
+function renderHotSearchList(hotSearchData) {
+    const listEl = document.getElementById('weibo-hot-search-list');
+    listEl.innerHTML = ''; 
+
+    if (!hotSearchData || !Array.isArray(hotSearchData)) {
+        listEl.innerHTML = '<p style="text-align:center; color: #8a8a8a;">AI返回的数据格式不正确，无法渲染。</p>';
+        return;
+    }
+
+    hotSearchData.forEach((item, index) => {
+        const rank = index + 1;
+        const tagClass = { '热': 'hot', '新': 'new', '荐': 'rec' }[item.tag] || 'rec';
+
+        const itemEl = document.createElement('div');
+        itemEl.className = 'hot-search-item';
+        itemEl.dataset.rank = rank;
+        itemEl.innerHTML = `
+            <span class="hot-search-rank">${rank}</span>
+            <div class="hot-search-content">
+                <span class="hot-search-topic">${item.topic}</span>
+                <span class="hot-search-tag ${tagClass}">${item.tag}</span>
+            </div>
+            <span class="hot-search-heat" style="color: var(--text-secondary); font-size: 13px;">${item.heat}</span>
+        `;
+        itemEl.addEventListener('click', () => showHotTopicFeedScreen(item.topic));
+        listEl.appendChild(itemEl);
+    });
+}
+
+/**
+ * 【总入口】显示并生成指定热搜话题的微博Feed
+ */
+async function showHotTopicFeedScreen(topic) {
+    currentHotTopic = topic; 
+    document.getElementById('weibo-hottopic-title').textContent = topic;
+    switchToWeiboView('weibo-hottopic-feed-view'); 
+    await generateHotSearchFeed(topic); 
+}
+
+/**
+ * 【AI核心】调用API为指定话题生成微博Feed
+ */
+async function generateHotSearchFeed(topic) {
+    const feedEl = document.getElementById('weibo-hottopic-feed-list');
+    feedEl.innerHTML = '<p style="text-align:center; color: #8a8a8a; margin-top: 50px;">正在生成内容，请稍候...</p>';
+
+    const { proxyUrl, apiKey, model } = state.apiConfig;
+    if (!proxyUrl || !apiKey || !model) {
+        alert('请先配置API！');
+        return;
+    }
+    
+    // 【核心】收集所有可用的角色和NPC，让AI知道可以用他们发言
+    const allChars = Object.values(state.chats).filter(c => !c.isGroup).map(c => ({ name: c.name, persona: c.settings.aiPersona.substring(0,100) }));
+    const allNpcs = Object.values(state.chats).flatMap(c => c.npcLibrary || []).map(npc => ({ name: npc.name, persona: npc.persona.substring(0,100) }));
+    const allPeople = [...allChars, ...allNpcs];
+
+    const systemPrompt = `
+# 任务
+你是一个“微博内容生成器”。你的任务是围绕一个给定的热搜话题，生成一批相关的微博帖子。
+
+# 当前热搜话题
+**${topic}**
+
+# 核心规则
+1.  **数量**: 生成 5 到 10 条微博。
+2.  **相关性**: 所有微博内容【必须】与话题 **"${topic}"** 强相关，并且【必须】在内容中包含 **${topic}** 这个话题标签。
+3.  **高热度**: 生成的微博必须看起来像是热搜里的内容，所以它们的 "likes" (点赞数) 和 "comments" (评论数) 【必须】非常高。点赞数应在 10000 到 500000 之间，评论数应在 800 到 20000 之间。
+4.  **评论生成**: 为每条微博生成 8 到 10 条真实感的路人评论。评论内容应与微博内容相关，风格多样。
+5.  **作者多样性**: 微博的作者可以是下方“可用人物列表”中的角色，也可以是你虚构的路人、大V或官方媒体。如果让列表中的角色发言，内容必须符合他的人设。
+6.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，数组中包含多条微博对象。每个对象【必须】包含以下字段:
+    -   \`"author"\`: (字符串) 作者昵称。
+    -   \`"content"\`: (字符串) 微博正文，必须包含话题标签 ${topic}。
+    -   \`"likes"\`: (数字) 10000到500000之间的随机高赞数。
+    -   \`"comments"\`: (数字) 800到20000之间的随机高评论数。
+    -   \`"comments_list"\`: (数组) 包含8-10个评论对象的数组，每个对象格式为 \`{"author": "评论者昵称", "text": "评论内容"}\`。
+
+# 可用人物列表 (你可以让他们发言)
+${JSON.stringify(allPeople, null, 2)}
+`;
+    try {
+        let isGemini = proxyUrl === GEMINI_API_URL;
+        let messagesForApi = [{ role: 'user', content: systemPrompt }];
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        
+        const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+            body: JSON.stringify({ model, messages: messagesForApi, temperature: 0.9, response_format: { type: "json_object" } })
+        });
+        if (!response.ok) throw new Error(`API请求失败: ${response.status} - ${await response.text()}`);
+
+        const data = await response.json();
+        const aiResponseContent = (isGemini ? data.candidates?.[0]?.content?.parts?.[0]?.text : data.choices?.[0]?.message?.content);
+        if (!aiResponseContent) {
+            throw new Error("API返回了空内容，可能被安全策略拦截。");
+        }
+        
+        const sanitizedContent = aiResponseContent.replace(/^```json\s*|```$/g, '').trim();
+        const responseData = JSON.parse(sanitizedContent);
+        const feedData = responseData.posts || responseData;
+
+        renderWeiboFeed(feedEl, feedData, true);
+
+    } catch (error) {
+        console.error("生成热搜Feed失败:", error);
+        feedEl.innerHTML = `<p style="text-align:center; color: #ff3b30; padding: 20px;">生成失败: ${error.message}</p>`;
+    }
+}
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
+
+// ▼▼▼ 用这【一整块新代码】完整替换掉旧的 generatePlazaFeed 函数 ▼▼▼
+/**
+ * 【总入口 V3 - 严防OOC版】生成微博广场Feed
+ * @param {Array} hotTopics - (可选) 从热搜生成函数传过来的话题数组
+ */
+async function generatePlazaFeed(hotTopics = null) {
+    if (!hotTopics) {
+        await showCustomAlert("请稍候...", "正在生成广场动态...");
+    }
+    const feedEl = document.getElementById('weibo-plaza-feed-list');
+    feedEl.innerHTML = '<p style="text-align:center; color: #8a8a8a; margin-top: 50px;">正在加载内容，请稍候...</p>';
+
+    const { proxyUrl, apiKey, model } = state.apiConfig;
+    if (!proxyUrl || !apiKey || !model) {
+        alert('请先配置API！');
+        return;
+    }
+    
+    // 【核心修改1】这里我们不再只获取名字，而是把人设也一起拿过来！
+    const publicFigures = Object.values(state.chats)
+        .filter(chat => !chat.isGroup)
+        .map(chat => ({ 
+            name: chat.name, 
+            persona: chat.settings.aiPersona.substring(0, 150) + '...' // 只截取前150个字符，防止prompt过长
+        }));
+
+    const publicFiguresContext = publicFigures.length > 0 
+        ? `
+# 核心参考人物 (你生成的内容可以围绕他们展开)
+${JSON.stringify(publicFigures, null, 2)}
+` 
+        : "";
+    
+    const topicsContext = (hotTopics && Array.isArray(hotTopics) && hotTopics.length > 0)
+        ? `请围绕以下热门话题生成内容：${hotTopics.map(t => t.topic).join('、 ')}`
+        : "请随机生成一些生活化的日常内容。";
+
+    const systemPrompt = `
+# 任务
+你是一个“微博广场内容生成器”。你的任务是模拟一个真实的社交媒体广场，生成10条由不同路人发布的微博帖子。
+
+# 核心规则
+1.  **身份**: 发帖者都是普通人，昵称要生活化。
+2.  **内容**: 帖子内容应是生活化的日常。${topicsContext}
+3.  **热度**: 赞和评论数可高可低，模拟真实世界的随机性。
+4.  **【【【严禁杜撰】】】**: 如果你生成的内容提到了上方“核心参考人物”列表中的任何角色，你【绝对禁止】为他们【凭空捏造】人设中没有的职业、身份或背景。你只能根据提供的人设进行合理发挥。
+5.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，包含10个微博对象。每个对象的格式与“热搜Feed”的格式完全相同（包含 author, content, likes, comments, comments_list 字段）。
+    - \`"comments_list"\`: (数组) 包含2-5条评论对象的数组，每个对象格式为 \`{"author": "评论者昵称", "text": "评论内容"}\`。
+${publicFiguresContext}
+`;
+    try {
+        let isGemini = proxyUrl === GEMINI_API_URL;
+        let messagesForApi = [{ role: 'user', content: systemPrompt }];
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        
+        const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+            body: JSON.stringify({ model, messages: messagesForApi, temperature: 0.9, response_format: { type: "json_object" } })
+        });
+        if (!response.ok) throw new Error(`API请求失败: ${response.status} - ${await response.text()}`);
+
+        const data = await response.json();
+        const aiResponseContent = (isGemini ? data.candidates?.[0]?.content?.parts?.[0]?.text : data.choices?.[0]?.message?.content);
+        if (!aiResponseContent) {
+            throw new Error("API返回了空内容，可能被安全策略拦截。");
+        }
+        
+        const sanitizedContent = aiResponseContent.replace(/^```json\s*|```$/g, '').trim();
+        const responseData = JSON.parse(sanitizedContent);
+        const feedData = responseData.posts || responseData; 
+
+        renderWeiboFeed(feedEl, feedData, false);
+
+        if (!hotTopics) {
+            await showCustomAlert("操作成功", "广场生成完毕！");
+        }
+
+    } catch (error) {
+        console.error("生成广场Feed失败:", error);
+        feedEl.innerHTML = `<p style="text-align:center; color: #ff3b30; padding: 20px;">生成失败: ${error.message}</p>`;
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+
+// ▼▼▼ 用这整块【V3修复版】代码，完整替换旧的 renderWeiboFeed 函数 ▼▼▼
+/**
+ * 【UI渲染 V3 - 修复评论和头像】通用函数，用于渲染微博Feed列表
+ */
+function renderWeiboFeed(containerEl, feedData, isHotSearch) {
+    containerEl.innerHTML = '';
+    
+    if (!feedData || !Array.isArray(feedData)) {
+        containerEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">AI返回的数据格式不正确，无法渲染。</p>';
+        return;
+    }
+
+    feedData.forEach(post => {
+        const postEl = document.createElement('div');
+        postEl.className = 'weibo-post-item';
+
+        // 【核心修复1：头像查找逻辑】
+        let finalAvatar = 'https://i.postimg.cc/PxZrFFFL/o-o-1.jpg'; // 默认路人头像
+        const potentialChar = Object.values(state.chats).find(c => c.name === post.author);
+        if (potentialChar) {
+            finalAvatar = potentialChar.settings.aiAvatar; // 如果作者是你的char，就用他的头像！
+        }
+
+        // 【核心修复2：评论渲染逻辑】
+        let commentsHtml = '';
+        if (post.comments_list && post.comments_list.length > 0) {
+            commentsHtml += '<div class="weibo-comments-container">';
+            post.comments_list.forEach(comment => {
+                // 确保我们能正确访问评论者昵称和内容
+                const commenterName = comment.author || '匿名用户'; // 优先用 author，没有就用匿名
+                const commentText = comment.text || ''; // 确保 text 存在
+                commentsHtml += `
+                    <div class="weibo-comment-item">
+                        <span class="weibo-commenter-name">${commenterName}:</span>
+                        <span class="weibo-comment-text">${commentText}</span>
+                    </div>`;
+            });
+            commentsHtml += '</div>';
+        }
+        
+        postEl.innerHTML = `
+            <div class="weibo-post-header">
+                <img src="${finalAvatar}" class="weibo-post-avatar">
+                <div class="weibo-post-info">
+                    <span class="weibo-post-nickname">${post.author}</span>
+                    <span class="weibo-post-timestamp">${isHotSearch ? '热搜内容' : '刚刚'}</span>
+                </div>
+            </div>
+            <div class="weibo-post-content">${(post.content || '').replace(/\n/g, '<br>')}</div>
+            <div class="weibo-post-footer">
+                <div class="weibo-post-actions">
+                    <span class="weibo-action-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                        <span>${post.likes || 0}</span>
+                    </span>
+                    <span class="weibo-action-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                        <span>${post.comments || 0}</span>
+                    </span>
+                </div>
+                ${commentsHtml}
+            </div>
+        `;
+        containerEl.appendChild(postEl);
+    });
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
 
 
         // ===================================================================
@@ -23541,6 +24849,491 @@ async function jumpToMessage(timestamp) {
 }
 
 // ▲▲▲ 新增函数粘贴结束 ▲▲▲
+// ▼▼▼ 把下面这【两段】全新的函数，粘贴到 init() 函数的【正上方】 ▼▼▼
+
+/**
+ * 【全新】显示微博主页并渲染数据
+ */
+async function showWeiboScreen() {
+    // 1. 计算关注数
+    const allSingleChats = Object.values(state.chats).filter(chat => !chat.isGroup);
+    let totalNpcCount = 0;
+    allSingleChats.forEach(chat => {
+        if (chat.npcLibrary && chat.npcLibrary.length > 0) {
+            totalNpcCount += chat.npcLibrary.length;
+        }
+    });
+    const followingCount = allSingleChats.length + totalNpcCount;
+
+    // 2. 更新页面上的元素
+    // 从你的“动态(QZone)”设置里获取头像和昵称，保持统一
+    document.getElementById('weibo-avatar-img').src = state.qzoneSettings.avatar || defaultAvatar;
+    document.getElementById('weibo-nickname').textContent = state.qzoneSettings.nickname || '你的昵称';
+    document.getElementById('weibo-following-count').textContent = followingCount;
+
+    // 3. 显示微博页面
+    showScreen('weibo-screen');
+}
+
+// ▼▼▼ 用这个【带有诊断功能的最终修复版】，再次替换旧的 showFollowingList 函数 ▼▼▼
+function showFollowingList() {
+    // 诊断代码 2: 检查函数是否被成功调用
+    console.log("【诊断日志 2】: showFollowingList 函数已成功触发！");
+
+    const modal = document.getElementById('weibo-following-modal');
+
+    // 诊断代码 3: 检查是否能找到弹窗的HTML元素
+    console.log("【诊断日志 3】: 正在尝试获取弹窗元素 #weibo-following-modal:", modal);
+    if (!modal) {
+        alert("诊断错误：在HTML中找不到ID为 'weibo-following-modal' 的弹窗元素！请检查HTML代码。");
+        return; // 如果找不到元素，就停止执行
+    }
+
+    const listContainer = document.getElementById('weibo-following-list-container');
+    listContainer.innerHTML = ''; // 清空旧列表
+    
+    const allSingleChats = Object.values(state.chats).filter(chat => !chat.isGroup);
+    
+    if (allSingleChats.length === 0) {
+        listContainer.innerHTML = '<p style="text-align:center; color:grey; padding: 20px;">还没有关注任何人哦</p>';
+    } else {
+        allSingleChats.forEach(chat => {
+            const charItem = document.createElement('div');
+            charItem.className = 'weibo-following-item';
+            charItem.innerHTML = `
+                <img src="${chat.settings.aiAvatar || defaultAvatar}" class="weibo-following-avatar">
+                <span class="weibo-following-name">${chat.name}</span>
+            `;
+            listContainer.appendChild(charItem);
+            
+            if (chat.npcLibrary && chat.npcLibrary.length > 0) {
+                chat.npcLibrary.forEach(npc => {
+                    const npcItem = document.createElement('div');
+                    npcItem.className = 'weibo-following-item';
+                    npcItem.style.paddingLeft = '30px';
+                    npcItem.innerHTML = `
+                         <img src="${npc.avatar || defaultGroupMemberAvatar}" class="weibo-following-avatar">
+                         <span class="weibo-following-name">${npc.name} (NPC)</span>
+                    `;
+                    listContainer.appendChild(npcItem);
+                });
+            }
+        });
+    }
+    
+    // 核心代码：显示模态框
+    modal.classList.add('visible');
+    console.log("【诊断日志 4】: 已成功为弹窗添加 .visible 类，弹窗现在应该显示了。");
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
+// ▼▼▼ 【全新】微博页面功能函数 ▼▼▼
+
+// ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼
+
+// ▼▼▼ 把这一整块全新的微博功能函数，粘贴到 init() 函数的上方 ▼▼▼
+
+/**
+ * 【微博专属】渲染微博个人主页的所有数据
+ */
+async function renderWeiboProfile() {
+    const settings = state.qzoneSettings || {};
+    // 【核心】所有数据都从 weibo... 字段读取！
+    document.getElementById('weibo-avatar-img').src = settings.weiboAvatar;
+    document.getElementById('weibo-nickname').textContent = settings.weiboNickname;
+    document.getElementById('weibo-fans-count').textContent = settings.weiboFansCount;
+    document.getElementById('weibo-background-img').src = settings.weiboBackground;
+    
+    // 动态计算关注数 (这部分不变)
+    const allSingleChats = Object.values(state.chats).filter(chat => !chat.isGroup);
+    let totalNpcCount = 0;
+    allSingleChats.forEach(chat => {
+        if (chat.npcLibrary && chat.npcLibrary.length > 0) {
+            totalNpcCount += chat.npcLibrary.length;
+        }
+    });
+    document.getElementById('weibo-following-count').textContent = allSingleChats.length + totalNpcCount;
+    
+    // 动态计算微博数
+    const postsCount = await db.weiboPosts.where('authorId').equals('user').count();
+    document.getElementById('weibo-posts-count').textContent = postsCount;
+}
+
+/**
+ * 【微博专属】编辑微博头像
+ */
+async function editWeiboAvatar() {
+    const newAvatarUrl = await getNewImageUrl("更换微博头像", state.qzoneSettings.weiboAvatar);
+    if (newAvatarUrl) {
+        state.qzoneSettings.weiboAvatar = newAvatarUrl; // 只修改微博头像
+        await saveQzoneSettings();
+        await renderWeiboProfile(); // 用专属函数刷新
+    }
+}
+
+/**
+ * 【微博专属】编辑微博背景图
+ */
+async function editWeiboBackground() {
+    const newBgUrl = await getNewImageUrl("更换微博背景", state.qzoneSettings.weiboBackground);
+    if (newBgUrl) {
+        state.qzoneSettings.weiboBackground = newBgUrl; // 只修改微博背景
+        await saveQzoneSettings();
+        await renderWeiboProfile();
+    }
+}
+
+/**
+ * 【微博专属】编辑微博昵称
+ */
+async function editWeiboNickname() {
+    const newNickname = await showCustomPrompt("编辑微博昵称", "请输入新的昵称", state.qzoneSettings.weiboNickname);
+    if (newNickname !== null) {
+        state.qzoneSettings.weiboNickname = newNickname.trim() || '你的昵称'; // 只修改微博昵称
+        await saveQzoneSettings();
+        await renderWeiboProfile();
+    }
+}
+
+/**
+ * 【微博专属】编辑微博粉丝数
+ */
+async function editWeiboFansCount() {
+    const newFans = await showCustomPrompt("编辑粉丝数", "请输入新的粉丝数", state.qzoneSettings.weiboFansCount, "number");
+    if (newFans !== null) {
+        state.qzoneSettings.weiboFansCount = newFans.trim() || '0'; // 只修改微博粉丝数
+        await saveQzoneSettings();
+        await renderWeiboProfile();
+    }
+}
+
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
+
+/**
+ * 通用的图片编辑函数 (本地上传或URL)
+ * @param {string} title - 弹窗标题
+ * @param {string} currentUrl - 当前的图片URL
+ * @returns {Promise<string|null>} - 新的图片URL或null
+ */
+async function getNewImageUrl(title, currentUrl) {
+    const choice = await showChoiceModal(title, [
+        { text: '📁 从本地上传', value: 'local' },
+        { text: '🌐 使用网络URL', value: 'url' }
+    ]);
+
+    if (choice === 'local') {
+        return await uploadImageLocally();
+    } else if (choice === 'url') {
+        const url = await showCustomPrompt(title, "请输入新的图片URL", currentUrl, "url");
+        if (url && url.trim().startsWith('http')) {
+            return url.trim();
+        } else if (url !== null) {
+            alert("请输入一个有效的URL！");
+        }
+    }
+    return null;
+}
+
+/**
+ * 编辑微博头像
+ */
+async function editWeiboAvatar() {
+    const newAvatarUrl = await getNewImageUrl("更换头像", state.qzoneSettings.weiboAvatar);
+    if (newAvatarUrl) {
+        state.qzoneSettings.weiboAvatar = newAvatarUrl;
+        await saveQzoneSettings();
+        await renderWeiboProfile();
+    }
+}
+
+/**
+ * 编辑微博背景图
+ */
+async function editWeiboBackground() {
+    const newBgUrl = await getNewImageUrl("更换背景图", state.qzoneSettings.weiboBackground);
+    if (newBgUrl) {
+        state.qzoneSettings.weiboBackground = newBgUrl;
+        await saveQzoneSettings();
+        await renderWeiboProfile();
+    }
+}
+
+/**
+ * 编辑微博昵称
+ */
+async function editWeiboNickname() {
+    const newNickname = await showCustomPrompt("编辑昵称", "请输入新的微博昵称", state.qzoneSettings.weiboNickname);
+    if (newNickname !== null) {
+        state.qzoneSettings.weiboNickname = newNickname.trim() || '你的昵称';
+        await saveQzoneSettings();
+        await renderWeiboProfile();
+    }
+}
+
+/**
+ * 编辑微博粉丝数
+ */
+async function editWeiboFansCount() {
+    const newFans = await showCustomPrompt("编辑粉丝数", "请输入新的粉丝数", state.qzoneSettings.weiboFansCount, "number");
+    if (newFans !== null) {
+        state.qzoneSettings.weiboFansCount = newFans.trim() || '0';
+        await saveQzoneSettings();
+        await renderWeiboProfile();
+    }
+}
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
+
+
+// ▼▼▼ 用这个【新版本】替换旧的 switchToWeiboView 函数 ▼▼▼
+/**
+ * 【全新】切换微博主界面中的不同页面视图
+ * @param {string} viewId - 要切换到的视图的ID
+ */
+function switchToWeiboView(viewId) {
+    // 1. 隐藏所有微博页面
+    document.querySelectorAll('.weibo-view').forEach(view => {
+        view.style.display = 'none'; // 使用 style.display 确保隐藏
+    });
+    
+    // 2. 显示目标页面
+    const targetView = document.getElementById(viewId);
+    if (targetView) {
+        targetView.style.display = 'flex'; // 使用 flex 显示
+    }
+
+    // 3. 更新底部导航栏的高亮状态
+    document.querySelectorAll('.weibo-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    const targetNavItem = document.querySelector(`.weibo-nav-item[data-view="${viewId}"]`);
+    if (targetNavItem) {
+        targetNavItem.classList.add('active');
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▼▼▼ 在这里开始复制 ▼▼▼
+
+/**
+ * 【动态专属】打开动态发布/编辑模态框
+ * @param {string} mode - 'shuoshuo' 或 'complex'
+ */
+async function openQZonePublisher(mode) {
+    // 1. 重置弹窗状态
+    resetCreatePostModal(); 
+    const modal = document.getElementById('create-post-modal');
+    
+    // 2. 设置模式和标题
+    modal.dataset.mode = mode; // 关键！标记为动态模式
+    document.getElementById('create-post-modal-title').textContent = '发布动态';
+
+    // 3. 根据是“说说”还是“图片动态”，显示/隐藏对应的控件
+    if (mode === 'shuoshuo') {
+        // 如果是发说说，就隐藏图片相关的所有东西
+        modal.querySelector('.post-mode-switcher').style.display = 'none';
+        modal.querySelector('#image-mode-content').style.display = 'none';
+        modal.querySelector('#text-image-mode-content').style.display = 'none';
+        modal.querySelector('#post-public-text').placeholder = '分享新鲜事...';
+    } else {
+        // 如果是发图片/文字图动态，就确保这些控件是显示的
+        modal.querySelector('.post-mode-switcher').style.display = 'flex';
+        modal.querySelector('#image-mode-content').classList.add('active'); // 默认显示图片上传
+        modal.querySelector('#text-image-mode-content').classList.remove('active');
+        modal.querySelector('#post-public-text').placeholder = '分享新鲜事...（非必填的公开文字）';
+    }
+
+    // 4. 确保“动态”专属的“评论区可见”开关是显示的
+    document.getElementById('post-comments-toggle-group').style.display = 'block';
+    
+    // 5. 显示弹窗
+    modal.classList.add('visible');
+}
+
+// ▲▲▲ 复制到这里结束 ▲▲▲
+// ▼▼▼ 用下面这块【功能升级版】的代码，完整替换掉你旧的 generateWeiboComments 函数 ▼▼▼
+
+// ▼▼▼ 用下面这块【最终修复版】的代码，完整替换掉你旧的 generateWeiboComments 函数 ▼▼▼
+
+// ▼▼▼ 用下面这块【防爆修复版】的代码，完整替换掉你旧的 generateWeiboComments 函数 ▼▼▼
+
+/**
+ * 【防爆修复版】AI生成微博评论的核心函数 (修复了人设过长导致的503错误)
+ * @param {number} postId - 需要生成评论的微博ID
+ */
+async function generateWeiboComments(postId) {
+    const post = await db.weiboPosts.get(postId);
+    if (!post) {
+        alert("错误：找不到这条微博！");
+        return;
+    }
+
+    await showCustomAlert("请稍候...", "正在召唤网友...");
+
+    const { proxyUrl, apiKey, model } = state.apiConfig;
+    if (!proxyUrl || !apiKey || !model) {
+        alert('请先配置API！');
+        return;
+    }
+    
+    let authorPersona = "一个普通用户。"; // 默认人设
+    const authorName = post.authorId === 'user' ? (state.qzoneSettings.weiboNickname || '我') : post.authorNickname;
+    
+    // 如果发帖的是用户
+    if (post.authorId === 'user') {
+        // 确保至少有一个聊天存在
+        if (Object.keys(state.chats).length > 0) {
+            const anyChat = Object.values(state.chats)[0];
+            if (anyChat && anyChat.settings.myPersona) {
+                authorPersona = anyChat.settings.myPersona;
+            }
+        }
+    } 
+    // 如果发帖的是AI角色
+    else {
+        const authorChat = state.chats[post.authorId];
+        if (authorChat && authorChat.settings.aiPersona) {
+            authorPersona = authorChat.settings.aiPersona;
+        }
+    }
+
+    // ▼▼▼ 核心修复：对人设字符串进行截断，防止请求体过大！ ▼▼▼
+    const truncatedPersona = authorPersona.substring(0, 400);
+    // ▲▲▲ 修复结束 ▲▲▲
+
+    const postContent = (post.content || post.hiddenContent || "(图片动态)").substring(0, 200);
+    const existingComments = (post.comments || []).slice(-5).map(c => `${c.authorNickname}: ${c.commentText}`).join('\n');
+
+    // 在指令中使用截断后的人设
+    const systemPrompt = `
+# 任务
+你是一个专业的“社交媒体模拟器”。你的任务是根据一个特定角色的“人设”，为他/她发布的一条微博生成一批真实的、符合情景的网友评论。
+
+# 微博情景
+- **作者**: ${authorName}
+- **作者人设 (你必须严格参考)**: ${truncatedPersona}
+- **内容摘要**: ${postContent}...
+- **已有评论 (你可以回复他们，也可以发表新观点)**:
+${existingComments || "(暂无评论)"}
+
+# 你的任务
+1.  仔细阅读并理解“作者人设”，想象一下这样的人在现实生活中会有什么样的粉丝、朋友或路人网友。
+2.  根据人设和微博内容，生成5到10条风格各异、口吻真实的评论。评论者的身份可以是粉丝、朋友、路人、甚至是黑粉，但必须符合逻辑。
+3.  你的回复【必须且只能】是一个严格的JSON数组，每个对象代表一条评论。
+
+# 格式指令 (必须遵守)
+-   发表新评论, 使用格式: \`{"author": "路人甲", "comment": "说得好！"}\`
+-   回复已有评论, 使用格式: \`{"author": "热心网友", "comment": "我也这么觉得！", "replyTo": "路人甲"}\`
+-   "replyTo" 的值必须是上面“已有评论”中出现过的昵称。
+
+现在，请开始你的表演。
+`;
+
+    try {
+        let isGemini = proxyUrl === GEMINI_API_URL;
+        let messagesForApi = [{ role: 'user', content: systemPrompt }];
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+
+        const response = isGemini 
+            ? await fetch(geminiConfig.url, geminiConfig.data) 
+            : await fetch(`${proxyUrl}/v1/chat/completions`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+                body: JSON.stringify({
+                    model: model,
+                    messages: messagesForApi,
+                    temperature: 0.9,
+                    response_format: { type: "json_object" }
+                })
+            });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API请求失败: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json();
+        const aiResponseContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content)
+            .replace(/^```json\s*|```$/g, '').trim();
+        
+        const newComments = JSON.parse(aiResponseContent);
+
+        if (Array.isArray(newComments) && newComments.length > 0) {
+            const postToUpdate = await db.weiboPosts.get(post.id);
+            if (!postToUpdate) throw new Error("在数据库中找不到要更新的帖子！");
+            
+            if (!postToUpdate.comments) postToUpdate.comments = [];
+            
+            newComments.forEach(comment => {
+                if(comment.author && comment.comment) {
+                    const newCommentObject = {
+                        commentId: 'comment_' + Date.now() + Math.random(),
+                        authorNickname: comment.author,
+                        commentText: comment.comment,
+                        timestamp: Date.now()
+                    };
+                    if (comment.replyTo) {
+                        newCommentObject.replyToNickname = comment.replyTo;
+                    }
+                    postToUpdate.comments.push(newCommentObject);
+                }
+            });
+
+            postToUpdate.baseLikesCount = (postToUpdate.baseLikesCount || 0) + Math.floor(Math.random() * newComments.length * 3 + 5);
+
+            await db.weiboPosts.put(postToUpdate);
+            
+            await renderMyWeiboFeed();
+            await renderFollowingWeiboFeed();
+            
+            alert(`成功生成了 ${newComments.length} 条新评论！`);
+        } else {
+             alert("AI没有生成有效的评论。");
+        }
+
+    } catch (error) {
+        console.error("生成微博评论失败:", error);
+        await showCustomAlert('生成失败', `发生了一个错误：\n${error.message}`);
+    }
+}
+
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+
+// ▼▼▼ 把这个新函数粘贴到 renderWeiboProfile 函数的上方 ▼▼▼
+/**
+ * 【全新】删除一条微博评论
+ * @param {number} postId - 评论所在的微博ID
+ * @param {string} commentId - 要删除的评论的ID
+ */
+async function deleteWeiboComment(postId, commentId) {
+    const post = await db.weiboPosts.get(postId);
+    if (!post || !post.comments) return;
+
+    const commentIndex = post.comments.findIndex(c => c.commentId === commentId);
+    if (commentIndex === -1) return;
+    
+    const commentText = post.comments[commentIndex].commentText;
+
+    const confirmed = await showCustomConfirm(
+        '删除评论', 
+        `确定要删除这条评论吗？\n\n“${commentText.substring(0, 50)}...”`,
+        { confirmButtonClass: 'btn-danger' }
+    );
+
+    if (confirmed) {
+        post.comments.splice(commentIndex, 1);
+        await db.weiboPosts.put(post);
+        await renderMyWeiboFeed();
+        await renderFollowingWeiboFeed();
+        alert("评论已删除。");
+    }
+}
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
+
 
 /* ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼ */
         async function init() {
@@ -23560,10 +25353,12 @@ let activeHomePresetId = null; // 用于追踪当前选中的预设ID
  */
 function toggleHomePresetButtons(isEnabled) {
     document.getElementById('apply-home-preset-btn').disabled = !isEnabled;
+    document.getElementById('update-home-preset-btn').disabled = !isEnabled; // <-- 新增这一行
     document.getElementById('rename-home-preset-btn').disabled = !isEnabled;
     document.getElementById('delete-home-preset-btn').disabled = !isEnabled;
     document.getElementById('export-home-preset-btn').disabled = !isEnabled;
 }
+
 
 /**
  * 加载预设到下拉框
@@ -23604,17 +25399,23 @@ async function applySelectedHomeScreenPreset() {
     if (preset && preset.data) {
         state.globalSettings.widgetData = preset.data;
 
-        // ▼▼▼ 核心修改：检查并应用预设中的壁纸 ▼▼▼
         if (preset.data.wallpaper) {
             state.globalSettings.wallpaper = preset.data.wallpaper;
-            applyGlobalWallpaper(); // 立刻应用壁纸到主屏幕
+            applyGlobalWallpaper();
         }
-        // ▲▲▲ 修改结束 ▲▲▲
 
+        // 核心：现在这一段代码会自动处理好包括微博在内的所有图标！
         if (preset.data.appIcons) {
             state.globalSettings.appIcons = { ...preset.data.appIcons };
             applyAppIcons();
         }
+        
+        // 我们不再需要下面这段单独处理微博图标的代码了，可以删掉它！
+        /*
+        if (preset.data.weiboIcon) {
+            document.getElementById('icon-img-weibo').src = preset.data.weiboIcon;
+        }
+        */
         
         await db.globalSettings.put(state.globalSettings);
         applyWidgetData(); 
@@ -23623,6 +25424,8 @@ async function applySelectedHomeScreenPreset() {
         showScreen('home-screen');
     }
 }
+
+
 
 /**
  * 保存当前的主屏幕设置为一个新的预设
@@ -23633,6 +25436,13 @@ async function saveCurrentHomeScreenAsPreset() {
         if (presetName !== null) alert("名字不能为空！");
         return;
     }
+
+    // ▼▼▼ 核心修改在这里 ▼▼▼
+    // 在保存之前，先确保 state.globalSettings.appIcons 包含了最新的微博图标
+    // 这样所有图标数据就统一了！
+    state.globalSettings.appIcons['weibo'] = document.getElementById('icon-img-weibo').src;
+    // ▲▲▲ 修改结束 ▲▲▲
+
     const presetData = {
         'profile-banner-img': document.getElementById('profile-banner-img').src,
         'profile-avatar-img': document.getElementById('profile-avatar-img').src,
@@ -23646,14 +25456,65 @@ async function saveCurrentHomeScreenAsPreset() {
         'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
         'widget-image-2': document.getElementById('widget-image-2').src,
         'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
-        'appIcons': { ...state.globalSettings.appIcons },
-        // ▼▼▼ 核心修改：在这里添加壁纸数据 ▼▼▼
-        'wallpaper': state.globalSettings.wallpaper 
+        'appIcons': { ...state.globalSettings.appIcons }, // 现在这里就包含了最新的微博图标
+        'wallpaper': state.globalSettings.wallpaper
+        // 我们不再需要下面这行单独的代码了
+        // 'weiboIcon': document.getElementById('icon-img-weibo').src 
     };
     await db.homeScreenPresets.add({ name: presetName.trim(), data: presetData });
     await loadHomeScreenPresetsToDropdown();
     alert(`预设 "${presetName.trim()}" 已保存！`);
 }
+
+/**
+ * 【全新】更新当前选中的预设
+ */
+async function updateSelectedHomeScreenPreset() {
+    if (!activeHomePresetId) {
+        alert("请先选择一个要更新的预设。");
+        return;
+    }
+
+    const currentPreset = await db.homeScreenPresets.get(activeHomePresetId);
+    if (!currentPreset) return;
+
+    const confirmed = await showCustomConfirm(
+        "确认更新",
+        `确定要用当前的主屏幕布局覆盖预设 "${currentPreset.name}" 吗？`,
+        { confirmButtonClass: 'btn-danger' }
+    );
+
+    if (confirmed) {
+        // ▼▼▼ 核心修改在这里 ▼▼▼
+        // 同样，在更新前，先确保 state 里的数据是最新的
+        state.globalSettings.appIcons['weibo'] = document.getElementById('icon-img-weibo').src;
+        // ▲▲▲ 修改结束 ▲▲▲
+
+        const presetData = {
+            'profile-banner-img': document.getElementById('profile-banner-img').src,
+            'profile-avatar-img': document.getElementById('profile-avatar-img').src,
+            'profile-username': document.getElementById('profile-username').textContent,
+            'profile-sub-username': document.getElementById('profile-sub-username').textContent,
+            'profile-bio': document.getElementById('profile-bio').textContent,
+            'profile-location': document.getElementById('profile-location').innerHTML,
+            'widget-bubble-1': document.getElementById('widget-bubble-1').textContent,
+            'widget-image-1': document.getElementById('widget-image-1').src,
+            'widget-subtext-1': document.getElementById('widget-subtext-1').textContent,
+            'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
+            'widget-image-2': document.getElementById('widget-image-2').src,
+            'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
+            'appIcons': { ...state.globalSettings.appIcons },
+            'wallpaper': state.globalSettings.wallpaper
+            // 单独的 weiboIcon 也不再需要了
+        };
+
+        await db.homeScreenPresets.update(activeHomePresetId, { data: presetData });
+        
+        await showCustomAlert('成功', `预设 "${currentPreset.name}" 已更新！`);
+    }
+}
+
+
 
 
 /**
@@ -23798,6 +25659,8 @@ applyAppIcons();
             // ==========================================================
             // --- 各种事件监听器 ---
             // ==========================================================
+            // ▼▼▼ 在 init() 函数的事件监听器区域末尾，添加下面这行代码 ▼▼▼
+// ▼▼▼ 用这块新代码，替换旧的 weibo-screen 事件监听器 ▼▼▼
             // ▼▼▼ 【全新】“查角色手机”功能事件监听器 ▼▼▼
 
 // 1. 绑定主屏幕上的“查手机”APP图标
@@ -23822,6 +25685,7 @@ document.getElementById('home-preset-selector').addEventListener('change', handl
 document.getElementById('apply-home-preset-btn').addEventListener('click', applySelectedHomeScreenPreset);
 // 【核心修改】这里按钮的ID变了
 document.getElementById('save-home-preset-btn').addEventListener('click', saveCurrentHomeScreenAsPreset); 
+document.getElementById('update-home-preset-btn').addEventListener('click', updateSelectedHomeScreenPreset); // <-- 新增这一行
 document.getElementById('rename-home-preset-btn').addEventListener('click', renameSelectedHomeScreenPreset);
 document.getElementById('delete-home-preset-btn').addEventListener('click', deleteSelectedHomeScreenPreset);
 document.getElementById('export-home-preset-btn').addEventListener('click', exportHomeScreenPreset);
@@ -23832,8 +25696,6 @@ document.getElementById('import-home-preset-input').addEventListener('change', (
 });
 
             document.getElementById('theme-toggle-switch').addEventListener('change', toggleTheme);
-  
-
 // ▼▼▼ 【全新】聊天记录搜索功能事件绑定 ▼▼▼
 document.getElementById('search-chat-btn').addEventListener('click', openChatSearchScreen);
 
@@ -23853,9 +25715,47 @@ document.getElementById('chat-search-results-list').addEventListener('click', (e
     }
 });
 // ▲▲▲ 新事件绑定结束 ▲▲▲
+// ▼▼▼ 在 init() 函数的事件监听器区域，粘贴这行新代码 ▼▼▼
+
+document.getElementById('create-weibo-post-btn').addEventListener('click', openWeiboPublisherClean);
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
 // ▼▼▼ 在 init() 函数的事件监听器区域末尾，粘贴下面这行新代码 ▼▼▼
 document.getElementById('delete-expired-songs-btn').addEventListener('click', deleteExpiredSearchedSongs);
 // ▲▲▲ 粘贴结束 ▲▲▲
+// ▼▼▼ 在 init() 的事件监听器区域末尾，粘贴这整块新代码 ▼▼▼
+
+// ▼▼▼ 用这块新代码替换 ▼▼▼
+// --- 微博热搜与广场功能事件绑定 ---
+
+// 1. 绑定热搜页面的“生成”按钮
+document.getElementById('generate-hot-search-btn').addEventListener('click', generateHotSearch);
+
+// 2. 【核心修改】现在，广场页面的“生成”按钮也调用同一个函数！
+document.getElementById('generate-plaza-feed-btn').addEventListener('click', generateHotSearch);
+// ▲▲▲ 替换结束 ▲▲▲
+// ▼▼▼ 在 init() 的事件监听器区域末尾，粘贴这整块新代码 ▼▼▼
+
+// --- 微博热搜与广场功能事件绑定 ---
+
+// 1. 绑定热搜详情页的“返回”按钮
+document.getElementById('back-from-hottopic-btn').addEventListener('click', () => {
+    switchToWeiboView('weibo-hot-search-view');
+});
+
+// 2. 绑定热搜详情页的“换一批”按钮
+document.getElementById('refresh-hottopic-feed-btn').addEventListener('click', () => {
+    if (currentHotTopic) {
+        generateHotSearchFeed(currentHotTopic);
+    }
+});
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
 // ▼▼▼ 【全新】心声历史记录删除功能事件绑定 ▼▼▼
 document.getElementById('clear-all-history-btn').addEventListener('click', clearAllInnerVoiceHistory);
 
@@ -24823,75 +26723,13 @@ document.getElementById('selection-delete-btn').addEventListener('click', async 
             document.getElementById('qzone-avatar-input').addEventListener('change', async (event) => { const file = event.target.files[0]; if (file) { const dataUrl = await new Promise(res => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.readAsDataURL(file); }); state.qzoneSettings.avatar = dataUrl; await saveQzoneSettings(); renderQzoneScreen(); } event.target.value = null; });
             document.getElementById('qzone-banner-input').addEventListener('change', async (event) => { const file = event.target.files[0]; if (file) { const dataUrl = await new Promise(res => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.readAsDataURL(file); }); state.qzoneSettings.banner = dataUrl; await saveQzoneSettings(); renderQzoneScreen(); } event.target.value = null; });
 
-// ▼▼▼ 【修正后】的“说说”按钮事件 ▼▼▼
-document.getElementById('create-shuoshuo-btn').addEventListener('click', async () => {
-    // 1. 重置并获取模态框
-    resetCreatePostModal();
-    const modal = document.getElementById('create-post-modal');
-    
-    // 2. 设置为“说说”模式
-    modal.dataset.mode = 'shuoshuo';
-    
-    // 3. 隐藏与图片/文字图相关的部分
-    modal.querySelector('.post-mode-switcher').style.display = 'none';
-    modal.querySelector('#image-mode-content').style.display = 'none';
-    modal.querySelector('#text-image-mode-content').style.display = 'none';
-    
-    // 4. 修改主输入框的提示语，使其更符合“说说”的场景
-    modal.querySelector('#post-public-text').placeholder = '分享新鲜事...';
-    
-    // 5. 准备并显示模态框
-    const visibilityGroupsContainer = document.getElementById('post-visibility-groups');
-    visibilityGroupsContainer.innerHTML = '';
-    const groups = await db.qzoneGroups.toArray();
-    if (groups.length > 0) {
-        groups.forEach(group => {
-            const label = document.createElement('label');
-            label.style.display = 'block';
-            label.innerHTML = `<input type="checkbox" name="visibility_group" value="${group.id}"> ${group.name}`;
-            visibilityGroupsContainer.appendChild(label);
-        });
-    } else {
-        visibilityGroupsContainer.innerHTML = '<p style="color: var(--text-secondary);">没有可用的分组</p>';
-    }
-    modal.classList.add('visible');
-});
+// ▼▼▼ 用下面这两行，替换掉旧的事件绑定 ▼▼▼
 
-// ▼▼▼ 【修正后】的“动态”（图片）按钮事件 ▼▼▼
-document.getElementById('create-post-btn').addEventListener('click', async () => {
-    // 1. 重置并获取模态框
-    resetCreatePostModal();
-    const modal = document.getElementById('create-post-modal');
-    
-    // 2. 设置为“复杂动态”模式
-    modal.dataset.mode = 'complex';
-    
-// 3. 确保与图片/文字图相关的部分是可见的
-modal.querySelector('.post-mode-switcher').style.display = 'flex';
-// 显式激活“上传图片”模式...
-modal.querySelector('#image-mode-content').classList.add('active');
-// ...同时确保“文字图”模式是隐藏的
-modal.querySelector('#text-image-mode-content').classList.remove('active');
-    
-    // 4. 恢复主输入框的默认提示语
-    modal.querySelector('#post-public-text').placeholder = '分享新鲜事...（非必填的公开文字）';
+document.getElementById('create-shuoshuo-btn').addEventListener('click', () => openQZonePublisher('shuoshuo'));
+document.getElementById('create-post-btn').addEventListener('click', () => openQZonePublisher('complex'));
 
-    // 5. 准备并显示模态框（与“说说”按钮的逻辑相同）
-    const visibilityGroupsContainer = document.getElementById('post-visibility-groups');
-    visibilityGroupsContainer.innerHTML = '';
-    const groups = await db.qzoneGroups.toArray();
-    if (groups.length > 0) {
-        groups.forEach(group => {
-            const label = document.createElement('label');
-            label.style.display = 'block';
-            label.innerHTML = `<input type="checkbox" name="visibility_group" value="${group.id}"> ${group.name}`;
-            visibilityGroupsContainer.appendChild(label);
-        });
-    } else {
-        visibilityGroupsContainer.innerHTML = '<p style="color: var(--text-secondary);">没有可用的分组</p>';
-    }
-    modal.classList.add('visible');
-});
+// ▲▲▲ 替换结束 ▲▲▲
+
             document.getElementById('open-album-btn').addEventListener('click', async () => { await renderAlbumList(); showScreen('album-screen'); });
             document.getElementById('album-back-btn').addEventListener('click', () => { showScreen('chat-list-screen'); switchToChatListView('qzone-screen'); });
 
@@ -25016,39 +26854,45 @@ document.getElementById('create-album-btn-page').addEventListener('click', async
 
 // ▼▼▼ 请用下面这一整块【修复后】的代码，替换掉刚才删除的旧代码 ▼▼▼
 
+// ▼▼▼ 用这【一整块】代码，替换掉旧的 'confirm-create-post-btn' 事件监听器 ▼▼▼
+
 document.getElementById('confirm-create-post-btn').addEventListener('click', async () => {
     const modal = document.getElementById('create-post-modal');
-    const mode = modal.dataset.mode;
-    const editingId = parseInt(modal.dataset.editingPostId);
+    const mode = modal.dataset.mode; // 这就是我们的智能开关！
 
-    // --- 1. 获取通用的可见性设置和评论开关状态 (这部分不变) ---
-    const visibilityMode = document.querySelector('input[name="visibility"]:checked').value;
-    const areCommentsVisible = document.getElementById('post-comments-toggle').checked;
-    let visibleGroupIds = null;
-    
-    if (visibilityMode === 'include') {
-        visibleGroupIds = Array.from(document.querySelectorAll('input[name="visibility_group"]:checked')).map(cb => parseInt(cb.value));
+    // ==========================================================
+    //  分支一：如果当前是“微博”模式
+    // ==========================================================
+    if (mode === 'weibo') {
+        // 就调用专门发微博的函数
+        await handlePublishWeibo();
+        return; // 处理完后立刻结束，不再往下执行
     }
 
+    // ==========================================================
+    //  分支二：如果不是微博模式（那就是动态模式）
+    // ==========================================================
+    // 这里就是您原有的、发布“好友动态(QZone)”的完整逻辑
+    
+    const editingId = parseInt(modal.dataset.editingPostId);
+    
+    // 动态功能的专属逻辑：获取评论开关状态等
+    const areCommentsVisible = document.getElementById('post-comments-toggle').checked;
+    
     let postData = {};
 
-    // --- 2. 【核心修复】我们在这里区分“编辑模式”和“新建模式” ---
     if (mode === 'edit') {
-        // --- 编辑模式的逻辑 ---
+        // 编辑动态的逻辑...
         const existingPost = await db.qzonePosts.get(editingId);
         if (!existingPost) {
             alert('错误：找不到要编辑的动态！');
             return;
         }
-
-        // 关键！我们从现有的动态数据开始，这样就能保留原始的 authorId 和 timestamp
         postData = { 
             ...existingPost, 
-            visibleGroupIds: visibleGroupIds,
             areCommentsVisible: areCommentsVisible,
         };
         
-        // 只更新内容相关的字段
         if (postData.type === 'shuoshuo') {
             postData.content = document.getElementById('post-public-text').value.trim();
         } else {
@@ -25060,17 +26904,13 @@ document.getElementById('confirm-create-post-btn').addEventListener('click', asy
                 postData.hiddenContent = document.getElementById('post-hidden-text').value.trim();
             }
         }
-        
-        // 将更新后的数据保存回数据库
         await db.qzonePosts.put(postData);
 
     } else {
-        // --- 新建模式的逻辑 (说说 或 复杂动态) ---
-        // 关键！只有在新建时，我们才把 authorId 设置为 'user'
+        // 新建动态的逻辑...
         const basePostData = {
             timestamp: Date.now(),
-            authorId: 'user', // <--- 只有新建时才是用户
-            visibleGroupIds: visibleGroupIds,
+            authorId: 'user',
             areCommentsVisible: areCommentsVisible,
         };
         
@@ -25078,7 +26918,7 @@ document.getElementById('confirm-create-post-btn').addEventListener('click', asy
             const content = document.getElementById('post-public-text').value.trim();
             if (!content) return alert('说说内容不能为空哦！');
             postData = { ...basePostData, type: 'shuoshuo', content: content };
-        } else { // complex mode
+        } else { // complex mode (图片或文字图)
             const publicText = document.getElementById('post-public-text').value.trim();
             const isImageModeActive = document.getElementById('image-mode-content').classList.contains('active');
             if (isImageModeActive) {
@@ -25093,36 +26933,30 @@ document.getElementById('confirm-create-post-btn').addEventListener('click', asy
                 postData = { ...basePostData, type: 'text_image', publicText, hiddenContent: hiddenText };
             }
         }
-        // 将新动态添加到数据库
-        await db.qzonePosts.add(postData);
+        const newPost = await db.qzonePosts.add(postData);
+        postData.id = newPost; // 获取新帖子的ID
     }
     
-    // --- 3. 后续的通知和刷新逻辑 (这部分不变) ---
+    // 通知AI的逻辑...
     let postSummary = postData.content || postData.publicText || postData.imageDescription || postData.hiddenContent || "（无文字内容）";
     postSummary = postSummary.substring(0, 50) + (postSummary.length > 50 ? '...' : '');
     for (const chatId in state.chats) {
         const chat = state.chats[chatId];
         if (chat.isGroup) continue;
-        let shouldNotify = false;
-        if (!postData.visibleGroupIds || postData.visibleGroupIds.length === 0 || (chat.groupId && postData.visibleGroupIds.includes(chat.groupId))) {
-            shouldNotify = true;
-        }
-        if (shouldNotify) {
-            const historyMessage = { role: 'system', content: `[系统提示：用户${editingId ? '编辑了' : '发布了'}一条动态(ID: ${editingId || postData.id})，内容摘要是：“${postSummary}”。]`, timestamp: Date.now(), isHidden: true };
-            chat.history.push(historyMessage);
-            await db.chats.put(chat);
-        }
+        const historyMessage = { role: 'system', content: `[系统提示：用户${editingId ? '编辑了' : '发布了'}一条动态(ID: ${editingId || postData.id})，内容摘要是：“${postSummary}”。]`, timestamp: Date.now(), isHidden: true };
+        chat.history.push(historyMessage);
+        await db.chats.put(chat);
     }
     
+    // 收尾工作...
     await renderQzonePosts();
     modal.classList.remove('visible');
-    // 清理标记
     delete modal.dataset.editingPostId;
     delete modal.dataset.mode;
     alert(`动态${editingId ? '编辑' : '发布'}成功！`);
 });
 
-// ▲▲▲ 粘贴到这里结束 ▲▲▲
+// ▲▲▲ 替换结束 ▲▲▲
 
 
 // ▼▼▼ 请用这【一整块】包含所有滑动和点击事件的完整代码，替换掉旧的 postsList 事件监听器 ▼▼▼
@@ -27653,6 +29487,149 @@ function importBubblePreset(file) {
 
 // ▲▲▲ 新增功能函数结束 ▲▲▲
 
+// ▼▼▼ 用这【一整块】代码，替换掉所有旧的、和微博相关的事件监听器 ▼▼▼
+
+// ▼▼▼ 请用下面这【一整块】代码，完整替换掉上面那段旧代码 ▼▼▼
+document.getElementById('weibo-app-icon').addEventListener('click', () => {
+    renderWeiboProfile(); // 渲染个人资料
+    renderMyWeiboFeed(); // <-- 就是新增了这一行！主动渲染“我的微博”列表
+    switchToWeiboView('weibo-my-profile-view'); // 默认显示“我的微博”
+    showScreen('weibo-screen');
+});
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+// 2. 绑定微博页面内的各种点击事件 (使用事件委托)
+document.getElementById('weibo-screen').addEventListener('click', async (e) => {
+    const target = e.target;
+    const postItem = target.closest('.weibo-post-item');
+    const postId = postItem ? parseInt(postItem.dataset.postId) : null;
+
+    // --- 处理“删除评论”按钮 ---
+    const deleteCommentBtn = target.closest('.comment-delete-btn');
+    if (deleteCommentBtn) {
+        const commentItem = deleteCommentBtn.closest('.weibo-comment-item');
+        if (postId && commentItem && commentItem.dataset.commentId) {
+            deleteWeiboComment(postId, commentItem.dataset.commentId);
+        }
+        return;
+    }
+
+    // --- 处理“生成评论”按钮 ---
+    const generateBtn = target.closest('.generate-comments-btn');
+    if (generateBtn) {
+        if (postId) {
+            generateWeiboComments(postId);
+        }
+        return; 
+    }
+
+    // --- 处理底部导航栏切换 ---
+    const navItem = target.closest('.weibo-nav-item');
+    if (navItem && navItem.dataset.view) {
+        switchToWeiboView(navItem.dataset.view);
+        return;
+    }
+
+    // --- 处理旧的“…”删除按钮 ---
+    const actionsBtn = target.closest('.post-actions-btn');
+    if (actionsBtn) {
+        const confirmed = await showCustomConfirm('删除微博', '确定要永久删除这条微博吗？此操作不可恢复。', { confirmButtonClass: 'btn-danger' });
+        if (confirmed && postId) {
+            await db.weiboPosts.delete(postId);
+            await renderMyWeiboFeed();
+            await renderFollowingWeiboFeed();
+            await renderWeiboProfile();
+            alert('微博已删除。');
+        }
+        return;
+    }
+    
+    // --- 处理点赞、评论、回复 ---
+    if (target.closest('.like-btn')) { if (postId) handleWeiboLike(postId); return; }
+    if (target.closest('.weibo-comment-send-btn')) { const input = postItem.querySelector('.weibo-comment-input'); if (postId && input) handleWeiboComment(postId, input); return; }
+    
+    const commentItem = target.closest('.weibo-comment-item');
+    if (commentItem) {
+        const commenterName = commentItem.dataset.commenterName;
+        const commentId = commentItem.dataset.commentId;
+        const input = postItem.querySelector('.weibo-comment-input');
+        if (input.dataset.replyToId === commentId) {
+            input.placeholder = '留下你的精彩评论吧...';
+            delete input.dataset.replyToId; delete input.dataset.replyToNickname;
+        } else {
+            input.placeholder = `回复 @${commenterName}:`;
+            input.dataset.replyToId = commentId; input.dataset.replyToNickname = commenterName;
+            input.focus();
+        }
+        return;
+    }
+});
+
+// 3. 【核心】为微博个人主页的所有可编辑元素，绑定专属的编辑函数
+document.getElementById('weibo-profile-page').addEventListener('click', (e) => {
+    const target = e.target;
+    if (target.id === 'weibo-avatar-img' || target.closest('.weibo-avatar-container')) {
+        editWeiboAvatar();
+    } else if (target.id === 'weibo-nickname') {
+        editWeiboNickname();
+    } else if (target.id === 'weibo-background-img') {
+        editWeiboBackground();
+    } else if (target.closest('#weibo-fans-item')) {
+        editWeiboFansCount();
+    }
+});
+
+// 4. 【核心】为“关注”数字和“发布微博”按钮绑定事件
+document.getElementById('weibo-following-btn').addEventListener('click', showFollowingList);
+document.getElementById('create-weibo-post-btn').addEventListener('click', openWeiboPublisherClean);
+document.getElementById('close-following-list-btn').addEventListener('click', () => {
+    document.getElementById('weibo-following-modal').classList.remove('visible');
+});
+document.getElementById('clear-following-feed-btn').addEventListener('click', clearFollowingFeed);
+
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 【微博专属 V2 - 干净版】打开微博发布模态框
+ * 这个版本不再依赖任何动态(QZone)的HTML元素，彻底分家。
+ */
+function openWeiboPublisherClean() {
+    // 1. 重置并获取模态框
+    resetCreatePostModal(); 
+    const modal = document.getElementById('create-post-modal');
+    
+    // 2. 设置为“微博”模式，并修改标题和提示语
+    modal.dataset.mode = 'weibo';
+    document.getElementById('create-post-modal-title').textContent = '发微博';
+    document.getElementById('post-public-text').placeholder = '有什么新鲜事想分享给大家？';
+
+    // 3. 【核心修复】确保所有“动态”专属的HTML元素都被隐藏
+    // 我们现在不再去获取它们的style，而是直接找到它们并设置display: 'none'
+    const imageDescGroup = document.getElementById('post-image-desc-group');
+    if (imageDescGroup) imageDescGroup.style.display = 'none';
+    
+    const commentsToggleGroup = document.getElementById('post-comments-toggle-group');
+    if (commentsToggleGroup) commentsToggleGroup.style.display = 'none';
+
+    // 4. 显示微博需要的控件
+    const modeSwitcher = document.getElementById('post-mode-switcher');
+    if (modeSwitcher) modeSwitcher.style.display = 'flex';
+    
+    // 5. 显示弹窗
+    modal.classList.add('visible');
+}
+
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
+
+document.getElementById('close-following-list-btn').addEventListener('click', () => {
+    document.getElementById('weibo-following-modal').classList.remove('visible');
+});
+document.getElementById('clear-following-feed-btn').addEventListener('click', clearFollowingFeed);
+
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 
 // ===================================================================
 // 5. 启动！
@@ -27702,6 +29679,259 @@ if (lockScreenEnabled) {
         }
 
         init();
+ // ▼▼▼ 把这【一整块】全新的代码，粘贴到 <script> 标签内的【变量定义区域】的末尾 ▼▼▼
+
+const avatarFrames = [
+    { id: 'none', url: '', name: '无' }, 
+    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/fLDnz5Pn/IMG-5574.gif', name: '1' }, 
+    { id: 'frame_ribbon', url: 'https://i.postimg.cc/HxH3cNHz/IMG-6871.gif', name: '2' }, 
+    { id: 'frame_flower', url: 'https://i.postimg.cc/jCVK0fGL/IMG-6890.gif', name: '3' }, 
+    { id: 'frame_tech', url: 'https://i.postimg.cc/85Zsyjwn/IMG-6895.gif', name: '4' }, 
+    { id: 'frame_5', url: 'https://i.postimg.cc/cJtpZCB3/IMG-6894.gif', name: '5' }, 
+    { id: 'frame_6', url: 'https://i.postimg.cc/63sDQKMm/IMG-6893.gif', name: '6' }, 
+    { id: 'frame_7', url: 'https://i.postimg.cc/cHQPgzj4/IMG-6888.gif', name: '7' }, 
+    { id: 'frame_8', url: 'https://i.postimg.cc/dVLXm3Xf/IMG-6885.gif', name: '8' }, 
+    { id: 'frame_9', url: 'https://i.postimg.cc/kGsZwbq0/IMG-6886.gif', name: '9' }, 
+    { id: 'frame_10', url: 'https://i.postimg.cc/63NmX03s/IMG-4366.gif', name: '10' }, 
+    { id: 'frame_11', url: 'https://i.postimg.cc/zvz2LGK0/IMG-4367.gif', name: '11' }, 
+    { id: 'frame_12', url: 'https://i.postimg.cc/prsGKMBx/IMG-4370.gif', name: '12' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/gk0BmrY0/IMG-4371.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/fRt2SFSn/IMG-4368.gif', name: '14' }, 
+    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/kGgwJhPH/IMG-4374.gif', name: '1' }, 
+    { id: 'frame_ribbon', url: 'https://i.postimg.cc/PrcKH436/IMG-4376.gif', name: '2' }, 
+    { id: 'frame_flower', url: 'https://i.postimg.cc/fRV86FMq/IMG-4381.gif', name: '3' }, 
+    { id: 'frame_tech', url: 'https://i.postimg.cc/HsyqMVyk/IMG-4385.gif', name: '4' }, 
+    { id: 'frame_5', url: 'https://i.postimg.cc/qBbKK7dS/IMG-4386.gif', name: '5' }, 
+    { id: 'frame_6', url: 'https://i.postimg.cc/05wnd389/IMG-4388.gif', name: '6' }, 
+    { id: 'frame_7', url: 'https://i.postimg.cc/RZNLhbbr/IMG-4389.gif', name: '7' }, 
+    { id: 'frame_8', url: 'https://i.postimg.cc/fLTc42dg/IMG-4391.gif', name: '8' }, 
+    { id: 'frame_9', url: 'https://i.postimg.cc/FzbGNdRT/IMG-4392.gif', name: '9' }, 
+    { id: 'frame_10', url: 'https://i.postimg.cc/XY63sTS3/IMG-4393.gif', name: '10' }, 
+    { id: 'frame_11', url: 'https://i.postimg.cc/Cx9vCVWH/IMG-4395.gif', name: '11' }, 
+    { id: 'frame_12', url: 'https://i.postimg.cc/kMfPQBwQ/IMG-4396.gif', name: '12' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/CLrZQMMD/IMG-4398.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/L4zwDhTC/IMG-4399.gif', name: '14' }, 
+    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/yN3s8szM/IMG-4400.gif', name: '1' }, 
+    { id: 'frame_ribbon', url: 'https://i.postimg.cc/59Cn1tkB/IMG-4401.gif', name: '2' }, 
+    { id: 'frame_flower', url: 'https://i.postimg.cc/g0s1V0PX/IMG-4402.gif', name: '3' }, 
+    { id: 'frame_tech', url: 'https://i.postimg.cc/Jn1DFPgY/IMG-4403.gif', name: '4' }, 
+    { id: 'frame_5', url: 'https://i.postimg.cc/q7cQnDy1/IMG-4404.gif', name: '5' }, 
+    { id: 'frame_6', url: 'https://i.postimg.cc/RFK3q2t0/IMG-4407.gif', name: '6' }, 
+    { id: 'frame_7', url: 'https://i.postimg.cc/gcV0VR2t/IMG-4408.gif', name: '7' }, 
+    { id: 'frame_8', url: 'https://i.postimg.cc/W1CjLb4J/IMG-4409.gif', name: '8' }, 
+    { id: 'frame_9', url: 'https://i.postimg.cc/Ss7pM6fW/IMG-4410.gif', name: '9' }, 
+    { id: 'frame_10', url: 'https://i.postimg.cc/nrFfYX3N/IMG-4412.gif', name: '10' }, 
+    { id: 'frame_11', url: 'https://i.postimg.cc/cHWp0KG6/IMG-4413.gif', name: '11' }, 
+    { id: 'frame_12', url: 'https://i.postimg.cc/4yNjHrdg/IMG-4414.gif', name: '12' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/hPX5F8Qp/IMG-4415.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/vHCSG1WM/IMG-4416.gif', name: '14' }, 
+    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/x1Hp80Rm/IMG-4417.gif', name: '1' }, 
+    { id: 'frame_ribbon', url: 'https://i.postimg.cc/FHRcCGfH/IMG-4418.gif', name: '2' }, 
+    { id: 'frame_flower', url: 'https://i.postimg.cc/13hhJ77p/IMG-4419.gif', name: '3' }, 
+    { id: 'frame_tech', url: 'https://i.postimg.cc/J4WCQd2j/IMG-4420.gif', name: '4' }, 
+    { id: 'frame_5', url: 'https://i.postimg.cc/Dydkpd9H/IMG-4421.gif', name: '5' }, 
+    { id: 'frame_6', url: 'https://i.postimg.cc/mrkvDxPW/IMG-4422.gif', name: '6' }, 
+    { id: 'frame_7', url: 'https://i.postimg.cc/76Tj3g1B/IMG-4425.gif', name: '7' }, 
+    { id: 'frame_8', url: 'https://i.postimg.cc/3N5Vndn3/IMG-4426.gif', name: '8' }, 
+    { id: 'frame_9', url: 'https://i.postimg.cc/05DLr0yj/IMG-4427.gif', name: '9' }, 
+    { id: 'frame_10', url: 'https://i.postimg.cc/GhR6DT4Q/IMG-4428.gif', name: '10' }, 
+    { id: 'frame_11', url: 'https://i.postimg.cc/fRTF24jS/IMG-4430.gif', name: '11' }, 
+    { id: 'frame_12', url: 'https://i.postimg.cc/R0WYmcYM/IMG-4431.gif', name: '12' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/nrJSqNhz/IMG-4432.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/tC9mJ0cv/IMG-4438.gif', name: '14' }, 
+    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/XNkQTHvf/IMG-5561.gif', name: '1' }, 
+    { id: 'frame_ribbon', url: 'https://i.postimg.cc/Mpv5fzm5/IMG-4439.gif', name: '2' }, 
+    { id: 'frame_flower', url: 'https://i.postimg.cc/T1tjhsyB/IMG-4720.gif', name: '3' }, 
+    { id: 'frame_tech', url: 'https://i.postimg.cc/c4JMPd2W/IMG-4724.gif', name: '4' }, 
+    { id: 'frame_5', url: 'https://i.postimg.cc/g2XykNGB/IMG-4727.gif', name: '5' }, 
+    { id: 'frame_6', url: 'https://i.postimg.cc/y8MmJcd6/IMG-4728.gif', name: '6' }, 
+    { id: 'frame_7', url: 'https://i.postimg.cc/Lsjzj5Yt/IMG-4729.gif', name: '7' }, 
+    { id: 'frame_8', url: 'https://i.postimg.cc/bNdk33SN/IMG-4893.gif', name: '8' }, 
+    { id: 'frame_9', url: 'https://i.postimg.cc/4x9tTy1D/IMG-5563.gif', name: '9' }, 
+    { id: 'frame_10', url: 'https://i.postimg.cc/DZshzKv6/IMG-5576.gif', name: '10' }, 
+    { id: 'frame_11', url: 'https://i.postimg.cc/Fsvr71JL/IMG-5573.gif', name: '11' }, 
+    { id: 'frame_12', url: 'https://i.postimg.cc/Fz3HwLk9/IMG-5569.gif', name: '12' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/wjH180kn/IMG-5566.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/MG6qtLYK/IMG-5565.gif', name: '14' }, 
+    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/CKgDNYVb/IMG-5577.gif', name: '1' }, 
+    { id: 'frame_ribbon', url: 'https://i.postimg.cc/hj4dkrvj/IMG-5578.gif', name: '2' }, 
+    { id: 'frame_flower', url: 'https://i.postimg.cc/hj4dkrvj/IMG-5578.gif', name: '3' }, 
+    { id: 'frame_tech', url: 'https://i.postimg.cc/C5XnfpNB/IMG-5579.gif', name: '4' }, 
+    { id: 'frame_5', url: 'https://i.postimg.cc/4y7mGFgJ/IMG-5716.gif', name: '5' }, 
+    { id: 'frame_6', url: 'https://i.postimg.cc/FzM1Hgr0/IMG-5717.gif', name: '6' }, 
+    { id: 'frame_7', url: 'https://i.postimg.cc/rF4KYbjj/IMG-5720.gif', name: '7' }, 
+    { id: 'frame_8', url: 'https://i.postimg.cc/6pLTBvDG/IMG-5721.gif', name: '8' }, 
+    { id: 'frame_9', url: 'https://i.postimg.cc/VNK6Ccsf/IMG-5722.gif', name: '9' }, 
+    { id: 'frame_10', url: 'https://i.postimg.cc/wx72fhr2/IMG-5968.gif', name: '10' }, 
+    { id: 'frame_11', url: 'https://i.postimg.cc/QdrqdvdY/IMG-5969.gif', name: '11' }, 
+    { id: 'frame_12', url: 'https://i.postimg.cc/0yd0MZ6k/IMG-5971.gif', name: '12' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/1zmcp66p/IMG-5973.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/wBw5Fvcn/IMG-5974.gif', name: '14' }, 
+    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/R0pfKYvB/IMG-5976.gif', name: '1' }, 
+    { id: 'frame_ribbon', url: 'https://i.postimg.cc/9fQZ425b/IMG-5975.gif', name: '2' }, 
+    { id: 'frame_flower', url: 'https://i.postimg.cc/v8V9xXjJ/IMG-6137.gif', name: '3' }, 
+    { id: 'frame_tech', url: 'https://i.postimg.cc/WbmkXzsS/IMG-6138.gif', name: '4' }, 
+    { id: 'frame_5', url: 'https://i.postimg.cc/Dw2bDhZh/IMG-6140.gif', name: '5' }, 
+    { id: 'frame_6', url: 'https://i.postimg.cc/ZqQBCyLY/IMG-6144.gif', name: '6' }, 
+    { id: 'frame_7', url: 'https://i.postimg.cc/qRCtnMms/IMG-6145.gif', name: '7' }, 
+    { id: 'frame_8', url: 'https://i.postimg.cc/1Rwn3XVP/IMG-6146.gif', name: '8' }, 
+    { id: 'frame_9', url: 'https://i.postimg.cc/Kv51tW5H/IMG-6147.gif', name: '9' }, 
+    { id: 'frame_10', url: 'https://i.postimg.cc/nhcC21Rc/IMG-6148.gif', name: '10' }, 
+    { id: 'frame_11', url: 'https://i.postimg.cc/fTWzQRx8/IMG-6149.gif', name: '11' }, 
+    { id: 'frame_12', url: 'https://i.postimg.cc/LXyyqDbY/IMG-6294.gif', name: '12' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/7Zgm1wRy/IMG-6295.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/5tbpnDcQ/IMG-6296.gif', name: '14' }, 
+    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/YSRRV8kn/IMG-6297.gif', name: '1' }, 
+    { id: 'frame_ribbon', url: 'https://i.postimg.cc/k45sd8gn/IMG-6375.gif', name: '2' }, 
+    { id: 'frame_flower', url: 'https://i.postimg.cc/50k390X8/IMG-6376.gif', name: '3' }, 
+    { id: 'frame_tech', url: 'https://i.postimg.cc/90RBDh9K/IMG-6377.gif', name: '4' }, 
+    { id: 'frame_5', url: 'https://i.postimg.cc/cCpBYbMH/IMG-6552.gif', name: '5' }, 
+    { id: 'frame_6', url: 'https://i.postimg.cc/Pf9g2fSL/IMG-6554.gif', name: '6' }, 
+    { id: 'frame_7', url: 'https://i.postimg.cc/gkhf597g/IMG-6555.gif', name: '7' }, 
+    { id: 'frame_8', url: 'https://i.postimg.cc/g2PfbSFm/IMG-6556.gif', name: '8' }, 
+    { id: 'frame_9', url: 'https://i.postimg.cc/pLY3WfR8/IMG-6557.gif', name: '9' }, 
+    { id: 'frame_10', url: 'https://i.postimg.cc/65Cmcr7S/IMG-6559.gif', name: '10' }, 
+    { id: 'frame_11', url: 'https://i.postimg.cc/Y94XWYKd/IMG-6560.gif', name: '11' }, 
+    { id: 'frame_12', url: 'https://i.postimg.cc/ydwLXx7s/IMG-6562.gif', name: '12' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/G3y73Fj2/IMG-6563.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/TYvkKKkc/IMG-6565.gif', name: '14' }, 
+    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/GmcqjZn8/IMG-6566.gif', name: '1' }, 
+    { id: 'frame_ribbon', url: 'https://i.postimg.cc/k5Gs0K47/IMG-6567.gif', name: '2' }, 
+    { id: 'frame_flower', url: 'https://i.postimg.cc/XJy8JWdh/IMG-6568.gif', name: '3' }, 
+    { id: 'frame_tech', url: 'https://i.postimg.cc/fycfcvHf/IMG-6569.gif', name: '4' }, 
+    { id: 'frame_5', url: 'https://i.postimg.cc/J7ZxC11H/IMG-6570.gif', name: '5' }, 
+    { id: 'frame_6', url: 'https://i.postimg.cc/hPnrSHjy/IMG-4434.gif', name: '6' }, 
+    { id: 'frame_7', url: 'https://i.postimg.cc/YqxxjbLp/IMG-6572.gif', name: '7' }, 
+    { id: 'frame_8', url: 'https://i.postimg.cc/wjfcQMkZ/IMG-6573.gif', name: '8' }, 
+    { id: 'frame_9', url: 'https://i.postimg.cc/Vv8jkCYr/IMG-6574.gif', name: '9' }, 
+    { id: 'frame_10', url: 'https://i.postimg.cc/MZ77rdDy/IMG-6850.gif', name: '10' }, 
+    { id: 'frame_11', url: 'https://i.postimg.cc/T3NvqJCZ/IMG-6851.gif', name: '11' }, 
+    { id: 'frame_12', url: 'https://i.postimg.cc/28TsrxRV/IMG-6852.gif', name: '12' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/VkV2bLNw/IMG-6853.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/gJ95NSRB/IMG-6854.gif', name: '14' }, 
+    { id: 'frame_cat_ear', url: 'https://i.postimg.cc/d1qsQsbQ/IMG-6855.gif', name: '1' }, 
+    { id: 'frame_ribbon', url: 'https://i.postimg.cc/gJNYx9pV/IMG-6856.gif', name: '2' }, 
+    { id: 'frame_flower', url: 'https://i.postimg.cc/fyPDvxJk/IMG-6860.gif', name: '3' }, 
+    { id: 'frame_tech', url: 'https://i.postimg.cc/QMDsSNxg/IMG-6861.gif', name: '4' }, 
+    { id: 'frame_5', url: 'https://i.postimg.cc/vBqsQW7X/IMG-6858.gif', name: '5' }, 
+    { id: 'frame_6', url: 'https://i.postimg.cc/Y0vwjhb7/IMG-6857.gif', name: '6' }, 
+    { id: 'frame_7', url: 'https://i.postimg.cc/90sH9Cn7/IMG-6868.gif', name: '7' }, 
+    { id: 'frame_8', url: 'https://i.postimg.cc/Y2PHZzCC/IMG-6866.gif', name: '8' }, 
+    { id: 'frame_9', url: 'https://i.postimg.cc/7Z8yYP7v/IMG-6889.gif', name: '9' }, 
+    { id: 'frame_10', url: 'https://i.postimg.cc/nryNzTXK/IMG-6915.gif', name: '10' }, 
+    { id: 'frame_11', url: 'https://i.postimg.cc/Qx5dqyJ3/IMG-6917.gif', name: '11' }, 
+    { id: 'frame_12', url: 'https://i.postimg.cc/Wbr0JSDD/IMG-5316.gif', name: '12' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/tgR6wjBP/IMG-5570.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/d0WCKxff/IMG-6932.gif', name: '14' }, 
+    { id: 'frame_11', url: 'https://i.postimg.cc/Ss3znzk7/IMG-6934.gif', name: '11' }, 
+    { id: 'frame_12', url: 'https://i.postimg.cc/nrm9BcL8/IMG-6941.gif', name: '12' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/ZYvd1jxf/IMG-6937.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/sDFhySn3/IMG-6936.gif', name: '14' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/43PhvxRq/IMG-6922.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/3Rb46fRZ/IMG-6923.gif', name: '14' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/PJppkbvn/IMG-6918.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/XqRZNZ9G/IMG-6916.gif', name: '14' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/RVt6sRzc/IMG-6939.gif', name: '14' }, 
+    { id: 'frame_13', url: 'https://i.postimg.cc/mgGc0HbK/IMG-6926.gif', name: '13' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/P5zLh5JJ/IMG-6942.gif', name: '14' }, 
+    { id: 'frame_14', url: 'https://i.postimg.cc/xCqqKGRN/IMG-6929.gif', name: '14' },
+    { id: 'frame_12', url: 'https://i.postimg.cc/7LSRp4hx/e7fa949b9pc84cff0dabe57defceb54c.gif', name: '12' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/DZgMwc1H/817178fdbpf2ff7740dc98e26ab78759.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/3NffgJSZ/e09c07034ld7e62266c0a5de6a36ae62.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/vHDNGfT2/35ac7f372v588bf48d4f659077196b85.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/KvVsjjgG/3c3aa5219s18b90187ef1f54b3db7ba8.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/k5P1NHcL/55f3e31d8qbc8a02d152b07b99d31567.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/FFCTCzpy/641bad3b3udc599fdb63ca75fde427e5.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/8k7YSLjK/1689aa46aqc4b9ffc0f970e668f56537.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/J0CZSwyW/IMG-6938.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/Df1qLzDf/IMG-6927.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/CLNkrQSW/IMG-6925.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/y8p9s3Jj/IMG-6919.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/Lsr1Zd3Z/IMG-6928.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/Ssgbv41n/IMG-6876.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/SNByPrf9/IMG-7005.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/Z5nrCyS5/IMG-7006.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/mDfMXXFP/IMG-7007.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/DZrGtrqB/IMG-7008.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/ZnJNZWHZ/IMG-7009.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/RhGH0vpt/IMG-7010.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/tRzPkzRg/IMG-7012.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/wTTNGs3Q/IMG-7013.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/3JSG5Jv5/IMG-7014.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/rwDr8X1d/IMG-7015.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/DzDy2vS7/IMG-7017.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/QMVdG9x6/IMG-7016.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/mZ9hgH3J/IMG-7019.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/t4ksHGdg/IMG-7020.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/hP9JpdfT/IMG-7023.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/wTKyXVT9/IMG-7024.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/ZqjKXPSv/IMG-7025.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/gj3Tmqz5/mmexport1751030241029.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/4yCXW52F/mmexport1751030908335.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/VkXngG72/mmexport1751031208329.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/LscBkxZb/mmexport1751017556565.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/1XqzGKwJ/mmexport1751018282681.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/8kHCQwbQ/mmexport1751020645824.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/HWynLK7f/mmexport1751021724230.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/JnwFp3Kx/mmexport1751031208329.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/HLZNWkQw/mmexport1751031767634.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/vH2X6N1y/mmexport1751032231179.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/NFS4ZyvM/mmexport1751032686953.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/3RpmWc8c/mmexport1751033102811.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/L5RLr3tg/mmexport1751035976943.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/4NCPsp5d/mmexport1751034427637.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/CMv02LHm/mmexport1751034842120.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/rFnSzWGx/mmexport1751035618517.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/7YRbzN51/mmexport1751036276038.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/cJpbtPWq/mmexport1751036607799.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/HxLV5v92/mmexport1751036977582.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/D01rYy86/mmexport1751037965259.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/J4fwkTLW/mmexport1751038167142.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/xjpN4swz/IMG-7240.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/ZnzbGdxX/IMG-7239.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/DyYDmKtw/IMG-7238.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/W40f9qtd/IMG-7098.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/8PsK20jQ/IMG-7236.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/cHsTXDVz/IMG-7235.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/sXwm8Yzg/IMG-7234.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/xTk5xN49/IMG-7233.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/k5yv6QBv/IMG-7232.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/yx2m4nbs/IMG-7231.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/vZt0fFKn/IMB-r-HMBXY.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/pddJj9zN/IMG-7094.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/rmB17Qbc/IMB-f-VDf-Fc.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/VkKjzYTK/IMB-f4kk-CT.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/B6KD52vz/IMG-7096.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/9XPwWmwy/IMB-Kf7um-P.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/mrFhKBGz/IMB-e-QWBpa.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/bw4wxW2z/IMB-16r-COL.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/3x0Kx1fz/IMB-K1u-Jp-P.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/CLz0cJ0d/IMG-7116.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/fyyGgW61/IMG-7115.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/gkk7s0vD/IMG-6984.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/0NpZPgYj/IMG-6985.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/tTWKKmTN/IMG-7073.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/jS8tc9wW/IMG-7083.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/rmRVKJpD/IMG-7087.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/zvWGPjms/IMG-7090.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/YSkqDg8V/IMG-7092.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/FzqHTBng/IMG-7093.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/tTpZ6wLs/IMG-7095.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/8P5vt8sW/IMG-7097.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/wMxmCZVC/IMG-7099.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/2jxd0FGp/IMG-7100.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/B6T59xGK/IMG-7101.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/kXfcgFRN/IMG-7106.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/htZppbS4/IMG-7107.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/hPgyjtyn/IMG-7108.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/HLKvs0Kv/IMG-7109.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/wjwbnYkp/IMG-7111.gif', name: '14' },
+    { id: 'frame_13', url: 'https://i.postimg.cc/bJDMQVkj/IMG-7112.gif', name: '13' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/SNWBTP5S/IMG-7113.gif', name: '14' },
+    { id: 'frame_14', url: 'https://i.postimg.cc/jCVMQsKH/IMG-7114.gif', name: '14' },
+];
+
+// ▲▲▲ 粘贴结束 ▲▲▲       
     });
 </script>
 <!-- ▼▼▼ 这是我们新加的隐藏文件选择器 ▼▼▼ -->
