@@ -7330,7 +7330,9 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 #weibo-screen {
     display: flex;
     flex-direction: column;
+    background-color: #f0f2f5; /* ★★★ 把背景色加到这里！ ★★★ */
 }
+
 .weibo-view {
     position: absolute;
     top: 0;
@@ -7339,8 +7341,9 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     height: 100%;
     display: none; /* 默认隐藏所有页面 */
     flex-direction: column;
-    background-color: #f0f2f5;
+    /* background-color 已被移除 */
 }
+
 .weibo-view.active {
     display: flex; /* 只显示激活的页面 */
 }
