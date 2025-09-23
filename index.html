@@ -7427,6 +7427,9 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     /* 
        魔法就在这里！我们为这个包含了所有微博页面的“大抽屉”，
        在底部加上一个和导航栏一样高的内边距。
+       这样，导航栏虽然是浮在上面的，但抽屉里的所有内容都会被这个“垫子”顶上来。
+    */
+    padding-bottom: calc(50px + env(safe-area-inset-bottom)); /* <--- 问题就出在这一行！！！ */
     box-sizing: border-box; 
 }
 
@@ -7731,9 +7734,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 
-/* ▼▼▼ 【最终修复】请将这块新代码粘贴到 <style> 的末尾 ▼▼▼ */
-
-/* 确保这段CSS是存在的、且生效的 */
 #weibo-profile-page,
 #weibo-following-feed-list,
 #weibo-hot-search-list,
@@ -7746,8 +7746,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     */
     padding-bottom: calc(50px + env(safe-area-inset-bottom));
     box-sizing: border-box; /* 确保内边距计算正确 */
-    height: 100%;         /* 确保容器能撑满父元素 */
-    overflow-y: auto;     /* 内容超出时可以滚动 */
 }
 
 
