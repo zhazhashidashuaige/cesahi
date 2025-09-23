@@ -4084,7 +4084,7 @@ body {
     font-size: 15px;
 }
 .world-book-group-content {
-    max-height: 100000px; /* <--- 就是修改这里，把值改大即可 */
+    max-height: 1000px;
     overflow: hidden;
     transition: max-height 0.3s ease-in-out;
 }
@@ -7344,28 +7344,22 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 .weibo-view.active {
     display: flex; /* 只显示激活的页面 */
 }
-/* ▼▼▼ 【最终修复版】用这块代码替换，解决iOS底部白条问题 ▼▼▼ */
+/* ▼▼▼ 请用这块新代码替换旧的 #weibo-bottom-nav 样式 ▼▼▼ */
 #weibo-bottom-nav {
-    position: absolute; /* ★ 核心修改：让它浮动起来，不再受限于父元素的内边距 */
-    bottom: 0;          /* ★ 核心修改：将它牢牢地固定在最底部 */
-    left: 0;            /* ★ 核心修改：从左侧边缘开始 */
-    width: 100%;        /* ★ 核心修改：让它横向撑满整个屏幕 */
-    
-    /* -- 其他样式保持不变 -- */
-    z-index: 15;
+    position: absolute; /* 核心修改：改为绝对定位，使其脱离文档流并固定 */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 15; /* 确保它在内容区之上 */
     display: flex;
     border-top: 1px solid var(--border-color);
+    /* 与消息列表底栏统一为毛玻璃效果 */
     background-color: rgba(247, 247, 247, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    
-    /* ★ 核心魔法：用内边距把图标和文字顶上来，但背景依然铺满底部！*/
-    padding-bottom: env(safe-area-inset-bottom); 
-    
-    box-sizing: border-box; /* 确保宽度和内边距计算正确 */
+    padding-bottom: env(safe-area-inset-bottom); /* 适配iPhone底部安全区 */
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
-
 .weibo-nav-item {
     flex: 1;
     text-align: center;
@@ -7424,18 +7418,18 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     opacity: 0.8; /* 鼠标放上去时变淡一点，给用户反馈 */
 }
 /* ▲▲▲ 点击手势样式结束 ▲▲▲ */
-/* ▼▼▼ 【微博布局终极修复】真正解决所有页面滚动不到底的问题 ▼▼▼ */
-
-/* 1. 【核心】为微博的总页面容器添加“垫子”，把它整体抬高 */
+/* ▼▼▼ 【全新】微博页面布局修复CSS ▼▼▼ */
+/* ▼▼▼ 请用这块新代码替换旧的 #weibo-page-container 样式 ▼▼▼ */
 #weibo-page-container {
-    /* 
-       魔法就在这里！我们为这个包含了所有微博页面的“大抽屉”，
-       在底部加上一个和导航栏一样高的内边距。
-       这样，导航栏虽然是浮在上面的，但抽屉里的所有内容都会被这个“垫子”顶上来。
-    */
-    padding-bottom: calc(50px + env(safe-area-inset-bottom)); /* <--- 问题就出在这一行！！！ */
-    box-sizing: border-box; 
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+    /* 核心修改：为绝对定位的导航栏预留出空间，防止内容被遮挡 */
+    /* 50px 是导航栏的大致高度，env() 用于适配iPhone底部的小黑条 */
+    padding-bottom: calc(50px + env(safe-area-inset-bottom));
+    box-sizing: border-box; /* 确保内边距被正确计算在内 */
 }
+/* ▲▲▲ 替换结束 ▲▲▲ */
 
 
 /* 确保个人主页的内容可以滚动 */
@@ -7693,75 +7687,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 .hot-search-tag.rec { background-color: #2196f3; }
 
 /* ▲▲▲ 微博热搜样式粘贴结束 ▲▲▲ */
-/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 标签的最末尾 ▼▼▼ */
-
-/* 1. 让帖子头部成为删除按钮的定位参考点 */
-.weibo-post-header {
-    position: relative; /* 关键！ */
-}
-
-/* 2. 删除按钮的样式 */
-.weibo-post-delete-btn {
-    position: absolute; /* 绝对定位，让它浮动起来 */
-    top: 10px;          /* 距离顶部10像素 */
-    right: 15px;         /* 距离右侧15像素 */
-    width: 26px;
-    height: 26px;
-    background-color: rgba(0, 0, 0, 0.08); /* 半透明的背景 */
-    color: var(--text-secondary); /* 使用全局的次要文字颜色 */
-    border: none;
-    border-radius: 50%; /* 圆形 */
-    font-size: 20px;    /* "×"号的大小 */
-    line-height: 26px;  /* 让"×"号垂直居中 */
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease; /* 添加平滑的动画效果 */
-}
-
-/* 鼠标放上去时，变成醒目的红色 */
-.weibo-post-delete-btn:hover {
-    background-color: #ff3b30;
-    color: white;
-    transform: scale(1.1); /* 轻微放大 */
-}
-
-/* ▲▲▲ 粘贴结束 ▲▲▲ */
-/* ▼▼▼ 【微博布局终极修复】真正解决所有页面滚动不到底的问题 ▼▼▼ */
-
-
-#weibo-profile-page,
-#weibo-following-feed-list,
-#weibo-hot-search-list,
-#weibo-plaza-feed-list,
-#weibo-hottopic-feed-list {
-    /* 
-       为所有可滚动的列表增加一个内边距，
-       它的高度等于底部导航栏的高度(约50px) + iPhone底部安全区的高度。
-       这样既能让列表背景铺满全屏，又能防止最后一条内容被遮挡。
-    */
-    padding-bottom: calc(50px + env(safe-area-inset-bottom));
-    box-sizing: border-box; /* 确保内边距计算正确 */
-}
-
-
-/* ▼▼▼ 【第2步/共2步】为所有可滚动列表添加“垫子”，防止被导航栏遮挡 ▼▼▼ */
-#weibo-profile-page,
-#weibo-following-feed-list,
-#weibo-hot-search-list,
-#weibo-plaza-feed-list,
-#weibo-hottopic-feed-list {
-    /* 
-       为所有可滚动的列表增加一个内边距，
-       它的高度等于底部导航栏的高度(约50px) + iPhone底部安全区的高度。
-       这样既能让列表背景铺满全屏，又能防止最后一条内容被遮挡。
-    */
-    padding-bottom: calc(50px + env(safe-area-inset-bottom));
-    box-sizing: border-box; /* 确保内边距计算正确 */
-    height: 100%;         /* 确保容器能撑满父元素 */
-    overflow-y: auto;     /* 内容超出时可以滚动 */
-}
-/* ▲▲▲ 新增CSS结束 ▲▲▲ */
-
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -10365,16 +10290,13 @@ function createWeiboPostElement(post) {
         contentHtml += `<div class="weibo-post-content">${post.content.replace(/\n/g, '<br>')}</div>`;
     }
     
-    // ▼▼▼ 把旧代码替换成下面这段新的 ▼▼▼
-    if (post.postType !== 'text_only' && post.imageUrl) {
+    if (post.imageUrl) {
         if (post.postType === 'text_image') {
             contentHtml += `<img src="${post.imageUrl}" class="weibo-post-image" style="cursor: pointer;" data-hidden-text="${post.hiddenContent}">`;
-        } else { // 这会处理 postType 为 'image' 的情况
+        } else {
             contentHtml += `<img src="${post.imageUrl}" class="weibo-post-image">`;
         }
     }
-    // ▲▲▲ 替换结束 ▲▲▲
-
 
 // ▼▼▼ 用下面这块【已添加删除按钮】的代码，替换掉你旧的 commentsHtml 代码块 ▼▼▼
     let commentsHtml = '';
@@ -14446,21 +14368,21 @@ document.getElementById('char-heart-btn').style.display = chat.isGroup ? 'none' 
 // ▲▲▲ 替换结束 ▲▲▲
 
 async function triggerAiResponse() {
+// ▼▼▼ 请用这【一整块新代码】替换掉所有旧的 stickerContext 相关代码 ▼▼▼
 let stickerContext = '';
 if (state.userStickers && state.userStickers.length > 0) {
+    // 核心修改：我们只提取所有表情包的【名字】，组成一个简单的列表
     const stickerNames = state.userStickers.map(s => s.name).join(', ');
+    
     stickerContext = `
-# 关于表情包的【绝对规则】
-1.  你只能使用 "type": "text" 并在 content 中用 [sticker:表情名] 的格式来发送表情。
-2.  "表情名" 【必须】严格地从下方“你的可用表情包名字”列表中选择一个。
-3.  【严禁】自己编造任何不在列表中的表情名。
-4.  【重要后果】：如果你编造了不存在的表情名，用户只会看到一段失败的文本，例如“[sticker:一个不存在的名字]”，这会严重破坏对话体验。请务必避免这种情况。
-
-## 你的可用表情包名字:
-${stickerNames}
+可用表情包列表 (重要规则)
+当你认为需要使用表情包时，你【必须】使用以下格式来回复，其中“表情名”必须从下面的“可用名字”列表中选择：
+[sticker:表情名]
+例如，如果你想表达同意，并且看到一个名为“好的”的表情，你就必须回复 [{"type": "text", "content": "[sticker:好的]"}] 这样的格式。
+可用名字: ${stickerNames}
 `;
 }
-
+// ▲▲▲ 替换结束 ▲▲▲
     if (!state.activeChatId) return;
     const chatId = state.activeChatId;
     const chat = state.chats[state.activeChatId];
@@ -14471,6 +14393,13 @@ const isApiBlocked = BLOCKED_API_SITES.some(blockedDomain => proxyUrl.includes(b
 
 if (isApiBlocked) {
     console.error(`API 请求已被拦截，因为站点 ${proxyUrl} 在黑名单中。`);
+    // 为了不打扰用户，我们只在控制台打印错误，不弹出警告
+    // 如果您想在聊天界面提示用户，可以取消下面这几行的注释
+    /*
+    const errorMessage = { role: 'assistant', content: '[系统错误：当前配置的API站点已被禁用，请更换。]', timestamp: Date.now() };
+    if(chat.isGroup) errorMessage.senderName = "系统消息";
+    appendMessage(errorMessage, chat);
+    */
     return; // 阻止API请求
 }
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
@@ -14853,6 +14782,7 @@ messagesPayload = historySlice.map(msg => {
 
 }).filter(Boolean);
 // ▲▲▲ 替换结束 ▲▲▲
+
         } else { // 单聊的Prompt
             // ▼▼▼ 在这里添加下面的代码 ▼▼▼
     let worldBookContext = '';
@@ -15243,6 +15173,7 @@ if (innerVoiceData) {
      console.warn("本次AI回复中未检测到有效的心声(innerVoice)数据。");
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
 
         const isViewingThisChat = document.getElementById('chat-interface-screen').classList.contains('active') && state.activeChatId === chatId;
         
@@ -24217,7 +24148,7 @@ ${npcList}
 // ▼▼▼ 把这一整块全新的微博功能函数，粘贴到 init() 函数的上方 ▼▼▼
 
 let currentHotTopic = ''; // 用于存储当前正在查看的热搜话题
-let hotTopicFeedCache = {}; // <-- 【新增】在这里创建一个缓存对象，像小本本一样记录生成过的内容
+
 // ▼▼▼ 用这【一整块新代码】完整替换掉旧的 generateHotSearch 函数 ▼▼▼
 /**
  * 【总入口 V3 - 严防OOC版】生成微博热搜列表，并联动生成广场内容
@@ -24325,28 +24256,17 @@ function renderHotSearchList(hotSearchData) {
 }
 
 /**
- * 【总入口】显示并生成指定热搜话题的微博Feed (已增加缓存功能)
+ * 【总入口】显示并生成指定热搜话题的微博Feed
  */
 async function showHotTopicFeedScreen(topic) {
     currentHotTopic = topic; 
     document.getElementById('weibo-hottopic-title').textContent = topic;
     switchToWeiboView('weibo-hottopic-feed-view'); 
-    
-    // 【核心修改】检查“小本本”里有没有记录
-    if (hotTopicFeedCache[topic]) {
-        // 如果有，就直接显示，不重新生成
-        console.log(`从缓存加载话题: ${topic}`);
-        const feedEl = document.getElementById('weibo-hottopic-feed-list');
-        renderWeiboFeed(feedEl, hotTopicFeedCache[topic], true);
-    } else {
-        // 如果没有，才调用函数去生成新的内容
-        await generateHotSearchFeed(topic); 
-    }
+    await generateHotSearchFeed(topic); 
 }
 
-
 /**
- * 【AI核心 V2 - 已修复拼写错误 & 增加缓存】调用API为指定话题生成微博Feed
+ * 【AI核心】调用API为指定话题生成微博Feed
  */
 async function generateHotSearchFeed(topic) {
     const feedEl = document.getElementById('weibo-hottopic-feed-list');
@@ -24358,6 +24278,7 @@ async function generateHotSearchFeed(topic) {
         return;
     }
     
+    // 【核心】收集所有可用的角色和NPC，让AI知道可以用他们发言
     const allChars = Object.values(state.chats).filter(c => !c.isGroup).map(c => ({ name: c.name, persona: c.settings.aiPersona.substring(0,100) }));
     const allNpcs = Object.values(state.chats).flatMap(c => c.npcLibrary || []).map(npc => ({ name: npc.name, persona: npc.persona.substring(0,100) }));
     const allPeople = [...allChars, ...allNpcs];
@@ -24404,11 +24325,8 @@ ${JSON.stringify(allPeople, null, 2)}
         }
         
         const sanitizedContent = aiResponseContent.replace(/^```json\s*|```$/g, '').trim();
-        const responseData = JSON.parse(sanitizedContent); // <-- 这里的 responseData 是正确的
+        const responseData = JSON.parse(sanitizedContent);
         const feedData = responseData.posts || responseData;
-
-        // 【核心修改】将新生成的内容，记在“小本本”上
-        hotTopicFeedCache[topic] = feedData; 
 
         renderWeiboFeed(feedEl, feedData, true);
 
@@ -24417,7 +24335,7 @@ ${JSON.stringify(allPeople, null, 2)}
         feedEl.innerHTML = `<p style="text-align:center; color: #ff3b30; padding: 20px;">生成失败: ${error.message}</p>`;
     }
 }
-
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
 
 // ▼▼▼ 用这【一整块新代码】完整替换掉旧的 generatePlazaFeed 函数 ▼▼▼
 /**
@@ -24508,7 +24426,7 @@ ${publicFiguresContext}
 
 // ▼▼▼ 用这整块【V3修复版】代码，完整替换旧的 renderWeiboFeed 函数 ▼▼▼
 /**
- * 【UI渲染 V3 - 修复评论和头像，并添加删除按钮】通用函数，用于渲染微博Feed列表
+ * 【UI渲染 V3 - 修复评论和头像】通用函数，用于渲染微博Feed列表
  */
 function renderWeiboFeed(containerEl, feedData, isHotSearch) {
     containerEl.innerHTML = '';
@@ -24518,11 +24436,9 @@ function renderWeiboFeed(containerEl, feedData, isHotSearch) {
         return;
     }
 
-    feedData.forEach((post, index) => { // <-- 新增了 index 参数
+    feedData.forEach(post => {
         const postEl = document.createElement('div');
         postEl.className = 'weibo-post-item';
-        // ▼▼▼ 核心修改1：给帖子加上一个独一无二的ID，方便我们删除 ▼▼▼
-        postEl.dataset.postId = `temp_${index}`;
 
         // 【核心修复1：头像查找逻辑】
         let finalAvatar = 'https://i.postimg.cc/PxZrFFFL/o-o-1.jpg'; // 默认路人头像
@@ -24555,8 +24471,6 @@ function renderWeiboFeed(containerEl, feedData, isHotSearch) {
                     <span class="weibo-post-nickname">${post.author}</span>
                     <span class="weibo-post-timestamp">${isHotSearch ? '热搜内容' : '刚刚'}</span>
                 </div>
-                <!-- ▼▼▼ 核心修改2：在这里加上我们设计好的删除按钮！ ▼▼▼ -->
-                <button class="weibo-post-delete-btn" title="删除这条动态">×</button>
             </div>
             <div class="weibo-post-content">${(post.content || '').replace(/\n/g, '<br>')}</div>
             <div class="weibo-post-footer">
@@ -24577,6 +24491,9 @@ function renderWeiboFeed(containerEl, feedData, isHotSearch) {
     });
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
+
+
 
         // ===================================================================
         // 4. 初始化函数 init()
@@ -29604,34 +29521,6 @@ document.getElementById('weibo-app-icon').addEventListener('click', () => {
 document.getElementById('weibo-screen').addEventListener('click', async (e) => {
     const target = e.target;
 // ▼▼▼ 在这里粘贴新代码 ▼▼▼
-            // ▼▼▼ 在 'const target = e.target;' 的下一行，粘贴下面这整块新代码 ▼▼▼
-
-            // --- 【全新】处理热搜和广场帖子的删除按钮 ---
-            const deleteBtn = target.closest('.weibo-post-delete-btn');
-            if (deleteBtn) {
-                const postItem = deleteBtn.closest('.weibo-post-item');
-                if (postItem) {
-                    // 先给用户一个确认的机会，防止误删
-                    const confirmed = await showCustomConfirm(
-                        '删除动态',
-                        '确定要删除这条动态吗？（此操作仅在本页面生效）',
-                        { confirmButtonClass: 'btn-danger' }
-                    );
-                    
-                    if (confirmed) {
-                        // 如果用户确认，就播放一个好看的消失动画，然后移除帖子
-                        postItem.style.transition = 'opacity 0.3s, transform 0.3s';
-                        postItem.style.opacity = '0';
-                        postItem.style.transform = 'scale(0.95)';
-                        setTimeout(() => {
-                            postItem.remove();
-                        }, 300); // 等动画播放完再彻底删除
-                    }
-                }
-                return; // ★★★ 关键！处理完删除后，必须立刻结束，防止触发下面的其他点击事件
-            }
-            
-            // ▲▲▲ 新代码粘贴结束 ▲▲▲
 // 【核心修复】处理微博中的“文字图”点击事件
 if (target.classList.contains('weibo-post-image') && target.dataset.hiddenText) {
     showCustomAlert("图片内容", target.dataset.hiddenText.replace(/<br>/g, '\n'));
