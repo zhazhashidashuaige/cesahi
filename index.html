@@ -7732,7 +7732,29 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 
+/* ▼▼▼ 【终极修复】请将这整块代码粘贴到 </style> 标签的正上方 ▼▼▼ */
 
+#weibo-profile-page,
+#weibo-following-feed-list,
+#weibo-hot-search-list,
+#weibo-plaza-feed-list,
+#weibo-hottopic-feed-list {
+    /* 
+      核心修复1：使用 !important 强制移除所有错误的底部内边距，
+      让内容列表可以真正地延伸到屏幕最底部。
+    */
+    padding-bottom: 0 !important;
+
+    /* 
+      核心修复2：确保列表本身是可滚动的，并且高度能撑满父容器。
+      这是让滚动条出现的关键。
+    */
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box; /* 保持计算方式正确 */
+}
+
+/* ▲▲▲ 粘贴结束 ▲▲▲ */
 
 
 
