@@ -708,38 +708,34 @@ body {
     overflow-y: auto; 
 }
 
-/* ▼▼▼ 请用这块【新代码】替换旧的 #chat-list-bottom-nav 样式 ▼▼▼ */
+/* 底部导航栏样式 */
 #chat-list-bottom-nav {
-    position: absolute; 
+    position: absolute; /* 让它固定在底部 */
     bottom: 0;
     left: 0;
     width: 100%;
-    z-index: 15; 
+    z-index: 15; /* 确保它在视图之上 */
     display: flex;
     border-top: 1px solid var(--border-color);
     background-color: rgba(247, 247, 247, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    /* 核心：移除这里的 padding-bottom */
 }
-/* ▲▲▲ 替换结束 ▲▲▲ */
 
-
-/* ▼▼▼ 请用这块【新代码】替换旧的 .nav-item 样式 ▼▼▼ */
 .nav-item {
     flex: 1;
     text-align: center;
-    /* 核心修改：我们将原来的 padding 拆开，并只为底部增加安全区 */
-    padding-top: 13px;
-    padding-left: 0;
-    padding-right: 0;
-    padding-bottom: calc(13px + env(safe-area-inset-bottom)); /* 原始内边距 + 安全区高度 */
+    padding: 13px 0;
     font-size: 14px;
     color: var(--text-secondary);
     cursor: pointer;
     transition: color 0.2s;
 }
-/* ▲▲▲ 替换结束 ▲▲▲ */
+
+.nav-item.active {
+    color: var(--accent-color);
+    font-weight: 600;
+}
 
 /* === 动态界面 (QZone) 样式 (这是新添加的) === */
 #qzone-screen {
@@ -7348,38 +7344,36 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 .weibo-view.active {
     display: flex; /* 只显示激活的页面 */
 }
-
-/* ▼▼▼ 请用这块【新代码】替换旧的 #weibo-bottom-nav 样式 ▼▼▼ */
+/* ▼▼▼ 【微博布局终极修复】用这块代码完整替换掉你旧的 #weibo-bottom-nav 样式 ▼▼▼ */
 #weibo-bottom-nav {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+    /* 核心修改：我们不再让它浮动，而是让它成为布局的一部分，占据实际空间 */
+    position: relative; 
+    flex-shrink: 0; /* 防止它在空间不足时被压缩变形 */
+    
+    /* -- 下面的样式保持不变，但 width, left, bottom 已经不再需要了 -- */
     z-index: 15;
     display: flex;
     border-top: 1px solid var(--border-color);
     background-color: rgba(247, 247, 247, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    /* 核心：移除这里的 padding-bottom */
+    padding-bottom: env(safe-area-inset-bottom);
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
-
-/* ▼▼▼ 请用这块【新代码】替换旧的 .weibo-nav-item 样式 ▼▼▼ */
 .weibo-nav-item {
     flex: 1;
     text-align: center;
-    /* 核心修改：为底部增加安全区 */
-    padding-top: 12px;
-    padding-left: 0;
-    padding-right: 0;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    padding: 12px 0;
     font-size: 14px;
     color: var(--text-secondary);
     cursor: pointer;
 }
-/* ▲▲▲ 替换结束 ▲▲▲ */
+.weibo-nav-item.active {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+/* ▲▲▲ 微博框架样式结束 ▲▲▲ */
 
 /* ▼▼▼ 【全新】微博关注列表弹窗样式 ▼▼▼ */
 #weibo-following-list-container {
@@ -7755,6 +7749,34 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▲▲▲ 修复结束 ▲▲▲ */
+
+/* ▼▼▼ 忽略所有安全区域的强制全屏补丁 ▼▼▼ */
+
+/* 1. 强制所有头部顶回屏幕最顶端，忽略刘海 */
+.header, .qzone-header {
+    padding-top: 45px !important; 
+}
+
+/* 2. 强制所有列表内容区域的底部直接贴到屏幕物理底部 */
+#chat-list, 
+#weibo-page-container {
+    padding-bottom: 50px !important; /* 只保留为导航栏预留的50px高度 */
+}
+
+/* 3. 强制所有底部导航栏和输入框的底部直接贴到屏幕物理底部，忽略小黑条 */
+#chat-list-bottom-nav,
+#weibo-bottom-nav,
+#chat-input-area {
+    padding-bottom: 0 !important;
+}
+
+/* 如果你的聊天输入框底部不想要任何间距，可以换成下面这个更狠的 */
+#chat-input-area {
+    padding-bottom: 10px !important; /* 仅保留顶部和左右的内边距 */
+}
+
+/* ▲▲▲ 补丁粘贴结束 ▲▲▲ */
+
 
 
     </style>
