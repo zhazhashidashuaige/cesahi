@@ -7782,55 +7782,54 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* ▲▲▲ 修复代码粘贴结束 ▲▲▲ */
 
-/* ▼▼▼ 【微博布局改造】请将这整块代码粘贴到 <style> 标签的最末尾 ▼▼▼ */
+/* ▼▼▼ 【微博布局终极修复】请用这一整块代码，替换所有旧的微博布局代码 ▼▼▼ */
 
-/* 1. 让微博页面的顶部Header悬浮起来，不再占据文档流空间 */
-.weibo-view > .header {
+/* 1. 移除外层容器错误的底部内边距，这是导致白条的元凶 */
+#weibo-page-container {
+    padding-bottom: 0 !important; /* 强制移除 */
+}
+
+/* 2. 让微博的顶部Header也悬浮起来，和QQ、微信保持一致 */
+#weibo-screen .weibo-view > .header {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 20; /* 确保层级够高，能覆盖在内容之上 */
-    /* 自动适配iPhone的“刘海”安全区 */
-    padding-top: env(safe-area-inset-top);
+    z-index: 20;
+    /* 适配刘海 */
+    padding-top: env(safe-area-inset-top); 
 }
 
-/* 2. 重置所有微博内容列表的内边距，以适应悬浮的顶栏和底栏 */
+/* 3. 为所有微博的滚动列表，设置正确的顶部和底部内边距 */
 #weibo-profile-page,
 #weibo-following-feed-list,
 #weibo-hot-search-list,
 #weibo-plaza-feed-list,
 #weibo-hottopic-feed-list {
-    /* 为顶部的悬浮Header留出空间，让内容的初始位置在Header下方 */
-    padding-top: 110px;
-    /* 为底部的悬浮Nav留出空间，确保列表滚动到底时，最后一条内容不会被遮挡 */
-    padding-bottom: 50px;
-    
-    /* -- 以下是保持不变的原始样式 -- */
-    box-sizing: border-box;
-    height: 100%;
-    overflow-y: auto;
-    background-color: #f0f2f5;
+    /* 为悬浮的顶部Header留出空间 */
+    padding-top: 110px; 
+    /* 【核心】为悬浮的底部导航栏留出空间，确保滚动到底部时内容不被遮挡 */
+    padding-bottom: calc(50px + env(safe-area-inset-bottom));
 }
 
-/* 3. 让微博底部导航栏覆盖iOS安全区，实现真正的“沉浸式”底部 */
+/* 4. 【核心】让底部导航栏的背景覆盖安全区，但内容（按钮）不上浮 */
 #weibo-bottom-nav {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
     z-index: 15;
-    display: flex;
-    border-top: 1px solid var(--border-color);
     background-color: rgba(247, 247, 247, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border-color);
+    /* 【关键】用内边距把按钮本身从底部推上来，但背景依然会覆盖安全区 */
+    padding-bottom: env(safe-area-inset-bottom);
+    display: flex;
     box-sizing: border-box;
-    /* 【核心修改】移除了为iOS底部安全区预留的padding-bottom，让导航栏和里面的按钮完全贴底 */
-    padding-bottom: 0; 
 }
 
-/* ▲▲▲ 微博布局改造结束 ▲▲▲ */
+/* ▲▲▲ 微博布局终极修复结束 ▲▲▲ */
 
 
     </style>
