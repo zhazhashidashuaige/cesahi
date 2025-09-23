@@ -7358,10 +7358,14 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     background-color: rgba(247, 247, 247, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    padding-bottom: env(safe-area-inset-bottom); /* 这行非常重要，它让按钮图标不会被小黑条挡住 */
-    box-sizing: border-box; /* 确保宽度计算正确 */
+    
+    /* ★ 核心魔法：用内边距把图标和文字顶上来，但背景依然铺满底部！*/
+    padding-bottom: env(safe-area-inset-bottom); 
+    
+    box-sizing: border-box; /* 确保宽度和内边距计算正确 */
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
+
 .weibo-nav-item {
     flex: 1;
     text-align: center;
@@ -7724,15 +7728,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▲▲▲ 粘贴结束 ▲▲▲ */
 /* ▼▼▼ 【微博布局终极修复】真正解决所有页面滚动不到底的问题 ▼▼▼ */
 
-/* ▼▼▼ 【第1步/共3步】移除容器的错误内边距（修复白条问题的核心）▼▼▼ */
-#weibo-page-container {
-    flex-grow: 1;
-    position: relative;
-    overflow: hidden;
-    box-sizing: border-box; 
-    /* ▲▲▲ 核心：我们已经把那行错误的 padding-bottom 删掉了！▲▲▲ */
-}
-
 
 #weibo-profile-page,
 #weibo-following-feed-list,
@@ -7749,6 +7744,23 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 
+/* ▼▼▼ 【第2步/共2步】为所有可滚动列表添加“垫子”，防止被导航栏遮挡 ▼▼▼ */
+#weibo-profile-page,
+#weibo-following-feed-list,
+#weibo-hot-search-list,
+#weibo-plaza-feed-list,
+#weibo-hottopic-feed-list {
+    /* 
+       为所有可滚动的列表增加一个内边距，
+       它的高度等于底部导航栏的高度(约50px) + iPhone底部安全区的高度。
+       这样既能让列表背景铺满全屏，又能防止最后一条内容被遮挡。
+    */
+    padding-bottom: calc(50px + env(safe-area-inset-bottom));
+    box-sizing: border-box; /* 确保内边距计算正确 */
+    height: 100%;         /* 确保容器能撑满父元素 */
+    overflow-y: auto;     /* 内容超出时可以滚动 */
+}
+/* ▲▲▲ 新增CSS结束 ▲▲▲ */
 
 
     </style>
