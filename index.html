@@ -7730,6 +7730,36 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▲▲▲ 粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【微博布局终极修复】真正解决所有页面滚动不到底的问题 ▼▼▼ */
+
+/* ▼▼▼ 【第1步/共3步】移除容器的错误内边距（修复白条问题的核心）▼▼▼ */
+#weibo-page-container {
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box; 
+    /* ▲▲▲ 核心：我们已经把那行错误的 padding-bottom 删掉了！▲▲▲ */
+}
+
+
+/* ▼▼▼ 请用这块【新代码】替换旧的相应规则 ▼▼▼ */
+
+/* 2. 【核心】为所有可滚动的列表调整底部内边距，让内容可以滚动到导航栏后方 */
+#weibo-profile-page,
+#weibo-following-feed-list,
+#weibo-hot-search-list,
+#weibo-plaza-feed-list,
+#weibo-hottopic-feed-list {
+    /* 核心修改：我们只保留了适配iPhone底部安全区所需的内边距，移除了为导航栏预留的50px */
+    padding-bottom: env(safe-area-inset-bottom);
+    box-sizing: border-box;
+    height: 100%;
+    overflow-y: auto;
+    background-color: #f0f2f5;
+}
+
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
 /* ▼▼▼ 【微博布局终极修复】请用这一整块代码，替换所有旧的微博布局修复代码 ▼▼▼ */
 
 /* 1. 让微博的总容器 (#weibo-screen) 成为一个flex布局的父容器 */
@@ -7786,6 +7816,8 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▲▲▲ 微博布局终极修复结束 ▲▲▲ */
+
+
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -9268,11 +9300,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             </div>
         </div>
     </div>
-<!-- ▼▼▼ 用下面这【一整块功能最全】的代码，完整替换掉你旧的 id="weibo-screen" 的整个 div ▼▼▼ -->
-<div id="weibo-screen" class="screen">
-    <!-- 这个容器将存放微博的所有页面 -->
-    <div id="weibo-page-container">
-
 <!-- ▼▼▼ 用下面这【一整块功能最全】的代码，完整替换掉你旧的 id="weibo-screen" 的整个 div ▼▼▼ -->
 <div id="weibo-screen" class="screen">
     <!-- 这个容器将存放微博的所有页面 -->
