@@ -7730,107 +7730,62 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▲▲▲ 粘贴结束 ▲▲▲ */
-/* ▼▼▼ 【微博布局终极修复】真正解决所有页面滚动不到底的问题 ▼▼▼ */
+/* ▼▼▼ 【微博布局终极修复】请用这一整块代码，替换所有旧的微博布局修复代码 ▼▼▼ */
 
-/* ▼▼▼ 【第1步/共3步】移除容器的错误内边距（修复白条问题的核心）▼▼▼ */
+/* 1. 让微博的总容器 (#weibo-screen) 成为一个flex布局的父容器 */
+#weibo-screen {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 2. 让页面内容容器 (#weibo-page-container) 占据所有可用的垂直空间 */
 #weibo-page-container {
-    flex-grow: 1;
-    position: relative;
-    overflow: hidden;
-    box-sizing: border-box; 
-    /* ▲▲▲ 核心：我们已经把那行错误的 padding-bottom 删掉了！▲▲▲ */
+    flex-grow: 1; /* 核心：让它自动撑满，挤压导航栏到底部 */
+    position: relative; /* 关键：作为内部所有 .weibo-view 的定位基准 */
+    overflow: hidden; /* 防止内容溢出 */
 }
 
-
-/* ▼▼▼ 请用这块【新代码】替换旧的相应规则 ▼▼▼ */
-
-/* 2. 【核心】为所有可滚动的列表调整底部内边距，让内容可以滚动到导航栏后方 */
-#weibo-profile-page,
-#weibo-following-feed-list,
-#weibo-hot-search-list,
-#weibo-plaza-feed-list,
-#weibo-hottopic-feed-list {
-    /* 核心修改：我们只保留了适配iPhone底部安全区所需的内边距，移除了为导航栏预留的50px */
-    padding-bottom: env(safe-area-inset-bottom);
-    box-sizing: border-box;
-    height: 100%;
-    overflow-y: auto;
-    background-color: #f0f2f5;
-}
-
-/* ▲▲▲ 替换结束 ▲▲▲ */
-
-/* ▼▼▼ 【微博页面终极全屏修复】请将这整块代码粘贴到<style>末尾 ▼▼▼ */
-
-/* 1. 强制隐藏掉微博的底部导航栏，确保它不占任何空间 */
-#weibo-bottom-nav {
-    display: none !important;
-}
-
-/* 2. 移除所有微博页面为导航栏预留的底部内边距，让内容直接撑满到底部 */
-#weibo-profile-page,
-#weibo-following-feed-list,
-#weibo-hot-search-list,
-#weibo-plaza-feed-list,
-#weibo-hottopic-feed-list {
-    padding-bottom: 0 !important; /* 强制移除所有底部内边距 */
-    /* 其他属性保持不变，确保页面本身可以滚动 */
-    height: 100%;
-    overflow-y: auto;
-    box-sizing: border-box;
-}
-
-/* ▲▲▲ 修复代码粘贴结束 ▲▲▲ */
-
-/* ▼▼▼ 【微博布局终极修复】请用这一整块代码，替换所有旧的微博布局代码 ▼▼▼ */
-
-/* 1. 移除外层容器错误的底部内边距，这是导致白条的元凶 */
-#weibo-page-container {
-    padding-bottom: 0 !important; /* 强制移除 */
-}
-
-/* 2. 让微博的顶部Header也悬浮起来，和QQ、微信保持一致 */
-#weibo-screen .weibo-view > .header {
+/* 3. 让每一个独立的微博页面 (.weibo-view) 都能撑满父容器 */
+.weibo-view {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 20;
-    /* 适配刘海 */
-    padding-top: env(safe-area-inset-top); 
+    height: 100%;
+    display: none; /* 默认隐藏 */
+    flex-direction: column;
+    background-color: #f0f2f5;
+}
+.weibo-view.active {
+    display: flex; /* 只显示激活的页面 */
 }
 
-/* 3. 为所有微博的滚动列表，设置正确的顶部和底部内边距 */
+/* 4. 让底部导航栏 (#weibo-bottom-nav) 的背景覆盖安全区，但内容（按钮）不被遮挡 */
+#weibo-bottom-nav {
+    flex-shrink: 0; /* 防止被压缩 */
+    z-index: 15;
+    display: flex;
+    border-top: 1px solid var(--border-color);
+    background-color: rgba(247, 247, 247, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    /* 【魔法在这里】用内边距把按钮文字顶上来，但背景依然会延伸到底部，完美覆盖安全区！*/
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 5. 最后，确保所有可滚动的列表底部有足够的空间，防止最后一条内容被遮挡 */
 #weibo-profile-page,
 #weibo-following-feed-list,
 #weibo-hot-search-list,
 #weibo-plaza-feed-list,
 #weibo-hottopic-feed-list {
-    /* 为悬浮的顶部Header留出空间 */
-    padding-top: 110px; 
-    /* 【核心】为悬浮的底部导航栏留出空间，确保滚动到底部时内容不被遮挡 */
-    padding-bottom: calc(50px + env(safe-area-inset-bottom));
-}
-
-/* 4. 【核心】让底部导航栏的背景覆盖安全区，但内容（按钮）不上浮 */
-#weibo-bottom-nav {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    z-index: 15;
-    background-color: rgba(247, 247, 247, 0.9);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-top: 1px solid var(--border-color);
-    /* 【关键】用内边距把按钮本身从底部推上来，但背景依然会覆盖安全区 */
-    padding-bottom: env(safe-area-inset-bottom);
-    display: flex;
+    /* 这几个列表不再需要自己的 padding-bottom 了，因为父容器已经处理好了布局 */
+    height: 100%;
+    overflow-y: auto;
     box-sizing: border-box;
 }
 
 /* ▲▲▲ 微博布局终极修复结束 ▲▲▲ */
-
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -9318,97 +9273,93 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     <!-- 这个容器将存放微博的所有页面 -->
     <div id="weibo-page-container">
 
-<!-- ▼▼▼ 用这【一整块新代码】替换旧的 #weibo-my-profile-view 区域 ▼▼▼ -->
-<div id="weibo-my-profile-view" class="weibo-view active">
-    <div class="header">
-        <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
-        <span>我的主页</span>
-        <div class="header-actions">
-            <span class="action-btn" id="create-weibo-post-btn" style="font-size: 28px; font-weight: 300;">+</span>
-        </div>
-    </div>
-    <div id="weibo-profile-page">
-        <!-- 【核心修改】现在，头像、昵称、数据都在 header 内部了 -->
-        <div class="weibo-profile-header">
-            <img id="weibo-background-img" src="https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg" class="weibo-background">
-            
-            <div class="weibo-avatar-container">
-                <img id="weibo-avatar-img" src="https://files.catbox.moe/q6z5fc.jpeg" class="weibo-avatar">
-            </div>
-            <div class="weibo-nickname" id="weibo-nickname">你的昵称</div>
-            <div class="weibo-stats">
-                <div id="weibo-following-btn" class="weibo-stat-item">
-                    <span id="weibo-following-count" class="weibo-stat-number">0</span>
-                    <span class="weibo-stat-label">关注</span>
-                </div>
-                <div id="weibo-posts-item" class="weibo-stat-item">
-                    <span id="weibo-posts-count" class="weibo-stat-number">0</span>
-                    <span class="weibo-stat-label">微博</span>
-                </div>
-                <div id="weibo-fans-item" class="weibo-stat-item">
-                    <span id="weibo-fans-count" class="weibo-stat-number">0</span>
-                    <span class="weibo-stat-label">粉丝</span>
+<!-- ▼▼▼ 用下面这【一整块功能最全】的代码，完整替换掉你旧的 id="weibo-screen" 的整个 div ▼▼▼ -->
+<div id="weibo-screen" class="screen">
+    <!-- 这个容器将存放微博的所有页面 -->
+    <div id="weibo-page-container">
+
+        <!-- 页面1: 我的微博 -->
+        <div id="weibo-my-profile-view" class="weibo-view active">
+            <div class="header">
+                <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+                <span>我的主页</span>
+                <div class="header-actions">
+                    <span class="action-btn" id="create-weibo-post-btn" style="font-size: 28px; font-weight: 300;">+</span>
                 </div>
             </div>
+            <div id="weibo-profile-page">
+                <div class="weibo-profile-header">
+                    <img id="weibo-background-img" src="https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg" class="weibo-background">
+                    <div class="weibo-avatar-container">
+                        <img id="weibo-avatar-img" src="https://files.catbox.moe/q6z5fc.jpeg" class="weibo-avatar">
+                    </div>
+                    <div class="weibo-nickname" id="weibo-nickname">你的昵称</div>
+                    <div class="weibo-stats">
+                        <div id="weibo-following-btn" class="weibo-stat-item">
+                            <span id="weibo-following-count" class="weibo-stat-number">0</span>
+                            <span class="weibo-stat-label">关注</span>
+                        </div>
+                        <div id="weibo-posts-item" class="weibo-stat-item">
+                            <span id="weibo-posts-count" class="weibo-stat-number">0</span>
+                            <span class="weibo-stat-label">微博</span>
+                        </div>
+                        <div id="weibo-fans-item" class="weibo-stat-item">
+                            <span id="weibo-fans-count" class="weibo-stat-number">0</span>
+                            <span class="weibo-stat-label">粉丝</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="my-weibo-feed-list" style="padding: 15px; display: flex; flex-direction: column; gap: 15px;">
+                    <!-- “我的微博”列表将由JS动态生成在这里 -->
+                </div>
+            </div>
         </div>
 
-        <div id="my-weibo-feed-list" style="padding: 15px; display: flex; flex-direction: column; gap: 15px;">
-            <!-- “我的微博”列表将由JS动态生成在这里 -->
-        </div>
-    </div>
-</div>
-<!-- ▲▲▲ 替换结束 ▲▲▲ -->
-
-
-        <!-- 页面2: 关注的人 (保持不变) -->
+        <!-- 页面2: 关注的人 -->
         <div id="weibo-following-view" class="weibo-view">
             <div class="header">
                 <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
                 <span>关注的人</span>
                 <span class="action-btn" id="clear-following-feed-btn" style="font-size: 16px; font-weight: 500;">清空</span>
             </div>
-            <div id="weibo-following-feed-list" style="flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px;">
+            <div id="weibo-following-feed-list">
                 <!-- 关注的人的微博列表将由JS动态生成在这里 -->
             </div>
         </div>
         
-        <!-- 页面3: 热搜 (已修改) -->
+        <!-- 页面3: 热搜 -->
         <div id="weibo-hot-search-view" class="weibo-view">
              <div class="header">
                 <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
                 <span>热搜</span>
-                <!-- 【核心新增】生成热搜的放大镜按钮 -->
                 <div class="header-actions">
                     <span class="action-btn" id="generate-hot-search-btn" title="生成热搜">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     </span>
                 </div>
             </div>
-            <!-- 【核心修改】在这里，我们将默认内容改为了提示语 -->
-            <div id="weibo-hot-search-list" style="flex-grow: 1; overflow-y: auto;">
+            <div id="weibo-hot-search-list">
                 <p style="text-align:center; color: #8a8a8a; margin-top: 50px;">点击右上角放大镜生成热搜</p>
             </div>
         </div>
 
-        <!-- 页面4: 广场 (已修改) -->
+        <!-- 页面4: 广场 -->
         <div id="weibo-plaza-view" class="weibo-view">
             <div class="header">
                 <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
                 <span>广场</span>
-                <!-- 【核心新增】生成广场的放大镜按钮 -->
                 <div class="header-actions">
                     <span class="action-btn" id="generate-plaza-feed-btn" title="生成广场动态">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     </span>
                 </div>
             </div>
-            <!-- 【核心修改】在这里，我们将默认内容改为了提示语 -->
-            <div id="weibo-plaza-feed-list" style="flex-grow: 1; overflow-y: auto; padding: 0;">
+            <div id="weibo-plaza-feed-list">
                  <p style="text-align:center; color: #8a8a8a; margin-top: 50px;">点击右上角放大镜生成广场动态</p>
             </div>
         </div>
 
-        <!-- 【全新】页面5: 热搜详情页 -->
+        <!-- 页面5: 热搜详情页 -->
         <div id="weibo-hottopic-feed-view" class="weibo-view">
             <div class="header">
                 <span class="back-btn" id="back-from-hottopic-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
@@ -9419,15 +9370,13 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                     </span>
                 </div>
             </div>
-            <!-- 这个容器将用来显示某个热搜话题下的微博Feed -->
-            <div id="weibo-hottopic-feed-list" style="flex-grow: 1; overflow-y: auto; padding: 0;">
+            <div id="weibo-hottopic-feed-list">
                 <!-- 热搜微博列表将由JS动态生成 -->
             </div>
         </div>
-
     </div>
 
-    <!-- 底部导航栏 -->
+    <!-- 底部导航栏（现在是 #weibo-page-container 的兄弟元素）-->
     <div id="weibo-bottom-nav">
         <div class="weibo-nav-item" data-view="weibo-hot-search-view">热搜</div>
         <div class="weibo-nav-item" data-view="weibo-plaza-view">广场</div>
