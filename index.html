@@ -708,19 +708,33 @@ body {
     overflow-y: auto; 
 }
 
-/* 底部导航栏样式 */
-#chat-list-bottom-nav {
-    position: absolute; /* 让它固定在底部 */
+/* ▼▼▼ 【强制全屏终极修复】用这块代码，替换所有旧的底栏样式 ▼▼▼ */
+
+#chat-list-bottom-nav,
+#weibo-bottom-nav {
+    position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    z-index: 15; /* 确保它在视图之上 */
+    z-index: 15;
     display: flex;
     border-top: 1px solid var(--border-color);
-    background-color: rgba(247, 247, 247, 0.9);
+    background-color: rgba(247, 247, 247, 0.8);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    
+    /* 核心修改：移除所有与安全区相关的padding */
+    padding: 0; 
 }
+
+/* 确保底栏内的按钮文字有自己的间距，不会贴边 */
+#chat-list-bottom-nav .nav-item,
+#weibo-bottom-nav .weibo-nav-item {
+    padding-top: 13px;
+    padding-bottom: 13px;
+}
+
+/* ▲▲▲ 替换结束 ▲▲▲ */
 
 .nav-item {
     flex: 1;
@@ -7344,24 +7358,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 .weibo-view.active {
     display: flex; /* 只显示激活的页面 */
 }
-/* ▼▼▼ 【终极修复】请用这块代码完整替换掉你旧的 #weibo-bottom-nav 样式 ▼▼▼ */
-#weibo-bottom-nav {
-    position: absolute; /* ★ 核心修改：改为绝对定位，与消息列表底栏保持一致 */
-    bottom: 0;
-    left: 0;
-    width: 100%;      /* ★ 核心修改：强制宽度为100%，实现全屏 */
-    z-index: 15;
 
-    /* --- 以下是与消息列表底栏统一的样式 --- */
-    display: flex;
-    border-top: 1px solid var(--border-color);
-    background-color: rgba(247, 247, 247, 0.9);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding-bottom: env(safe-area-inset-bottom); /* 适配iPhone底部安全区 */
-    box-sizing: border-box; /* 确保内边距和边框不影响最终宽度 */
-}
-/* ▲▲▲ 替换结束 ▲▲▲ */
 
 
 .weibo-nav-item {
@@ -7422,18 +7419,15 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     opacity: 0.8; /* 鼠标放上去时变淡一点，给用户反馈 */
 }
 /* ▲▲▲ 点击手势样式结束 ▲▲▲ */
-/* ▼▼▼ 请用这块新代码替换旧的 #weibo-page-container 样式 ▼▼▼ */
+/* ▼▼▼ 【强制全屏终极修复】用这块代码，替换旧的 #weibo-page-container 样式 ▼▼▼ */
 #weibo-page-container {
     flex-grow: 1;
     position: relative;
     overflow: hidden;
-    /* 核心修改：为绝对定位的导航栏预留出空间，防止内容被遮挡 */
-    /* 50px 是导航栏的大致高度，env() 用于适配iPhone底部的小黑条 */
-    padding-bottom: calc(50px + env(safe-area-inset-bottom));
-    box-sizing: border-box; /* 确保内边距被正确计算在内 */
+    /* 核心修改：在底部添加一个固定的内边距，把内容顶上来，为浮动的底栏留出空间 */
+    padding-bottom: 50px; 
+    box-sizing: border-box;
 }
-/* ▲▲▲ 替换结束 ▲▲▲ */
-
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
 /* 确保个人主页的内容可以滚动 */
