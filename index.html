@@ -7429,8 +7429,14 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
        在底部加上一个和导航栏一样高的内边距。
        这样，导航栏虽然是浮在上面的，但抽屉里的所有内容都会被这个“垫子”顶上来。
     */
-    padding-bottom: calc(50px + env(safe-area-inset-bottom)); /* <--- 问题就出在这一行！！！ */
+    /* padding-bottom: calc(50px + env(safe-area-inset-bottom)); */ /* <--- 把这一行删掉或注释掉！ */
     box-sizing: border-box; 
+    
+    /* ▼▼▼ 并且，我们还需要确保这个容器能填满它的父元素 ▼▼▼ */
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+    /* ▲▲▲ 新增结束 ▲▲▲ */
 }
 
 
@@ -7724,33 +7730,28 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▲▲▲ 粘贴结束 ▲▲▲ */
 /* ▼▼▼ 【微博布局终极修复】真正解决所有页面滚动不到底的问题 ▼▼▼ */
 
-/* 1. 让页面容器能正确撑满，并且允许内部内容滚动 */
+/* ▼▼▼ 【第1步/共3步】移除容器的错误内边距（修复白条问题的核心）▼▼▼ */
 #weibo-page-container {
     flex-grow: 1;
     position: relative;
-    overflow-y: auto; /* ★ 核心修改：允许这个容器在内容超长时垂直滚动 */
-    -webkit-overflow-scrolling: touch; /* 在iOS上开启流畅滚动 */
+    overflow: hidden;
     box-sizing: border-box; 
+    /* ▲▲▲ 核心：我们已经把那行错误的 padding-bottom 删掉了！▲▲▲ */
 }
 
-/* 2. 为所有独立的微博视图（页面）增加底部内边距，防止内容被导航栏遮挡 */
-#weibo-my-profile-view,
-#weibo-following-view,
-#weibo-hot-search-view,
-#weibo-plaza-view,
-#weibo-hottopic-feed-view {
+
+#weibo-profile-page,
+#weibo-following-feed-list,
+#weibo-hot-search-list,
+#weibo-plaza-feed-list,
+#weibo-hottopic-feed-list {
     /* 
-       魔法就在这里！我们为每个可以滚动的页面，在底部加上和导航栏一样高的内边距。
-       这样，导航栏虽然是浮在上面的，但页面里的所有内容都会被这个“垫子”顶上来。
+       为所有可滚动的列表增加一个内边距，
+       它的高度等于底部导航栏的高度(约50px) + iPhone底部安全区的高度。
+       这样既能让列表背景铺满全屏，又能防止最后一条内容被遮挡。
     */
     padding-bottom: calc(50px + env(safe-area-inset-bottom));
-    box-sizing: border-box; 
-}
-
-/* 3. 确保个人主页的内容区域也能正确滚动 */
-#weibo-profile-page {
-    overflow-y: auto; /* 确保它自己也可以滚动 */
-    height: 100%;
+    box-sizing: border-box; /* 确保内边距计算正确 */
 }
 
 
