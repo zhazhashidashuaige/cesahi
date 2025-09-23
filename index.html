@@ -7330,9 +7330,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 #weibo-screen {
     display: flex;
     flex-direction: column;
-    background-color: #f0f2f5; /* ★★★ 把背景色加到这里！ ★★★ */
 }
-
 .weibo-view {
     position: absolute;
     top: 0;
@@ -7341,9 +7339,8 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     height: 100%;
     display: none; /* 默认隐藏所有页面 */
     flex-direction: column;
-    /* background-color 已被移除 */
+    background-color: #f0f2f5;
 }
-
 .weibo-view.active {
     display: flex; /* 只显示激活的页面 */
 }
@@ -7440,8 +7437,8 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
        在底部加上一个和导航栏一样高的内边距。
        这样，导航栏虽然是浮在上面的，但抽屉里的所有内容都会被这个“垫子”顶上来。
     */
-    padding-bottom: calc(50px + env(safe-area-inset-bottom)); /* <--- 问题就出在这一行！！！ */
     box-sizing: border-box; 
+    /* ▲▲▲ 核心：我们已经把那行错误的 padding-bottom 删掉了！▲▲▲ */
 }
 
 
@@ -7820,6 +7817,23 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* ▲▲▲ 微博布局终极修复结束 ▲▲▲ */
 
+/* ▼▼▼ 【全新】为微博所有可滚动页面添加底部安全区，防止被导航栏遮挡 ▼▼▼ */
+
+#weibo-profile-page,
+#weibo-following-feed-list,
+#weibo-hot-search-list,
+#weibo-plaza-feed-list,
+#weibo-hottopic-feed-list {
+    /* 
+       为所有可滚动的列表增加一个内边距，
+       它的高度等于底部导航栏的高度(约50px) + iPhone底部安全区的高度。
+       这样既能让列表背景铺满全屏，又能防止最后一条内容被遮挡。
+    */
+    padding-bottom: calc(50px + env(safe-area-inset-bottom));
+    box-sizing: border-box; /* 确保内边距计算正确 */
+}
+
+/* ▲▲▲ 新增CSS结束 ▲▲▲ */
 
 
     </style>
