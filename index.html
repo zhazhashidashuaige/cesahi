@@ -7760,6 +7760,27 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
+/* ▼▼▼ 【微博页面终极全屏修复】请将这整块代码粘贴到<style>末尾 ▼▼▼ */
+
+/* 1. 强制隐藏掉微博的底部导航栏，确保它不占任何空间 */
+#weibo-bottom-nav {
+    display: none !important;
+}
+
+/* 2. 移除所有微博页面为导航栏预留的底部内边距，让内容直接撑满到底部 */
+#weibo-profile-page,
+#weibo-following-feed-list,
+#weibo-hot-search-list,
+#weibo-plaza-feed-list,
+#weibo-hottopic-feed-list {
+    padding-bottom: 0 !important; /* 强制移除所有底部内边距 */
+    /* 其他属性保持不变，确保页面本身可以滚动 */
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* ▲▲▲ 修复代码粘贴结束 ▲▲▲ */
 
 
 
