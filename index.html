@@ -7218,7 +7218,13 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▼▼▼ 把这一整块全新的微博页面布局样式，粘贴到 <style> 标签的最末尾 ▼▼▼ */
 /* ▼▼▼ 把这一整块全新的、修复后的微博布局样式，粘贴到 <style> 标签中 ▼▼▼ */
 
+/* 个人主页内容区，确保可以滚动 */
 #weibo-profile-page {
+    flex-grow: 1; /* 占据剩余所有空间 */
+    overflow-y: auto; /* 内容多了可以滚动 */
+    background-color: #f0f2f5;
+}
+
 /* 1. 【核心】重塑头部容器 */
 .weibo-profile-header {
     position: relative; /* 作为内部所有元素的定位基准 */
@@ -7414,6 +7420,26 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     opacity: 0.8; /* 鼠标放上去时变淡一点，给用户反馈 */
 }
 /* ▲▲▲ 点击手势样式结束 ▲▲▲ */
+/* ▼▼▼ 【微博布局终极修复】真正解决所有页面滚动不到底的问题 ▼▼▼ */
+
+/* 1. 【核心】为微博的总页面容器添加“垫子”，把它整体抬高 */
+#weibo-page-container {
+    /* 
+       魔法就在这里！我们为这个包含了所有微博页面的“大抽屉”，
+       在底部加上一个和导航栏一样高的内边距。
+       这样，导航栏虽然是浮在上面的，但抽屉里的所有内容都会被这个“垫子”顶上来。
+    */
+    padding-bottom: calc(50px + env(safe-area-inset-bottom)); /* <--- 问题就出在这一行！！！ */
+    box-sizing: border-box; 
+}
+
+
+/* 确保个人主页的内容可以滚动 */
+#weibo-profile-page {
+    overflow-y: auto;
+    height: 100%;
+}
+/* ▲▲▲ 修复CSS结束 ▲▲▲ */
 
 /* ▲▲▲ 修复CSS结束 ▲▲▲ */
 /* ▼▼▼ 【最终修复】提升微博关注列表弹窗的层级 ▼▼▼ */
@@ -7698,7 +7724,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▲▲▲ 粘贴结束 ▲▲▲ */
 /* ▼▼▼ 【微博布局终极修复】真正解决所有页面滚动不到底的问题 ▼▼▼ */
 
-/* 1. 【核心】为微博的总页面容器移除错误的内边距 */
+/* ▼▼▼ 【第1步/共3步】移除容器的错误内边距（修复白条问题的核心）▼▼▼ */
 #weibo-page-container {
     flex-grow: 1;
     position: relative;
@@ -7708,20 +7734,19 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 
-
-/* 2. 【核心】为所有可滚动的列表增加“底部垫肩”，防止最后一条内容被遮挡 */
 #weibo-profile-page,
 #weibo-following-feed-list,
 #weibo-hot-search-list,
 #weibo-plaza-feed-list,
 #weibo-hottopic-feed-list {
-    padding-bottom: calc(50px + env(safe-area-inset-bottom)); /* <--- 新增这行，让列表底部有空间 */
-    box-sizing: border-box;
-    height: 100%;
-    overflow-y: auto;
-    background-color: #f0f2f5;
+    /* 
+       为所有可滚动的列表增加一个内边距，
+       它的高度等于底部导航栏的高度(约50px) + iPhone底部安全区的高度。
+       这样既能让列表背景铺满全屏，又能防止最后一条内容被遮挡。
+    */
+    padding-bottom: calc(50px + env(safe-area-inset-bottom));
+    box-sizing: border-box; /* 确保内边距计算正确 */
 }
-
 
 
 
