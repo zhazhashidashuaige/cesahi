@@ -7422,22 +7422,14 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▲▲▲ 点击手势样式结束 ▲▲▲ */
 /* ▼▼▼ 【微博布局终极修复】真正解决所有页面滚动不到底的问题 ▼▼▼ */
 
-/* 1. 【核心】为微博的总页面容器添加“垫子”，把它整体抬高 */
 #weibo-page-container {
-    /* 
-       魔法就在这里！我们为这个包含了所有微博页面的“大抽屉”，
-       在底部加上一个和导航栏一样高的内边距。
-       这样，导航栏虽然是浮在上面的，但抽屉里的所有内容都会被这个“垫子”顶上来。
-    */
-    /* padding-bottom: calc(50px + env(safe-area-inset-bottom)); */ /* <--- 把这一行删掉或注释掉！ */
+    /* padding-bottom: calc(50px + env(safe-area-inset-bottom)); */ /* <--- 删除或注释掉这一行 */
     box-sizing: border-box; 
-    
-    /* ▼▼▼ 并且，我们还需要确保这个容器能填满它的父元素 ▼▼▼ */
     flex-grow: 1;
     position: relative;
     overflow: hidden;
-    /* ▲▲▲ 新增结束 ▲▲▲ */
 }
+
 
 
 /* 确保个人主页的内容可以滚动 */
@@ -7772,6 +7764,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▲▲▲ 新增CSS代码粘贴结束 ▲▲▲ */
+
 
 
 
