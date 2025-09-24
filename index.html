@@ -7748,20 +7748,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     box-sizing: border-box; /* 确保内边距计算正确 */
 }
 
-/* ▼▼▼ 【全新】外观设置页面布局修正 ▼▼▼ */
-
-/* 1. 修正滚动问题 */
-#wallpaper-screen .form-container {
-    /* 核心修正1: 解决flex布局下的滚动冲突，让滚动条能正常出现 */
-    min-height: 0; 
-}
-
-/* 2. 修正壁纸预览被压扁的问题 */
-#wallpaper-preview {
-    /* 核心修正2: 防止预览框被过多的内容挤压变形，让它保持自己的高度 */
-    flex-shrink: 0; 
-}
-/* ▲▲▲ 修正结束 ▲▲▲ */
 
 
 
@@ -8526,9 +8512,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         <span>外观设置</span>
         <span style="width: 30px;"></span>
     </div>
-    <div class="form-container">
-        <!-- 锁屏壁纸设置 (全新) -->
-        <div style="width:100%; text-align: left; margin-bottom: 5px;">
+<div style="width:100%; text-align: left; margin-bottom: 5px;">
             <label style="font-weight: 500; color: var(--text-secondary);">锁屏设置</label>
         </div>
         <div id="lockscreen-wallpaper-preview" class="wallpaper-preview">点击下方上传</div>
@@ -8539,8 +8523,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             <label for="password-set-input">锁屏密码 (留空则无密码)</label>
             <input type="text" id="password-set-input" placeholder="设置你的解锁密码">
         </div>
-        
-        <hr style="width: 80%; opacity: 0.3; margin: 20px 0;">
 
         <!-- 主屏幕壁纸设置 (原有) -->
         <div style="width:100%; text-align: left; margin-bottom: 5px;">
