@@ -7740,6 +7740,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 #weibo-hottopic-feed-list {
     flex-grow: 1;
     overflow-y: auto;
+    min-height: 0; /* ★★★ 核心修复：解决Flex布局下的滚动兼容性问题 ★★★ */
     
     /* 
        魔法就在这里！我们为每个列表的底部，
