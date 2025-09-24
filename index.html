@@ -4435,6 +4435,132 @@ body {
 }
 /* ▲▲▲ 新CSS粘贴结束 ▲▲▲ */
 
+/* ▼▼▼ 【全新】锁屏与密码界面样式 ▼▼▼ */
+
+/* 1. 锁屏界面的总容器 */
+#lock-screen {
+    /* 核心：用一个非常高的 z-index 确保它能覆盖所有其他屏幕 */
+    z-index: 999; 
+    background-size: cover;
+    background-position: center;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 让时钟和提示语上下分布 */
+    align-items: center;
+    padding: 80px 20px 50px 20px;
+    box-sizing: border-box;
+    transition: transform 0.3s ease-out;
+}
+
+/* 2. 锁屏时钟 (复用主屏幕时钟的样式) */
+#lock-clock-container {
+    text-align: center;
+    text-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    flex-shrink: 0;
+}
+#lock-main-time {
+    font-size: 80px;
+    font-weight: 200;
+}
+#lock-main-date {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* 3. “向上轻扫”的提示文字和动画 */
+#unlock-hint {
+    font-size: 16px;
+    font-weight: 500;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    /* 添加一个呼吸动画，吸引用户注意 */
+    animation: hint-pulse 2s infinite ease-in-out;
+}
+@keyframes hint-pulse {
+    0%, 100% { opacity: 0.7; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(-5px); }
+}
+
+/* 4. 密码输入弹窗的遮罩层 */
+#password-modal-overlay {
+    /* 使用一个半透明的毛玻璃效果背景 */
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 1000; /* 比锁屏更高，确保在最上层 */
+}
+
+/* 5. 密码输入弹窗的内容区 */
+.password-modal-content {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    width: 280px;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    color: #333;
+}
+.password-modal-content p {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* 6. 密码输入框 */
+#password-input-field {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    font-size: 16px;
+    text-align: center;
+    box-sizing: border-box;
+    background-color: rgba(255,255,255,0.7);
+}
+#password-input-field:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+/* 7. 密码弹窗的按钮区域 */
+.password-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+.password-actions button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+}
+#password-cancel-btn {
+    background-color: #e9ecef;
+    color: #495057;
+}
+#password-confirm-btn {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+/* 8. 密码错误时的晃动动画 */
+@keyframes shake-error {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+.password-modal-content.error {
+    animation: shake-error 0.4s ease-in-out;
+}
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
 
 /* ▼▼▼ 【全新】气泡/API样式预设功能CSS ▼▼▼ */
 .bubble-preset-manager {
@@ -5987,7 +6113,6 @@ body {
     z-index: 250 !important; /* 这个值必须高于播放列表(210)，!important确保它拥有最高优先级 */
 }
 /* ▲▲▲ 粘贴结束 ▲▲▲ */
-
 /* ▼▼▼ 步骤 1：把这一整块全新的CSS，粘贴到 <style> 的末尾 ▼▼▼ */
 
 /* --- 1. 隐藏旧的主屏幕元素 --- */
@@ -6002,36 +6127,23 @@ body {
    这将把你的主屏幕从一个简单的垂直列表，变成一个撑满全屏、
    使用Flexbox布局的强大容器，为新的“桌面式”布局打下基础。
 */
-/* ▼▼▼ 用这块【终极修复版】代码替换 ▼▼▼ */
-#lock-screen, 
 #home-screen {
-    position: absolute; /* 让锁屏和主屏能堆叠 */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    /* 使用一个漂亮的线性渐变作为默认背景，当然你可以在“外观设置”里随时换掉它 */
+    background: linear-gradient(135deg, #6DD5FA, #2980B9);
     background-size: cover;
     background-position: center;
     
+    /* 适配iPhone刘海和底部安全区 */
+    padding-top: calc(20px + env(safe-area-inset-top));
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    
+    /* 使用Flexbox让内容区和Dock栏上下分离 */
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* 核心：让内容上下两端对齐 */
+    justify-content: space-between; 
     align-items: center;
-
-    /* 核心：用padding把内容“挤”进来，让背景图可以铺满安全区 */
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: 20px;
-    padding-right: 20px;
-    
-    box-sizing: border-box;
+    height: 100%; /* 确保它撑满屏幕 */
 }
-
-/* 单独为主屏幕设置默认背景 */
-#home-screen {
-    background: linear-gradient(135deg, #6DD5FA, #2980B9);
-}
-/* ▲▲▲ 替换结束 ▲▲▲ */
 
 /* --- 3. 中间主要内容区 (个人资料卡 + 小组件 + App图标) --- */
 #main-content-area {
@@ -7636,146 +7748,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     box-sizing: border-box; /* 确保内边距计算正确 */
 }
 
-/* ▼▼▼ CSS部分：锁屏【最终正确版】，请将整块代码粘贴到 </style> 标签的正上方 ▼▼▼ */
-
-/* 1. 锁屏界面的总容器 */
-#lock-screen {
-    /* 核心定位：绝对定位，确保能覆盖在其他屏幕之上 */
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 999; /* 一个非常高的层级 */
-
-    /* 核心布局：Flexbox 实现内容上下两端对齐 */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* 让时钟和提示语上下分布 */
-    align-items: center;
-
-    /* 核心全屏适配：用padding把内容“挤”进来，让背景图能铺满到安全区域 */
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: 20px;
-    padding-right: 20px;
-    box-sizing: border-box; /* 确保padding不会撑大元素 */
-    
-    /* 其他样式 */
-    background-size: cover;
-    background-position: center;
-    color: white;
-    transition: transform 0.3s ease-out; /* 解锁时的动画 */
-}
-
-/* 2. 锁屏时钟 */
-#lock-clock-container {
-    text-align: center;
-    text-shadow: 0 3px 8px rgba(0,0,0,0.4);
-    flex-shrink: 0; /* 防止被压缩 */
-    margin-top: 60px; /* 和顶部稍微拉开一点距离 */
-}
-#lock-main-time {
-    font-size: 80px;
-    font-weight: 200;
-}
-#lock-main-date {
-    font-size: 18px;
-    font-weight: 500;
-}
-
-/* 3. “向上轻扫”的提示文字和动画 */
-#unlock-hint {
-    font-size: 16px;
-    font-weight: 500;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    margin-bottom: 30px; /* 和底部拉开距离，避开小横条 */
-    animation: hint-pulse 2s infinite ease-in-out;
-}
-@keyframes hint-pulse {
-    0%, 100% { opacity: 0.7; transform: translateY(0); }
-    50% { opacity: 1; transform: translateY(-5px); }
-}
-
-/* 4. 密码输入弹窗的遮罩层 */
-#password-modal-overlay {
-    background-color: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 1000; /* 比锁屏更高，确保在最上层 */
-}
-
-/* 5. 密码输入弹窗的内容区 */
-.password-modal-content {
-    background-color: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    width: 280px;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    color: #333;
-}
-.password-modal-content p {
-    font-size: 17px;
-    font-weight: 600;
-    margin: 0;
-}
-
-/* 6. 密码输入框 */
-#password-input-field {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid rgba(0,0,0,0.1);
-    border-radius: 8px;
-    font-size: 16px;
-    text-align: center;
-    box-sizing: border-box;
-    background-color: rgba(255,255,255,0.7);
-}
-#password-input-field:focus {
-    outline: none;
-    border-color: var(--accent-color);
-}
-
-/* 7. 密码弹窗的按钮区域 */
-.password-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 5px;
-}
-.password-actions button {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-}
-#password-cancel-btn {
-    background-color: #e9ecef;
-    color: #495057;
-}
-#password-confirm-btn {
-    background-color: var(--accent-color);
-    color: white;
-}
-
-/* 8. 密码错误时的晃动动画 */
-@keyframes shake-error {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-  20%, 40%, 60%, 80% { transform: translateX(5px); }
-}
-.password-modal-content.error {
-    animation: shake-error 0.4s ease-in-out;
-}
-/* ▲▲▲ CSS部分：锁屏【最终正确版】替换结束 ▲▲▲ */
 
 
 
@@ -9113,19 +9085,17 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                 <div id="unlock-hint">向上轻扫以解锁</div>
             </div>
 
-<!-- ▼▼▼ HTML部分：密码弹窗【最终正确版】，用它替换掉你旧的 password-modal-overlay ▼▼▼ -->
-<div id="password-modal-overlay" class="modal-overlay">
-    <div class="password-modal-content">
-        <p>输入锁屏密码</p>
-        <input type="password" id="password-input-field" placeholder="密码" maxlength="4">
-        <div class="password-actions">
-            <button id="password-cancel-btn">取消</button>
-            <button id="password-confirm-btn">确定</button>
-        </div>
-    </div>
-</div>
-<!-- ▲▲▲ HTML部分：密码弹窗【最终正确版】替换结束 ▲▲▲ -->
-
+            <div id="password-modal-overlay" class="modal">
+                <div class="password-modal-content">
+                    <p>请输入密码</p>
+                    <input type="password" id="password-input-field" maxlength="20">
+                    <div class="password-actions">
+                        <button id="password-cancel-btn">取消</button>
+                        <button id="password-confirm-btn">进入</button>
+                    </div>
+                </div>
+            </div>
+            <!-- ▲▲▲ 新HTML代码粘贴结束 ▲▲▲ -->
 
         </div>
     </div>
