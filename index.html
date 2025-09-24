@@ -284,20 +284,22 @@ body {
         .form-button { width: 100%; padding: 15px; background-color: var(--accent-color); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
         .form-button-secondary { background-color: #f0f0f0; color: var(--text-primary); border: 1px solid var(--border-color); }
         #wallpaper-screen .form-container { align-items: center; }
-       /* 新代码 */
-.wallpaper-preview {
-    width: 180px;
-    height: 320px;
-    border: 2px dashed var(--border-color);
-    background-color: var(--secondary-bg);
-    margin-bottom: 20px;
-    background-size: cover;
-    background-position: center;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--text-secondary);
+      /* 【核心修改】让锁屏和主屏幕的壁纸预览框使用相同的样式 */
+#wallpaper-preview, 
+#lockscreen-wallpaper-preview { 
+    width: 180px; 
+    height: 320px; 
+    border: 2px dashed var(--border-color); 
+    background-color: var(--secondary-bg); 
+    margin-bottom: 20px; 
+    background-size: cover; 
+    background-position: center; 
+    border-radius: 10px; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    color: var(--text-secondary); 
+    flex-shrink: 0; /* 【新增】防止在flex布局中被意外压缩，更稳定 */
 }
 
         #wallpaper-upload-input { display: none; }
