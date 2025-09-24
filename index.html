@@ -284,24 +284,7 @@ body {
         .form-button { width: 100%; padding: 15px; background-color: var(--accent-color); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
         .form-button-secondary { background-color: #f0f0f0; color: var(--text-primary); border: 1px solid var(--border-color); }
         #wallpaper-screen .form-container { align-items: center; }
-      /* 【核心修改】让锁屏和主屏幕的壁纸预览框使用相同的样式 */
-#wallpaper-preview, 
-#lockscreen-wallpaper-preview { 
-    width: 180px; 
-    height: 320px; 
-    border: 2px dashed var(--border-color); 
-    background-color: var(--secondary-bg); 
-    margin-bottom: 20px; 
-    background-size: cover; 
-    background-position: center; 
-    border-radius: 10px; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    color: var(--text-secondary); 
-    flex-shrink: 0; /* 【新增】防止在flex布局中被意外压缩，更稳定 */
-}
-
+        #wallpaper-preview { width: 180px; height: 320px; border: 2px dashed var(--border-color); background-color: var(--secondary-bg); margin-bottom: 20px; background-size: cover; background-position: center; border-radius: 10px; display: flex; justify-content: center; align-items: center; color: var(--text-secondary); }
         #wallpaper-upload-input { display: none; }
 /* 修改后的 #world-book-list 样式 */
 /* 【终极修复版】世界书主界面列表样式 */
@@ -7765,6 +7748,20 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     box-sizing: border-box; /* 确保内边距计算正确 */
 }
 
+/* ▼▼▼ 【全新】外观设置页面布局修正 ▼▼▼ */
+
+/* 1. 修正滚动问题 */
+#wallpaper-screen .form-container {
+    /* 核心修正1: 解决flex布局下的滚动冲突，让滚动条能正常出现 */
+    min-height: 0; 
+}
+
+/* 2. 修正壁纸预览被压扁的问题 */
+#wallpaper-preview {
+    /* 核心修正2: 防止预览框被过多的内容挤压变形，让它保持自己的高度 */
+    flex-shrink: 0; 
+}
+/* ▲▲▲ 修正结束 ▲▲▲ */
 
 
 
