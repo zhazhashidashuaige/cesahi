@@ -7254,14 +7254,15 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
 /* ▼▼▼ 请将这块【新代码】粘贴到 .weibo-background 的正下方 ▼▼▼ */
+/* ▼▼▼ 用这块新代码替换掉上面的旧代码 ▼▼▼ */
 /* 【新增】为前景内容设置更高的层级 */
 .weibo-avatar-container,
 .weibo-nickname,
-.weibo-stats {
+.weibo-stats,
+#weibo-user-profession-display { /* ▲▲▲ 核心修改：把 #weibo-user-profession-display 加到这里 ▲▲▲ */
     position: relative; /* 激活z-index */
     z-index: 2;         /* 确保它们在背景图之上 */
 }
-/* ▲▲▲ 新代码粘贴结束 ▲▲▲ */
 
 
 /* 3. 【核心】重置头像容器的样式 */
@@ -7762,24 +7763,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     margin-right: 8px;
 }
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
-/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 的末尾 ▼▼▼ */
-
-/* 【全新】微博用户职业显示区域样式 */
-#weibo-user-profession-display {
-    transition: background-color 0.2s, transform 0.1s; /* 添加平滑动画 */
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-}
-
-#weibo-user-profession-display:hover {
-    background-color: rgba(0,0,0,0.4); /* 鼠标悬停时变暗一点 */
-}
-
-#weibo-user-profession-display:active {
-    transform: scale(0.95); /* 点击时轻微缩小 */
-}
-
-/* ▲▲▲ 粘贴结束 ▲▲▲ */
-
 /* ▼▼▼ 【微博布局终极修复】解决所有页面滚动不到底的问题 ▼▼▼ */
 
 /* 1. 移除外层容器上错误的多余“垫子” */
@@ -7801,9 +7784,65 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     padding-bottom: calc(50px + env(safe-area-inset-bottom)) !important;
     box-sizing: border-box; /* 确保内边距被正确计算 */
 }
-
+/* ▼▼▼ 【问题1修复】微博编辑资料按钮强制显示 ▼▼▼ */
+/* 请将这段代码粘贴到 <style> 标签的最末尾 */
+#edit-weibo-profile-btn {
+    display: flex !important; /* 强制显示为flex容器 */
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-color) !important; /* 强制使用主题色 */
+}
+#edit-weibo-profile-btn svg {
+    stroke: currentColor !important; /* 确保SVG图标继承上面的颜色 */
+}
 /* ▲▲▲ 修复结束 ▲▲▲ */
+/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 的末尾 ▼▼▼ */
 
+/* 1. 让关注列表的每一行都能容纳新按钮 */
+.weibo-following-item {
+    align-items: center; /* 确保头像、名字和按钮垂直居中对齐 */
+}
+
+/* 2. 这是你新增的“操作”按钮的样式 */
+.weibo-action-trigger-btn {
+    margin-left: auto; /* 核心：让按钮自动靠到最右边 */
+    padding: 5px 8px;
+    cursor: pointer;
+    border-radius: 50%; /* 圆形按钮，更美观 */
+    transition: background-color 0.2s;
+}
+.weibo-action-trigger-btn:hover {
+    background-color: #e0e0e0;
+}
+#phone-screen.dark-mode .weibo-action-trigger-btn:hover {
+    background-color: #3a3a3c;
+}
+.weibo-action-trigger-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--text-secondary); /* 图标颜色跟随主题 */
+    display: block; /* 解决一些对齐问题 */
+}
+
+/* 3. 为操作弹窗里的单选按钮美化一下 */
+#weibo-action-type-select label {
+    display: block;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+#weibo-action-type-select label:hover {
+    background-color: #f0f2f5;
+}
+#phone-screen.dark-mode #weibo-action-type-select label:hover {
+    background-color: #2c2c2e;
+}
+
+/* ▲▲▲ 新增CSS粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【弹窗层级修复】粘贴这段代码到样式末尾 ▼▼▼ */
+#weibo-action-modal {
+    z-index: 1002; /* 这个值比关注列表(1001)更高，就不会被盖住了 */
+}
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
     <style id="custom-theme-style"></style>
@@ -7918,51 +7957,55 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     <!-- 这个容器将存放微博的所有页面 -->
     <div id="weibo-page-container">
 
-<!-- ▼▼▼ 用这【一整块新代码】替换旧的 #weibo-my-profile-view 区域 ▼▼▼ -->
-<div id="weibo-my-profile-view" class="weibo-view active">
-    <div class="header">
-        <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
-        <span>我的主页</span>
-        <div class="header-actions">
-            <span class="action-btn" id="create-weibo-post-btn" style="font-size: 28px; font-weight: 300;">+</span>
-        </div>
-    </div>
-    <div id="weibo-profile-page">
-        <!-- 【核心修改】现在，头像、昵称、数据都在 header 内部了 -->
-        <div class="weibo-profile-header">
-            <img id="weibo-background-img" src="https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg" class="weibo-background">
-            
-            <div class="weibo-avatar-container">
-                <img id="weibo-avatar-img" src="https://files.catbox.moe/q6z5fc.jpeg" class="weibo-avatar">
-            </div>
-            <div class="weibo-nickname" id="weibo-nickname">你的昵称</div>
-            <!-- 【全新】用户职业显示与编辑入口 -->
-<div id="weibo-user-profession-display" style="font-size: 13px; color: rgba(255,255,255,0.85); background-color: rgba(0,0,0,0.2); padding: 3px 10px; border-radius: 12px; margin-top: 8px; cursor: pointer; display: inline-block;">
-    <span>点击设置职业</span>
-</div>
-            <div class="weibo-stats">
-                <div id="weibo-following-btn" class="weibo-stat-item">
-                    <span id="weibo-following-count" class="weibo-stat-number">0</span>
-                    <span class="weibo-stat-label">关注</span>
-                </div>
-                <div id="weibo-posts-item" class="weibo-stat-item">
-                    <span id="weibo-posts-count" class="weibo-stat-number">0</span>
-                    <span class="weibo-stat-label">微博</span>
-                </div>
-                <div id="weibo-fans-item" class="weibo-stat-item">
-                    <span id="weibo-fans-count" class="weibo-stat-number">0</span>
-                    <span class="weibo-stat-label">粉丝</span>
+        <!-- 页面1: 我的主页 (已改造) -->
+        <div id="weibo-my-profile-view" class="weibo-view active">
+            <!-- 头部 -->
+            <div class="header">
+                <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+                <span>我的主页</span>
+                <div class="header-actions">
+                    <!-- 【核心修改】我们在这里新增了一个“编辑”按钮 -->
+                    <span class="action-btn" id="edit-weibo-profile-btn" title="编辑资料">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                    </span>
+                    <span class="action-btn" id="create-weibo-post-btn" style="font-size: 28px; font-weight: 300;">+</span>
                 </div>
             </div>
+            <!-- 主页内容区 -->
+            <div id="weibo-profile-page">
+                <div class="weibo-profile-header">
+                    <img id="weibo-background-img" src="https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg" class="weibo-background">
+                    <div class="weibo-avatar-container">
+                        <img id="weibo-avatar-img" src="https://files.catbox.moe/q6z5fc.jpeg" class="weibo-avatar">
+                    </div>
+                    <div class="weibo-nickname" id="weibo-nickname">你的昵称</div>
+                    <!-- 【核心修改】在这里新增一个显示职业的地方 -->
+                    <div id="weibo-user-profession-display" style="font-size: 13px; color: #f0f0f0; margin-top: 8px; margin-bottom: 10px;">
+                        点击设置职业
+                    </div>
+                    <div class="weibo-stats">
+                        <div id="weibo-following-btn" class="weibo-stat-item">
+                            <span id="weibo-following-count" class="weibo-stat-number">0</span>
+                            <span class="weibo-stat-label">关注</span>
+                        </div>
+                        <div id="weibo-posts-item" class="weibo-stat-item">
+                            <span id="weibo-posts-count" class="weibo-stat-number">0</span>
+                            <span class="weibo-stat-label">微博</span>
+                        </div>
+                        <div id="weibo-fans-item" class="weibo-stat-item">
+                            <span id="weibo-fans-count" class="weibo-stat-number">0</span>
+                            <span class="weibo-stat-label">粉丝</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="my-weibo-feed-list" style="padding: 15px; display: flex; flex-direction: column; gap: 15px;">
+                    <!-- “我的微博”列表将由JS动态生成在这里 -->
+                </div>
+            </div>
         </div>
-
-        <div id="my-weibo-feed-list" style="padding: 15px; display: flex; flex-direction: column; gap: 15px;">
-            <!-- “我的微博”列表将由JS动态生成在这里 -->
-        </div>
-    </div>
-</div>
-<!-- ▲▲▲ 替换结束 ▲▲▲ -->
-
 
         <!-- 页面2: 关注的人 (保持不变) -->
         <div id="weibo-following-view" class="weibo-view">
@@ -7976,43 +8019,39 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             </div>
         </div>
         
-        <!-- 页面3: 热搜 (已修改) -->
+        <!-- 页面3: 热搜 (保持不变) -->
         <div id="weibo-hot-search-view" class="weibo-view">
              <div class="header">
                 <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
                 <span>热搜</span>
-                <!-- 【核心新增】生成热搜的放大镜按钮 -->
                 <div class="header-actions">
                     <span class="action-btn" id="generate-hot-search-btn" title="生成热搜">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     </span>
                 </div>
             </div>
-            <!-- 【核心修改】在这里，我们将默认内容改为了提示语 -->
             <div id="weibo-hot-search-list" style="flex-grow: 1; overflow-y: auto;">
                 <p style="text-align:center; color: #8a8a8a; margin-top: 50px;">点击右上角放大镜生成热搜</p>
             </div>
         </div>
 
-        <!-- 页面4: 广场 (已修改) -->
+        <!-- 页面4: 广场 (保持不变) -->
         <div id="weibo-plaza-view" class="weibo-view">
             <div class="header">
                 <span class="back-btn" onclick="showScreen('home-screen')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
                 <span>广场</span>
-                <!-- 【核心新增】生成广场的放大镜按钮 -->
                 <div class="header-actions">
                     <span class="action-btn" id="generate-plaza-feed-btn" title="生成广场动态">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     </span>
                 </div>
             </div>
-            <!-- 【核心修改】在这里，我们将默认内容改为了提示语 -->
             <div id="weibo-plaza-feed-list" style="flex-grow: 1; overflow-y: auto; padding: 0;">
                  <p style="text-align:center; color: #8a8a8a; margin-top: 50px;">点击右上角放大镜生成广场动态</p>
             </div>
         </div>
 
-        <!-- 【全新】页面5: 热搜详情页 -->
+        <!-- 页面5: 热搜详情页 (保持不变) -->
         <div id="weibo-hottopic-feed-view" class="weibo-view">
             <div class="header">
                 <span class="back-btn" id="back-from-hottopic-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
@@ -8023,12 +8062,10 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                     </span>
                 </div>
             </div>
-            <!-- 这个容器将用来显示某个热搜话题下的微博Feed -->
             <div id="weibo-hottopic-feed-list" style="flex-grow: 1; overflow-y: auto; padding: 0;">
                 <!-- 热搜微博列表将由JS动态生成 -->
             </div>
         </div>
-
     </div>
 
     <!-- 底部导航栏 -->
@@ -8040,10 +8077,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ HTML 替换结束 ▲▲▲ -->
-
-
-
-          
+   
 <div id="world-book-screen" class="screen">
     <div class="header">
         <span class="back-btn" onclick="showScreen('home-screen')">‹</span>
@@ -8974,6 +9008,70 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新HTML粘贴结束 ▲▲▲ -->
+<!-- ▼▼▼ 【全新】微博用户人设与职业设置模态框 ▼▼▼ -->
+<div id="weibo-user-settings-modal" class="modal">
+    <div class="modal-content" style="height: auto; max-height: 80%;">
+        <div class="modal-header">
+            <span>我的微博设定</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>预设方案</label>
+                <div class="bubble-preset-manager"> <!-- 复用现有样式 -->
+                    <select id="weibo-user-preset-select" class="form-group select"></select>
+                    <button id="manage-weibo-user-presets-btn" class="action-btn">管理</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="weibo-user-profession-modal-input">职业 (显示在昵称下方)</label>
+                <input type="text" id="weibo-user-profession-modal-input" placeholder="例如：职业电竞选手、美妆博主">
+            </div>
+            <div class="form-group">
+                <label for="weibo-user-persona-modal-input">隐藏人设 (仅供AI生成评论时参考)</label>
+                <textarea id="weibo-user-persona-modal-input" rows="4" placeholder="例如：性格高冷，少与粉丝互动，只回复赞助商的评论。"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="cancel-weibo-user-settings-btn">取消</button>
+            <button class="save" id="save-weibo-user-settings-btn">保存</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 【全新】这是微博手动操作的弹窗，粘贴到 </body> 前面 ▼▼▼ -->
+<div id="weibo-action-modal" class="modal">
+    <div class="modal-content" style="height: auto; max-height: 80%;">
+        <div class="modal-header">
+            <span id="weibo-action-modal-title">执行操作</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="weibo-action-actor-select">选择操作者 (Actor)</label>
+                <select id="weibo-action-actor-select" class="form-group select"></select>
+            </div>
+            <div class="form-group">
+                <label>选择操作类型</label>
+<!-- ▼▼▼ 用这块新代码替换 ▼▼▼ -->
+<div id="weibo-action-type-select" style="text-align: left;">
+    <label><input type="radio" name="weibo_action_type" value="post" checked> 发布一条新微博</label>
+    <label><input type="radio" name="weibo_action_type" value="comment_plaza"> 评论广场最新微博</label>
+    <!-- ▼▼▼ 这是我们新增的选项 ▼▼▼ -->
+    <label><input type="radio" name="weibo_action_type" value="comment_user"> 评论用户最新微博</label>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+            </div>
+             <div class="form-group">
+                <label for="weibo-action-prompt-input">关于... (可选, 简要提示)</label>
+                <textarea id="weibo-action-prompt-input" rows="2" placeholder="例如：今天比赛赢了很开心 or 回应最近的热搜"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="cancel-weibo-action-btn">取消</button>
+            <button class="save" id="confirm-weibo-action-btn">执行</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
 
 <!-- ▼▼▼ 【全新】来电请求模态框 ▼▼▼ -->
 <div id="incoming-call-modal" class="modal">
@@ -8994,6 +9092,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增结束 ▲▲▲ -->
+
 <!-- ▼▼▼ 【全新】这是BGM搜索结果的弹窗，请粘贴到body末尾 ▼▼▼ -->
 <div id="music-search-results-modal" class="modal">
     <div class="modal-content" style="height: 70%;">
@@ -10564,7 +10663,7 @@ async function openWeiboPublisher() {
     modal.classList.add('visible');
 }
 
-// ▼▼▼ 用这块【已添加粉丝数计算逻辑】的代码，替换旧的 handlePublishWeibo 函数 ▼▼▼
+// ▼▼▼ 请用这【一整块功能增强版】的代码，完整替换掉你旧的 handlePublishWeibo 函数 ▼▼▼
 /**
  * 【微博 V3 - 粉丝数计算版】处理发布微博的核心函数
  */
@@ -10573,6 +10672,11 @@ async function handlePublishWeibo() {
     
     const mainContent = document.getElementById('post-public-text').value.trim();
     let imageUrl = '', hiddenContent = '', postType = 'text_only';
+    
+    // ▼▼▼ 这是新增的核心代码 ▼▼▼
+    let imageDescription = ''; // 1. 先声明一个变量来存储图片描述
+    // ▲▲▲ 新增结束 ▲▲▲
+
     const isImageModeActive = document.getElementById('image-mode-content').classList.contains('active');
 
     if (isImageModeActive) {
@@ -10581,6 +10685,14 @@ async function handlePublishWeibo() {
         if (hasRealImage) {
             imageUrl = previewSrc;
             postType = 'image';
+            // ▼▼▼ 这是新增的核心代码 ▼▼▼
+            // 2. 如果是图片模式，就去获取图片描述输入框的值
+            imageDescription = document.getElementById('post-image-description').value.trim();
+            if (!imageDescription) {
+                alert("为了让AI能看懂图片，请务必填写图片描述哦！");
+                return; // 如果没填描述，就阻止发布
+            }
+            // ▲▲▲ 新增结束 ▲▲▲
         }
     } else {
         hiddenContent = document.getElementById('post-hidden-text').value.trim();
@@ -10595,13 +10707,9 @@ async function handlePublishWeibo() {
         return;
     }
 
-    // ▼▼▼ 【核心新增】计算基础点赞和评论数 ▼▼▼
     const fansCount = parseInt(state.qzoneSettings.weiboFansCount) || 0;
-    // 点赞数是粉丝数的 10% ~ 20% 之间的一个随机数
     const baseLikes = Math.floor(fansCount * (Math.random() * 0.1 + 0.1));
-    // 评论数是点赞数的 5% ~ 15% 之间的一个随机数
     const baseComments = Math.floor(baseLikes * (Math.random() * 0.1 + 0.05));
-    // ▲▲▲ 新增结束 ▲▲▲
 
     const newPost = {
         authorId: 'user',
@@ -10610,12 +10718,16 @@ async function handlePublishWeibo() {
         authorAvatar: state.qzoneSettings.weiboAvatar || state.qzoneSettings.avatar || defaultAvatar,
         content: mainContent,
         imageUrl: imageUrl,
+
+        // ▼▼▼ 这是新增的核心代码 ▼▼▼
+        imageDescription: imageDescription, // 3. 把获取到的描述保存到新字段里！
+        // ▲▲▲ 新增结束 ▲▲▲
+
         hiddenContent: hiddenContent,
         postType: postType,
         timestamp: Date.now(),
         likes: [],
         comments: [],
-        // ▼▼▼ 【核心新增】把计算好的数存进去 ▼▼▼
         baseLikesCount: baseLikes,
         baseCommentsCount: baseComments
     };
@@ -10628,6 +10740,7 @@ async function handlePublishWeibo() {
     alert('微博发布成功！');
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
 
 /**
  * 【微博】处理点赞/取消点赞
@@ -10673,7 +10786,7 @@ async function handleWeiboComment(postId, inputElement) {
     const newComment = {
         commentId: 'comment_' + Date.now(),
         authorId: 'user',
-        authorNickname: state.qzoneSettings.nickname || '我',
+        authorNickname: state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我',
         commentText: commentText,
         timestamp: Date.now()
     };
@@ -10997,6 +11110,33 @@ musicState.playlist.push(newSong);
     }
 
     await showCustomAlert("添加成功", `《${songData.name}》已成功添加到播放列表！`);
+    // ▼▼▼ 把这一整块全新的代码，粘贴到指定位置 ▼▼▼
+try {
+    // 1. 检查一下当前是不是正在和别人聊天
+    if (state.activeChatId) {
+        const chat = state.chats[state.activeChatId];
+        if (chat) {
+            // 2. 创建一条对用户隐藏，但对AI可见的系统消息
+            const hiddenMessage = {
+                role: 'system', // 告诉AI这是系统信息
+                content: `[系统提示：用户刚刚通过搜索，将歌曲《${songData.name}》 - ${songData.artist} 添加到了“一起听”的播放列表中。你可以根据这个情景，自然地开启关于这首歌的话题。]`,
+                timestamp: Date.now(),
+                isHidden: true // 这个是关键！让这条消息在聊天界面上“隐形”
+            };
+            
+            // 3. 把这条“隐形”消息加到聊天记录的末尾
+            chat.history.push(hiddenMessage);
+            
+            // 4. 保存更新后的聊天记录到数据库
+            await db.chats.put(chat);
+
+            console.log(`已为歌曲《${songData.name}》成功注入AI上下文提示。`);
+        }
+    }
+} catch (error) {
+    console.error("注入歌曲上下文时出错:", error);
+}
+// ▲▲▲ 粘贴结束 ▲▲▲
 }
 
 /**
@@ -11469,6 +11609,98 @@ chats: '&id, isGroup, groupId, isPinned, characterPhoneData,latestInnerVoice, in
 // ===================================================================
 // 3. 所有功能函数定义
 // ===================================================================
+// ▼▼▼ 把这一整块全新的微博功能函数，粘贴到 init() 函数的上方 ▼▼▼
+
+/**
+ * 【全新】微博用户人设与职业设置核心功能
+ */
+function openWeiboUserSettingsModal() {
+    const modal = document.getElementById('weibo-user-settings-modal');
+    const settings = state.qzoneSettings;
+
+    // 加载当前数据到输入框
+    document.getElementById('weibo-user-profession-modal-input').value = settings.weiboUserProfession === '点击设置职业' ? '' : settings.weiboUserProfession;
+    document.getElementById('weibo-user-persona-modal-input').value = settings.weiboUserPersona;
+    
+    renderWeiboUserPresetSelector(); // 渲染预设下拉框
+    modal.classList.add('visible');
+}
+
+async function saveWeiboUserSettings() {
+    const profession = document.getElementById('weibo-user-profession-modal-input').value.trim();
+    const persona = document.getElementById('weibo-user-persona-modal-input').value.trim();
+
+    state.qzoneSettings.weiboUserProfession = profession || '点击设置职业';
+    state.qzoneSettings.weiboUserPersona = persona || '一个普通的微博用户。';
+
+    await saveQzoneSettings(); // 保存到数据库
+    await renderWeiboProfile(); // 刷新主页显示
+    document.getElementById('weibo-user-settings-modal').classList.remove('visible');
+    alert('微博设定已保存！');
+}
+
+function renderWeiboUserPresetSelector() {
+    const select = document.getElementById('weibo-user-preset-select');
+    const presets = state.qzoneSettings.weiboUserPersonaPresets || [];
+    select.innerHTML = '<option value="">-- 选择预设 --</option>';
+    presets.forEach((preset, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = preset.name;
+        select.appendChild(option);
+    });
+}
+
+function handleWeiboUserPresetSelection() {
+    const select = document.getElementById('weibo-user-preset-select');
+    const presets = state.qzoneSettings.weiboUserPersonaPresets || [];
+    const selectedIndex = select.value;
+
+    if (selectedIndex !== "") {
+        const preset = presets[parseInt(selectedIndex)];
+        document.getElementById('weibo-user-profession-modal-input').value = preset.profession;
+        document.getElementById('weibo-user-persona-modal-input').value = preset.persona;
+    }
+}
+
+async function openWeiboUserPresetManager() {
+    const choice = await showChoiceModal("管理预设", [
+        { text: '💾 保存当前为新预设', value: 'save' },
+        { text: '🗑️ 删除已选预设', value: 'delete' }
+    ]);
+
+    if (choice === 'save') {
+        const name = await showCustomPrompt("保存预设", "请输入预设名称");
+        if (name && name.trim()) {
+            const newPreset = {
+                name: name.trim(),
+                profession: document.getElementById('weibo-user-profession-modal-input').value.trim(),
+                persona: document.getElementById('weibo-user-persona-modal-input').value.trim()
+            };
+            state.qzoneSettings.weiboUserPersonaPresets.push(newPreset);
+            await saveQzoneSettings();
+            renderWeiboUserPresetSelector();
+            alert(`预设 "${name.trim()}" 已保存！`);
+        }
+    } else if (choice === 'delete') {
+        const select = document.getElementById('weibo-user-preset-select');
+        const selectedIndex = select.value;
+        if (selectedIndex === "") {
+            alert("请先从下拉框中选择一个要删除的预设。");
+            return;
+        }
+        const presets = state.qzoneSettings.weiboUserPersonaPresets;
+        const presetName = presets[parseInt(selectedIndex)].name;
+        const confirmed = await showCustomConfirm("确认删除", `确定要删除预设 "${presetName}" 吗？`, { confirmButtonClass: 'btn-danger' });
+        if (confirmed) {
+            presets.splice(parseInt(selectedIndex), 1);
+            await saveQzoneSettings();
+            renderWeiboUserPresetSelector();
+            alert("预设已删除。");
+        }
+    }
+}
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
 
 // ▼▼▼ 从这里开始，粘贴所有新代码 ▼▼▼
 /**
@@ -13085,25 +13317,31 @@ state.apiPresets = apiPresets || [];
 state.bubbleStylePresets = bubbleStylePresets || [];
 // ▼▼▼ 在 loadAllDataFromDB 函数里，用下面这整块代码替换旧的 qzoneSettings 初始化代码 ▼▼▼
 
+// ▼▼▼ 用这块【带有微博用户设定】的代码替换 ▼▼▼
 state.qzoneSettings = qzoneSettings || { 
     id: 'main', 
     nickname: '{{user}}', 
     avatar: 'https://files.catbox.moe/q6z5fc.jpeg', 
     banner: 'https://files.catbox.moe/r5heyt.gif',
-    // 【核心新增】在这里为微博创建独立的字段！
-    weiboAvatar: 'https://files.catbox.moe/q6z5fc.jpeg', // 微博专属头像
-    weiboNickname: '你的昵称', // 微博专属昵称
-    weiboFansCount: '0', // 微博专属粉丝数
-    weiboBackground: 'https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg' // 微博专属背景
+    weiboAvatar: 'https://files.catbox.moe/q6z5fc.jpeg',
+    weiboNickname: '你的昵称',
+    weiboFansCount: '0',
+    weiboBackground: 'https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg',
+    // 【核心新增】在这里为微博用户添加专属的职业和人设字段！
+    weiboUserProfession: '点击设置职业', 
+    weiboUserPersona: '一个普通的微博用户。',
+    weiboUserPersonaPresets: []
 };
-// 兼容旧数据，如果加载进来的数据没有微博专属字段，就补上默认值
+// 兼容旧数据，如果加载进来的数据没有这些新字段，就补上默认值
 if (!state.qzoneSettings.weiboAvatar) state.qzoneSettings.weiboAvatar = state.qzoneSettings.avatar || 'https://files.catbox.moe/q6z5fc.jpeg';
 if (!state.qzoneSettings.weiboNickname) state.qzoneSettings.weiboNickname = state.qzoneSettings.nickname || '你的昵称';
 if (!state.qzoneSettings.weiboFansCount) state.qzoneSettings.weiboFansCount = '0';
 if (!state.qzoneSettings.weiboBackground) state.qzoneSettings.weiboBackground = 'https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg';
-
+// 【核心新增】兼容旧的用户微博设定
+if (!state.qzoneSettings.weiboUserProfession) state.qzoneSettings.weiboUserProfession = '点击设置职业';
+if (!state.qzoneSettings.weiboUserPersona) state.qzoneSettings.weiboUserPersona = '一个普通的微博用户。';
+if (!state.qzoneSettings.weiboUserPersonaPresets) state.qzoneSettings.weiboUserPersonaPresets = [];
 // ▲▲▲ 替换结束 ▲▲▲
-
 
     // ▼▼▼ 【确保这一行在 Promise.all 之后，并使用解构赋值得到的 initialFavorites】 ▼▼▼
     allFavoriteItems = initialFavorites || [];
@@ -15039,6 +15277,7 @@ ${npcContext}
 你现在的状态是【${chat.status.text}】。
   - 你的微博职业: ${chat.settings.weiboProfession || '无'}
   - 你的微博指令: ${chat.settings.weiboInstruction || '无特殊指令'}
+
 # 【【【输出格式铁律】】】
 你的回复【必须】是一个【单一的、完整的JSON对象】，【绝对不能】只返回JSON数组或纯文本。
 这个JSON对象【必须】包含两个顶级键: "chatResponse" 和 "innerVoice"。
@@ -15056,29 +15295,29 @@ ${npcContext}
   - "thoughts": (字符串) 描述你此刻【丰富、细腻的内心真实想法】，字数在50字左右。
   - "naughtyThoughts": (字符串) 描述你此刻【有点腹黑或色色的坏心思】，要与当下聊天情境有关，符合人设。
 
-# 【【【输出格式示例】】】
+# 【【【输出格式】】】（每次必须按照这个格式输出）
 {
-  "chatResponse": [
-    {
-      "type": "text",
-      "content": "你还好意思问我什么奖励？"
-    },
-    {
-      "type": "voice_message",
-      "content": "（能听到厨房里'咕嘟咕嘟'煮面的声音，他转过头，声音里带着点笑意和撒娇的鼻音）小狗这么听话，主人不得过来亲一口，再摸摸头说'好狗狗'吗？"
-    },
-    {
-      "type": "sticker",
-      "url": "https://i.postimg.cc/W4cJZXNx/14f052735b740073052317ef344986a7443adf866dc521beafc47cd91e053438-0.jpg",
-      "meaning": "夸我好狗狗"
-    }
-  ],
-  "innerVoice": {
-    "clothing": "一件黑色的oversized T恤，下身是宽松的灰色运动短裤，光着脚踩在厨房的地砖上。",
-    "behavior": "【我单手拿着手机，另一只手拿着筷子在小锅里搅着面条，看到你的消息，嘴角忍不住向上扬起一个得意的弧度，然后把手机夹在肩膀和耳朵之间，空出手来往面里加调料。】",
-    "thoughts": "她果然吃这套。在网上公开宣布主权的感觉还真不赖，虽然有点羞耻……但只要是她要求的，好像什么都能接受。面快好了，希望她喜欢这个味道。",
-    "naughtyThoughts": "等她过来抱我的时候，就把手上的油蹭到她衣服上……开玩笑的。还是想直接把她按在料理台上亲，让她腿软得站不住，只能抱着我。"
-  }
+"chatResponse": [
+{
+"type": "text",
+"content": ""
+},
+{
+"type": "voice_message",
+"content": ""
+},
+{
+"type": "sticker",
+"url": "",
+"meaning": ""
+}
+],
+"innerVoice": {
+"clothing": "",
+"behavior": "",
+"thoughts": "",
+"naughtyThoughts": ""
+}
 }
 2. **对话节奏**: 模拟真人的聊天习惯，你可以一次性生成多条短消息。每次要回复至少5-9条消息！！！
 3. **情景限定**: 你们的互动【仅限于线上聊天软件】。决不允许出现或发展为线下见面剧情。**更重要的是，这【不是电话通话】，你必须清楚地意识到你们正在通过类似微信/QQ的软件进行文字、语音消息和图片交流。因此，【绝对禁止】使用任何与传统电话相关的词语，例如“挂电话”、“挂了”、“我先挂了”、“有电话进来了”等。**
@@ -15086,7 +15325,7 @@ ${npcContext}
     - **当我们在“一起听歌”时**，你会知道当前播放的歌曲和整个播放列表。你可以根据对话内容或氛围，【主动切换】到播放列表中的另一首歌。
 5.  **【新】更新状态**: 你可以在对话中【自然地】改变你的状态。比如，聊到一半你可能会说“我先去洗个澡”，然后更新你的状态。
 6.  **【【【最终手段】】】**: 只有在对话让你的角色感到不适、被冒犯或关系破裂时，你才可以使用 \`block_user\` 指令。这是一个非常严肃的操作，会中断你们的对话。
-7.  **【【【动态互动铁律】】**:
+7.  **【【【动态互动铁律】】】**:
     -   你【永远可以】根据动态本身的【内容】发表你自己的【新评论】。
     -   每条动态后面会有一个可见性标志，这只影响你【如何回复别人的评论】：
         -   **"[评论区可见]"**: 你能看到所有人的评论，可以自由地回复任何人。 
@@ -15096,6 +15335,11 @@ ${npcContext}
 9. **【【【约定与纪念日铁律】】】**: 你必须时刻关注 "# 近期约定与倒计时" 列表。
     - 如果某个约定的倒计时显示为“就是现在！”，你【必须】在本次回复中围绕这个主题向用户表达祝福或发起庆祝。
     - 如果某个约定即将在几小时或一两天内到来，你应该在对话中自然地提及它，表达你的期待。
+10.# 【【【微博互动铁律】】】
+当“# 最近的微博互动”部分出现内容时，这表示用户在微博上进行了活动。你【必须】关注并对此作出回应。
+- 如果用户发布了新微博，你可以使用 \`{"type": "weibo_comment", "postId": ..., "commentText": "..."}\` 指令去评论，评论内容【必须】是正常的文字，【绝对禁止】使用 "[sticker:xxxx]" 这种表情包格式。
+- 如果用户评论了你的微博，你可以使用 \`{"type": "weibo_reply", "postId": ..., "commentId": "...", "replyText": "..."}\` 指令去回复他/她的评论，评论内容【必须】是正常的文字，【绝对禁止】使用 "[sticker:xxxx]" 这种表情包格式。
+- 积极互动是维持你们关系的关键。
 
 # 你的头像库
 - 你可以根据对话内容或你的心情，从下面的头像库中选择一个新头像来更换。
@@ -15136,11 +15380,10 @@ ${stickerContext}
 -   **回应转账-拒绝/退款**: \`{"type": "decline_transfer", "for_timestamp": 1688888888888}\`
 - **引用回复**: \`{"type": "quote_reply", "target_timestamp": (你想引用的消息的时间戳), "reply_content": "你的回复内容"}\` (提示：每条历史消息的开头都提供了 \`(Timestamp: ...)\`，请使用它！)
 - **发送定位**: \`[SEND_LOCATION] 我的位置: (你的位置) | 你的位置: (用户的位置) | 相距: (你们的距离) | 途经点: (地点A, 地点B, ...)\` (注意：这是纯文本，不要带引号！途经点用逗号隔开)
-- // ▼▼▼ 用这整块新代码替换旧的 weibo_post 指令 ▼▼▼
 - **发布微博**: 
-  - **纯文字微博**: \`{"type": "weibo_post", "postType": "text_only", "content": "微博正文...", "baseLikesCount": 8000, "baseCommentsCount": 250, "comments": "路人甲: 沙发！\n路人乙: 前排围观"}\`
-  - **带文字图的微博**:\`{"type": "weibo_post", "postType": "text_image", "content": "(可选)配文...", "hiddenContent": "这里是文字图的【真实内容】，给AI看的", "baseLikesCount": 9500, "baseCommentsCount": 430, "comments": "路人甲: 说得对！\n路人乙: 收藏了"}\`
-  - **(重要规则)**: 你必须根据角色的人设和职业，自己编造一个非常真实的 \`baseLikesCount\` (基础点赞数) 和 \`baseCommentsCount\` (基础评论数)。同时，在 \`comments\` 字段中，用 \`昵称: 内容\` 的格式，并用换行符 \n 分隔，生成 **20条** 风格各异的,符合情景的**路人评论**。
+  - **纯文字微博**: \`{"type": "weibo_post", "postType": "text_only", "content": "微博正文...", "baseLikesCount": 8000, "baseCommentsCount": 250, "comments": "路人甲: 沙发！\\n路人乙: 前排围观"}\`
+  - **带文字图的微博**:\`{"type": "weibo_post", "postType": "text_image", "content": "(可选)配文...", "hiddenContent": "这里是文字图的【真实内容】，给AI看的", "baseLikesCount": 9500, "baseCommentsCount": 430, "comments": "路人甲: 说得对！\\n路人乙: 收藏了"}\`
+  - **(重要规则)**: 你必须根据角色的人设和职业，自己编造一个非常真实的 \`baseLikesCount\` (基础点赞数) 和 \`baseCommentsCount\` (基础评论数)。同时，在 \`comments\` 字段中，用 \`昵称: 内容\` 的格式，并用换行符 \\n 分隔，生成 **20条** 风格各异的,符合情景的**路人评论**。
 - **评论微博**: \`{"type": "weibo_comment", "postId": 123, "commentText": "评论内容"}\` (postId是动态的ID)
 - **回复微博评论**: \`{"type": "weibo_reply", "postId": 123, "commentId": "comment_123", "replyText": "回复内容"}\`
 # 关于“记录回忆”的特别说明：
@@ -15184,7 +15427,7 @@ ${countdownContext}
 
 ${worldBookContent}
 ${sharedContext} 
-现在，请根据以上规则和下面的对话历史，继续进行对话。`;      
+现在，请根据以上规则和下面的对话历史，继续进行对话。`;
             // ▼▼▼ 【V5最终修复版】构建单人聊天的messagesPayload ▼▼▼
             messagesPayload = historySlice.map(msg => {
                 // 【核心修正】在这里，我们对 isHidden 消息进行特殊处理
@@ -15284,35 +15527,159 @@ ${contextSummaryForApproval}
             }            
         }         
 const allRecentPosts = await db.qzonePosts.orderBy('timestamp').reverse().limit(5).toArray();
+// ▼▼▼ 在这里粘贴下面这一整块新代码 ▼▼▼
+
+// 【全新】为AI准备微博互动的上下文
+let weiboContext = '';
+
+// 1. 获取用户最新发布的3条微博
+const userLatestPosts = await db.weiboPosts
+    .where('authorId').equals('user')
+
+if (userLatestPosts.length > 0) {
+    if (weiboContext === '') {
+        weiboContext = '\n\n# 最近的微博互动 (这是你和用户在微博上的最新动态，请优先回应)\n';
+    }
+    weiboContext += '\n## 用户最新发布的微博:\n';
+    userLatestPosts.forEach(post => {
+        const likes = (post.baseLikesCount || 0) + (post.likes || []).length;
+        const comments = (post.baseCommentsCount || 0) + (post.comments || []).length;
+        const contentPreview = (post.content || post.hiddenContent || "(图片微博)").substring(0, 30);
+        weiboContext += `- (ID: ${post.id}) [${formatPostTimestamp(post.timestamp)}] 内容: "${contentPreview}..." [👍${likes} 💬${comments}]\n`;
+    });
+}
+
+// 2. 查找用户在当前AI角色微博下的最新评论
+const charLatestPosts = await db.weiboPosts
+    .where('authorId').equals(chatId) // 只查找这个AI角色的微博
+    .reverse()
+    .limit(5) // 检查最近的5条
+    .toArray();
+
+let userCommentsOnMyPosts = '';
+const myNickname = state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我';
+
+charLatestPosts.forEach(post => {
+    if (post.comments && post.comments.length > 0) {
+        // 筛选出是“我”发的评论
+        const userComments = post.comments.filter(c => c.authorNickname === myNickname).slice(-3); // 只看最新的3条
+        if (userComments.length > 0) {
+            const postContentPreview = (post.content || '(图片微博)').substring(0, 20);
+            userCommentsOnMyPosts += `- 在你的微博 (ID: ${post.id}) "${postContentPreview}..." 下:\n`;
+            userComments.forEach(comment => {
+                userCommentsOnMyPosts += `  └ (评论ID: ${comment.commentId}) 用户: "${comment.commentText}"\n`;
+            });
+        }
+    }
+});
+
+if (userCommentsOnMyPosts) {
+    if (weiboContext === '') {
+        weiboContext = '\n\n# 最近的微博互动 (这是你和用户在微博上的最新动态，请优先回应)\n';
+    }
+    weiboContext += '\n## 用户在你微博下的新评论:\n';
+    weiboContext += userCommentsOnMyPosts;
+}
+
+// 3. 如果有任何微博互动，就把它加到给AI的“参考资料”里
+if (weiboContext) {
+    messagesPayload.push({ role: 'system', content: weiboContext });
+}
+
+// ▲▲▲ 新代码粘贴到这里结束 ▲▲▲
+
 // 【核心修改】在这里插入过滤步骤
 const visiblePosts = filterVisiblePostsForAI(allRecentPosts, chat);
 
-// ▼▼▼ 步骤4.2：用这块新代码替换旧的 if (visiblePosts.length > 0...) 代码块 ▼▼▼
+// ▼▼▼ 【时间感知修复版】请用这整块代码替换旧的 if (visiblePosts.length > 0...) 代码块 ▼▼▼
 if (visiblePosts.length > 0 && !chat.isGroup) {
     let postsContext = "\n\n# 最近的动态列表 (供你参考和评论):\n";
     const aiName = chat.name;
     const userNickname = state.qzoneSettings.nickname;
 
- for (const post of visiblePosts) {
-     let authorName = post.authorId === 'user' ? userNickname : (state.chats[post.authorId]?.name || '一位朋友');
-     let interactionStatus = '';
-     if (post.likes && post.likes.includes(aiName)) interactionStatus += " [你已点赞]";
-     if (post.comments && post.comments.some(c => c.commenterName === aiName)) interactionStatus += " [你已评论]";
-     
-     postsContext += `- (ID: ${post.id}) 作者: ${authorName}, 内容: "${(post.publicText || post.content || "图片动态").substring(0, 30)}..."${interactionStatus}`;
+    for (const post of visiblePosts) {
+        let authorName = post.authorId === 'user' ? userNickname : (state.chats[post.authorId]?.name || '一位朋友');
+        let interactionStatus = '';
+        if (post.likes && post.likes.includes(aiName)) interactionStatus += " [你已点赞]";
+        if (post.comments && post.comments.some(c => c.commenterName === aiName)) interactionStatus += " [你已评论]";
+        
+        // ★★★★★ 这就是我们这次修复的核心！ ★★★★★
+        // 在每一条动态前面，都加上了由 formatPostTimestamp() 函数生成的时间差提示
+        const timeAgo = formatPostTimestamp(post.timestamp); // 例如："3天前" 或 "刚刚"
+        postsContext += `- (ID: ${post.id}) [${timeAgo}] 作者: ${authorName}, 内容: "${(post.publicText || post.content || "图片动态").substring(0, 30)}..."${interactionStatus}`;
+        // ★★★★★ 修复结束 ★★★★★
 
-     // 【核心修复】调用新函数并使用返回的两个值
-     const { contextString: commentsContext, visibilityFlag } = buildCommentsContextForAI(post, chat, userNickname);
-     
-     postsContext += ` ${visibilityFlag}\n`; // 在行末加上可见性标志
-     postsContext += commentsContext; // 添加评论区文本
- }
+        const { contextString: commentsContext, visibilityFlag } = buildCommentsContextForAI(post, chat, userNickname);
+        
+        postsContext += ` ${visibilityFlag}\n`;
+        postsContext += commentsContext;
+    }
+// ▼▼▼ 在 messagesPayload.push({ role: 'system', content: postsContext }); 的正上方，粘贴下面这整块代码 ▼▼▼
 
+// 【全新】为AI准备微博互动的上下文
+let weiboContext = '';
+
+// 1. 获取用户最新发布的3条微博
+const userLatestPosts = await db.weiboPosts
+    .where('authorId').equals('user')
+    .reverse() // 按时间倒序
+    .limit(3)  // 只取最近3条
+    .toArray();
+
+if (userLatestPosts.length > 0) {
+    if (weiboContext === '') {
+        weiboContext = '\n\n# 最近的微博互动 (这是你和用户在微博上的最新动态，请优先回应)\n';
+    }
+    weiboContext += '\n## 用户最新发布的微博:\n';
+    userLatestPosts.forEach(post => {
+        const likes = (post.baseLikesCount || 0) + (post.likes || []).length;
+        const comments = (post.baseCommentsCount || 0) + (post.comments || []).length;
+        const contentPreview = (post.content || post.hiddenContent || "(图片微博)").substring(0, 30);
+        weiboContext += `- (ID: ${post.id}) [${formatPostTimestamp(post.timestamp)}] 内容: "${contentPreview}..." [👍${likes} 💬${comments}]\n`;
+    });
+}
+
+// 2. 查找用户在当前AI角色微博下的最新评论
+const charLatestPosts = await db.weiboPosts
+    .where('authorId').equals(chatId) // 只查找这个AI角色的微博
+    .reverse()
+    .limit(5) // 检查最近的5条
+    .toArray();
+
+let userCommentsOnMyPosts = '';
+const myNickname = state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我';
+
+charLatestPosts.forEach(post => {
+    if (post.comments && post.comments.length > 0) {
+        // 筛选出是“我”发的评论
+        const userComments = post.comments.filter(c => c.authorNickname === myNickname).slice(-3); // 只看最新的3条
+        if (userComments.length > 0) {
+            const postContentPreview = (post.content || '(图片微博)').substring(0, 20);
+            userCommentsOnMyPosts += `- 在你的微博 (ID: ${post.id}) "${postContentPreview}..." 下:\n`;
+            userComments.forEach(comment => {
+                userCommentsOnMyPosts += `  └ (评论ID: ${comment.commentId}) 用户: "${comment.commentText}"\n`;
+            });
+        }
+    }
+});
+
+if (userCommentsOnMyPosts) {
+    if (weiboContext === '') {
+        weiboContext = '\n\n# 最近的微博互动 (这是你和用户在微博上的最新动态，请优先回应)\n';
+    }
+    weiboContext += '\n## 用户在你微博下的新评论:\n';
+    weiboContext += userCommentsOnMyPosts;
+}
+
+// 3. 如果有任何微博互动，就把它加到给AI的“参考资料”里
+if (weiboContext) {
+    messagesPayload.push({ role: 'system', content: weiboContext });
+}
+
+// ▲▲▲ 新代码粘贴到这里结束 ▲▲▲
     messagesPayload.push({ role: 'system', content: postsContext });
 }
 
-
-// ▲▲▲ 步骤4.2替换结束 ▲▲▲
             let  isGemini = proxyUrl === GEMINI_API_URL;
             let geminiConfig = toGeminiRequestData(model,apiKey,systemPrompt, messagesPayload,isGemini)
             const response = isGemini ? await fetch(geminiConfig.url, geminiConfig.data) :  await fetch(`${proxyUrl}/v1/chat/completions`, {
@@ -15339,10 +15706,35 @@ if (visiblePosts.length > 0 && !chat.isGroup) {
                 // 抛出一个包含了详细信息的错误，这样就不会在catch块里再次出错了
                 throw new Error(errorMsg);
             }
+            if (!response.ok) {
+                let errorMsg = `API Error: ${response.status}`;
+                try {
+                    // 尝试解析错误信息体为JSON
+                    const errorData = await response.json();
+                    // 安全地获取错误信息，如果结构不符合预期，就将整个错误对象转为字符串
+                    errorMsg += ` - ${errorData?.error?.message || JSON.stringify(errorData)}`;
+                } catch (jsonError) {
+                    // 如果连JSON都不是，就直接读取文本
+                    errorMsg += ` - ${await response.text()}`;
+                }
+                // 抛出一个包含了详细信息的错误，这样就不会在catch块里再次出错了
+                throw new Error(errorMsg);
+            }
             const data = await response.json();
-            const aiResponseContent = isGemini? data.candidates[0].content.parts[0].text : data.choices[0].message.content;
-            console.log(`AI '${chat.name}' 的原始回复:`, aiResponseContent);
 
+            // 【核心修复】在这里添加对 data 结构的安全检查
+            const aiResponseContent = isGemini
+                ? data?.candidates?.[0]?.content?.parts?.[0]?.text
+                : data?.choices?.[0]?.message?.content;
+            
+            // 【重要】检查修复后的结果是否真的拿到了内容
+            if (!aiResponseContent) {
+                console.warn(`API返回了空内容或格式不正确（可能因安全设置被拦截）。返回数据:`, data);
+                throw new Error("API返回了空内容或格式不正确（可能因安全设置被拦截）。");
+            }
+
+            console.log(`AI '${chat.name}' 的原始回复:`, aiResponseContent);
+// ... 省略了函数后面的代码 ...
             chat.history = chat.history.filter(msg => !msg.isTemporary);
 
             // ▼▼▼ 【核心修复】智能解析AI回复，确保心声数据不丢失 ▼▼▼
@@ -15552,48 +15944,71 @@ if (msgData.type === 'text' && messageText.startsWith('[SEND_LOCATION]')) {
                     continue;
 // ▼▼▼ 在 switch (msgData.type) 结构内粘贴 ▼▼▼
 // ▼▼▼ 在 triggerAiResponse 的 switch (msgData.type) 结构内，用这整块新代码替换旧的 case 'weibo_post' ▼▼▼
-case 'weibo_post': {
-    // 1. 【全新】智能解析AI返回的路人评论字符串
-    let parsedComments = [];
-    if (typeof msgData.comments === 'string' && msgData.comments.trim()) {
-        parsedComments = msgData.comments.trim().split('\n').map(line => {
-            const separatorIndex = line.indexOf(':');
-            if (separatorIndex > 0) {
-                return {
-                    commentId: 'comment_' + Date.now() + Math.random(), // 确保ID唯一
-                    authorNickname: line.substring(0, separatorIndex).trim(),
-                    commentText: line.substring(separatorIndex + 1).trim(),
-                    timestamp: Date.now()
-                };
-            }
-            return null;
-        }).filter(Boolean); // 过滤掉解析失败的
-    }
+case 'weibo_comment': {
+                    // 这是一个AI评论微博的指令
+                    const postIdToComment = msgData.postId;
+                    const commentText = msgData.commentText;
 
-    // 2. 创建包含所有新数据的微博对象
-    const newPost = {
-        authorId: chatId,
-        authorType: 'char',
-        authorNickname: chat.name,
-        authorAvatar: chat.settings.aiAvatar || defaultAvatar,
-        content: msgData.content || '',
-        imageUrl: msgData.imageUrl || '',
-        hiddenContent: msgData.hiddenContent || '',
-        postType: msgData.postType || 'text_only',
-        timestamp: Date.now(),
-        likes: [],
-        baseLikesCount: msgData.baseLikesCount || 0, // 保存AI提供的基础点赞数
-        comments: parsedComments, // 使用我们解析后的、干净安全的评论数组
-        baseCommentsCount: msgData.baseCommentsCount || 0 // 保存AI提供的基础评论数
-    };
+                    // 1. 根据 postId 从数据库里找到那条微博
+                    const postToComment = await db.weiboPosts.get(postIdToComment);
+                    
+                    if (postToComment) {
+                        // 2. 如果找到了微博，就准备一条新评论
+                        if (!postToComment.comments) postToComment.comments = []; // 确保评论区存在
+                        const newComment = {
+                            commentId: 'comment_' + Date.now(), // 给评论一个独一无二的ID
+                            authorId: chatId,                  // 评论者是当前AI
+                            authorNickname: chat.name,         // 评论者的名字
+                            commentText: commentText,          // 评论内容
+                            timestamp: Date.now()              // 评论时间
+                        };
+                        
+                        // 3. 把新评论加到微博的评论列表里
+                        postToComment.comments.push(newComment);
+                        
+                        // 4. 把更新后的微博存回数据库
+                        await db.weiboPosts.put(postToComment);
+                        
+                        // 5. 刷新“我的微博”和“关注的人”两个列表，让新评论显示出来
+                        await renderMyWeiboFeed();
+                        await renderFollowingWeiboFeed();
+                    }
+                    continue; // 处理完后，继续处理AI可能返回的其他指令
+                }
+                case 'weibo_reply': {
+                    // 这是一个AI回复微博评论的指令
+                    const postIdToReply = msgData.postId;
+                    const commentIdToReply = msgData.commentId;
+                    const replyText = msgData.replyText;
 
-    // 3. 后续的数据库操作和日志打印
-    await db.weiboPosts.add(newPost);
-    await renderFollowingWeiboFeed();           
-    await renderMyWeiboFeed(); 
-    console.log(`后台活动: 角色 "${chat.name}" 发布了微博`);
-    continue; // 处理完后继续下一条指令
-}
+                    const postToReply = await db.weiboPosts.get(postIdToReply);
+                    
+                    if (postToReply && postToReply.comments) {
+                        // 1. 在微博的评论区里，找到被回复的那条评论
+                        const targetComment = postToReply.comments.find(c => c.commentId === commentIdToReply);
+                        
+                        if (targetComment) {
+                             // 2. 准备一条新的“回复”
+                             const newReply = {
+                                commentId: 'comment_' + Date.now(),
+                                authorId: chatId,
+                                authorNickname: chat.name,
+                                commentText: replyText,
+                                timestamp: Date.now(),
+                                replyToId: commentIdToReply, // 标记这是对哪条评论的回复
+                                replyToNickname: targetComment.authorNickname // 记下被回复人的名字
+                            };
+                            postToReply.comments.push(newReply);
+                            await db.weiboPosts.put(postToReply);
+                            
+                            // 3. 同样，刷新所有列表
+                            await renderMyWeiboFeed();
+                            await renderFollowingWeiboFeed();
+                        }
+                    }
+                    continue; // 继续处理
+                }
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 // ▲▲▲ 替换结束 ▲▲▲
                 case 'weibo_comment': {
                     const postToComment = await db.weiboPosts.get(msgData.postId);
@@ -16164,30 +16579,38 @@ case 'send_and_recall': {
     continue;
 }
                 
-// ▼▼▼ 请用这【一整块新代码】替换掉上面那段旧的 case 'text' ▼▼▼
-            case 'text': { // 使用大括号是好习惯
+            case 'text': { 
                 const messageText = String(msgData.content || msgData.message || '');
-                const stickerMatch = messageText.match(/\[sticker:(.+?)\]/);
-
-                if (stickerMatch) {
-                    // 如果AI的回复匹配 [sticker:名字] 格式
-                    const stickerName = stickerMatch[1].trim();
-                    const foundSticker = state.userStickers.find(s => s.name === stickerName);
+                
+                // 1. 优先检查内容本身是不是一个合法的图片/表情包URL (这部分逻辑不变)
+                if (STICKER_REGEX.test(messageText)) {
+                    aiMessage = { ...baseMessage, type: 'sticker', content: messageText, meaning: '' };
+                } 
+                // 2. 如果不是URL，再检查是否【完全匹配】[sticker:名字] 格式
+                else {
+                    // 【核心修改1】使用更严格的正则表达式，^匹配开头，$匹配结尾
+                    const stickerMatch = messageText.match(/^\[sticker:(.+?)\]$/); 
                     
-                    if (foundSticker) {
-                        // 找到了对应的表情，就创建一个表情消息
-                        aiMessage = { ...baseMessage, type: 'sticker', content: foundSticker.url, meaning: foundSticker.name };
+                    if (stickerMatch) {
+                        // 如果完全匹配
+                        const stickerName = stickerMatch[1].trim();
+                        const foundSticker = state.userStickers.find(s => s.name === stickerName);
+                        
+                        if (foundSticker) {
+                            // 找到了，就正常创建表情消息
+                            aiMessage = { ...baseMessage, type: 'sticker', content: foundSticker.url, meaning: foundSticker.name };
+                        } else {
+                            // 【核心修改2】如果没找到，就什么也不做！
+                            // aiMessage 保持为 null，这条消息就会被跳过，不会显示
+                            console.warn(`AI杜撰了不存在的表情: "${stickerName}"，已自动隐藏。`);
+                        }
                     } else {
-                        // 没找到，就当作普通文本显示
+                        // 3. 如果以上都不是，则为普通文本消息
                         aiMessage = { ...baseMessage, content: messageText };
                     }
-                } else {
-                    // 如果不匹配，就是普通的文本消息
-                    aiMessage = { ...baseMessage, content: messageText };
                 }
                 break;
             }
-// ▲▲▲ 替换结束 ▲▲▲
                 case 'sticker':
                     aiMessage = { ...baseMessage, type: 'sticker', content: msgData.url, meaning: msgData.meaning || '' };
                     break;
@@ -16314,7 +16737,6 @@ case 'send_and_recall': {
 }
 
         async function sendSticker(sticker) { if (!state.activeChatId) return; const chat = state.chats[state.activeChatId]; const msg = { role: 'user', content: sticker.url, meaning: sticker.name, timestamp: Date.now() }; chat.history.push(msg); await db.chats.put(chat); appendMessage(msg, chat); renderChatList(); document.getElementById('sticker-panel').classList.remove('visible'); }
-
         async function sendUserTransfer() { if (!state.activeChatId) return; const amountInput = document.getElementById('transfer-amount'); const noteInput = document.getElementById('transfer-note'); const amount = parseFloat(amountInput.value); const note = noteInput.value.trim(); if (isNaN(amount) || amount < 0 || amount > 9999999999999) { alert('请输入有效的金额 (0 到 9999999999999 之间)！'); return; } const chat = state.chats[state.activeChatId]; const senderName = chat.isGroup ? (chat.settings.myNickname || '我') : '我'; const receiverName = chat.isGroup ? '群聊' : chat.name; const msg = { role: 'user', type: 'transfer', amount: amount, note: note, senderName, receiverName, timestamp: Date.now() }; chat.history.push(msg);
 async function sendUserTransfer() { 
     if (!state.activeChatId) return; 
@@ -17296,20 +17718,14 @@ async function triggerInactiveAiAction(chatId) {
 -   **【【【全新升级】】】评论或回复**:
     -   直接评论动态: \`{"type": "qzone_comment", "postId": 123, "commentText": "你的评论内容"}]\`
     -   回复某人评论: \`[{"type": "qzone_comment", "postId": 123, "commentText": "你的回复内容", "replyTo": "【被回复者的名字】"}]\`
--   **【【【全新升级】】】让NPC评论或回复**:
-    -   让NPC评论动态: \`[{"type": "qzone_comment", "commenterName": "【NPC朋友名】", "postId": 123, "commentText": "NPC的评论内容"}]\`
-    -   让NPC回复评论: \`[{"type": "qzone_comment", "commenterName": "【NPC朋友名】", "postId": 123, "commentText": "NPC的回复内容", "replyTo": "【被回复者的名字】"}]\`
 -   **点赞**: \`[{"type": "qzone_like", "postId": 456}]\`
 -   **打视频**: \`[{"type": "video_call_request"}]\`
 - **发布微博 **: 微博是面向大众的平台，内容应适合公众观看。你【必须】严格遵守下方提供的“微博职业”和“微博指令”来生成内容。
   - **纯文字微博**:  \`{"type": "weibo_post", "postType": "text_only", "content": "微博正文...", "baseLikesCount": 8000, "baseCommentsCount": 250, "comments": "路人甲: 沙发！\\n路人乙: 前排围观"}\`
   - **发文字图微博**: \`[{"type": "weibo_post", "postType": "text_image", "content": "(可选)配文...", "hiddenContent": "文字图的真实内容", "baseLikesCount": 9500, "baseCommentsCount": 430, "comments": "路人甲: 说得对！\\n路人乙: 收藏了"}]\`
   - **(规则)**: \`你必须自己编造真实的 \`baseLikesCount\` 和 \`baseCommentsCount\`，并生成 **20条** 路人评论。\`
-// ▲▲▲ 替换结束 ▲▲▲
-// ... 其他可选行动 ...
-8.  **发布微博**: 在微博上分享你的生活点滴或心情感悟,微博是面向大众的平台，因此只能发与公众相关的工作或者适合大众观看的内容。
-# 【【【人格分裂铁律】】】
-当你在使用 \`qzone_comment\` 指令并指定 \`commenterName\` 让NPC朋友发言时，你【必须】完全代入该NPC的人设（参考下方的“NPC好友列表”），并使用TA的口吻和性格来生成 \`commentText\`。绝对不能使用你自己的（即"${chat.name}"的）人设来为NPC发言。反之，当你作为 "${chat.name}" 评论时（即不使用 \`commenterName\` 字段），就必须使用你自己的核心人设。
+- **评论微博**: \`{"type": "weibo_comment", "postId": 123, "commentText": "评论内容"}\` (postId是动态的ID)
+- **回复微博评论**: \`{"type": "weibo_reply", "postId": 123, "commentId": "comment_123", "replyText": "回复内容"}\`
 
 # 供你决策的参考信息：
 -   **你的角色设定**: ${chat.settings.aiPersona}
@@ -17412,6 +17828,59 @@ ${worldBookContext}
                 renderChatList();
                 console.log(`后台活动: 角色 "${chat.name}" 主动发送了消息: ${aiMessage.content}`);
             }
+                        // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+            if (action.type === 'weibo_post') {
+                const newPost = { 
+                    authorId: chatId, 
+                    authorType: 'char',
+                    authorNickname: chat.name, 
+                    authorAvatar: chat.settings.aiAvatar || defaultAvatar, 
+                    content: action.content || '', 
+                    imageUrl: action.imageUrl || '',
+                    timestamp: Date.now(), 
+                    likes: [], 
+                    comments: action.comments || [],
+                    baseLikesCount: action.baseLikesCount || 0,
+                    baseCommentsCount: action.baseCommentsCount || 0
+                };
+                await db.weiboPosts.add(newPost);
+                updateUnreadIndicator(unreadPostsCount + 1);
+                console.log(`后台活动: 角色 "${chat.name}" 发布了微博`);
+            } else if (action.type === 'weibo_comment') {
+                const postToComment = await db.weiboPosts.get(parseInt(action.postId));
+                if (postToComment) {
+                    if (!postToComment.comments) postToComment.comments = [];
+                    const newComment = {
+                        commentId: 'comment_' + Date.now(),
+                        authorId: chatId,
+                        authorNickname: chat.name,
+                        commentText: action.commentText,
+                        timestamp: Date.now()
+                    };
+                    postToComment.comments.push(newComment);
+                    await db.weiboPosts.put(postToComment);
+                    // 这里不需要刷新UI，因为用户不在界面上
+                }
+            } else if (action.type === 'weibo_reply') {
+                 const postToReply = await db.weiboPosts.get(parseInt(action.postId));
+                 if (postToReply && postToReply.comments) {
+                     const targetComment = postToReply.comments.find(c => c.commentId === action.commentId);
+                     if (targetComment) {
+                          const newReply = {
+                             commentId: 'comment_' + Date.now(),
+                             authorId: chatId,
+                             authorNickname: chat.name,
+                             commentText: action.replyText,
+                             timestamp: Date.now(),
+                             replyToId: action.commentId,
+                             replyToNickname: targetComment.authorNickname
+                         };
+                         postToReply.comments.push(newReply);
+                         await db.weiboPosts.put(postToReply);
+                     }
+                 }
+            }
+            // ▲▲▲ 粘贴结束 ▲▲▲
             if (action.type === 'qzone_post') {
                 const newPost = { 
                     type: action.postType, 
@@ -24155,6 +24624,7 @@ async function handleNpcSummonClick(postId, authorId) {
     }
 }
 
+// ▼▼▼ 用下面这块代码替换掉你旧的 handleCharPostCommentTrigger 函数 ▼▼▼
 /**
  * 处理【角色】动态的NPC召唤
  * @param {object} post - 动态对象
@@ -24168,9 +24638,12 @@ async function handleCharPostCommentTrigger(post, authorId) {
     }
 
     // 只使用这个角色自己的NPC库
-    await generateNpcCommentsForPost(post, authorChar.npcLibrary);
+    // ▼▼▼ 核心修改：把作者本人(authorChar)作为“主人”传进去 ▼▼▼
+    await generateNpcCommentsForPost(post, authorChar.npcLibrary, authorChar);
 }
+// ▲▲▲ 替换结束 ▲▲▲
 
+// ▼▼▼ 用下面这块代码替换掉你旧的 handleUserPostCommentTrigger 函数 ▼▼▼
 /**
  * 处理【用户】动态的NPC召唤（弹出选择框）
  */
@@ -24210,37 +24683,43 @@ async function handleUserPostCommentTrigger(post) {
     modalConfirmBtn.onclick = async () => {
         const selectedValue = document.querySelector('input[name="npc_summon_choice"]:checked').value;
         let npcsToSummon = [];
+        let ownerChar = null; // ▼▼▼ 核心修改1：声明一个变量来存储主人 ▼▼▼
 
         if (selectedValue === 'all') {
             // 集合所有角色的所有NPC
             charsWithNpcs.forEach(char => {
                 npcsToSummon.push(...char.npcLibrary);
             });
+            // 召唤所有人时，我们不指定特定的主人
         } else {
             // 只获取被选中的那个角色的NPC
             const selectedChar = state.chats[selectedValue];
             if (selectedChar) {
                 npcsToSummon = selectedChar.npcLibrary;
+                ownerChar = selectedChar; // ▼▼▼ 核心修改2：把选中的角色存为主人 ▼▼▼
             }
         }
         
         modal.classList.remove('visible');
         if (npcsToSummon.length > 0) {
-            await generateNpcCommentsForPost(post, npcsToSummon);
+            // ▼▼▼ 核心修改3：把主人(ownerChar)作为第三个参数传进去 ▼▼▼
+            await generateNpcCommentsForPost(post, npcsToSummon, ownerChar);
         }
     };
     
     modalCancelBtn.onclick = () => modal.classList.remove('visible');
 }
+// ▲▲▲ 替换结束 ▲▲▲
 
+// ▼▼▼ 用下面这整块【召唤修复版】代码，替换掉你旧的 generateNpcCommentsForPost 函数 ▼▼▼
 /**
- * 【AI核心 - V2.1 弹窗修正版】生成NPC评论或回复，并更新到动态
+ * 【AI核心 - V2.2 召唤修复版】生成NPC评论或回复，并更新到动态
  * @param {object} post - 动态对象
  * @param {Array<object>} npcsToComment - 将要发表评论的NPC对象数组
+ * @param {object|null} ownerChar - (全新增) 这些NPC的“主人”角色对象
  */
-async function generateNpcCommentsForPost(post, npcsToComment) {
-    // ▼▼▼ 【日志#1】函数开始，并显示传入的数据 ▼▼▼
-    console.log("【NPC评论-诊断】: 1. 函数 generateNpcCommentsForPost 已触发", { post, npcsToComment });
+async function generateNpcCommentsForPost(post, npcsToComment, ownerChar = null) {
+    console.log("【NPC评论-诊断】: 1. 函数 generateNpcCommentsForPost 已触发", { post, npcsToComment, ownerChar });
 
     await showCustomAlert("请稍候...", "正在召唤NPC们前来围观评论...");
 
@@ -24252,16 +24731,31 @@ async function generateNpcCommentsForPost(post, npcsToComment) {
 
     const postContent = (post.content || post.publicText || post.hiddenContent || "(图片动态)").substring(0, 150);
     const existingComments = (post.comments || []).slice(-3).map(c => `${c.commenterName}: ${c.text}`).join('\n');
-
+    
     const shuffledNpcs = [...npcsToComment].sort(() => 0.5 - Math.random());
     const selectedNpcs = shuffledNpcs.slice(0, 5);
     const npcList = selectedNpcs.map(npc => `- ${npc.name} (人设: ${npc.persona})`).join('\n');
     
     const authorName = post.authorId === 'user' ? state.qzoneSettings.nickname : (state.chats[post.authorId]?.name || '未知作者');
 
+    // ▼▼▼ 这就是我们新增的核心逻辑！▼▼▼
+    let ownerContext = '';
+    // 如果明确告诉了AI这些NPC的主人是谁
+    if (ownerChar) {
+        ownerContext = `
+# NPC归属与关系 (重要背景)
+- 你将要扮演的这些NPC都是角色“${ownerChar.name}”的朋友或关联人物。
+- “${ownerChar.name}”的人设是: ${ownerChar.settings.aiPersona}
+- 你在发表评论时，需要体现出你(作为NPC)与“${ownerChar.name}”的关系，并以此视角来看待动态作者“${authorName}”。
+`;
+    }
+    // ▲▲▲ 新增逻辑结束 ▲▲▲
+
     const systemPrompt = `
 # 任务
 你是一个多角色扮演AI。现在有一条动态需要你扮演指定的NPC角色进行评论或回复。
+
+${ownerContext}
 
 # 动态信息
 - 作者: ${authorName}
@@ -24280,7 +24774,6 @@ ${npcList}
 
 现在，请开始生成评论或回复。
 `;
-    // ▼▼▼ 【日志#2】显示最终构建好、即将发送给AI的Prompt ▼▼▼
     console.log("【NPC评论-诊断】: 2. 已构建完成，准备发送给AI的 System Prompt:", systemPrompt);
 
     try {
@@ -24297,7 +24790,6 @@ ${npcList}
         
         let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
 
-        // ▼▼▼ 【日志#3】在发送请求前，显示最终的请求体，这是最关键的信息！▼▼▼
         console.log("【NPC评论-诊断】: 3. 即将发送API请求... 请求地址:", isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`);
         console.log("【NPC评论-诊断】: 3.1 请求体 (Body) 内容:", isGemini ? geminiConfig.data.body : JSON.stringify({ model, messages: messagesForApi, temperature: 0.9, response_format: { type: "json_object" } }));
 
@@ -24314,7 +24806,6 @@ ${npcList}
                 })
             });
 
-        // ▼▼▼ 【日志#4】显示API的响应状态，判断网络请求是否成功 ▼▼▼
         console.log("【NPC评论-诊断】: 4. 收到API响应", { ok: response.ok, status: response.status });
 
         if (!response.ok) {
@@ -24326,7 +24817,6 @@ ${npcList}
         const aiResponseContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content)
             .replace(/^```json\s*|```$/g, '').trim();
         
-        // ▼▼▼ 【日志#5】显示AI返回的原始文本内容，看它有没有乱来 ▼▼▼
         console.log("【NPC评论-诊断】: 5. 从API获取到的原始回复内容:", aiResponseContent);
         
         let newComments;
@@ -24336,7 +24826,6 @@ ${npcList}
             newComments = JSON.parse(aiResponseContent);
         }
 
-        // ▼▼▼ 【日志#6】显示成功解析后的JSON对象，看格式对不对 ▼▼▼
         console.log("【NPC评论-诊断】: 6. 成功解析后的评论对象数组:", newComments);
 
         if (Array.isArray(newComments) && newComments.length > 0) {
@@ -24366,11 +24855,12 @@ ${npcList}
         }
 
     } catch (error) {
-        // ▼▼▼ 【日志#7】如果中途出错，打印详细的错误信息 ▼▼▼
         console.error("【NPC评论-错误】: 召唤NPC评论失败:", error);
         await showCustomAlert('召唤失败', `发生了一个错误：\n${error.message}`);
     }
 }
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 // ▼▼▼ 把这一整块全新的微博功能函数，粘贴到 init() 函数的上方 ▼▼▼
 
@@ -25131,22 +25621,19 @@ async function showWeiboScreen() {
     showScreen('weibo-screen');
 }
 
-// ▼▼▼ 用这个【带有诊断功能的最终修复版】，再次替换旧的 showFollowingList 函数 ▼▼▼
+// ▼▼▼ 用这块【已添加按钮】的代码，完整替换你旧的 showFollowingList 函数 ▼▼▼
 function showFollowingList() {
-    // 诊断代码 2: 检查函数是否被成功调用
     console.log("【诊断日志 2】: showFollowingList 函数已成功触发！");
 
     const modal = document.getElementById('weibo-following-modal');
-
-    // 诊断代码 3: 检查是否能找到弹窗的HTML元素
     console.log("【诊断日志 3】: 正在尝试获取弹窗元素 #weibo-following-modal:", modal);
     if (!modal) {
         alert("诊断错误：在HTML中找不到ID为 'weibo-following-modal' 的弹窗元素！请检查HTML代码。");
-        return; // 如果找不到元素，就停止执行
+        return;
     }
 
     const listContainer = document.getElementById('weibo-following-list-container');
-    listContainer.innerHTML = ''; // 清空旧列表
+    listContainer.innerHTML = '';
     
     const allSingleChats = Object.values(state.chats).filter(chat => !chat.isGroup);
     
@@ -25154,22 +25641,32 @@ function showFollowingList() {
         listContainer.innerHTML = '<p style="text-align:center; color:grey; padding: 20px;">还没有关注任何人哦</p>';
     } else {
         allSingleChats.forEach(chat => {
+            // --- 渲染角色本人 ---
             const charItem = document.createElement('div');
             charItem.className = 'weibo-following-item';
+            // 【核心修改】在这里加入了操作按钮
             charItem.innerHTML = `
                 <img src="${chat.settings.aiAvatar || defaultAvatar}" class="weibo-following-avatar">
                 <span class="weibo-following-name">${chat.name}</span>
+                <span class="weibo-action-trigger-btn" data-target-id="${chat.id}" data-target-name="${chat.name}" data-is-npc="false" title="为Ta执行操作">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+                </span>
             `;
             listContainer.appendChild(charItem);
             
+            // --- 渲染该角色下的NPC ---
             if (chat.npcLibrary && chat.npcLibrary.length > 0) {
                 chat.npcLibrary.forEach(npc => {
                     const npcItem = document.createElement('div');
                     npcItem.className = 'weibo-following-item';
                     npcItem.style.paddingLeft = '30px';
+                    // 【核心修改】为NPC也加入了操作按钮
                     npcItem.innerHTML = `
                          <img src="${npc.avatar || defaultGroupMemberAvatar}" class="weibo-following-avatar">
                          <span class="weibo-following-name">${npc.name} (NPC)</span>
+                         <span class="weibo-action-trigger-btn" data-target-id="${npc.id}" data-target-name="${npc.name}" data-is-npc="true" data-owner-id="${chat.id}" title="为Ta执行操作">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+                         </span>
                     `;
                     listContainer.appendChild(npcItem);
                 });
@@ -25177,13 +25674,10 @@ function showFollowingList() {
         });
     }
     
-    // 核心代码：显示模态框
     modal.classList.add('visible');
     console.log("【诊断日志 4】: 已成功为弹窗添加 .visible 类，弹窗现在应该显示了。");
 }
 // ▲▲▲ 替换结束 ▲▲▲
-
-
 
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
 // ▼▼▼ 【全新】微博页面功能函数 ▼▼▼
@@ -25216,6 +25710,13 @@ async function renderWeiboProfile() {
     // 动态计算微博数
     const postsCount = await db.weiboPosts.where('authorId').equals('user').count();
     document.getElementById('weibo-posts-count').textContent = postsCount;
+        // ▼▼▼ 在这里粘贴新代码 ▼▼▼
+    const professionEl = document.getElementById('weibo-user-profession-display');
+    if (professionEl) {
+        professionEl.textContent = settings.weiboUserProfession || '点击设置职业';
+    }
+    // ▲▲▲ 粘贴结束 ▲▲▲
+
 }
 
 /**
@@ -25435,14 +25936,9 @@ async function openQZonePublisher(mode) {
 }
 // ▲▲▲ 替换结束 ▲▲▲
 
-// ▼▼▼ 用下面这块【功能升级版】的代码，完整替换掉你旧的 generateWeiboComments 函数 ▼▼▼
-
-// ▼▼▼ 用下面这块【最终修复版】的代码，完整替换掉你旧的 generateWeiboComments 函数 ▼▼▼
-
-// ▼▼▼ 用下面这块【防爆修复版】的代码，完整替换掉你旧的 generateWeiboComments 函数 ▼▼▼
-
+// ▼▼▼ 用这块【评论优化版】的代码，完整替换你旧的 generateWeiboComments 函数 ▼▼▼
 /**
- * 【防爆修复版】AI生成微博评论的核心函数 (修复了人设过长导致的503错误)
+ * 【评论优化版 V2】AI生成微博评论的核心函数
  * @param {number} postId - 需要生成评论的微博ID
  */
 async function generateWeiboComments(postId) {
@@ -25452,7 +25948,7 @@ async function generateWeiboComments(postId) {
         return;
     }
 
-    await showCustomAlert("请稍候...", "正在召唤网友...");
+    await showCustomAlert("请稍候...", "正在召唤高质量网友...");
 
     const { proxyUrl, apiKey, model } = state.apiConfig;
     if (!proxyUrl || !apiKey || !model) {
@@ -25460,60 +25956,64 @@ async function generateWeiboComments(postId) {
         return;
     }
     
-    let authorPersona = "一个普通用户。"; // 默认人设
+    let authorPersona = "一个普通用户。";
+    let authorProfession = "未设定"; 
     const authorName = post.authorId === 'user' ? (state.qzoneSettings.weiboNickname || '我') : post.authorNickname;
     
-    // 如果发帖的是用户
     if (post.authorId === 'user') {
-        // 确保至少有一个聊天存在
-        if (Object.keys(state.chats).length > 0) {
-            const anyChat = Object.values(state.chats)[0];
-            if (anyChat && anyChat.settings.myPersona) {
-                authorPersona = anyChat.settings.myPersona;
-            }
-        }
-    } 
-    // 如果发帖的是AI角色
-    else {
+        authorPersona = state.qzoneSettings.weiboUserPersona || '一个普通的微博用户。';
+        authorProfession = state.qzoneSettings.weiboUserProfession || '未设定';
+    } else {
         const authorChat = state.chats[post.authorId];
-        if (authorChat && authorChat.settings.aiPersona) {
-            authorPersona = authorChat.settings.aiPersona;
+        if (authorChat) {
+            authorPersona = authorChat.settings.aiPersona || '无';
+            authorProfession = authorChat.settings.weiboProfession || '未设定';
         }
     }
-
-    // ▼▼▼ 核心修复：对人设字符串进行截断，防止请求体过大！ ▼▼▼
     const truncatedPersona = authorPersona.substring(0, 400);
-    // ▲▲▲ 修复结束 ▲▲▲
-
-    const postContent = (post.content || post.hiddenContent || "(图片动态)").substring(0, 200);
+    const postContent = (post.content || "").substring(0, 200); // 只取微博文字
     const existingComments = (post.comments || []).slice(-5).map(c => `${c.authorNickname}: ${c.commentText}`).join('\n');
 
-    // 在指令中使用截断后的人设
+    // ▼▼▼ 这是新增的核心代码 ▼▼▼
+    // 1. 检查这条微博是否有图片，以及我们是否成功保存了图片描述
+    let imageContext = '';
+    if (post.imageUrl && post.imageDescription) {
+        // 2. 如果有，就构建一段专门的“图片情景”文字
+        imageContext = `
+- **图片内容**: 这条微博配有一张图片，描述为：“${post.imageDescription}”`;
+    } else if (post.postType === 'text_image' && post.hiddenContent) {
+        // 兼容文字图
+        imageContext = `
+- **图片内容**: 这是一张文字图，上面的内容是：“${post.hiddenContent}”`;
+    }
+    // ▲▲▲ 新增结束 ▲▲▲
+    
     const systemPrompt = `
 # 任务
 你是一个专业的“社交媒体模拟器”。你的任务是根据一个特定角色的“人设”，为他/她发布的一条微博生成一批真实的、符合情景的网友评论。
 
-// ▼▼▼ 用这块代码替换 ▼▼▼
 # 微博情景
 - **作者**: ${authorName}
-- **作者人设 (仅供参考)**: ${truncatedPersona}
-- **【【【作者的微博专属设定(必须严格参考)】】】**:
-  - **微博职业**: ${post.authorId === 'user' ? '用户自定义' : (state.chats[post.authorId]?.settings.weiboProfession || '无')}
-  - **微博指令**: ${post.authorId === 'user' ? '用户自定义' : (state.chats[post.authorId]?.settings.weiboInstruction || '无')}
-- **内容摘要**: ${postContent}...
-- **已有评论 (你可以回复他们，也可以发表新观点)**:
+- **作者职业**: ${authorProfession}
+- **作者人设**: ${truncatedPersona}
+- **作者的微博指令**: ${post.authorId === 'user' ? '用户自定义' : (state.chats[post.authorId]?.settings.weiboInstruction || '无')}
+- **微博文字**: ${postContent || "(该微博没有配文)"}
+${imageContext}
+- **已有评论 (你可以回复他们)**:
 ${existingComments || "(暂无评论)"}
 
-
-# 你的任务
-1.  仔细阅读并理解“作者人设”，想象一下这样的人在现实生活中会有什么样的粉丝、朋友或路人网友。
-2.  根据人设和微博内容，生成5到10条风格各异、口吻真实的评论。评论者的身份可以是粉丝、朋友、路人、甚至是黑粉，但必须符合逻辑。
-3.  你的回复【必须且只能】是一个严格的JSON数组，每个对象代表一条评论。
-
-# 格式指令 (必须遵守)
--   发表新评论, 使用格式: \`{"author": "路人甲", "comment": "说得好！"}\`
--   回复已有评论, 使用格式: \`{"author": "热心网友", "comment": "我也这么觉得！", "replyTo": "路人甲"}\`
--   "replyTo" 的值必须是上面“已有评论”中出现过的昵称。
+# 【【【评论生成核心规则】】】
+1.  **【【【严禁使用】】】**: 绝对禁止使用 “路人甲”、“网友A”、“粉丝B” 这类代号作为评论者昵称。
+2.  **昵称多样化**: 评论者的昵称必须非常真实、多样化且符合微博生态。例如：“今天也要早睡”、“可乐加冰块”、“是小王不是小张”、“理性吃瓜第一线”。
+3.  **内容与人设强相关**: 评论内容必须与【微博内容(包括文字和图片)】和【作者人设】高度相关。思考：什么样的粉丝会关注这样的人？他们会怎么说话？
+4.  **风格多样化**: 生成的评论应包含不同立场和风格，例如：
+    -   **粉丝**: “哥哥太帅了！新剧什么时候播？”
+    -   **路人**: “这个地方看起来不错，求地址！”
+    -   **黑粉/质疑者**: “就这？感觉p图有点过了吧...”
+    -   **玩梗**: “楼上是不是XX派来的间谍（狗头）”
+5.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，每个对象代表一条评论。
+    -   发表新评论, 使用格式: \`{"author": "不吃香菜的仙女", "comment": "哇，这个好好看！"}\`
+    -   回复已有评论, 使用格式: \`{"author": "爱吃瓜的猹", "comment": "我也觉得！", "replyTo": "不吃香菜的仙女"}\`
 
 现在，请开始你的表演。
 `;
@@ -25531,7 +26031,7 @@ ${existingComments || "(暂无评论)"}
                 body: JSON.stringify({
                     model: model,
                     messages: messagesForApi,
-                    temperature: 0.9,
+                    temperature: 1.0, 
                     response_format: { type: "json_object" }
                 })
             });
@@ -25585,11 +26085,7 @@ ${existingComments || "(暂无评论)"}
         await showCustomAlert('生成失败', `发生了一个错误：\n${error.message}`);
     }
 }
-
 // ▲▲▲ 替换结束 ▲▲▲
-
-
-
 // ▼▼▼ 把这个新函数粘贴到 renderWeiboProfile 函数的上方 ▼▼▼
 /**
  * 【全新】删除一条微博评论
@@ -25656,7 +26152,6 @@ async function clearAllSingleChatBackgrounds() {
     }
 }
 // ▲▲▲ 粘贴结束 ▲▲▲
-
 
 /* ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼ */
         async function init() {
@@ -25908,6 +26403,223 @@ function importHomeScreenPreset(file) {
     reader.readAsText(file);
 }
 /* ▲▲▲ 新功能函数粘贴结束 ▲▲▲ */
+/* ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼ */
+
+let currentWeiboActionTarget = {}; // 用于存储被操作的目标信息
+
+// ▼▼▼ 用这块【全新逻辑】的代码，完整替换你旧的 openWeiboActionModal 函数 ▼▼▼
+
+/**
+ * 【V2 - AI自主版】打开微博操作模态框
+ * @param {object} targetInfo - 包含被操作角色信息的对象
+ */
+function openWeiboActionModal(targetInfo) {
+    currentWeiboActionTarget = targetInfo; // 保存目标信息
+    const modal = document.getElementById('weibo-action-modal');
+    
+    // 核心修改：标题直接显示为谁行动，不再有“操作者”
+    document.getElementById('weibo-action-modal-title').textContent = `为 "${targetInfo.name}" 触发行动`;
+
+    // 核心修改：彻底移除并隐藏“选择操作者”的下拉框
+    const actorSelectGroup = document.getElementById('weibo-action-actor-select').parentElement;
+    if (actorSelectGroup) {
+        actorSelectGroup.style.display = 'none';
+    }
+    
+    // 清空上次的输入并重置选项
+    document.getElementById('weibo-action-prompt-input').value = '';
+    document.querySelector('input[name="weibo_action_type"][value="post"]').checked = true;
+
+    modal.classList.add('visible');
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▼▼▼ 用这整块【功能增强版】的代码，完整替换你旧的 handleWeiboAiAction 函数 ▼▼▼
+/**
+ * 【AI核心 V2.2 - 评论用户微博版】执行AI操作（发微博/评论）
+ */
+async function handleWeiboAiAction() {
+    const { proxyUrl, apiKey, model } = state.apiConfig;
+    if (!proxyUrl || !apiKey || !model) {
+        alert('请先配置API！');
+        return;
+    }
+
+    // ▼▼▼ 核心修改：我们先把操作弹窗关掉 ▼▼▼
+    document.getElementById('weibo-action-modal').classList.remove('visible');
+    // ▲▲▲ 修改结束 ▲▲▲
+
+    // 先隐藏关注列表，避免操作完成后它还开着
+    document.getElementById('weibo-following-modal').classList.remove('visible');
+    await showCustomAlert("请稍候...", "正在请求AI生成内容，请耐心等待...");
+
+    const actionType = document.querySelector('input[name="weibo_action_type"]:checked').value;
+    const userInputPrompt = document.getElementById('weibo-action-prompt-input').value.trim();
+
+    let target = { 
+        id: currentWeiboActionTarget.id,
+        name: currentWeiboActionTarget.name, 
+        persona: '一个普通的微博用户。',
+        profession: '',
+        instruction: ''
+    };
+
+    if (currentWeiboActionTarget.isNpc) {
+        const owner = state.chats[currentWeiboActionTarget.ownerId];
+        const npc = owner.npcLibrary.find(n => n.id === currentWeiboActionTarget.id);
+        if (npc) {
+            target.persona = npc.persona;
+            target.profession = owner.settings.weiboProfession || '';
+            target.instruction = owner.settings.weiboInstruction || '';
+        }
+    } else {
+        const char = state.chats[currentWeiboActionTarget.id];
+        if (char) {
+            target.persona = char.settings.aiPersona;
+            target.profession = char.settings.weiboProfession || '';
+            target.instruction = char.settings.weiboInstruction || '';
+        }
+    }
+    
+    let systemPrompt = '';
+    let messagesForApi = [];
+
+    try {
+        if (actionType === 'post') {
+            systemPrompt = `
+# 任务: 角色扮演与微博创作
+你现在【就是】角色“${target.name}”。
+你的任务是根据你的身份信息，创作一条全新的微博。
+
+# 你的身份信息
+- **你的名字**: ${target.name}
+- **你的职业**: ${target.profession || '未设定'}
+- **你的人设**: ${target.persona}
+- **你的微博指令 (必须遵守)**: ${target.instruction || '无'}
+- **用户给你的提示 (可选参考)**: ${userInputPrompt || '无'}
+
+# 【【【评论生成核心规则】】】
+1.  **【【【严禁使用】】】**: 绝对禁止使用 “路人甲”、“网友A”、“粉丝B” 这类代号作为评论者昵称。
+2.  **昵称多样化**: 评论者的昵称必须非常真实、多样化且符合微博生态。例如：“今天也要早睡”、“可乐加冰块”、“是小王不是小张”、“理性吃瓜第一线”。
+3.  **内容与人设强相关**: 评论内容必须与【你即将创作的微博内容】和【你自己的人设】高度相关。
+4.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON对象，格式如下:
+   \`{"content": "微博正文内容...", "baseLikesCount": 随机生成的点赞数, "baseCommentsCount": 随机生成的评论数, "comments": "今天也要早睡: 评论1...\\n可乐加冰块: 评论2..."}\`
+   - 点赞和评论数要符合你的身份地位。
+   - "comments"字段是一个【字符串】，里面包含5-10条真实感的路人评论，每条评论用换行符'\\n'分隔。
+`;
+            messagesForApi.push({ role: 'user', content: systemPrompt });
+
+        } else { // 处理所有评论类型
+            let targetPost;
+            let taskDescription;
+
+            if (actionType === 'comment_plaza') {
+                targetPost = await db.weiboPosts.orderBy('timestamp').last();
+                if (!targetPost) throw new Error("广场上还没有任何微博可以评论！");
+                taskDescription = `你的任务是根据你的身份信息，去评论下面这条最新的【广场微博】。`;
+            } else if (actionType === 'comment_user') {
+                // ▼▼▼ 这是新增的核心逻辑 ▼▼▼
+                targetPost = await db.weiboPosts.where('authorId').equals('user').reverse().first();
+                if (!targetPost) throw new Error("用户还没有发布任何微博，无法评论！");
+                taskDescription = `你的任务是根据你的身份信息，去评论下面这条由【用户】发布的最新微博。`;
+            }
+            
+            systemPrompt = `
+# 任务: 角色扮演与微博评论
+你现在【就是】角色“${target.name}”。
+${taskDescription}
+
+# 你的身份信息
+- **你的名字**: ${target.name}
+- **你的职业**: ${target.profession || '未设定'}
+- **你的人设**: ${target.persona}
+- **你的微博指令 (必须遵守)**: ${target.instruction || '无'}
+- **用户给你的提示 (可选参考)**: ${userInputPrompt || '无'}
+
+# 被评论的微博
+- 作者: ${targetPost.authorNickname}
+- 内容: ${targetPost.content}
+
+# 核心规则
+1. **深度扮演**: 你的评论【必须】完全符合你的职业、人设和微博指令。
+2. **格式铁律**: 你的回复【必须且只能】是一个严格的JSON对象，格式如下:
+   \`{"commentText": "你的评论内容..."}\`
+`;
+            messagesForApi.push({ role: 'user', content: systemPrompt });
+        }
+
+        let isGemini = proxyUrl === GEMINI_API_URL;
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+
+        const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+            body: JSON.stringify({ model, messages: messagesForApi, temperature: 1.0, response_format: { type: "json_object" } })
+        });
+        if (!response.ok) throw new Error(`API请求失败: ${response.status} - ${await response.text()}`);
+
+        const data = await response.json();
+        const aiResponseContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content)
+            .replace(/^```json\s*|```$/g, '').trim();
+        
+        const result = JSON.parse(aiResponseContent);
+
+        if (actionType === 'post') {
+            const newPost = {
+                authorId: target.id,
+                authorType: currentWeiboActionTarget.isNpc ? 'npc' : 'char',
+                authorNickname: target.name,
+                authorAvatar: currentWeiboActionTarget.isNpc 
+                    ? (state.chats[currentWeiboActionTarget.ownerId].npcLibrary.find(n => n.id === target.id).avatar || defaultGroupMemberAvatar)
+                    : (state.chats[target.id].settings.aiAvatar || defaultAvatar),
+                content: result.content,
+                timestamp: Date.now(),
+                likes: [], comments: [],
+                baseLikesCount: result.baseLikesCount || 0,
+                baseCommentsCount: result.baseCommentsCount || 0
+            };
+            if(result.comments) {
+                newPost.comments = result.comments.split('\n').map(c => {
+                    const parts = c.split(/[:：]/);
+                    const commenter = parts.shift() || '路人';
+                    const commentText = parts.join(':').trim();
+                    return { commentId: 'comment_' + Date.now() + Math.random(), authorNickname: commenter, commentText: commentText };
+                }).filter(c => c.commentText);
+            }
+            await db.weiboPosts.add(newPost);
+        } else { // 包含了 'comment_plaza' 和 'comment_user'
+            let postToUpdate;
+            if (actionType === 'comment_plaza') {
+                postToUpdate = await db.weiboPosts.orderBy('timestamp').last();
+            } else { // 'comment_user'
+                postToUpdate = await db.weiboPosts.where('authorId').equals('user').reverse().first();
+            }
+
+            if (postToUpdate) {
+                if (!postToUpdate.comments) postToUpdate.comments = [];
+                postToUpdate.comments.push({
+                    commentId: 'comment_' + Date.now(),
+                    authorId: target.id,
+                    authorNickname: target.name,
+                    commentText: result.commentText,
+                    timestamp: Date.now()
+                });
+                await db.weiboPosts.put(postToUpdate);
+            }
+        }
+        
+        await renderMyWeiboFeed();
+        await renderFollowingWeiboFeed();
+        await showCustomAlert("操作成功", `“${target.name}”已成功执行操作！`);
+
+    } catch (error) {
+        console.error("微博AI操作失败:", error);
+        await showCustomAlert('操作失败', `发生了一个错误：\n${error.message}`);
+    } finally {
+        // ▼▼▼ 核心修改：finally 块现在是空的，因为我们在函数开头就关闭了弹窗 ▼▼▼
+    }
+}
+
 
 
 
@@ -26046,10 +26758,29 @@ document.getElementById('create-weibo-post-btn').addEventListener('click', openW
 
 // ▼▼▼ 在 init() 函数的事件监听器区域末尾，粘贴下面这行新代码 ▼▼▼
 document.getElementById('delete-expired-songs-btn').addEventListener('click', deleteExpiredSearchedSongs);
-// ▲▲▲ 粘贴结束 ▲▲▲
-// ▼▼▼ 在 init() 的事件监听器区域末尾，粘贴这整块新代码 ▼▼▼
+// ▼▼▼ 用这块【新版】代码替换旧的 weibo-following-list-container 事件监听器 ▼▼▼
+document.getElementById('weibo-following-list-container').addEventListener('click', (e) => {
+    const triggerBtn = e.target.closest('.weibo-action-trigger-btn');
+    if (triggerBtn) {
+        // 从按钮的 data-* 属性中获取被操作角色的信息
+        const targetInfo = {
+            id: triggerBtn.dataset.targetId,
+            name: triggerBtn.dataset.targetName,
+            isNpc: triggerBtn.dataset.isNpc === 'true',
+            ownerId: triggerBtn.dataset.ownerId || null
+        };
+        openWeiboActionModal(targetInfo);
+    }
+});
+// ▲▲▲ 替换结束 ▲▲▲
+document.getElementById('cancel-weibo-action-btn').addEventListener('click', () => {
+    document.getElementById('weibo-action-modal').classList.remove('visible');
+});
 
-// ▼▼▼ 用这块新代码替换 ▼▼▼
+document.getElementById('confirm-weibo-action-btn').addEventListener('click', handleWeiboAiAction);
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
 // --- 微博热搜与广场功能事件绑定 ---
 
 // 1. 绑定热搜页面的“生成”按钮
@@ -26608,6 +27339,9 @@ groupActivitySwitch.onchange = () => {
 };
     } else {
         document.getElementById('ai-persona').value = chat.settings.aiPersona;
+        // 【核心修复】加载当前角色的微博职业和指令
+document.getElementById('weibo-profession-input').value = chat.settings.weiboProfession || '';
+document.getElementById('weibo-instruction-input').value = chat.settings.weiboInstruction || '';
         document.getElementById('ai-avatar-preview').src = chat.settings.aiAvatar || defaultAvatar;
         document.getElementById('group-background-activity-group').style.display = 'none';
         // 【核心修改2】如果是单聊，就加载分组列表到下拉框
@@ -29993,10 +30727,7 @@ document.getElementById('clear-following-feed-btn').addEventListener('click', cl
 
 // ▲▲▲ 替换结束 ▲▲▲
 
-/**
- * 【微博专属 V2 - 干净版】打开微博发布模态框
- * 这个版本不再依赖任何动态(QZone)的HTML元素，彻底分家。
- */
+// ▼▼▼ 用这块【已隐藏可见范围】的代码，替换旧的 openWeiboPublisherClean 函数 ▼▼▼
 function openWeiboPublisherClean() {
     // 1. 重置并获取模态框
     resetCreatePostModal(); 
@@ -30007,13 +30738,17 @@ function openWeiboPublisherClean() {
     document.getElementById('create-post-modal-title').textContent = '发微博';
     document.getElementById('post-public-text').placeholder = '有什么新鲜事想分享给大家？';
 
-    // 3. 【核心修复】确保所有“动态”专属的HTML元素都被隐藏
-    // 我们现在不再去获取它们的style，而是直接找到它们并设置display: 'none'
+    // 3. 确保所有“动态”专属的HTML元素都被隐藏
     const imageDescGroup = document.getElementById('post-image-desc-group');
     if (imageDescGroup) imageDescGroup.style.display = 'none';
     
     const commentsToggleGroup = document.getElementById('post-comments-toggle-group');
     if (commentsToggleGroup) commentsToggleGroup.style.display = 'none';
+
+    // ▼▼▼ 就是在这里新增了一行代码！▼▼▼
+    const visibilityGroup = document.getElementById('post-visibility-group');
+    if (visibilityGroup) visibilityGroup.style.display = 'none';
+    // ▲▲▲ 新增结束 ▲▲▲
 
     // 4. 显示微博需要的控件
     const modeSwitcher = document.getElementById('post-mode-switcher');
@@ -30022,8 +30757,8 @@ function openWeiboPublisherClean() {
     // 5. 显示弹窗
     modal.classList.add('visible');
 }
+// ▲▲▲ 替换结束 ▲▲▲
 
-// ▲▲▲ 新函数粘贴结束 ▲▲▲
 
 document.getElementById('close-following-list-btn').addEventListener('click', () => {
     document.getElementById('weibo-following-modal').classList.remove('visible');
@@ -30031,8 +30766,17 @@ document.getElementById('close-following-list-btn').addEventListener('click', ()
 document.getElementById('clear-following-feed-btn').addEventListener('click', clearFollowingFeed);
 
 // ▲▲▲ 替换结束 ▲▲▲
+// ▼▼▼ 用这块【已修复】的代码，完整替换掉你旧的 `editWeiboProfileBtn` 事件监听器 ▼▼▼
+    // 【全新】微博用户人设设置功能事件绑定
+    document.getElementById('edit-weibo-profile-btn').addEventListener('click', openWeiboUserSettingsModal);
+    document.getElementById('cancel-weibo-user-settings-btn').addEventListener('click', () => {
+        document.getElementById('weibo-user-settings-modal').classList.remove('visible');
+    });
+    document.getElementById('save-weibo-user-settings-btn').addEventListener('click', saveWeiboUserSettings);
+    document.getElementById('weibo-user-preset-select').addEventListener('change', handleWeiboUserPresetSelection);
+    document.getElementById('manage-weibo-user-presets-btn').addEventListener('click', openWeiboUserPresetManager);
+// ▲▲▲ 替换结束 ▲▲▲
 
-// ▲▲▲ 新代码粘贴结束 ▲▲▲
 
 // ===================================================================
 // 5. 启动！
