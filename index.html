@@ -7740,7 +7740,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 #weibo-hottopic-feed-list {
     flex-grow: 1;
     overflow-y: auto;
-    min-height: 0; /* ★★★ 核心修复：解决Flex布局下的滚动兼容性问题 ★★★ */
     
     /* 
        魔法就在这里！我们为每个列表的底部，
@@ -7781,6 +7780,29 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* ▲▲▲ 粘贴结束 ▲▲▲ */
 
+/* ▼▼▼ 【微博布局终极修复】解决所有页面滚动不到底的问题 ▼▼▼ */
+
+/* 1. 移除外层容器上错误的多余“垫子” */
+#weibo-page-container {
+    padding-bottom: 0 !important;
+}
+
+/* 2. 【核心】把“垫子”（padding-bottom）加到真正滚动的列表自己身上！*/
+#weibo-profile-page,
+#weibo-following-feed-list,
+#weibo-hot-search-list,
+#weibo-plaza-feed-list,
+#weibo-hottopic-feed-list {
+    /* 
+       魔法就在这里！我们为每个列表的底部，
+       都加上一个和导航栏一样高的内边距（“垫子”）。
+       calc(50px + env(safe-area-inset-bottom)) 会自动计算导航栏高度和iPhone底部安全区高度。
+    */
+    padding-bottom: calc(50px + env(safe-area-inset-bottom)) !important;
+    box-sizing: border-box; /* 确保内边距被正确计算 */
+}
+
+/* ▲▲▲ 修复结束 ▲▲▲ */
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
