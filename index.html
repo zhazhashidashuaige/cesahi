@@ -284,7 +284,22 @@ body {
         .form-button { width: 100%; padding: 15px; background-color: var(--accent-color); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
         .form-button-secondary { background-color: #f0f0f0; color: var(--text-primary); border: 1px solid var(--border-color); }
         #wallpaper-screen .form-container { align-items: center; }
-        #wallpaper-preview { width: 180px; height: 320px; border: 2px dashed var(--border-color); background-color: var(--secondary-bg); margin-bottom: 20px; background-size: cover; background-position: center; border-radius: 10px; display: flex; justify-content: center; align-items: center; color: var(--text-secondary); }
+       /* 新代码 */
+.wallpaper-preview {
+    width: 180px;
+    height: 320px;
+    border: 2px dashed var(--border-color);
+    background-color: var(--secondary-bg);
+    margin-bottom: 20px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-secondary);
+}
+
         #wallpaper-upload-input { display: none; }
 /* 修改后的 #world-book-list 样式 */
 /* 【终极修复版】世界书主界面列表样式 */
@@ -2389,6 +2404,10 @@ body {
 #wallpaper-screen {
     /* 将背景色设置为变量，这样夜间模式才能覆盖它 */
     background-color: var(--secondary-bg);
+}
+/* 壁纸设置页面的预览区比较特殊，需要额外调整 */
+#wallpaper-screen .form-container {
+    align-items: center; /* 保持内容居中 */
 }
 
 /* ▼▼▼ 【全新】来电请求与视频通话界面样式 ▼▼▼ */
