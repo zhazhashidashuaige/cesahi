@@ -2397,6 +2397,13 @@ body {
     margin-top: -80px;
     /* 不再需要背景色，让父元素决定 */
 }
+
+/* 强制修正外观设置页面的布局 */
+#wallpaper-screen .form-container {
+    padding-top: 20px; /* 恢复正常的内边距 */
+    margin-top: 0;     /* 移除错误的负外边距 */
+}
+
 #font-settings-screen,
 #wallpaper-screen {
     /* 将背景色设置为变量，这样夜间模式才能覆盖它 */
