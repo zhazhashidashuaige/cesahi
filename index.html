@@ -322,27 +322,41 @@ body {
         .chat-list-item .group-tag { font-size: 10px; color: var(--accent-color); background-color: #e7f3ff; padding: 2px 6px; border-radius: 4px; font-weight: bold; flex-shrink: 0; }
         .chat-list-item .last-msg { font-size: 13px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
         /* 修改后的代码 */
+/* ▼▼▼ 用这块【终极修复版】代码，替换你旧的 #chat-interface-screen 和 #chat-messages 样式 ▼▼▼ */
+
+/* 1. 聊天屏幕总容器：让它成为一个撑满屏幕的Flex列布局 */
 #chat-interface-screen { 
     background-size: cover; 
     background-position: center; 
+    display: flex; /* <-- 核心：必须是flex布局 */
+    flex-direction: column; /* <-- 核心：子元素垂直排列 */
+    height: 100%; /* <-- 核心：撑满父容器 */
+    overflow: hidden; /* <-- 核心：防止任何意外溢出 */
 }
 
-        #selection-cancel-btn, #selection-delete-btn { font-size: 16px; color: var(--accent-color); cursor: pointer; padding: 5px; }
-        #selection-delete-btn { color: #ff3b30; }
-
-/* ▼▼▼ 用这块代码替换掉你原来的 #chat-messages 样式 ▼▼▼ */
+/* 2. 聊天消息区域：让它自动填充剩余空间，而不是固定高度 */
 #chat-messages {
-    flex-grow: 1;
-    overflow-y: auto;
-    overflow-x: hidden; /* 核心修正1: 强制禁止水平滚动/拖动 */
-    padding: 10px 15px; /* 核心修正2: 将左右内边距增加到15px，提供更多呼吸空间 */
+    flex-grow: 1;           /* ★★★ 最最关键的一行！让它自动伸缩，填满剩余空间 ★★★ */
+    min-height: 0;          /* 一个神奇的保险丝，解决Flex布局下的滚动兼容问题 */
+    overflow-y: auto;       /* 内容超出时，允许自身垂直滚动 */
+    overflow-x: hidden;
+    padding: 10px 15px;     /* 保留舒适的左右内边距 */
+    box-sizing: border-box;
+
+    /* 
+     * 保留你的头部适配方案：
+     * 为顶部半透明的header留出空间，同时让背景图能透上去。
+     * 110px是header的高度, -80px是向上拉的距离，你可以根据你的header样式微调。
+    */
     padding-top: 110px;
     margin-top: -80px;
+
+    /* 保持内部消息气泡的flex布局 */
     display: flex;
     flex-direction: column;
     gap: 20px;
-    box-sizing: border-box; /* 确保内边距计算正确 */
 }
+
 /* ▲▲▲ 替换结束 ▲▲▲ */
         #load-more-btn { text-align: center; padding: 10px; color: var(--accent-color); font-size: 14px; cursor: pointer; background-color: transparent; border: none; width: 100%; }
         #load-more-btn:hover { text-decoration: underline; }
@@ -7224,7 +7238,14 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 .weibo-profile-header {
     position: relative;
     height: 180px;
-    margin-bottom: 50px;
+    /* 
+      ★★★ 手动调整区：微博内容与上方区域的【上下间距】 ★★★
+      这个值决定了你的第一条微博，和上方个人信息区域的距离。
+      - 数值越大，间距越大，微博内容离得越远。
+      - 数值越小，间距越小，微博内容离得越近。
+      我已将它从 90px 减小到了 20px，你可以根据喜好再微调。
+    */
+    margin-bottom: 50px;/* ★ 修改这里 ★ */
 }
 
 /* 3. 背景图样式 (保持不变) */
