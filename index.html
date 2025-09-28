@@ -2389,19 +2389,28 @@ body {
 }
 /* ▲▲▲ 新CSS粘贴结束 ▲▲▲ */
 
-/* 确保这些页面的内容区能正确滚动，同时背景透明以显示父级颜色 */
+
+/* ▼▼▼ 用下面这段代码替换 ▼▼▼ */
+
+/* 1. 确保所有设置页面的内容区能正确滚动 */
 #api-settings-screen .form-container,
 #font-settings-screen .form-container,
 #wallpaper-screen .form-container {
-    padding-top: 100px;
-    margin-top: -80px;
-    /* 不再需要背景色，让父元素决定 */
+    flex-grow: 1; /* 占据所有可用空间 */
+    overflow-y: auto; /* 内容多时可滚动 */
+    min-height: 0; /* flex布局下的滚动兼容性修复 */
 }
+
+/* 2. 为所有设置页面统一添加顶部安全区内边距和背景色 */
 #font-settings-screen,
-#wallpaper-screen {
-    /* 将背景色设置为变量，这样夜间模式才能覆盖它 */
+#wallpaper-screen,
+#api-settings-screen { /* <-- 我们把API设置也加进来，统一标准 */
     background-color: var(--secondary-bg);
+    padding-top: env(safe-area-inset-top); /* <-- 核心：让页面自己向下推 */
+    box-sizing: border-box; /* <-- 确保内边距计算正确 */
 }
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
 /* 壁纸设置页面的预览区比较特殊，需要额外调整 */
 #wallpaper-screen .form-container {
     align-items: center; /* 保持内容居中 */
@@ -7881,29 +7890,16 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     z-index: 1002; /* 这个值比关注列表(1001)更高，就不会被盖住了 */
 }
 
-/* ▼▼▼ 【全新】外观设置页面布局修正 ▼▼▼ */
+/* ▼▼▼ 把这段新CSS粘贴到 <style> 的末尾 ▼▼▼ */
 
-/* 1. 修正滚动问题 */
-#wallpaper-screen .form-container {
-    /* 核心修正1: 解决flex布局下的滚动冲突，让滚动条能正常出现 */
-    min-height: 0; 
-}
-
-/* 2. 修正壁纸预览被压扁的问题 (可选但推荐) */
-#wallpaper-preview {
-    /* 核心修正2: 防止预览框被过多的内容挤压变形，让它保持自己的高度 */
-    flex-shrink: 0; 
-}
-
-/* 3. 为所有设置页面添加底部安全区，防止被小黑条遮挡 (一劳永逸) */
+/* 【全新添加】强制修正所有设置页面的底部安全区 */
 #font-settings-screen .form-container,
 #wallpaper-screen .form-container,
-#api-settings-screen .form-container,
-#css-editor-screen .form-container {
+#api-settings-screen .form-container {
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
-/* ▲▲▲ 修正结束 ▲▲▲ */
+/* ▲▲▲ 粘贴结束 ▲▲▲ */
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
