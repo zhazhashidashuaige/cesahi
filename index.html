@@ -7211,34 +7211,23 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     stroke-width: 1.5; /* 让图标线条稍微粗一点，更清晰 */
 }
 /* ▲▲▲ 新CSS粘贴结束 ▲▲▲ */
-/* ▼▼▼ 把这一整块全新的微博页面样式，粘贴到 <style> 的末尾 ▼▼▼ */
+/* ▼▼▼ 请用下面这【一整块带有详细注释】的代码，完整替换掉你旧的微博主页布局CSS ▼▼▼ */
 
-/* ▼▼▼ 把这一整块全新的微博页面布局样式，粘贴到 <style> 标签的最末尾 ▼▼▼ */
-/* ▼▼▼ 把这一整块全新的、修复后的微博布局样式，粘贴到 <style> 标签中 ▼▼▼ */
-
-/* 个人主页内容区，确保可以滚动 */
+/* 1. 个人主页的滚动容器 (保持不变) */
 #weibo-profile-page {
-    flex-grow: 1; /* 占据剩余所有空间 */
-    overflow-y: auto; /* 内容多了可以滚动 */
+    flex-grow: 1;
+    overflow-y: auto;
     background-color: #f0f2f5;
 }
 
-/* 1. 【核心】重塑头部容器 */
+/* 2. 头部容器：负责背景图，并为下方内容留出空间 */
 .weibo-profile-header {
-    position: relative; /* 作为内部所有元素的定位基准 */
-    width: 100%;
-    height: 250px; /* 增加高度以容纳所有内容 */
-    display: flex; /* 使用Flex布局 */
-    flex-direction: column; /* 垂直排列 */
-    justify-content: center; /* 垂直居中 */
-    align-items: center; /* 水平居中 */
-    padding: 20px;
-    box-sizing: border-box;
-    color: white; /* 统一设置文字颜色为白色，因为在背景图上 */
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5); /* 给所有文字加阴影，保证清晰 */
+    position: relative;
+    height: 180px;
+    margin-bottom: 90px;
 }
 
-/* ▼▼▼ 请用下面这【正确】的代码替换 ▼▼▼ */
+/* 3. 背景图样式 (保持不变) */
 .weibo-background {
     position: absolute;
     top: 0;
@@ -7246,37 +7235,28 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* z-index: -1;  <-- 我们已经把错误的那行删掉了！ */
-    z-index: 1; /* 【修正】设置一个正数的层级，确保它在父容器内 */
-    filter: brightness(0.9); 
-}
-/* ▲▲▲ 替换结束 ▲▲▲ */
-/* ▼▼▼ 请将这块【新代码】粘贴到 .weibo-background 的正下方 ▼▼▼ */
-/* ▼▼▼ 用这块新代码替换掉上面的旧代码 ▼▼▼ */
-/* 【新增】为前景内容设置更高的层级 */
-.weibo-avatar-container,
-.weibo-nickname,
-.weibo-stats,
-#weibo-user-profession-display { /* ▲▲▲ 核心修改：把 #weibo-user-profession-display 加到这里 ▲▲▲ */
-    position: relative; /* 激活z-index */
-    z-index: 2;         /* 确保它们在背景图之上 */
 }
 
-
-/* 3. 【核心】重置头像容器的样式 */
+/* 4. 头像容器：实现悬浮效果的核心 */
 .weibo-avatar-container {
-    /* 移除所有绝对定位相关的代码 */
-    position: static;
-    transform: none;
-    bottom: auto;
-    left: auto;
-    
+    position: absolute;
+    z-index: 3;
     width: 80px;
     height: 80px;
-    border-radius: 50%;
     border: 3px solid white;
+    border-radius: 50%;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    margin-bottom: 12px; /* 与下方的昵称拉开距离 */
+    transform: none;
+
+    /* ★★★ 手动调整区1: 头像位置 (左右 + 上下) ★★★ */
+
+    /* --- 左右位置 --- */
+    /* 数值越大，越往右。数值越小，越往左。*/
+    left: 20px; /* ★ 修改这里 */
+
+    /* --- 上下位置 --- */
+    /* 数值越小 (比如 -50px), 越往下。数值越大 (比如 -30px), 越往上。*/
+    bottom: -40px; /* ★ 修改这里 */
 }
 
 .weibo-avatar {
@@ -7286,43 +7266,81 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     object-fit: cover;
 }
 
-/* 4. 【核心】重置昵称和各项数据的样式 */
+
+/* 5. 昵称和职业信息 */
+/* ★★★ 手动调整区2: 昵称位置 (左右 + 上下) ★★★ */
 .weibo-nickname {
-    margin: 0 0 10px 0; /* 调整间距 */
+    position: absolute;
+    z-index: 2;
+    color: #1f1f1f;
+    text-shadow: none;
     font-size: 18px;
     font-weight: 600;
+
+    /* --- 左右位置 --- */
+    /* 数值越大，越往右。数值越小，越往左。*/
+    left: 115px; /* ★ 修改这里 */
+
+    /* --- 上下位置 --- */
+    /* 数值越小 (比如 -60px), 越往下。数值越大 (比如 -50px), 越往上。*/
+    bottom: -20px; /* ★ 修改这里 */
 }
 
+#weibo-user-profession-display {
+    position: absolute;
+    left: 115px; 
+    bottom: -75px; /* 这个值通常需要跟着昵称一起调整 */
+    z-index: 2;
+    font-size: 13px;
+    color: #8a8a8a;
+    text-shadow: none;
+}
+
+
+/* 6. 关注/粉丝/微博数据 */
+/* ★★★ 手动调整区3: 关注/粉丝/微博 位置 (左右 + 上下) ★★★ */
 .weibo-stats {
-    margin: 0;
-    padding: 0;
+    position: absolute;
+    z-index: 2;
     display: flex;
-    gap: 30px; /* 调整项目间距 */
+    gap: 20px;
+
+    /* --- 左右位置 --- */
+    /* 数值越大，越往右。数值越小，越往左。*/
+    left: 115px; /* ★ 修改这里 */
+
+    /* --- 上下位置 --- */
+    /* 数值越小 (比如 -90px), 这行数据越往下。数值越大 (比如 -70px), 越往上。*/
+    bottom: -35px; /* ★ 修改这里 */
 }
 
+
+/* 7. 单个数据项样式 (保持不变) */
 .weibo-stat-item {
     display: flex;
-    align-items: center; /* 改为水平排列，数字在左，文字在右 */
-    gap: 6px; /* 数字和文字的间距 */
+    flex-direction: row;
+    align-items: baseline;
+    gap: 5px;
 }
-
 .weibo-stat-number {
-    font-size: 15px;
-    font-weight: 600;
-}
-
-.weibo-stat-label {
-    margin-top: 0; /* 移除旧的上边距 */
     font-size: 14px;
-    opacity: 0.9; /* 让标签文字稍微柔和一点 */
+    font-weight: 600;
+    color: #333;
+    text-shadow: none;
+}
+.weibo-stat-label {
+    font-size: 13px;
+    color: #888;
+    text-shadow: none;
 }
 
-/* 5. 确保微博Feed列表正确显示在头部下方 */
+/* 8. 微博Feed列表 (保持不变) */
 #my-weibo-feed-list {
-    background-color: #f0f2f5;
+    padding-top: 15px;
 }
 
-/* ▲▲▲ 微博样式粘贴结束 ▲▲▲ */
+/* ▲▲▲ 微博样式替换结束 ▲▲▲ */
+
 
 
 /* ▼▼▼ 【全新】微博页面框架和底部导航样式 ▼▼▼ */
