@@ -7887,6 +7887,30 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 #weibo-action-modal {
     z-index: 1002; /* 这个值比关注列表(1001)更高，就不会被盖住了 */
 }
+
+/* ▼▼▼ 【全新】外观设置页面布局修正 ▼▼▼ */
+
+/* 1. 修正滚动问题 */
+#wallpaper-screen .form-container {
+    /* 核心修正1: 解决flex布局下的滚动冲突，让滚动条能正常出现 */
+    min-height: 0; 
+}
+
+/* 2. 修正壁纸预览被压扁的问题 */
+#wallpaper-preview {
+    /* 核心修正2: 防止预览框被过多的内容挤压变形，让它保持自己的高度 */
+    flex-shrink: 0; 
+}
+
+/* 3. 【全新添加】强制修正所有设置页面的底部安全区 */
+#font-settings-screen .form-container,
+#wallpaper-screen .form-container,
+#api-settings-screen .form-container,
+#css-editor-screen .form-container {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+/* ▲▲▲ 修正结束 ▲▲▲ */
+
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
     <style id="custom-theme-style"></style>
