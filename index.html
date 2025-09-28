@@ -283,7 +283,7 @@ body {
         #world-book-content-input { height: calc(100% - 120px); }
         .form-button { width: 100%; padding: 15px; background-color: var(--accent-color); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
         .form-button-secondary { background-color: #f0f0f0; color: var(--text-primary); border: 1px solid var(--border-color); }
-
+        #wallpaper-screen .form-container { align-items: center; }
         #wallpaper-preview { width: 180px; height: 320px; border: 2px dashed var(--border-color); background-color: var(--secondary-bg); margin-bottom: 20px; background-size: cover; background-position: center; border-radius: 10px; display: flex; justify-content: center; align-items: center; color: var(--text-secondary); }
         #wallpaper-upload-input { display: none; }
 /* 修改后的 #world-book-list 样式 */
@@ -2402,7 +2402,10 @@ body {
     /* 将背景色设置为变量，这样夜间模式才能覆盖它 */
     background-color: var(--secondary-bg);
 }
-
+/* 壁纸设置页面的预览区比较特殊，需要额外调整 */
+#wallpaper-screen .form-container {
+    align-items: center; /* 保持内容居中 */
+}
 
 /* ▼▼▼ 【全新】来电请求与视频通话界面样式 ▼▼▼ */
 
@@ -3289,20 +3292,27 @@ body {
 }
 /* ▲▲▲ 新CSS粘贴结束 ▲▲▲ */
 
-/* ▼▼▼ 【全新】外观设置页面布局修正 ▼▼▼ */
+/* ▼▼▼ 请用这段【终极修复版】代码，替换掉所有与 #wallpaper-screen .form-container 相关的旧样式 ▼▼▼ */
 
-/* 1. 修正滚动问题 */
 #wallpaper-screen .form-container {
-    /* 核心修正1: 解决flex布局下的滚动冲突，让滚动条能正常出现 */
-    min-height: 0; 
+    flex-grow: 1;          /* 1. (保持) 告诉它要填满所有剩余垂直空间 */
+    overflow-y: auto;      /* 2. (保持) 内容超出时，允许垂直滚动 */
+    display: flex;         /* 3. (保持) 内部依然使用Flex布局 */
+    flex-direction: column;/* 4. (保持) 内部元素垂直排列 */
+    align-items: center;   /* 5. (保持) 实现您想要的水平居中效果 */
+    
+    /* 6. 【核心修复】确保在Flex布局下滚动正常工作的“保险丝” */
+    min-height: 0;
+    
+    /* 7. (可选但推荐) 确保底部安全区的内边距，防止内容被小黑条遮挡 */
+    /* 您的其他页面已经有这个，这里也补上，确保体验一致 */
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
-/* 2. 修正壁纸预览被压扁的问题 */
+/* 另外，请确保您代码中已有的这条规则也存在，它能防止预览框被压扁 */
 #wallpaper-preview {
-    /* 核心修正2: 防止预览框被过多的内容挤压变形，让它保持自己的高度 */
     flex-shrink: 0; 
 }
-/* ▲▲▲ 修正结束 ▲▲▲ */
 
 /* ▼▼▼ 【全新】分享链接功能样式 (无图版) ▼▼▼ */
 
