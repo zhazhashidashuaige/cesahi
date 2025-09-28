@@ -283,7 +283,7 @@ body {
         #world-book-content-input { height: calc(100% - 120px); }
         .form-button { width: 100%; padding: 15px; background-color: var(--accent-color); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
         .form-button-secondary { background-color: #f0f0f0; color: var(--text-primary); border: 1px solid var(--border-color); }
-        #wallpaper-screen .form-container { align-items: center; }
+
         #wallpaper-preview { width: 180px; height: 320px; border: 2px dashed var(--border-color); background-color: var(--secondary-bg); margin-bottom: 20px; background-size: cover; background-position: center; border-radius: 10px; display: flex; justify-content: center; align-items: center; color: var(--text-secondary); }
         #wallpaper-upload-input { display: none; }
 /* 修改后的 #world-book-list 样式 */
@@ -2402,10 +2402,7 @@ body {
     /* 将背景色设置为变量，这样夜间模式才能覆盖它 */
     background-color: var(--secondary-bg);
 }
-/* 壁纸设置页面的预览区比较特殊，需要额外调整 */
-#wallpaper-screen .form-container {
-    align-items: center; /* 保持内容居中 */
-}
+
 
 /* ▼▼▼ 【全新】来电请求与视频通话界面样式 ▼▼▼ */
 
@@ -8115,168 +8112,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 </div>
 <!-- ▲▲▲ HTML 替换结束 ▲▲▲ -->
    
-
-<!-- ▼▼▼ 用这整块代码替换你原来的 id="wallpaper-screen" ▼▼▼ -->
-<div id="wallpaper-screen" class="screen">
-    <div class="header">
-        <span class="back-btn" onclick="showScreen('home-screen')">‹</span>
-        <!-- 【核心修改1】标题改为“外观设置”，更通用 -->
-        <span>外观设置</span>
-        <span style="width: 30px;"></span>
-    </div>
-    <div class="form-container">
-        <!-- 锁屏壁纸设置 (全新) -->
-        <div style="width:100%; text-align: left; margin-bottom: 5px;">
-            <label style="font-weight: 500; color: var(--text-secondary);">锁屏设置</label>
-        </div>
-        <div id="lockscreen-wallpaper-preview" class="wallpaper-preview">点击下方上传</div>
-        <button class="form-button" onclick="document.getElementById('lockscreen-wallpaper-upload-input').click();">上传锁屏壁纸</button>
-        <input type="file" id="lockscreen-wallpaper-upload-input" accept="image/*" hidden>
-        
-        <div class="form-group" style="width: 100%; margin-top: 15px;">
-            <label for="password-set-input">锁屏密码 (留空则无密码)</label>
-            <input type="text" id="password-set-input" placeholder="设置你的解锁密码">
-        </div>
-        
-        <hr style="width: 80%; opacity: 0.3; margin: 20px 0;">
-
-        <!-- 主屏幕壁纸设置 (原有) -->
-        <div style="width:100%; text-align: left; margin-bottom: 5px;">
-            <label style="font-weight: 500; color: var(--text-secondary);">主屏幕设置</label>
-        </div>
-        <div id="wallpaper-preview">点击下方上传</div>
-<!-- ▼▼▼ 请将这段新代码粘贴到 wallpaper-preview 的 div 之后 ▼▼▼ -->
-<div class="form-group">
-    <label for="enable-lock-screen-toggle" class="toggle-switch-label">
-        <span class="toggle-switch-text">启用锁屏界面</span>
-        <input type="checkbox" id="enable-lock-screen-toggle">
-        <span class="toggle-switch-slider"></span>
-    </label>
-</div>
-<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
-
-<!-- ▼▼▼ 在这里粘贴新的“显示状态栏”开关代码 ▼▼▼ -->
-<div class="form-group">
-    <label for="show-status-bar-toggle" class="toggle-switch-label">
-        <span class="toggle-switch-text">显示状态栏</span>
-        <input type="checkbox" id="show-status-bar-toggle">
-        <span class="toggle-switch-slider"></span>
-    </label>
-</div>
-<!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
-
-
-        <button class="form-button" onclick="document.getElementById('wallpaper-upload-input').click();">上传壁纸</button>
-        <input type="file" id="wallpaper-upload-input" accept="image/*">
-
-<!-- ▼▼▼ 将【下面整块代码】，完整替换为下面这段【全新的代码】 ▼▼▼ -->
-<div class="form-group" style="display: none;">
-    <label for="theme-toggle-switch" style="margin-bottom: 0;">夜间模式</label>
-    <label class="toggle-switch">
-        <input type="checkbox" id="theme-toggle-switch">
-        <span class="slider"></span>
-    </label>
-</div>
-<!-- ▲▲▲ 替换结束 ▲▲▲ -->
-
-    <!-- === ▼▼▼ 以下是新增的美化功能UI ▼▼▼ === -->
-    <div style="width:100%; text-align: left; margin-bottom: 15px;">
-        <label style="font-weight: 500; color: var(--text-secondary);">手机美化 (CSS)</label>
-    </div>
-
-    <!-- 主题选择和管理 -->
-    <div class="form-group">
-        <label for="theme-selector">选择已存方案</label>
-        <div style="display: flex; gap: 10px;">
-            <select id="theme-selector" style="flex-grow: 1;"></select>
-            <button id="rename-theme-btn" class="form-button-secondary" style="margin:0; padding: 0 10px;">重命名</button>
-            <button id="delete-theme-btn" class="form-button-secondary" style="margin:0; padding: 0 10px; background-color: #ffdddd; color: #ff3b30;">删除</button>
-        </div>
-    </div>
-
-    <!-- CSS 代码编辑区 -->
-    <div class="form-group">
-        <label for="theme-css-editor">美化代码编辑区</label>
-        <textarea id="theme-css-editor" rows="10" style="font-family: monospace; font-size: 12px; resize: vertical;" placeholder="在这里粘贴或编辑美化代码..."></textarea>
-    </div>
-    
-    <!-- 操作按钮 -->
-    <button id="apply-theme-btn" class="form-button">应用当前代码</button>
-    <div style="display: flex; gap: 10px; margin-top: 10px;">
-        <button id="save-theme-btn" class="form-button-secondary" style="flex:1;">保存</button>
-        <button id="save-as-new-theme-btn" class="form-button-secondary" style="flex:1;">另存</button>
-    </div>
-    <div style="display: flex; gap: 10px; margin-top: 10px;">
-        <button id="export-theme-btn" class="form-button-secondary" style="flex:1;">导出方案</button>
-        <button id="import-theme-btn" class="form-button-secondary" style="flex:1;">导入方案</button>
-        <input type="file" id="import-theme-input" accept=".json" hidden>
-    </div>
-    <!-- === ▲▲▲ 新增UI结束 ▲▲▲ === -->
-<!-- ▼▼▼ 【V3最终美化版】主屏幕美化预设功能UI ▼▼▼ -->
-<div class="preset-manager-container">
-    <div style="width:100%; text-align: left; margin-bottom: 15px;">
-        <label style="font-weight: 500; color: var(--text-secondary);">主屏幕预设</label>
-    </div>
-    <div class="form-group">
-        <select id="home-preset-selector" class="form-group select"></select>
-        <div class="preset-manager-controls">
-            <!-- 独占一行的应用按钮 -->
-            <button id="apply-home-preset-btn" class="preset-btn-capsule preset-btn-apply" disabled>应用</button>
-            
-            <!-- 2x2 网格按钮 -->
-            <button id="save-home-preset-btn" class="preset-btn-capsule preset-btn-save">保存</button>
-            <!-- ▼▼▼ 就是在这里新增了“更新”按钮 ▼▼▼ -->
-            <button id="update-home-preset-btn" class="preset-btn-capsule preset-btn-secondary" disabled>更新</button>
-            <button id="rename-home-preset-btn" class="preset-btn-capsule preset-btn-secondary" disabled>重命名</button>
-            <button id="import-home-preset-btn" class="preset-btn-capsule preset-btn-secondary">导入</button>
-            <button id="export-home-preset-btn" class="preset-btn-capsule preset-btn-secondary" disabled>导出</button>
-            <button id="delete-home-preset-btn" class="preset-btn-capsule preset-btn-delete" disabled>删除</button>
-            
-            <input type="file" id="import-home-preset-input" accept=".json" hidden>
-        </div>
-    </div>
-</div>
-<!-- ▲▲▲ UI替换结束 ▲▲▲ -->
-
-        <!-- 【核心修改2】新增图标设置区域 -->
-        <hr style="width: 80%; opacity: 0.3; margin: 30px 0;">
-        <div style="width:100%; text-align: left; margin-bottom: 15px;">
-            <label style="font-weight: 500; color: var(--text-secondary);">App 图标设置</label>
-        </div>
-        <div id="icon-settings-grid">
-            <!-- 图标设置项将由JS动态生成在这里 -->
-        </div>
-
-<!-- ▼▼▼ 将这段新代码，粘贴到“保存所有外观设置”按钮的【上方】 ▼▼▼ -->
-<hr style="width: 80%; opacity: 0.3; margin: 30px 0;">
-<div style="width:100%; text-align: left; margin-bottom: 15px;">
-    <label style="font-weight: 500; color: var(--text-secondary);">铃声设置</label>
-</div>
-<div class="form-group" style="width: 100%;">
-    <label for="ringtone-url-input">来电铃声 URL (.mp3, .wav, etc.)</label>
-    <input type="text" id="ringtone-url-input" placeholder="输入音频文件的网络链接...">
-</div>
-<!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
-<!-- ▼▼▼ 从这里开始，把下面这一整块全新的代码，粘贴到“保存所有外观设置”按钮的【上方】 ▼▼▼ -->
-<hr style="width: 80%; opacity: 0.3; margin: 30px 0;">
-<div style="width:100%; text-align: left; margin-bottom: 15px;">
-    <label style="font-weight: 500; color: var(--text-secondary);">全局聊天背景</label>
-</div>
-<div id="global-bg-preview" class="wallpaper-preview">点击下方上传</div>
-<button class="form-button" onclick="document.getElementById('global-bg-upload-input').click();">上传全局背景</button>
-<input type="file" id="global-bg-upload-input" accept="image/*" hidden>
-<button class="form-button form-button-secondary" id="remove-global-bg-btn" style="margin-top: 10px;">移除全局背景</button>
-<button class="form-button form-button-secondary" id="clear-all-single-bgs-btn" style="margin-top: 10px; border-color: #ff3b30; color: #ff3b30;">一键清空所有单人聊天背景</button>
-<!-- ▲▲▲ 粘贴到这里结束 ▲▲▲ -->
-        
-        <!-- 【核心修改3】按钮文字也改一下 -->
-        <button class="form-button" id="save-wallpaper-btn" style="margin-top: 30px;">保存所有外观设置</button>
-    </div>
-</div>
-<!-- ▲▲▲ 替换结束 ▲▲▲ -->
-
-
-
 <div id="world-book-screen" class="screen">
     <div class="header">
         <span class="back-btn" onclick="showScreen('home-screen')">‹</span>
@@ -8792,6 +8627,164 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 </div>
 <!-- ▲▲▲ 替换结束 ▲▲▲ -->
 
+<!-- ▼▼▼ 用这整块代码替换你原来的 id="wallpaper-screen" ▼▼▼ -->
+<div id="wallpaper-screen" class="screen">
+    <div class="header">
+        <span class="back-btn" onclick="showScreen('home-screen')">‹</span>
+        <!-- 【核心修改1】标题改为“外观设置”，更通用 -->
+        <span>外观设置</span>
+        <span style="width: 30px;"></span>
+    </div>
+    <div class="form-container">
+        <!-- 锁屏壁纸设置 (全新) -->
+        <div style="width:100%; text-align: left; margin-bottom: 5px;">
+            <label style="font-weight: 500; color: var(--text-secondary);">锁屏设置</label>
+        </div>
+        <div id="lockscreen-wallpaper-preview" class="wallpaper-preview">点击下方上传</div>
+        <button class="form-button" onclick="document.getElementById('lockscreen-wallpaper-upload-input').click();">上传锁屏壁纸</button>
+        <input type="file" id="lockscreen-wallpaper-upload-input" accept="image/*" hidden>
+        
+        <div class="form-group" style="width: 100%; margin-top: 15px;">
+            <label for="password-set-input">锁屏密码 (留空则无密码)</label>
+            <input type="text" id="password-set-input" placeholder="设置你的解锁密码">
+        </div>
+        
+        <hr style="width: 80%; opacity: 0.3; margin: 20px 0;">
+
+        <!-- 主屏幕壁纸设置 (原有) -->
+        <div style="width:100%; text-align: left; margin-bottom: 5px;">
+            <label style="font-weight: 500; color: var(--text-secondary);">主屏幕设置</label>
+        </div>
+        <div id="wallpaper-preview">点击下方上传</div>
+<!-- ▼▼▼ 请将这段新代码粘贴到 wallpaper-preview 的 div 之后 ▼▼▼ -->
+<div class="form-group">
+    <label for="enable-lock-screen-toggle" class="toggle-switch-label">
+        <span class="toggle-switch-text">启用锁屏界面</span>
+        <input type="checkbox" id="enable-lock-screen-toggle">
+        <span class="toggle-switch-slider"></span>
+    </label>
+</div>
+<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
+
+<!-- ▼▼▼ 在这里粘贴新的“显示状态栏”开关代码 ▼▼▼ -->
+<div class="form-group">
+    <label for="show-status-bar-toggle" class="toggle-switch-label">
+        <span class="toggle-switch-text">显示状态栏</span>
+        <input type="checkbox" id="show-status-bar-toggle">
+        <span class="toggle-switch-slider"></span>
+    </label>
+</div>
+<!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
+
+
+        <button class="form-button" onclick="document.getElementById('wallpaper-upload-input').click();">上传壁纸</button>
+        <input type="file" id="wallpaper-upload-input" accept="image/*">
+
+<!-- ▼▼▼ 将【下面整块代码】，完整替换为下面这段【全新的代码】 ▼▼▼ -->
+<div class="form-group" style="display: none;">
+    <label for="theme-toggle-switch" style="margin-bottom: 0;">夜间模式</label>
+    <label class="toggle-switch">
+        <input type="checkbox" id="theme-toggle-switch">
+        <span class="slider"></span>
+    </label>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+
+    <!-- === ▼▼▼ 以下是新增的美化功能UI ▼▼▼ === -->
+    <div style="width:100%; text-align: left; margin-bottom: 15px;">
+        <label style="font-weight: 500; color: var(--text-secondary);">手机美化 (CSS)</label>
+    </div>
+
+    <!-- 主题选择和管理 -->
+    <div class="form-group">
+        <label for="theme-selector">选择已存方案</label>
+        <div style="display: flex; gap: 10px;">
+            <select id="theme-selector" style="flex-grow: 1;"></select>
+            <button id="rename-theme-btn" class="form-button-secondary" style="margin:0; padding: 0 10px;">重命名</button>
+            <button id="delete-theme-btn" class="form-button-secondary" style="margin:0; padding: 0 10px; background-color: #ffdddd; color: #ff3b30;">删除</button>
+        </div>
+    </div>
+
+    <!-- CSS 代码编辑区 -->
+    <div class="form-group">
+        <label for="theme-css-editor">美化代码编辑区</label>
+        <textarea id="theme-css-editor" rows="10" style="font-family: monospace; font-size: 12px; resize: vertical;" placeholder="在这里粘贴或编辑美化代码..."></textarea>
+    </div>
+    
+    <!-- 操作按钮 -->
+    <button id="apply-theme-btn" class="form-button">应用当前代码</button>
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button id="save-theme-btn" class="form-button-secondary" style="flex:1;">保存</button>
+        <button id="save-as-new-theme-btn" class="form-button-secondary" style="flex:1;">另存</button>
+    </div>
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button id="export-theme-btn" class="form-button-secondary" style="flex:1;">导出方案</button>
+        <button id="import-theme-btn" class="form-button-secondary" style="flex:1;">导入方案</button>
+        <input type="file" id="import-theme-input" accept=".json" hidden>
+    </div>
+    <!-- === ▲▲▲ 新增UI结束 ▲▲▲ === -->
+<!-- ▼▼▼ 【V3最终美化版】主屏幕美化预设功能UI ▼▼▼ -->
+<div class="preset-manager-container">
+    <div style="width:100%; text-align: left; margin-bottom: 15px;">
+        <label style="font-weight: 500; color: var(--text-secondary);">主屏幕预设</label>
+    </div>
+    <div class="form-group">
+        <select id="home-preset-selector" class="form-group select"></select>
+        <div class="preset-manager-controls">
+            <!-- 独占一行的应用按钮 -->
+            <button id="apply-home-preset-btn" class="preset-btn-capsule preset-btn-apply" disabled>应用</button>
+            
+            <!-- 2x2 网格按钮 -->
+            <button id="save-home-preset-btn" class="preset-btn-capsule preset-btn-save">保存</button>
+            <!-- ▼▼▼ 就是在这里新增了“更新”按钮 ▼▼▼ -->
+            <button id="update-home-preset-btn" class="preset-btn-capsule preset-btn-secondary" disabled>更新</button>
+            <button id="rename-home-preset-btn" class="preset-btn-capsule preset-btn-secondary" disabled>重命名</button>
+            <button id="import-home-preset-btn" class="preset-btn-capsule preset-btn-secondary">导入</button>
+            <button id="export-home-preset-btn" class="preset-btn-capsule preset-btn-secondary" disabled>导出</button>
+            <button id="delete-home-preset-btn" class="preset-btn-capsule preset-btn-delete" disabled>删除</button>
+            
+            <input type="file" id="import-home-preset-input" accept=".json" hidden>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ UI替换结束 ▲▲▲ -->
+
+        <!-- 【核心修改2】新增图标设置区域 -->
+        <hr style="width: 80%; opacity: 0.3; margin: 30px 0;">
+        <div style="width:100%; text-align: left; margin-bottom: 15px;">
+            <label style="font-weight: 500; color: var(--text-secondary);">App 图标设置</label>
+        </div>
+        <div id="icon-settings-grid">
+            <!-- 图标设置项将由JS动态生成在这里 -->
+        </div>
+
+<!-- ▼▼▼ 将这段新代码，粘贴到“保存所有外观设置”按钮的【上方】 ▼▼▼ -->
+<hr style="width: 80%; opacity: 0.3; margin: 30px 0;">
+<div style="width:100%; text-align: left; margin-bottom: 15px;">
+    <label style="font-weight: 500; color: var(--text-secondary);">铃声设置</label>
+</div>
+<div class="form-group" style="width: 100%;">
+    <label for="ringtone-url-input">来电铃声 URL (.mp3, .wav, etc.)</label>
+    <input type="text" id="ringtone-url-input" placeholder="输入音频文件的网络链接...">
+</div>
+<!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
+<!-- ▼▼▼ 从这里开始，把下面这一整块全新的代码，粘贴到“保存所有外观设置”按钮的【上方】 ▼▼▼ -->
+<hr style="width: 80%; opacity: 0.3; margin: 30px 0;">
+<div style="width:100%; text-align: left; margin-bottom: 15px;">
+    <label style="font-weight: 500; color: var(--text-secondary);">全局聊天背景</label>
+</div>
+<div id="global-bg-preview" class="wallpaper-preview">点击下方上传</div>
+<button class="form-button" onclick="document.getElementById('global-bg-upload-input').click();">上传全局背景</button>
+<input type="file" id="global-bg-upload-input" accept="image/*" hidden>
+<button class="form-button form-button-secondary" id="remove-global-bg-btn" style="margin-top: 10px;">移除全局背景</button>
+<button class="form-button form-button-secondary" id="clear-all-single-bgs-btn" style="margin-top: 10px; border-color: #ff3b30; color: #ff3b30;">一键清空所有单人聊天背景</button>
+<!-- ▲▲▲ 粘贴到这里结束 ▲▲▲ -->
+        
+        <!-- 【核心修改3】按钮文字也改一下 -->
+        <button class="form-button" id="save-wallpaper-btn" style="margin-top: 30px;">保存所有外观设置</button>
+    </div>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
 
 <!-- ▼▼▼ 【全新】分享链接功能 HTML ▼▼▼ -->
 <div id="browser-screen" class="screen">
