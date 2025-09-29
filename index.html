@@ -481,7 +481,7 @@ body {
         #sticker-panel-header { padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; border-bottom: 1px solid var(--border-color); }
         #sticker-panel-header .title { font-weight: 600; }
         #sticker-panel-header .panel-btn { font-size: 16px; padding: 5px 10px; cursor: pointer; color: var(--accent-color); }
-        #sticker-grid { flex-grow: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 15px; }
+        #sticker-grid, #exclusive-sticker-grid, #common-sticker-grid { flex-grow: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 15px; }
         .sticker-item { position: relative; aspect-ratio: 1 / 1; background-color: white; border-radius: 10px; background-size: contain; background-repeat: no-repeat; background-position: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .sticker-item .delete-btn { display: none; position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #ff3b30; color: white; border-radius: 50%; text-align: center; line-height: 20px; font-size: 14px; cursor: pointer; border: 2px solid white; }
         #input-actions-wrapper { position: static; display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0; }
@@ -9108,6 +9108,45 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
+<!-- ▼▼▼ 第2步 第3处修改（新增HTML） ▼▼▼ -->
+<!-- 【全新】角色表情包管理屏幕 -->
+<div id="char-sticker-manager-screen" class="screen">
+    <div class="header">
+        <span class="back-btn" id="back-from-sticker-manager">‹</span>
+        <span id="sticker-manager-title">表情包管理</span>
+    </div>
+    <input type="file" id="char-sticker-upload-input" accept="image/*" style="display: none;" multiple>
+    <div class="modal-body" style="padding: 0; display: flex; flex-direction: column;">
+        <!-- 页签切换 -->
+        <div class="frame-tabs">
+            <div id="sticker-tab-exclusive" class="frame-tab active">专属表情</div>
+            <div id="sticker-tab-common" class="frame-tab">通用表情</div>
+        </div>
+
+        <!-- 专属表情内容区 -->
+        <div id="sticker-content-exclusive" class="frame-content">
+            <div class="sticker-panel-header" style="justify-content: flex-end;">
+                 <div style="display: flex; gap: 10px;">
+                    <span class="panel-btn" id="add-exclusive-sticker-btn">批量添加</span>
+                    <span class="panel-btn" id="upload-exclusive-sticker-btn">本地上传</span>
+                </div>
+            </div>
+            <div id="exclusive-sticker-grid" class="sticker-grid"></div>
+        </div>
+
+        <!-- 通用表情内容区 -->
+        <div id="sticker-content-common" class="frame-content" style="display: none;">
+             <div class="sticker-panel-header" style="justify-content: flex-end;">
+                 <div style="display: flex; gap: 10px;">
+                    <span class="panel-btn" id="add-common-sticker-btn">批量添加</span>
+                    <span class="panel-btn" id="upload-common-sticker-btn">本地上传</span>
+                </div>
+            </div>
+            <div id="common-sticker-grid" class="sticker-grid"></div>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 
 <!-- ▼▼▼ 【全新】来电请求模态框 ▼▼▼ -->
 <div id="incoming-call-modal" class="modal">
@@ -9328,6 +9367,13 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                 </div>
             </div>
             <div class="form-group" id="ai-persona-group"><label for="ai-persona">对方人设 (AI Persona)</label><textarea id="ai-persona" rows="3"></textarea></div>
+              <!-- ▼▼▼ 第2步 第2处修改（新增HTML） ▼▼▼ -->
+            <div class="form-group" id="char-sticker-group">
+                <button id="manage-char-stickers-btn" class="form-button form-button-secondary" style="width: 100%; margin-top: 5px;">
+                    管理角色表情包
+                </button>
+            </div>
+            <!-- ▲▲▲ 新增结束 ▲▲▲ -->
             <!-- ▼▼▼ 在这里粘贴新代码 ▼▼▼ -->
 <div class="form-group" id="npc-library-group">
     <button id="manage-npcs-btn" class="form-button form-button-secondary" style="width: 100%; margin-top: 5px;">管理NPC库</button>
@@ -11638,11 +11684,12 @@ function showCustomPrompt(title, placeholder, initialValue = '', type = 'text', 
         // 2. 数据库结构定义
         // ===================================================================
 
-db.version(30).stores({ 
-chats: '&id, isGroup, groupId, isPinned, characterPhoneData,latestInnerVoice, innerVoiceHistory',
+db.version(31).stores({ 
+    chats: '&id, isGroup, groupId, isPinned, characterPhoneData,latestInnerVoice, innerVoiceHistory', // 我们会给chat对象动态添加 stickerLibrary 属性
     apiConfig: '&id',
     globalSettings: '&id, activeThemeId', 
-    userStickers: '&id, url, name',
+    userStickers: '&id, url, name', // 这是用户自己的表情包，保持不变
+    charStickers: '&id, url, name', // 【新增】这是所有角色通用的表情包
     worldBooks: '&id, name, categoryId', 
     worldBookCategories: '++id, name',
     musicLibrary: '&id', 
@@ -12844,8 +12891,9 @@ function displayFilteredFavorites(items) {
     if (stickerMatch) {
         // 如果匹配成功，提取出名字
         const stickerName = stickerMatch[1].trim();
-        // 根据名字去您的表情包列表里查找
-        const foundSticker = state.userStickers.find(s => s.name === stickerName);
+        // 【核心】在所有可能的表情库里查找（用户的、角色的专属、角色的通用）
+        const allStickers = [...state.userStickers, ...state.charStickers, ...(chat.settings.stickerLibrary || [])];
+        const foundSticker = allStickers.find(s => s.name === stickerName);
         
         if (foundSticker) {
             // 如果找到了，就显示图片！
@@ -12861,6 +12909,7 @@ function displayFilteredFavorites(items) {
     }
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
 
 }
         
@@ -13197,6 +13246,7 @@ async function loadAllDataFromDB() {
         apiConfig,
         globalSettings,
         userStickers,
+        charStickers,
         worldBooks,
         musicLib,
         personaPresets,
@@ -13209,6 +13259,7 @@ bubbleStylePresets
         db.apiConfig.get('main'),
         db.globalSettings.get('main'),
         db.userStickers.toArray(),
+        db.charStickers.toArray(),
         db.worldBooks.toArray(),
         db.musicLibrary.get('main'),
         db.personaPresets.toArray(),
@@ -13219,10 +13270,18 @@ bubbleStylePresets
     // ▲▲▲ 【修改结束】 ▲▲▲
 
     state.chats = chatsArr.reduce((acc, chat) => {
+            // 兼容旧数据：为没有专属表情库的角色添加一个空的表情库
+        if (!chat.isGroup && (!chat.settings || !chat.settings.stickerLibrary)) {
+            if (!chat.settings) chat.settings = {}; // 以防万一连settings都没有
+            chat.settings.stickerLibrary = [];
+            console.log(`为旧角色 "${chat.name}" 补全了专属表情库(stickerLibrary)属性。`);
+        }
+        // ▲▲▲ 修改结束 ▲▲▲
 
     if (typeof chat.unreadCount === 'undefined') {
         chat.unreadCount = 0; // 如果这个聊天对象没有 unreadCount 属性，就给它初始化为 0
     }
+    // ▼▼▼ 在这里粘贴下面的“数据迁移”代码 ▼▼▼
 
         // ★★★【核心重构：数据迁移脚本】★★★
         // 检查是否是群聊，并且其成员对象使用的是旧的 `name` 结构
@@ -13274,6 +13333,8 @@ bubbleStylePresets
     }
     // ▲▲▲ 添加结束 ▲▲▲
     // ▼▼▼ 在这里粘贴新代码 ▼▼▼
+
+
     // 兼容旧数据：为没有NPC库的单聊角色添加空的NPC库
     if (!chat.isGroup && !chat.npcLibrary) {
         chat.npcLibrary = [];
@@ -14746,10 +14807,21 @@ if (hasTrajectory) {
     `;
 // ▲▲▲ 替换结束 ▲▲▲
 
-    } else if (typeof msg.content === 'string' && STICKER_REGEX.test(msg.content)) {
+    // ▼▼▼ 第4步 修改点 ▼▼▼
+    // 【新增】优先处理我们定义的新版角色表情包格式
+      }else if (msg.type === 'sticker' && msg.content) {
+        bubble.classList.add('is-sticker');
+        // 直接从消息对象中获取 url 和 meaning
+        contentHtml = `<img src="${msg.content}" alt="${msg.meaning || 'Sticker'}" class="sticker-image">`;
+    }
+    // ▲▲▲ 修改结束 ▲▲▲
+    
+    // 旧的逻辑保持不变，作为兼容
+    else if (typeof msg.content === 'string' && STICKER_REGEX.test(msg.content)) {
         bubble.classList.add('is-sticker');
         contentHtml = `<img src="${msg.content}" alt="${msg.meaning || 'Sticker'}" class="sticker-image">`;
     } else if (Array.isArray(msg.content) && msg.content[0]?.type === 'image_url') {
+
         bubble.classList.add('has-image');
         const imageUrl = msg.content[0].image_url.url;
         contentHtml = `<img src="${imageUrl}" class="chat-image" alt="User uploaded image">`;
@@ -14867,24 +14939,56 @@ document.getElementById('char-heart-btn').style.display = chat.isGroup ? 'none' 
 // ▲▲▲ 替换结束 ▲▲▲
 
 async function triggerAiResponse() {
-let stickerContext = '';
-if (state.userStickers && state.userStickers.length > 0) {
-    const stickerNames = state.userStickers.map(s => s.name).join(', ');
-    stickerContext = `
-# 关于表情包的【绝对规则】
-1.  你只能使用 "type": "text" 并在 content 中用 [sticker:表情名] 的格式来发送表情。
-2.  "表情名" 【必须】严格地从下方“你的可用表情包名字”列表中选择一个。
-3.  【严禁】自己编造任何不在列表中的表情名。
-4.  【重要后果】：如果你编造了不存在的表情名，用户只会看到一段失败的文本，例如“[sticker:一个不存在的名字]”，这会严重破坏对话体验。请务必避免这种情况。
+      if (!state.activeChatId) return;
+    const chatId = state.activeChatId;
+    const chat = state.chats[state.activeChatId];
 
-## 你的可用表情包名字:
-${stickerNames}
+// ▼▼▼ 第3步 第1处修改 ▼▼▼
+
+// ▼▼▼ 第3步 第1处修改 ▼▼▼
+
+// 1. 准备专属表情包列表
+const exclusiveStickers = chat.settings.stickerLibrary || [];
+let exclusiveStickerContext = '';
+if (exclusiveStickers.length > 0) {
+    exclusiveStickerContext = `
+## 你的专属表情包 (只有你能用):
+${exclusiveStickers.map(s => `- ${s.name}`).join('\n')}
 `;
 }
 
-    if (!state.activeChatId) return;
-    const chatId = state.activeChatId;
-    const chat = state.chats[state.activeChatId];
+// 2. 准备通用表情包列表
+const commonStickers = state.charStickers || [];
+let commonStickerContext = '';
+if (commonStickers.length > 0) {
+    commonStickerContext = `
+## 通用表情包 (所有角色都能用):
+${commonStickers.map(s => `- ${s.name}`).join('\n')}
+`;
+}
+
+// 3. 组合成最终的表情包指令
+let stickerContext = '';
+if (exclusiveStickerContext || commonStickerContext) {
+    stickerContext = `
+# 关于表情包的【绝对规则】
+1.  你拥有一个表情包列表，分为“专属”和“通用”。
+2.  当你想要发送表情时，【必须且只能】使用以下JSON格式：
+    \`{"type": "sticker", "name": "表情的名字"}\`
+3.  【【【最高指令】】】你【必须】从下方列表中精确地选择一个有效的 "name"。如果你编造了一个列表中不存在的name，你的表情将会发送失败。这是强制性规则。
+4.  【严禁】使用旧的 \`[sticker:名字]\` 格式或返回图片URL。
+
+${exclusiveStickerContext}
+${commonStickerContext}
+`;
+}
+// ▲▲▲ 修改结束 ▲▲▲
+
+
+
+
+            // ▲▲▲ 修改结束 ▲▲▲
+
 
 // ▼▼▼ 在这里粘贴新代码 ▼▼▼
 const { proxyUrl, apiKey, model } = state.apiConfig;
@@ -15406,7 +15510,7 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
     ? chat.settings.aiAvatarLibrary.map(avatar => `- ${avatar.name}`).join('\n')
     : '- (你的头像库是空的，无法更换头像)'
 }
-${stickerContext}
+
 
 # 你可以使用的操作指令 (JSON数组中的元素):
 -   **【【【全新】】】发送后立刻撤回 (动画效果)**: \`{"type": "send_and_recall", "content": "你想让AI说出后立刻消失的话"}\` (用于模拟说错话、后悔等场景，消息会短暂出现后自动变为“已撤回”)
@@ -15415,7 +15519,7 @@ ${stickerContext}
 -   **记录回忆**: \`{"type": "create_memory", "description": "用你自己的话，记录下这个让你印象深刻的瞬间。"}\`
 -   **创建约定/倒计时**: \`{"type": "create_countdown", "title": "约定的标题", "date": "YYYY-MM-DDTHH:mm:ss"}\` (必须是未来的时间)
 -   **发送文本**: \`{"type": "text", "content": "你好呀！"}\`
--   **发送表情**: \`{"type": "sticker", "url": "https://...表情URL...", "meaning": "(可选)表情的含义"}\`
+-   **发送表情**: \`{"type": "sticker", "name": "表情的名字"}\`
 -   **发送图片**: \`{"type": "ai_image", "description": "图片的详细文字描述..."}\`
 -   **发送语音**: \`{"type": "voice_message", "content": "语音的文字内容..."}\`
 -   **发起转账**: \`{"type": "transfer", "amount": 5.20, "note": "一点心意"}\`
@@ -15447,11 +15551,12 @@ ${stickerContext}
 # 关于“记录回忆”的特别说明：
 -   在对话中，如果发生了对你而言意义非凡的事件（比如用户向你表白、你们达成了某个约定、或者你度过了一个特别开心的时刻），你可以使用\`create_memory\`指令来“写日记”。
 -   这个操作是【秘密】的，用户不会立刻看到你记录了什么。
-${stickerContext}
+${exclusiveStickerContext}
+${commonStickerContext}
 
 # 如何区分图片与表情:
 -   **图片 (ai_image)**: 指的是【模拟真实相机拍摄的照片】，比如风景、自拍、美食等。指令: \`{"type": "ai_image", "description": "图片的详细文字描述..."}\`
--   **表情 (sticker)**: 指的是【卡通或梗图】，用于表达情绪。
+-   **表情 (sticker)**: 指的是【卡通或梗图】，用于表达情绪，只能发角色表情库列表里的，禁止杜撰！
 
 # 如何正确使用“外卖代付”功能:
 1.  这个指令代表【你，AI角色】向【用户】发起一个代付请求。也就是说，你希望【用户帮你付钱】。
@@ -16637,41 +16742,56 @@ case 'send_and_recall': {
     continue;
 }
                 
+// ▼▼▼ 用这【一整块】代码，完整替换旧的 case 'sticker' 和 case 'text' ▼▼▼
+            case 'sticker': { // 使用大括号创建独立作用域
+                const stickerName = msgData.name;
+                if (!stickerName) {
+                    console.warn('AI返回了sticker类型但没有name，已拦截:', msgData);
+                    continue;
+                }
+                
+                // 【安检站】在所有可能的表情库里查找
+                const allStickers = [...state.userStickers, ...state.charStickers, ...(chat.settings.stickerLibrary || [])];
+                const foundSticker = allStickers.find(s => s.name === stickerName);
+
+                if (foundSticker) {
+                    // 【安检通过】创建消息对象
+                    aiMessage = { ...baseMessage, type: 'sticker', content: foundSticker.url, meaning: foundSticker.name };
+                } else {
+                    // 【安检失败】AI杜撰了名字
+                    console.warn(`AI杜撰了不存在的表情名: "${stickerName}"，已自动拦截。`);
+                    continue;
+                }
+                break;
+            }
+                
             case 'text': { 
                 const messageText = String(msgData.content || msgData.message || '');
                 
-                // 1. 优先检查内容本身是不是一个合法的图片/表情包URL (这部分逻辑不变)
                 if (STICKER_REGEX.test(messageText)) {
                     aiMessage = { ...baseMessage, type: 'sticker', content: messageText, meaning: '' };
                 } 
-                // 2. 如果不是URL，再检查是否【完全匹配】[sticker:名字] 格式
                 else {
-                    // 【核心修改1】使用更严格的正则表达式，^匹配开头，$匹配结尾
+                    // 兼容旧的[sticker:名字]格式，但新prompt已不推荐
                     const stickerMatch = messageText.match(/^\[sticker:(.+?)\]$/); 
-                    
                     if (stickerMatch) {
-                        // 如果完全匹配
                         const stickerName = stickerMatch[1].trim();
-                        const foundSticker = state.userStickers.find(s => s.name === stickerName);
+                        const allStickers = [...state.userStickers, ...state.charStickers, ...(chat.settings.stickerLibrary || [])];
+                        const foundSticker = allStickers.find(s => s.name === stickerName);
                         
                         if (foundSticker) {
-                            // 找到了，就正常创建表情消息
                             aiMessage = { ...baseMessage, type: 'sticker', content: foundSticker.url, meaning: foundSticker.name };
                         } else {
-                            // 【核心修改2】如果没找到，就什么也不做！
-                            // aiMessage 保持为 null，这条消息就会被跳过，不会显示
-                            console.warn(`AI杜撰了不存在的表情: "${stickerName}"，已自动隐藏。`);
+                            console.warn(`AI使用了旧格式且杜撰了不存在的表情: "${stickerName}"，已拦截。`);
                         }
                     } else {
-                        // 3. 如果以上都不是，则为普通文本消息
                         aiMessage = { ...baseMessage, content: messageText };
                     }
                 }
                 break;
             }
-                case 'sticker':
-                    aiMessage = { ...baseMessage, type: 'sticker', content: msgData.url, meaning: msgData.meaning || '' };
-                    break;
+
+
                 case 'ai_image':
                     aiMessage = { ...baseMessage, type: 'ai_image', content: msgData.description };
                     break;
@@ -26237,16 +26357,6 @@ async function clearAllSingleChatBackgrounds() {
     }
 }
 // ▲▲▲ 粘贴结束 ▲▲▲
-
-/* ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼ */
-        async function init() {
-            // ▼▼▼ 在 init() 函数的【最开头】，粘贴下面这两行代码 ▼▼▼
-            const savedTheme = localStorage.getItem('ephone-theme') || 'light'; // 默认为日间模式
-            applyTheme(savedTheme);
-            // ▲▲▲ 粘贴结束 ▲▲▲
-            // ...你原来的其他 init() 代码...
-        }
-
 /* ▼▼▼ 【V2修正版】主屏幕美化预设核心功能函数 ▼▼▼ */
 
 let activeHomePresetId = null; // 用于追踪当前选中的预设ID
@@ -26712,6 +26822,216 @@ ${extraContext}
         await showCustomAlert('操作失败', `发生了一个错误：\n${error.message}`);
     }
 }
+// ▼▼▼ 第2步 第4处修改（新增JS功能函数） ▼▼▼
+
+/**
+ * 【全新】角色表情包管理核心功能
+ */
+async function openCharStickerManager() {
+    if (!state.activeChatId) return;
+    const chat = state.chats[state.activeChatId];
+    document.getElementById('sticker-manager-title').textContent = `“${chat.name}”的表情包`;
+
+    // 默认显示专属表情
+    document.getElementById('sticker-tab-exclusive').click();
+    
+    await renderCharStickers('exclusive');
+    await renderCharStickers('common');
+    
+    showScreen('char-sticker-manager-screen');
+}
+
+// ▼▼▼ 【修复并优化】请用下面这一整块代码，替换掉旧的 renderCharStickers, bulkAddCharStickers, uploadCharStickersLocal 三个函数 ▼▼▼
+
+/**
+ * 【已修复】渲染指定类型的角色表情包
+ */
+async function renderCharStickers(type) {
+    const isExclusive = type === 'exclusive';
+    const gridId = isExclusive ? 'exclusive-sticker-grid' : 'common-sticker-grid';
+    const grid = document.getElementById(gridId);
+    grid.innerHTML = '';
+
+    let stickers = [];
+    if (isExclusive) {
+        const chat = state.chats[state.activeChatId];
+        stickers = chat.settings.stickerLibrary || [];
+    } else {
+        // 【核心修复】确保我们总是从最新的数据库状态读取通用表情
+        state.charStickers = await db.charStickers.toArray();
+        stickers = state.charStickers || [];
+    }
+
+    if (stickers.length === 0) {
+        grid.innerHTML = `<p style="text-align:center; color: var(--text-secondary); grid-column: 1 / -1;">这里还是空的哦~</p>`;
+        return;
+    }
+
+    // 为了能正确删除，我们需要倒序遍历来获取正确的索引
+    const stickersWithIndex = stickers.map((sticker, index) => ({ ...sticker, originalIndex: index }));
+
+    stickersWithIndex.forEach((sticker) => {
+        const item = document.createElement('div');
+        item.className = 'sticker-item';
+        item.style.backgroundImage = `url(${sticker.url})`;
+        item.title = sticker.name;
+
+        const deleteBtn = document.createElement('div');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.innerHTML = '×';
+        deleteBtn.style.display = 'block';
+        deleteBtn.onclick = async (e) => {
+            e.stopPropagation();
+            const confirmed = await showCustomConfirm('删除表情', `确定要删除表情 "${sticker.name}" 吗？`, { confirmButtonClass: 'btn-danger' });
+            if (confirmed) {
+                if (isExclusive) {
+                    const chat = state.chats[state.activeChatId];
+                    chat.settings.stickerLibrary.splice(sticker.originalIndex, 1);
+                    await db.chats.put(chat);
+                } else {
+                    await db.charStickers.delete(sticker.id);
+                    // 删除后，我们直接重新渲染，而不是操作state，这样最安全
+                }
+                await renderCharStickers(type); // 重新渲染列表
+            }
+        };
+        item.appendChild(deleteBtn);
+        grid.appendChild(item);
+    });
+}
+
+/**
+ * 【已修复+优化】批量添加表情包到指定库
+ */
+async function bulkAddCharStickers(type) {
+    const textInput = await showCustomPrompt(
+        `批量添加${type === 'exclusive' ? '专属' : '通用'}表情`,
+        "一行一个，格式：\n猫猫喝水 https://..../cat.gif",
+        "", 'textarea'
+    );
+    if (!textInput || !textInput.trim()) return;
+
+    const lines = textInput.trim().split('\n');
+    const newStickers = [];
+    let successCount = 0;
+
+    lines.forEach((line, index) => {
+        line = line.trim();
+        if (!line) return;
+
+        // 【优化】使用更智能、更健壮的分割逻辑
+        let name = '';
+        let url = '';
+        let splitIndex = -1;
+        const httpIndex = line.indexOf('http');
+        const dataIndex = line.indexOf('data:image');
+        if (httpIndex > -1) { splitIndex = httpIndex; }
+        else if (dataIndex > -1) { splitIndex = dataIndex; }
+
+        if (splitIndex > 0) {
+            name = line.substring(0, splitIndex).trim();
+            url = line.substring(splitIndex).trim();
+            if (name.endsWith(':') || name.endsWith('：')) {
+                name = name.slice(0, -1).trim();
+            }
+        }
+
+        if (name && (url.startsWith('http') || url.startsWith('data:image'))) {
+            const stickerData = { url, name };
+            if (type !== 'exclusive') {
+                stickerData.id = 'char_sticker_' + (Date.now() + index);
+            }
+            newStickers.push(stickerData);
+            successCount++;
+        }
+    });
+
+    if (newStickers.length > 0) {
+        if (type === 'exclusive') {
+            const chat = state.chats[state.activeChatId];
+            chat.settings.stickerLibrary.push(...newStickers);
+            await db.chats.put(chat);
+        } else {
+            await db.charStickers.bulkAdd(newStickers);
+        }
+        await renderCharStickers(type); // 【核心修复】在数据库操作后，统一重新渲染
+    }
+    await showCustomAlert("导入报告", `成功导入：${successCount} 个表情。`);
+}
+
+/**
+ * 【已修复】从本地上传表情到指定库
+ */
+async function uploadCharStickersLocal(type) {
+    const input = document.getElementById('char-sticker-upload-input'); // 应该长这样
+    input.onchange = async (event) => {
+        const files = event.target.files;
+        if (!files.length) return;
+
+        const stickersToAdd = []; // 先收集所有要添加的表情
+
+        for (const file of files) {
+            const name = await showCustomPrompt("为表情命名", "请输入表情名称", file.name.replace(/\.[^/.]+$/, ""));
+            if (name && name.trim()) {
+                const base64Url = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+                
+                const stickerData = { name: name.trim(), url: base64Url };
+                if (type !== 'exclusive') {
+                    stickerData.id = 'char_sticker_' + Date.now() + Math.random();
+                }
+                stickersToAdd.push(stickerData);
+            }
+        }
+
+        if (stickersToAdd.length > 0) {
+            if (type === 'exclusive') {
+                const chat = state.chats[state.activeChatId];
+                chat.settings.stickerLibrary.push(...stickersToAdd);
+                await db.chats.put(chat);
+            } else {
+                await db.charStickers.bulkAdd(stickersToAdd);
+            }
+            await renderCharStickers(type); // 【核心修复】在数据库操作后，统一重新渲染
+            alert(`已成功上传 ${stickersToAdd.length} 个表情！`);
+        }
+        
+        event.target.value = null;
+    };
+    input.click();
+}
+
+// ▲▲▲ 修复代码块结束 ▲▲▲
+// ▼▼▼ 第1步：在这里粘贴下面这个【新函数】 ▼▼▼
+
+/**
+ * 【新增】显示指定的角色表情包标签页
+ * 这是之前缺失的核心功能，用于控制显示哪个标签页（专属或通用）。
+ * @param {'exclusive' | 'common'} type - 要显示的标签页类型
+ */
+function showCharStickerTab(type) {
+    // 1. 切换标签按钮的 'active' 状态
+    document.querySelectorAll('.char-sticker-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === type);
+    });
+
+    // 2. 切换内容区域的显示
+    document.querySelectorAll('.sticker-tab-content').forEach(content => {
+        content.classList.toggle('active', content.id === `${type}-sticker-content`);
+    });
+
+    // 3. 渲染对应标签页的表情
+    // (这一步确保每次切换标签时，表情都会刷新)
+    renderCharStickers(type);
+}
+
+// ▲▲▲ JavaScript新函数粘贴结束 ▲▲▲
+
+// 这里应该是你已有的其他函数，比如 renderCharStickers, bulkAddCharStickers 等...
+
 
 
         async function init() {
@@ -26898,6 +27218,47 @@ document.getElementById('refresh-hottopic-feed-btn').addEventListener('click', (
 
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
 
+    // ▼▼▼ 第2步 第5处修改（新增事件监听器） ▼▼▼
+    // 【全新】角色表情包管理功能事件绑定
+    document.getElementById('chat-settings-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'manage-char-stickers-btn') {
+            document.getElementById('chat-settings-modal').classList.remove('visible');
+            openCharStickerManager();
+        }
+    });
+
+    document.getElementById('back-from-sticker-manager').addEventListener('click', () => {
+        showScreen('chat-interface-screen');
+        document.getElementById('chat-settings-btn').click();
+    });
+
+    // 表情管理页签切换
+    const stickerTabExclusive = document.getElementById('sticker-tab-exclusive');
+    const stickerTabCommon = document.getElementById('sticker-tab-common');
+    const stickerContentExclusive = document.getElementById('sticker-content-exclusive');
+    const stickerContentCommon = document.getElementById('sticker-content-common');
+
+    stickerTabExclusive.addEventListener('click', () => {
+        stickerTabExclusive.classList.add('active');
+        stickerTabCommon.classList.remove('active');
+        stickerContentExclusive.style.display = 'block';
+        stickerContentCommon.style.display = 'none';
+    });
+
+    stickerTabCommon.addEventListener('click', () => {
+        stickerTabCommon.classList.add('active');
+        stickerTabExclusive.classList.remove('active');
+        stickerContentCommon.style.display = 'block';
+        stickerContentExclusive.style.display = 'none';
+    });
+
+    // 绑定各种添加/上传按钮
+    document.getElementById('add-exclusive-sticker-btn').addEventListener('click', () => bulkAddCharStickers('exclusive'));
+    document.getElementById('upload-exclusive-sticker-btn').addEventListener('click', () => uploadCharStickersLocal('exclusive'));
+    document.getElementById('add-common-sticker-btn').addEventListener('click', () => bulkAddCharStickers('common'));
+    document.getElementById('upload-common-sticker-btn').addEventListener('click', () => uploadCharStickersLocal('common'));
+
+    // ▲▲▲ 新增事件监听器结束 ▲▲▲
 
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
 
@@ -27372,6 +27733,13 @@ document.getElementById('reroll-call-btn-text').addEventListener('click', handle
         // ▼▼▼ 在这里粘贴新代码 ▼▼▼
     document.getElementById('npc-library-group').style.display = isGroup ? 'none' : 'block';
     // ▲▲▲ 粘贴结束 ▲▲▲
+            // ▼▼▼ 第2步 第1处修改（新增代码） ▼▼▼
+        // 【全新】根据是否为单聊，显示或隐藏角色表情管理按钮
+        const charStickerGroup = document.getElementById('char-sticker-group');
+        if (charStickerGroup) {
+            charStickerGroup.style.display = isGroup ? 'none' : 'block';
+        }
+        // ▲▲▲ 修改结束 ▲▲▲
 // 【核心新增】根据是否为群聊，显示或隐藏微博设置
 document.getElementById('weibo-profession-group').style.display = isGroup ? 'none' : 'block';
 document.getElementById('weibo-instruction-group').style.display = isGroup ? 'none' : 'block';
