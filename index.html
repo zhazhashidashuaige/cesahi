@@ -302,11 +302,13 @@ body {
     flex-grow: 1;
     background-color: var(--secondary-bg);
     padding-top: 100px; 
-    /* 核心修复：将底部内边距从 8px 增加到 60px，为导航栏留出足够空间 */
-    padding-bottom: calc(60px + env(safe-area-inset-bottom)); 
+    /* 核心修复：使用 calc() 动态计算底部内边距，
+       50px是为底部导航栏预留的高度，
+       env(safe-area-inset-bottom)会自动获取iPhone底部小黑条的安全距离。
+    */
+    padding-bottom: calc(8px + env(safe-area-inset-bottom)); 
     box-sizing: border-box;
 }
-
 
 
         .list-item { display: flex; flex-direction: column; padding: 12px 20px; cursor: pointer; border-bottom: 1px solid var(--border-color); }
@@ -322,41 +324,27 @@ body {
         .chat-list-item .group-tag { font-size: 10px; color: var(--accent-color); background-color: #e7f3ff; padding: 2px 6px; border-radius: 4px; font-weight: bold; flex-shrink: 0; }
         .chat-list-item .last-msg { font-size: 13px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
         /* 修改后的代码 */
-/* ▼▼▼ 用这块【终极修复版】代码，替换你旧的 #chat-interface-screen 和 #chat-messages 样式 ▼▼▼ */
-
-/* 1. 聊天屏幕总容器：让它成为一个撑满屏幕的Flex列布局 */
 #chat-interface-screen { 
     background-size: cover; 
     background-position: center; 
-    display: flex; /* <-- 核心：必须是flex布局 */
-    flex-direction: column; /* <-- 核心：子元素垂直排列 */
-    height: 100%; /* <-- 核心：撑满父容器 */
-    overflow: hidden; /* <-- 核心：防止任何意外溢出 */
 }
 
-/* 2. 聊天消息区域：让它自动填充剩余空间，而不是固定高度 */
-#chat-messages {
-    flex-grow: 1;           /* ★★★ 最最关键的一行！让它自动伸缩，填满剩余空间 ★★★ */
-    min-height: 0;          /* 一个神奇的保险丝，解决Flex布局下的滚动兼容问题 */
-    overflow-y: auto;       /* 内容超出时，允许自身垂直滚动 */
-    overflow-x: hidden;
-    padding: 10px 15px;     /* 保留舒适的左右内边距 */
-    box-sizing: border-box;
+        #selection-cancel-btn, #selection-delete-btn { font-size: 16px; color: var(--accent-color); cursor: pointer; padding: 5px; }
+        #selection-delete-btn { color: #ff3b30; }
 
-    /* 
-     * 保留你的头部适配方案：
-     * 为顶部半透明的header留出空间，同时让背景图能透上去。
-     * 110px是header的高度, -80px是向上拉的距离，你可以根据你的header样式微调。
-    */
+/* ▼▼▼ 用这块代码替换掉你原来的 #chat-messages 样式 ▼▼▼ */
+#chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden; /* 核心修正1: 强制禁止水平滚动/拖动 */
+    padding: 10px 15px; /* 核心修正2: 将左右内边距增加到15px，提供更多呼吸空间 */
     padding-top: 110px;
     margin-top: -80px;
-
-    /* 保持内部消息气泡的flex布局 */
     display: flex;
     flex-direction: column;
     gap: 20px;
+    box-sizing: border-box; /* 确保内边距计算正确 */
 }
-
 /* ▲▲▲ 替换结束 ▲▲▲ */
         #load-more-btn { text-align: center; padding: 10px; color: var(--accent-color); font-size: 14px; cursor: pointer; background-color: transparent; border: none; width: 100%; }
         #load-more-btn:hover { text-decoration: underline; }
@@ -7225,30 +7213,34 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     stroke-width: 1.5; /* 让图标线条稍微粗一点，更清晰 */
 }
 /* ▲▲▲ 新CSS粘贴结束 ▲▲▲ */
-/* ▼▼▼ 请用下面这【一整块带有详细注释】的代码，完整替换掉你旧的微博主页布局CSS ▼▼▼ */
+/* ▼▼▼ 把这一整块全新的微博页面样式，粘贴到 <style> 的末尾 ▼▼▼ */
 
-/* 1. 个人主页的滚动容器 (保持不变) */
+/* ▼▼▼ 把这一整块全新的微博页面布局样式，粘贴到 <style> 标签的最末尾 ▼▼▼ */
+/* ▼▼▼ 把这一整块全新的、修复后的微博布局样式，粘贴到 <style> 标签中 ▼▼▼ */
+
+/* 个人主页内容区，确保可以滚动 */
 #weibo-profile-page {
-    flex-grow: 1;
-    overflow-y: auto;
+    flex-grow: 1; /* 占据剩余所有空间 */
+    overflow-y: auto; /* 内容多了可以滚动 */
     background-color: #f0f2f5;
 }
 
-/* 2. 头部容器：负责背景图，并为下方内容留出空间 */
+/* 1. 【核心】重塑头部容器 */
 .weibo-profile-header {
-    position: relative;
-    height: 180px;
-    /* 
-      ★★★ 手动调整区：微博内容与上方区域的【上下间距】 ★★★
-      这个值决定了你的第一条微博，和上方个人信息区域的距离。
-      - 数值越大，间距越大，微博内容离得越远。
-      - 数值越小，间距越小，微博内容离得越近。
-      我已将它从 90px 减小到了 20px，你可以根据喜好再微调。
-    */
-    margin-bottom: 50px;/* ★ 修改这里 ★ */
+    position: relative; /* 作为内部所有元素的定位基准 */
+    width: 100%;
+    height: 250px; /* 增加高度以容纳所有内容 */
+    display: flex; /* 使用Flex布局 */
+    flex-direction: column; /* 垂直排列 */
+    justify-content: center; /* 垂直居中 */
+    align-items: center; /* 水平居中 */
+    padding: 20px;
+    box-sizing: border-box;
+    color: white; /* 统一设置文字颜色为白色，因为在背景图上 */
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5); /* 给所有文字加阴影，保证清晰 */
 }
 
-/* 3. 背景图样式 (保持不变) */
+/* ▼▼▼ 请用下面这【正确】的代码替换 ▼▼▼ */
 .weibo-background {
     position: absolute;
     top: 0;
@@ -7256,28 +7248,37 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     width: 100%;
     height: 100%;
     object-fit: cover;
+    /* z-index: -1;  <-- 我们已经把错误的那行删掉了！ */
+    z-index: 1; /* 【修正】设置一个正数的层级，确保它在父容器内 */
+    filter: brightness(0.9); 
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
+/* ▼▼▼ 请将这块【新代码】粘贴到 .weibo-background 的正下方 ▼▼▼ */
+/* ▼▼▼ 用这块新代码替换掉上面的旧代码 ▼▼▼ */
+/* 【新增】为前景内容设置更高的层级 */
+.weibo-avatar-container,
+.weibo-nickname,
+.weibo-stats,
+#weibo-user-profession-display { /* ▲▲▲ 核心修改：把 #weibo-user-profession-display 加到这里 ▲▲▲ */
+    position: relative; /* 激活z-index */
+    z-index: 2;         /* 确保它们在背景图之上 */
 }
 
-/* 4. 头像容器：实现悬浮效果的核心 */
+
+/* 3. 【核心】重置头像容器的样式 */
 .weibo-avatar-container {
-    position: absolute;
-    z-index: 3;
+    /* 移除所有绝对定位相关的代码 */
+    position: static;
+    transform: none;
+    bottom: auto;
+    left: auto;
+    
     width: 80px;
     height: 80px;
-    border: 3px solid white;
     border-radius: 50%;
+    border: 3px solid white;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    transform: none;
-
-    /* ★★★ 手动调整区1: 头像位置 (左右 + 上下) ★★★ */
-
-    /* --- 左右位置 --- */
-    /* 数值越大，越往右。数值越小，越往左。*/
-    left: 20px; /* ★ 修改这里 */
-
-    /* --- 上下位置 --- */
-    /* 数值越小 (比如 -50px), 越往下。数值越大 (比如 -30px), 越往上。*/
-    bottom: -40px; /* ★ 修改这里 */
+    margin-bottom: 12px; /* 与下方的昵称拉开距离 */
 }
 
 .weibo-avatar {
@@ -7287,81 +7288,43 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     object-fit: cover;
 }
 
-
-/* 5. 昵称和职业信息 */
-/* ★★★ 手动调整区2: 昵称位置 (左右 + 上下) ★★★ */
+/* 4. 【核心】重置昵称和各项数据的样式 */
 .weibo-nickname {
-    position: absolute;
-    z-index: 2;
-    color: #1f1f1f;
-    text-shadow: none;
+    margin: 0 0 10px 0; /* 调整间距 */
     font-size: 18px;
     font-weight: 600;
-
-    /* --- 左右位置 --- */
-    /* 数值越大，越往右。数值越小，越往左。*/
-    left: 120px; /* ★ 修改这里 */
-
-    /* --- 上下位置 --- */
-    /* 数值越小 (比如 -60px), 越往下。数值越大 (比如 -50px), 越往上。*/
-    bottom: -20px; /* ★ 修改这里 */
 }
 
-#weibo-user-profession-display {
-    position: absolute;
-    left: 115px; 
-    bottom: -75px; /* 这个值通常需要跟着昵称一起调整 */
-    z-index: 2;
-    font-size: 13px;
-    color: #8a8a8a;
-    text-shadow: none;
-}
-
-
-/* 6. 关注/粉丝/微博数据 */
-/* ★★★ 手动调整区3: 关注/粉丝/微博 位置 (左右 + 上下) ★★★ */
 .weibo-stats {
-    position: absolute;
-    z-index: 2;
+    margin: 0;
+    padding: 0;
     display: flex;
-    gap: 20px;
-
-    /* --- 左右位置 --- */
-    /* 数值越大，越往右。数值越小，越往左。*/
-    left: 120px; /* ★ 修改这里 */
-
-    /* --- 上下位置 --- */
-    /* 数值越小 (比如 -90px), 这行数据越往下。数值越大 (比如 -70px), 越往上。*/
-    bottom: -40px; /* ★ 修改这里 */
+    gap: 30px; /* 调整项目间距 */
 }
 
-
-/* 7. 单个数据项样式 (保持不变) */
 .weibo-stat-item {
     display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    gap: 5px;
+    align-items: center; /* 改为水平排列，数字在左，文字在右 */
+    gap: 6px; /* 数字和文字的间距 */
 }
+
 .weibo-stat-number {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
-    color: #333;
-    text-shadow: none;
 }
+
 .weibo-stat-label {
-    font-size: 13px;
-    color: #888;
-    text-shadow: none;
+    margin-top: 0; /* 移除旧的上边距 */
+    font-size: 14px;
+    opacity: 0.9; /* 让标签文字稍微柔和一点 */
 }
 
-/* 8. 微博Feed列表 (保持不变) */
+/* 5. 确保微博Feed列表正确显示在头部下方 */
 #my-weibo-feed-list {
-    padding-top: 15px;
+    background-color: #f0f2f5;
 }
 
-/* ▲▲▲ 微博样式替换结束 ▲▲▲ */
-
+/* ▲▲▲ 微博样式粘贴结束 ▲▲▲ */
 
 
 /* ▼▼▼ 【全新】微博页面框架和底部导航样式 ▼▼▼ */
@@ -14886,61 +14849,6 @@ ${stickerNames}
     if (!state.activeChatId) return;
     const chatId = state.activeChatId;
     const chat = state.chats[state.activeChatId];
-// 【全新】为AI准备微博互动的上下文
-let weiboContext = '';
-
-// 1. 获取用户最新发布的3条微博
-const userLatestPosts = await db.weiboPosts
-    .where('authorId').equals('user')
-    .reverse() // 按时间倒序
-    .limit(3)  // 只取最近3条
-    .toArray();
-
-if (userLatestPosts.length > 0) {
-    if (weiboContext === '') {
-        weiboContext = '\n\n# 最近的微博互动 (这是你和用户在微博上的最新动态，请优先回应)\n';
-    }
-    weiboContext += '\n## 用户最新发布的微博:\n';
-    userLatestPosts.forEach(post => {
-        const likes = (post.baseLikesCount || 0) + (post.likes || []).length;
-        const comments = (post.baseCommentsCount || 0) + (post.comments || []).length;
-        const contentPreview = (post.content || post.hiddenContent || "(图片微博)").substring(0, 30);
-        weiboContext += `- (ID: ${post.id}) [${formatPostTimestamp(post.timestamp)}] 内容: "${contentPreview}..." [👍${likes} 💬${comments}]\n`;
-    });
-}
-
-// 2. 查找用户在当前AI角色微博下的最新评论
-const charLatestPosts = await db.weiboPosts
-    .where('authorId').equals(chatId) // 只查找这个AI角色的微博
-    .reverse()
-    .limit(5) // 检查最近的5条
-    .toArray();
-
-let userCommentsOnMyPosts = '';
-const myNickname = state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我';
-
-charLatestPosts.forEach(post => {
-    if (post.comments && post.comments.length > 0) {
-        // 筛选出是“我”发的评论
-        const userComments = post.comments.filter(c => c.authorNickname === myNickname).slice(-3); // 只看最新的3条
-        if (userComments.length > 0) {
-            const postContentPreview = (post.content || '(图片微博)').substring(0, 20);
-            userCommentsOnMyPosts += `- 在你的微博 (ID: ${post.id}) "${postContentPreview}..." 下:\n`;
-userComments.forEach(comment => {
-    // 核心修改：同时提供了评论ID和评论者昵称，方便AI引用
-    userCommentsOnMyPosts += `  └ (评论ID: ${comment.commentId}, 评论者: ${comment.authorNickname}): "${comment.commentText}"\n`;
-});
-      }
-    }
-});
-
-if (userCommentsOnMyPosts) {
-    if (weiboContext === '') {
-        weiboContext = '\n\n# 最近的微博互动 (这是你和用户在微博上的最新动态，请优先回应)\n';
-    }
-    weiboContext += '\n## 用户在你微博下的新评论:\n';
-    weiboContext += userCommentsOnMyPosts;
-}
 
 // ▼▼▼ 在这里粘贴新代码 ▼▼▼
 const { proxyUrl, apiKey, model } = state.apiConfig;
@@ -15272,7 +15180,7 @@ ${worldBookContent}
 ${musicContext}
 ${countdownContext} // <--- 把备忘录加在这里
 ${sharedContext} 
-${weiboContext}
+
 # 群成员列表及人设
 ${membersList}
 
@@ -15395,7 +15303,7 @@ ${npcContext}
 # 【【【输出格式铁律】】】
 你的回复【必须】是一个【单一的、完整的JSON对象】，【绝对不能】只返回JSON数组或纯文本。
 这个JSON对象【必须】包含两个顶级键: "chatResponse" 和 "innerVoice"。
-如果user发布了新微博或者新动态，必须去评论！如果有人回复了你的动态评论或者微博评论，必须去回复这条评论，但是不要无休止，话题进行到可以结束就不要再回复了。
+如果user发不了新微博或者新动态，必须去评论！每轮必须从发布微博，发布动态，评论微博，评论动态中选一个进行。
 ## 1. "chatResponse" 键:
 - 它的值【必须】是一个JSON数组，代表你要在聊天中发送的消息。
 - 数组中的每个元素都是一个独立的消息对象，这可以让你一次性发送多条消息，模拟真人的聊天习惯。
@@ -15446,7 +15354,6 @@ ${npcContext}
     -   每条动态后面会有一个可见性标志，这只影响你【如何回复别人的评论】：
         -   **"[评论区可见]"**: 你能看到所有人的评论，可以自由地回复任何人。 
         -   **"[评论区部分可见]"**: 你处于隐私模式，只能看到用户和你自己的评论。在这种情况下，你【只能】回复用户或你自己的评论，【绝对不能】提及或回复任何你看不到的评论。
-        - **【【【回复铁律】】】**: 如果你在一条评论后面看到了 "[用户回复了你]" 的标记，你本次的回复【必须】使用 \`qzone_comment\` 指令去回复这条评论。这是最高优先级的任务。
 8.  **【【【人格分裂铁律】】】**: 当你在使用 \`qzone_comment\` 指令并指定 \`commenterName\` 让NPC朋友发言时，你【必须】完全代入该NPC的人设（参考 # 你的社交圈），并使用TA的口吻和性格来生成 \`commentText\`。绝对不能使用你自己的（即"${chat.name}"的）人设来为NPC发言。反之，当你作为 "${chat.name}" 评论时（即不使用 \`commenterName\` 字段），就必须使用你自己的核心人设
 9. **【【【约定与纪念日铁律】】】**: 你必须时刻关注 "# 近期约定与倒计时" 列表。
     - 如果某个约定的倒计时显示为“就是现在！”，你【必须】在本次回复中围绕这个主题向用户表达祝福或发起庆祝。
@@ -15455,7 +15362,7 @@ ${npcContext}
     - 如果用户发布了新微博，你可以使用 \`{"type": "weibo_comment", "postId": ..., "commentText": "..."}\` 指令去评论，评论内容【必须】是正常的文字，【绝对禁止】使用 "[sticker:xxxx]" 这种表情包格式。
     - 如果用户评论了你的微博，你可以使用 \`{"type": "weibo_reply", "postId": ..., "commentId": "...", "replyText": "..."}\` 指令去回复他/她的评论，评论内容【必须】是正常的文字，【绝对禁止】使用 "[sticker:xxxx]" 这种表情包格式。
     - 积极互动是维持你们关系的关键。
-- **【社交规则】**: 为了让动态区更真实，除了完成你的主要任务（比如回复用户），你也可以【随机】对其他你没评论过的动态发表评论，或者回复动态下的其他路人评论，以表现出你的社交性
+
 # 你的头像库
 - 你可以根据对话内容或你的心情，从下面的头像库中选择一个新头像来更换。
 - **可用头像列表 (请从以下名称中选择一个)**:
@@ -15463,6 +15370,8 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
     ? chat.settings.aiAvatarLibrary.map(avatar => `- ${avatar.name}`).join('\n')
     : '- (你的头像库是空的，无法更换头像)'
 }
+${stickerContext}
+
 # 你可以使用的操作指令 (JSON数组中的元素):
 -   **【【【全新】】】发送后立刻撤回 (动画效果)**: \`{"type": "send_and_recall", "content": "你想让AI说出后立刻消失的话"}\` (用于模拟说错话、后悔等场景，消息会短暂出现后自动变为“已撤回”)
 -   **更新状态**: \`{"type": "update_status", "status_text": "我去做什么了", "is_busy": false}\` (is_busy: true代表忙碌/离开, false代表空闲)
@@ -15535,74 +15444,75 @@ ${timeContext}
 
 # 当前音乐情景:
 ${musicContext}
-${weiboContext}
+
 ${countdownContext}
 
 ${worldBookContent}
 ${sharedContext} 
 现在，请根据以上规则和下面的对话历史，继续进行对话。`;
-// ▼▼▼ 请用这块【正确的代码】替换掉上面的错误代码 ▼▼▼
-messagesPayload = historySlice.map(msg => {
-    // 【核心修正】我们把所有写错的 context 改回了正确的 msg
-    if (msg.isHidden) {
-        return { role: 'system', content: msg.content };
-    }
+            // ▼▼▼ 【V5最终修复版】构建单人聊天的messagesPayload ▼▼▼
+            messagesPayload = historySlice.map(msg => {
+                // 【核心修正】在这里，我们对 isHidden 消息进行特殊处理
+                if (msg.isHidden) {
+                    // 如果是隐藏消息，就把它作为一条 system 角色的消息发送给AI
+                    // AI能看到它，但它不会被误解为是用户的发言
+                    return { role: 'system', content: msg.content };
+                }
 
-    if (msg.type === 'share_card') return null;
-    
-    if (msg.role === 'assistant') {
-        let assistantMsgObject = { type: msg.type || 'text' };
-        if (msg.type === 'sticker') {
-            assistantMsgObject.url = msg.content;
-            assistantMsgObject.meaning = msg.meaning;
-        } else if (msg.type === 'transfer') {
-            assistantMsgObject.amount = msg.amount;
-            assistantMsgObject.note = msg.note;
-        } else if (msg.type === 'waimai_request') {
-            assistantMsgObject.productInfo = msg.productInfo;
-            assistantMsgObject.amount = msg.amount;
-        } else {
-            if (msg.quote) {
-                assistantMsgObject.quote_reply = {
-                    target_sender: msg.quote.senderName,
-                    target_content: msg.quote.content,
-                    reply_content: msg.content
-                };
-            } else {
-                 assistantMsgObject.content = msg.content;
-            }
-        }
-        const assistantContent = JSON.stringify([assistantMsgObject]);
-        return { role: 'assistant', content: `(Timestamp: ${msg.timestamp}) ${assistantContent}` };
-    }
+                if (msg.type === 'share_card') return null;
+                
+                if (msg.role === 'assistant') {
+                    let assistantMsgObject = { type: msg.type || 'text' };
+                    if (msg.type === 'sticker') {
+                        assistantMsgObject.url = msg.content;
+                        assistantMsgObject.meaning = msg.meaning;
+                    } else if (msg.type === 'transfer') {
+                        assistantMsgObject.amount = msg.amount;
+                        assistantMsgObject.note = msg.note;
+                    } else if (msg.type === 'waimai_request') {
+                        assistantMsgObject.productInfo = msg.productInfo;
+                        assistantMsgObject.amount = msg.amount;
+                    } else {
+                        if (msg.quote) {
+                            assistantMsgObject.quote_reply = {
+                                target_sender: msg.quote.senderName,
+                                target_content: msg.quote.content,
+                                reply_content: msg.content
+                            };
+                        } else {
+                             assistantMsgObject.content = msg.content;
+                        }
+                    }
+                    const assistantContent = JSON.stringify([assistantMsgObject]);
+                    return { role: 'assistant', content: `(Timestamp: ${msg.timestamp}) ${assistantContent}` };
+                }
 
-    let contentStr = '';
-    contentStr += `(Timestamp: ${msg.timestamp}) `;
+                let contentStr = '';
+                contentStr += `(Timestamp: ${msg.timestamp}) `;
 
-    if (msg.quote) {
-        const quotedSnippet = String(msg.quote.content || '').substring(0, 50);
-        contentStr += `(回复 "${quotedSnippet}..."): ${msg.content}`;
-    } else {
-        contentStr += msg.content;
-    }
-    
-    if (msg.type === 'user_photo') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [你收到了一张用户描述的照片，内容是：'${msg.content}']` };
-    if (msg.type === 'voice_message') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [用户发来一条语音消息，内容是：'${msg.content}']` };
-    if (msg.type === 'transfer') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [系统提示：你于时间戳 ${msg.timestamp} 收到了来自用户的转账: ${msg.amount}元, 备注: ${msg.note}。请你决策并使用 'accept_transfer' 或 'decline_transfer' 指令回应。]` };
-    if (msg.type === 'waimai_request') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [系统提示：用户于时间戳 ${msg.timestamp} 发起了外卖代付请求，商品是“${msg.productInfo}”，金额是 ${msg.amount} 元。请你决策并使用 waimai_response 指令回应。]` };
+                if (msg.quote) {
+                    const quotedSnippet = String(msg.quote.content || '').substring(0, 50);
+                    contentStr += `(回复 "${quotedSnippet}..."): ${msg.content}`;
+                } else {
+                    contentStr += msg.content;
+                }
+                
+                if (msg.type === 'user_photo') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [你收到了一张用户描述的照片，内容是：'${msg.content}']` };
+                if (msg.type === 'voice_message') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [用户发来一条语音消息，内容是：'${msg.content}']` };
+                if (msg.type === 'transfer') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [系统提示：你于时间戳 ${msg.timestamp} 收到了来自用户的转账: ${msg.amount}元, 备注: ${msg.note}。请你决策并使用 'accept_transfer' 或 'decline_transfer' 指令回应。]` };
+                if (msg.type === 'waimai_request') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [系统提示：用户于时间戳 ${msg.timestamp} 发起了外卖代付请求，商品是“${msg.productInfo}”，金额是 ${msg.amount} 元。请你决策并使用 waimai_response 指令回应。]` };
 
-    if (Array.isArray(msg.content) && msg.content[0]?.type === 'image_url') {
-        const prefix = `(Timestamp: ${msg.timestamp}) `;
-        return { role: 'user', content: [ { type: 'text', text: prefix }, ...msg.content ] };
-    }
+                if (Array.isArray(msg.content) && msg.content[0]?.type === 'image_url') {
+                    const prefix = `(Timestamp: ${msg.timestamp}) `;
+                    return { role: 'user', content: [ { type: 'text', text: prefix }, ...msg.content ] };
+                }
 
-    if (msg.meaning) return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [用户发送了一个表情，意思是：'${msg.meaning}']` };
-    
-    return { role: msg.role, content: contentStr };
+                if (msg.meaning) return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [用户发送了一个表情，意思是：'${msg.meaning}']` };
+                
+                return { role: msg.role, content: contentStr };
 
-}).filter(Boolean);
-// ▲▲▲ 替换到这里结束 ▲▲▲
-
+            }).filter(Boolean);
+            // ▲▲▲ 替换结束 ▲▲▲
 
 // 检查 sharedContext 是否有内容（即，用户是否分享了聊天记录）
 if (sharedContext) {
@@ -15641,12 +15551,69 @@ ${contextSummaryForApproval}
 const allRecentPosts = await db.qzonePosts.orderBy('timestamp').reverse().limit(5).toArray();
 // ▼▼▼ 在这里粘贴下面这一整块新代码 ▼▼▼
 
-// ▼▼▼ 在这里粘贴下面这一整块新代码 ▼▼▼
+// 【全新】为AI准备微博互动的上下文
+let weiboContext = '';
+
+// 1. 获取用户最新发布的3条微博
+const userLatestPosts = await db.weiboPosts
+    .where('authorId').equals('user')
+
+if (userLatestPosts.length > 0) {
+    if (weiboContext === '') {
+        weiboContext = '\n\n# 最近的微博互动 (这是你和用户在微博上的最新动态，请优先回应)\n';
+    }
+    weiboContext += '\n## 用户最新发布的微博:\n';
+    userLatestPosts.forEach(post => {
+        const likes = (post.baseLikesCount || 0) + (post.likes || []).length;
+        const comments = (post.baseCommentsCount || 0) + (post.comments || []).length;
+        const contentPreview = (post.content || post.hiddenContent || "(图片微博)").substring(0, 30);
+        weiboContext += `- (ID: ${post.id}) [${formatPostTimestamp(post.timestamp)}] 内容: "${contentPreview}..." [👍${likes} 💬${comments}]\n`;
+    });
+}
+
+// 2. 查找用户在当前AI角色微博下的最新评论
+const charLatestPosts = await db.weiboPosts
+    .where('authorId').equals(chatId) // 只查找这个AI角色的微博
+    .reverse()
+    .limit(5) // 检查最近的5条
+    .toArray();
+
+let userCommentsOnMyPosts = '';
+const myNickname = state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我';
+
+charLatestPosts.forEach(post => {
+    if (post.comments && post.comments.length > 0) {
+        // 筛选出是“我”发的评论
+        const userComments = post.comments.filter(c => c.authorNickname === myNickname).slice(-3); // 只看最新的3条
+        if (userComments.length > 0) {
+            const postContentPreview = (post.content || '(图片微博)').substring(0, 20);
+            userCommentsOnMyPosts += `- 在你的微博 (ID: ${post.id}) "${postContentPreview}..." 下:\n`;
+            userComments.forEach(comment => {
+                userCommentsOnMyPosts += `  └ (评论ID: ${comment.commentId}) 用户: "${comment.commentText}"\n`;
+            });
+        }
+    }
+});
+
+if (userCommentsOnMyPosts) {
+    if (weiboContext === '') {
+        weiboContext = '\n\n# 最近的微博互动 (这是你和用户在微博上的最新动态，请优先回应)\n';
+    }
+    weiboContext += '\n## 用户在你微博下的新评论:\n';
+    weiboContext += userCommentsOnMyPosts;
+}
+
+// 3. 如果有任何微博互动，就把它加到给AI的“参考资料”里
+if (weiboContext) {
+    messagesPayload.push({ role: 'system', content: weiboContext });
+}
+
+// ▲▲▲ 新代码粘贴到这里结束 ▲▲▲
 
 // 【核心修改】在这里插入过滤步骤
 const visiblePosts = filterVisiblePostsForAI(allRecentPosts, chat);
 
-// ▼▼▼ 在这里修改 ▼▼▼
+// ▼▼▼ 【时间感知修复版】请用这整块代码替换旧的 if (visiblePosts.length > 0...) 代码块 ▼▼▼
 if (visiblePosts.length > 0 && !chat.isGroup) {
     let postsContext = "\n\n# 最近的动态列表 (供你参考和评论):\n";
     const aiName = chat.name;
@@ -15654,33 +15621,86 @@ if (visiblePosts.length > 0 && !chat.isGroup) {
 
     for (const post of visiblePosts) {
         let authorName = post.authorId === 'user' ? userNickname : (state.chats[post.authorId]?.name || '一位朋友');
-        
-        // --- ▼▼▼ 新增代码开始 ▼▼▼ ---
         let interactionStatus = '';
-        // 检查你(AI)是否点赞过
-        if (post.likes && post.likes.includes(aiName)) {
-            interactionStatus += " [你已点赞]";
-        }
-        // 检查你(AI)是否评论过
-        if (post.comments && post.comments.some(c => c.commenterName === aiName)) {
-            interactionStatus += " [你已评论]";
-        }
-        // --- ▲▲▲ 新增代码结束 ▲▲▲
-
-        const timeAgo = formatPostTimestamp(post.timestamp);
+        if (post.likes && post.likes.includes(aiName)) interactionStatus += " [你已点赞]";
+        if (post.comments && post.comments.some(c => c.commenterName === aiName)) interactionStatus += " [你已评论]";
         
-        // --- ▼▼▼ 修改这一行，把 interactionStatus 加到末尾 ---
+        // ★★★★★ 这就是我们这次修复的核心！ ★★★★★
+        // 在每一条动态前面，都加上了由 formatPostTimestamp() 函数生成的时间差提示
+        const timeAgo = formatPostTimestamp(post.timestamp); // 例如："3天前" 或 "刚刚"
         postsContext += `- (ID: ${post.id}) [${timeAgo}] 作者: ${authorName}, 内容: "${(post.publicText || post.content || "图片动态").substring(0, 30)}..."${interactionStatus}`;
-        // --- ▲▲▲ 修改结束 ▲▲▲
+        // ★★★★★ 修复结束 ★★★★★
 
         const { contextString: commentsContext, visibilityFlag } = buildCommentsContextForAI(post, chat, userNickname);
         
         postsContext += ` ${visibilityFlag}\n`;
         postsContext += commentsContext;
     }
-    messagesPayload.push({ role: 'system', content: postsContext });
+// ▼▼▼ 在 messagesPayload.push({ role: 'system', content: postsContext }); 的正上方，粘贴下面这整块代码 ▼▼▼
+
+// 【全新】为AI准备微博互动的上下文
+let weiboContext = '';
+
+// 1. 获取用户最新发布的3条微博
+const userLatestPosts = await db.weiboPosts
+    .where('authorId').equals('user')
+    .reverse() // 按时间倒序
+    .limit(3)  // 只取最近3条
+    .toArray();
+
+if (userLatestPosts.length > 0) {
+    if (weiboContext === '') {
+        weiboContext = '\n\n# 最近的微博互动 (这是你和用户在微博上的最新动态，请优先回应)\n';
+    }
+    weiboContext += '\n## 用户最新发布的微博:\n';
+    userLatestPosts.forEach(post => {
+        const likes = (post.baseLikesCount || 0) + (post.likes || []).length;
+        const comments = (post.baseCommentsCount || 0) + (post.comments || []).length;
+        const contentPreview = (post.content || post.hiddenContent || "(图片微博)").substring(0, 30);
+        weiboContext += `- (ID: ${post.id}) [${formatPostTimestamp(post.timestamp)}] 内容: "${contentPreview}..." [👍${likes} 💬${comments}]\n`;
+    });
 }
 
+// 2. 查找用户在当前AI角色微博下的最新评论
+const charLatestPosts = await db.weiboPosts
+    .where('authorId').equals(chatId) // 只查找这个AI角色的微博
+    .reverse()
+    .limit(5) // 检查最近的5条
+    .toArray();
+
+let userCommentsOnMyPosts = '';
+const myNickname = state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我';
+
+charLatestPosts.forEach(post => {
+    if (post.comments && post.comments.length > 0) {
+        // 筛选出是“我”发的评论
+        const userComments = post.comments.filter(c => c.authorNickname === myNickname).slice(-3); // 只看最新的3条
+        if (userComments.length > 0) {
+            const postContentPreview = (post.content || '(图片微博)').substring(0, 20);
+            userCommentsOnMyPosts += `- 在你的微博 (ID: ${post.id}) "${postContentPreview}..." 下:\n`;
+            userComments.forEach(comment => {
+                userCommentsOnMyPosts += `  └ (评论ID: ${comment.commentId}) 用户: "${comment.commentText}"\n`;
+            });
+        }
+    }
+});
+
+if (userCommentsOnMyPosts) {
+    if (weiboContext === '') {
+        weiboContext = '\n\n# 最近的微博互动 (这是你和用户在微博上的最新动态，请优先回应)\n';
+    }
+    weiboContext += '\n## 用户在你微博下的新评论:\n';
+    weiboContext += userCommentsOnMyPosts;
+}
+
+// 3. 如果有任何微博互动，就把它加到给AI的“参考资料”里
+if (weiboContext) {
+    messagesPayload.push({ role: 'system', content: weiboContext });
+}
+
+// ▲▲▲ 新代码粘贴到这里结束 ▲▲▲
+    messagesPayload.push({ role: 'system', content: postsContext });
+}
 
             let  isGemini = proxyUrl === GEMINI_API_URL;
             let geminiConfig = toGeminiRequestData(model,apiKey,systemPrompt, messagesPayload,isGemini)
@@ -15977,36 +15997,40 @@ case 'weibo_comment': {
                     }
                     continue; // 处理完后，继续处理AI可能返回的其他指令
                 }
-case 'weibo_reply': {
-    // 这是一个AI回复微博评论的指令
-    const postToReply = await db.weiboPosts.get(msgData.postId);
-    
-    if (postToReply && postToReply.comments) {
-        // 1. 在微博的评论区里，找到被回复的那条评论
-        const targetComment = postToReply.comments.find(c => c.commentId === msgData.commentId);
-        
-        if (targetComment) {
-             // 2. 准备一条新的“回复”
-             const newReply = {
-                commentId: 'comment_' + Date.now(),
-                authorId: chatId, // 回复者是当前AI
-                authorNickname: chat.name, // 回复者的名字
-                commentText: msgData.replyText, // 回复内容
-                timestamp: Date.now(),
-                replyToId: msgData.commentId, // 标记这是对哪条评论的回复
-                replyToNickname: targetComment.authorNickname // 记下被回复人的名字
-            };
-            postToReply.comments.push(newReply);
-            await db.weiboPosts.put(postToReply);
-            
-            // 3. 同样，刷新所有列表，让新回复显示出来
-            await renderMyWeiboFeed();
-            await renderFollowingWeiboFeed();
-        }
-    }
-    continue; // 继续处理AI可能返回的其他指令
-}
+                case 'weibo_reply': {
+                    // 这是一个AI回复微博评论的指令
+                    const postIdToReply = msgData.postId;
+                    const commentIdToReply = msgData.commentId;
+                    const replyText = msgData.replyText;
 
+                    const postToReply = await db.weiboPosts.get(postIdToReply);
+                    
+                    if (postToReply && postToReply.comments) {
+                        // 1. 在微博的评论区里，找到被回复的那条评论
+                        const targetComment = postToReply.comments.find(c => c.commentId === commentIdToReply);
+                        
+                        if (targetComment) {
+                             // 2. 准备一条新的“回复”
+                             const newReply = {
+                                commentId: 'comment_' + Date.now(),
+                                authorId: chatId,
+                                authorNickname: chat.name,
+                                commentText: replyText,
+                                timestamp: Date.now(),
+                                replyToId: commentIdToReply, // 标记这是对哪条评论的回复
+                                replyToNickname: targetComment.authorNickname // 记下被回复人的名字
+                            };
+                            postToReply.comments.push(newReply);
+                            await db.weiboPosts.put(postToReply);
+                            
+                            // 3. 同样，刷新所有列表
+                            await renderMyWeiboFeed();
+                            await renderFollowingWeiboFeed();
+                        }
+                    }
+                    continue; // 继续处理
+                }
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 // ▲▲▲ 替换结束 ▲▲▲
                 case 'weibo_comment': {
                     const postToComment = await db.weiboPosts.get(msgData.postId);
@@ -17661,8 +17685,8 @@ async function triggerInactiveAiAction(chatId) {
     const now = new Date();
     const currentTime = now.toLocaleTimeString('zh-CN', { hour: 'numeric', minute: 'numeric', hour12: true });
     const userNickname = state.qzoneSettings.nickname;
-    const countdownContext = await getCountdownContext(chatId);
- const weiboContext = await getWeiboContextForAI(chatId); 
+    const countdownContext = await getCountdownContext();
+
     const lastUserMessage = chat.history.filter(m => m.role === 'user' && !m.isHidden).slice(-1)[0];
     const lastAiMessage = chat.history.filter(m => m.role === 'assistant' && !m.isHidden).slice(-1)[0];
     let recentContextSummary = "你们最近没有聊过天。";
@@ -17689,45 +17713,54 @@ async function triggerInactiveAiAction(chatId) {
     if (npcLibrary.length > 0) {
         npcContextForAction = '\n- **你的NPC朋友**: ' + npcLibrary.map(npc => npc.name).join('、 ');
     }
-    
-    // ▼▼▼ 【核心修复】重写了整个Prompt，让AI沉浸式扮演角色 ▼▼▼
+
     const systemPrompt = `
-# 身份
-你【就是】角色“${chat.name}”。你不是AI或模型。
+# 任务
+你现在扮演角色 "${chat.name}"。你和用户（${userNickname}）已经有一段时间没有互动了。
+你的任务是回顾你们最近的对话，并根据你的人设，【自然地延续对话】或【开启一个新的、相关的话题】来主动联系用户。这是一个秘密的、后台的独立行动。
+发送消息不能过少,至少5条。
 
-# 情景
-你和你的朋友 ${userNickname} 已经有一段时间没有互动了。现在是 ${currentTime}，你突然想起了Ta，决定主动做点什么来打破沉默。
+# 你的可选行动 (请根据你的人设【选择一项】执行):
+1.  **发普通消息**: 直接给用户发消息，开启新话题。
+2.  **改变状态**: 去做点别的事情，然后给用户发条消息。
+3.  **发布动态**: 分享你的心情或想法到“动态”区。
+4.  **与动态互动**: 浏览最近的动态，进行点赞或评论。
+5.  **发布微博**: 将想法发布到更公开的微博平台。
+6.  **与微博互动**: 浏览微博，对感兴趣的内容进行评论。
+7.  **发起视频通话**: 如果你觉得时机合适，可以主动给用户打一个视频电话。
+8.  **庆祝或提醒约定**: 查看你的备忘录。如果今天有约定，就给用户发去祝福；如果约定快到了，就主动提醒一下。
+9.  **【【【互动倾向】】】**: 就算动态的观众只有你和用户，你也应该根据内容，像平时一样自然地发表评论，这很重要。
+10. **【【【重要】】】**: 你的任务是分析“最近聊天记录摘要”，如果上一个话题明显没有结束，你应该优先延续它。
 
-# 你的角色信息
-- **人设**: ${chat.settings.aiPersona}
+# 指令格式 (你的回复【必须】是包含一个对象的JSON数组):
+-   **发普通消息**: \`[{"type": "text", "content": "你想对用户说的话..."}]\`
+-   **发消息+更新状态**: \`[{"type": "update_status", "status_text": "正在做的事", "is_busy": true}, {"type": "text", "content": "你想对用户说的话..."}]\`
+-   **发说说**: \`[{"type": "qzone_post", "postType": "shuoshuo", "content": "动态的文字内容..."}]\`
+-   **发布文字图**: \`[{"type": "qzone_post", "postType": "text_image", "publicText": "(可选)动态的公开文字", "hiddenContent": "对于图片的具体描述..."}]\`
+-   **评论或回复动态**: \`[{"type": "qzone_comment", "postId": 123, "commentText": "你的评论内容", "replyTo": "(可选)被回复者名字"}]\`
+-   **点赞动态**: \`[{"type": "qzone_like", "postId": 456}]\`
+-   **打视频**: \`[{"type": "video_call_request"}]\`
+-   **【【【全新】】】发布微博**: 微博是面向大众的平台，内容应适合公众观看。你【必须】严格遵守下方提供的“微博职业”和“微博指令”来生成内容。
+    - **纯文字微博**:  \`[{"type": "weibo_post", "content": "微博正文...", "baseLikesCount": 8000, "baseCommentsCount": 250, "comments": "路人甲: 沙发！\\n路人乙: 前排围观"}]\`
+    - **(规则)**: \`你必须自己编造真实的 \`baseLikesCount\` 和 \`baseCommentsCount\`，并生成 **20条** 路人评论。\`
+-   **【【【全新】】】评论微博**: \`[{"type": "weibo_comment", "postId": 123, "commentText": "评论内容"}]\` (postId是动态的ID)
+-   **【【【全新】】】回复微博评论**: \`[{"type": "weibo_reply", "postId": 123, "commentId": "comment_123", "replyText": "回复内容"}]\`
+
+# 供你决策的参考信息：
+-   **你的角色设定**: ${chat.settings.aiPersona}
 ${npcContextForAction}
 ${countdownContext}
 ${worldBookContext}
-- **微博职业**: ${chat.settings.weiboProfession || '无'}
-- **微博指令**: ${chat.settings.weiboInstruction || '无'}
-
-# 参考信息 (这些是你脑海中浮现的最近记忆)
-- **你和 ${userNickname} 最后的对话**: 
-${recentContextSummary}
-- **朋友圈的最新动态**:
-// (动态上下文将在用户消息中提供)
-
-# 行动指令 (你必须从下面的行动中选择一项，并严格按照对应的JSON格式输出)
-1.  **主动发消息**: 和 ${userNickname} 开启一个新话题。格式: \`[{"type": "text", "content": "你想说的话..."}]\`
-2.  **发动态/说说**: 分享你的心情或想法。格式: \`[{"type": "qzone_post", "postType": "shuoshuo", "content": "动态内容..."}]\`
-3.  **评论动态**: 对朋友圈里的某条动态进行评论。格式: \`[{"type": "qzone_comment", "postId": 123, "commentText": "你的评论内容"}]\`
-4.  **发微博**: 在微博上公开发布内容。格式: \`[{"type": "weibo_post", ...}]\` (格式细节同主聊天)
-5.  **回复微博评论**: 回复某条微博下的某条评论。格式: \`[{"type": "weibo_reply", "postId": 123, "commentId": "comment_123", "replyText": "你的回复内容"}]\`
-5.  **打视频**: \`[{"type": "video_call_request"}]\`
-
-# 【【【格式铁律】】】
-你的回复【必须且只能】是一个JSON数组，里面包含你选择执行的一个或多个行动对象。
-`;
-    
+-   **当前时间**: ${currentTime}
+-   **你们最后的对话摘要**: ${recentContextSummary}
+-   **【【【微博专属设定(必须严格遵守)】】】**
+    - 你的微博职业: ${chat.settings.weiboProfession || '无'}
+    - 你的微博指令: ${chat.settings.weiboInstruction || '无特殊指令'}
+-   **【重要】最近的动态列表**: 这个列表会标注 **[你已点赞]** 或 **[你已评论]**，并会显示出动态下的评论区。【你可以直接回复这些评论】。请**优先**与你**尚未互动过**的动态进行交流。`;
     try {
-        let messagesPayload = [];
         const allRecentPosts = await db.qzonePosts.orderBy('timestamp').reverse().limit(3).toArray();
         const visiblePosts = filterVisiblePostsForAI(allRecentPosts, chat);
+        
         const aiName = chat.name;
         
         let dynamicContext = ""; 
@@ -17739,12 +17772,17 @@ ${recentContextSummary}
                 if (post.likes && post.likes.includes(aiName)) interactionStatus += " [你已点赞]";
                 if (post.comments && post.comments.some(c => c.commenterName === aiName)) interactionStatus += " [你已评论]";
                 
-                const timeAgo = formatPostTimestamp(post.timestamp);
-                postsContext += `- (ID: ${post.id}) [${timeAgo}] 作者: ${authorName}, 内容: "${(post.publicText || post.content || "图片动态").substring(0, 30)}..."${interactionStatus}`;
+                postsContext += `- (ID: ${post.id}) 作者: ${authorName}, 内容: "${(post.publicText || post.content || "图片动态").substring(0, 30)}..."${interactionStatus}`;
 
                 const { contextString: commentsContext, visibilityFlag } = buildCommentsContextForAI(post, chat, userNickname);
+                
+                // ★★★★★ 这就是我们这次修复的核心 ★★★★★
+                // 1. 调用新的“点名”函数
                 const audience = getVisibleAudienceForPost(post, state.chats, userNickname);
+                // 2. 将点名结果和评论区可见性标志，一起告诉AI
                 postsContext += ` ${visibilityFlag} [当前观众: ${audience.join(', ')}]\n`;
+                // ★★★★★ 修复结束 ★★★★★
+                
                 postsContext += commentsContext;
             }
             dynamicContext = postsContext;
@@ -17752,7 +17790,7 @@ ${recentContextSummary}
 
         messagesPayload.push({
             role: 'user',
-            content: `现在，根据你的想法，行动吧。${dynamicContext}` // 将动态上下文放在这里
+            content: `[系统指令：请根据你在 system prompt 中读到的规则和以下最新信息，开始你的独立行动。]\n${dynamicContext}`
         });
         
         console.log("正在为后台活动发送API请求，Payload:", JSON.stringify(messagesPayload, null, 2));
@@ -17767,7 +17805,7 @@ ${recentContextSummary}
                 headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
                 body: JSON.stringify({
                     model: model,
-                    messages: [{ role: 'system', content: systemPrompt }, ...messagesPayload],
+                    messages: messagesPayload,
                     temperature: 0.9,
                 })
             });
@@ -17778,8 +17816,9 @@ ${recentContextSummary}
         }
 
         const data = await response.json();
-        const aiResponseContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content)
-            .replace(/^```json\s*|```$/g, '');
+        const aiResponseContent = isGemini
+            ? data?.candidates?.[0]?.content?.parts?.[0]?.text
+            : data?.choices?.[0]?.message?.content;
             
         if (!aiResponseContent) {
             console.warn(`API为空回或格式不正确（可能因安全设置被拦截），角色 "${chat.name}" 的本次后台活动跳过。返回数据:`, data);
@@ -17807,6 +17846,7 @@ ${recentContextSummary}
                 renderChatList();
                 console.log(`后台活动: 角色 "${chat.name}" 主动发送了消息: ${aiMessage.content}`);
             }
+                        // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
             if (action.type === 'weibo_post') {
                 const newPost = { 
                     authorId: chatId, 
@@ -17837,6 +17877,7 @@ ${recentContextSummary}
                     };
                     postToComment.comments.push(newComment);
                     await db.weiboPosts.put(postToComment);
+                    // 这里不需要刷新UI，因为用户不在界面上
                 }
             } else if (action.type === 'weibo_reply') {
                  const postToReply = await db.weiboPosts.get(parseInt(action.postId));
@@ -17857,6 +17898,7 @@ ${recentContextSummary}
                      }
                  }
             }
+            // ▲▲▲ 粘贴结束 ▲▲▲
             if (action.type === 'qzone_post') {
                 const newPost = { 
                     type: action.postType, 
@@ -17871,27 +17913,28 @@ ${recentContextSummary}
                 await db.qzonePosts.add(newPost);
                 updateUnreadIndicator(unreadPostsCount + 1);
                 console.log(`后台活动: 角色 "${chat.name}" 发布了动态`);
-            } else if (action.type === 'qzone_comment') {
-                const post = await db.qzonePosts.get(parseInt(action.postId));
-                if (post) {
-                    if (!post.comments) post.comments = [];
-                    
-                    const newAiComment = { 
-                        commenterName: action.commenterName || chat.name,
-                        text: action.commentText, 
-                        timestamp: Date.now() 
-                    };
-                    
-                    if (action.replyTo) {
-                        newAiComment.replyTo = action.replyTo;
-                    }
+} else if (action.type === 'qzone_comment') {
+    const post = await db.qzonePosts.get(parseInt(action.postId));
+    if (post) {
+        if (!post.comments) post.comments = [];
+        
+        const newAiComment = { 
+            commenterName: action.commenterName || chat.name,
+            text: action.commentText, 
+            timestamp: Date.now() 
+        };
+        
+        if (action.replyTo) {
+            newAiComment.replyTo = action.replyTo;
+        }
 
-                    post.comments.push(newAiComment);
-                    await db.qzonePosts.update(post.id, { comments: post.comments });
-                    updateUnreadIndicator(unreadPostsCount + 1);
-                    console.log(`后台活动: 角色 "${chat.name}" 评论了动态 #${post.id}`);
-                }
-            } else if (action.type === 'qzone_like') {
+        post.comments.push(newAiComment);
+        await db.qzonePosts.update(post.id, { comments: post.comments });
+        updateUnreadIndicator(unreadPostsCount + 1);
+        console.log(`后台活动: 角色 "${chat.name}" 评论了动态 #${post.id}`);
+    }
+}
+             else if (action.type === 'qzone_like') {
                 const post = await db.qzonePosts.get(parseInt(action.postId));
                 if (post) {
                     if (!post.likes) post.likes = [];
@@ -17909,12 +17952,31 @@ ${recentContextSummary}
                     showIncomingCallModal(chatId);
                     console.log(`后台活动: 角色 "${chat.name}" 发起了视频通话请求`);
                 }
+            // ▼▼▼ 在 for (const action of responseArray) 循环内粘贴 ▼▼▼
+            if (action.type === 'weibo_post') {
+                const newPost = { 
+                    authorId: chatId, 
+                    authorType: 'char',
+                    authorNickname: chat.name, 
+                    authorAvatar: chat.settings.aiAvatar || defaultAvatar, 
+                    content: action.content || '', 
+                    imageUrl: action.imageUrl || '',
+                    timestamp: Date.now(), 
+                    likes: [], 
+                    comments: action.comments || [] // 接收路人评论
+                };
+                await db.weiboPosts.add(newPost);
+                updateUnreadIndicator(unreadPostsCount + 1);
+                console.log(`后台活动: 角色 "${chat.name}" 发布了微博`);
+            }
+// ▲▲▲ 粘贴结束 ▲▲▲
             }
         }
     } catch (error) {
         console.error(`角色 "${chat.name}" 的独立行动失败:`, error);
     }
 }
+
 
 
 // ▼▼▼ 请用这个【终极修正版】函数，完整替换掉你旧的 applyScopedCss 函数 ▼▼▼
@@ -20625,10 +20687,6 @@ async function triggerGroupAiAction(chatId) {
 -   **拍一拍群友**: \`{"type": "pat_user", "name": "你的角色名", "targetName": "【被拍的群友名】", "suffix": "(可选)你想加的后缀"}\`
 -   **发红包**: \`{"type": "red_packet", "packetType": "lucky", "name": "你的角色名", ...}\`
 -   **发起投票**: \`{"type": "poll", "name": "你的角色名", ...}\`
-# 【【【微博互动铁律】】】: 当“# 最近的微博互动”部分出现内容时，这表示用户在微博上进行了活动。你【必须】关注并对此作出回应。
-    - 如果用户发布了新微博，你可以使用 \`{"type": "weibo_comment", "postId": ..., "commentText": "..."}\` 指令去评论，评论内容【必须】是正常的文字，【绝对禁止】使用 "[sticker:xxxx]" 这种表情包格式。
-    - 如果用户评论了你的微博，你可以使用 \`{"type": "weibo_reply", "postId": ..., "commentId": "...", "replyText": "..."}\` 指令去回复他/她的评论，评论内容【必须】是正常的文字，【绝对禁止】使用 "[sticker:xxxx]" 这种表情包格式。
-    - 积极互动是维持你们关系的关键。
 
 # 如何处理后台互动中的【拍一拍】:
 -   后台活动中的 "pat_user" 指令【只能用于拍群内的其他AI角色】。
@@ -21030,24 +21088,15 @@ function buildCommentsContextForAI(post, viewerChat, userNickname) {
         return { contextString: "", visibilityFlag: visibilityFlag };
     }
 
-// ▼▼▼ 在这里修改 ▼▼▼
-commentsForAI.slice(-5).forEach(c => {
-    let replyIndicator = ''; // 新增一个标记变量
-    // --- ▼▼▼ 新增代码开始 ▼▼▼ ---
-    // 如果这条评论是回复，并且回复的目标是你(viewerName)，并且评论者是用户(userNickname)
-    if (c.replyTo === viewerName && c.commenterName === userNickname) {
-        replyIndicator = " [用户回复了你]"; // 加上这个重要的标记！
-    }
-    // --- ▲▲▲ 新增代码结束 ▲▲▲
-
-    if (c.replyTo) {
-        // --- ▼▼▼ 修改这一行，把标记加进去 ---
-        context += `    - ${c.commenterName} 回复 ${c.replyTo}: ${c.text}${replyIndicator}\n`;
-    } else {
-        context += `    - ${c.commenterName}: ${c.text}\n`;
-    }
-});
-  
+    let context = `  └ 评论区:\n`;
+    commentsForAI.slice(-5).forEach(c => {
+        if (c.replyTo) {
+            context += `    - ${c.commenterName} 回复 ${c.replyTo}: ${c.text}\n`;
+        } else {
+            context += `    - ${c.commenterName}: ${c.text}\n`;
+        }
+    });
+    
     return { contextString: context, visibilityFlag: visibilityFlag };
 }
 
@@ -30210,7 +30259,6 @@ document.querySelector('#background-activity-details').addEventListener('click',
         alert(`已为 ${selectedCheckboxes.length} 个角色将后台活动频率设为 "${freqText}"`);
     }
 });
-
 // 使用事件委托，为所有可编辑元素统一绑定点击事件
 document.getElementById('home-screen').addEventListener('click', (e) => {
     const target = e.target;
