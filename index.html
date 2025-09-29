@@ -17713,14 +17713,18 @@ async function triggerInactiveAiAction(chatId) {
     if (npcLibrary.length > 0) {
         npcContextForAction = '\n- **你的NPC朋友**: ' + npcLibrary.map(npc => npc.name).join('、 ');
     }
-
-    const systemPrompt = `
+let messagesPayload = [];
+// ▼▼▼ 从这里开始替换 ▼▼▼
+        const systemPrompt = `
 # 任务
-你现在扮演角色 "${chat.name}"。你和用户（${userNickname}）已经有一段时间没有互动了。
-你的任务是回顾你们最近的对话，并根据你的人设，【自然地延续对话】或【开启一个新的、相关的话题】来主动联系用户。这是一个秘密的、后台的独立行动。
-发送消息不能过少,至少5条。
+你现在【就是】角色 "${chat.name}"。这是一个秘密的、后台的独立行动。你的所有思考和决策都必须以 "${chat.name}" 的第一人称视角进行。
+你和用户（${userNickname}）已经有一段时间没有互动了。你的任务是回顾你们最近的对话，并根据你的人设，【自然地延续对话】或【开启一个新的、相关的话题】来主动联系用户。
 
-# 你的可选行动 (请根据你的人设【选择一项】执行):
+# 【【【输出铁律：这是最高指令】】】
+你的回复【必须且只能】是一个严格的JSON数组格式的字符串，例如 \`[{"type": "text", "content": "你好呀"}]\`。
+【绝对禁止】返回任何JSON以外的文本、解释、分析或你自己的思考过程。你不是分析师，你就是角色本人。
+
+# 你的可选行动 (请根据你的人设【选择一项】执行，并输出对应的JSON):
 1.  **发普通消息**: 直接给用户发消息，开启新话题。
 2.  **改变状态**: 去做点别的事情，然后给用户发条消息。
 3.  **发布动态**: 分享你的心情或想法到“动态”区。
@@ -17740,11 +17744,9 @@ async function triggerInactiveAiAction(chatId) {
 -   **评论或回复动态**: \`[{"type": "qzone_comment", "postId": 123, "commentText": "你的评论内容", "replyTo": "(可选)被回复者名字"}]\`
 -   **点赞动态**: \`[{"type": "qzone_like", "postId": 456}]\`
 -   **打视频**: \`[{"type": "video_call_request"}]\`
--   **【【【全新】】】发布微博**: 微博是面向大众的平台，内容应适合公众观看。你【必须】严格遵守下方提供的“微博职业”和“微博指令”来生成内容。
-    - **纯文字微博**:  \`[{"type": "weibo_post", "content": "微博正文...", "baseLikesCount": 8000, "baseCommentsCount": 250, "comments": "路人甲: 沙发！\\n路人乙: 前排围观"}]\`
-    - **(规则)**: \`你必须自己编造真实的 \`baseLikesCount\` 和 \`baseCommentsCount\`，并生成 **20条** 路人评论。\`
--   **【【【全新】】】评论微博**: \`[{"type": "weibo_comment", "postId": 123, "commentText": "评论内容"}]\` (postId是动态的ID)
--   **【【【全新】】】回复微博评论**: \`[{"type": "weibo_reply", "postId": 123, "commentId": "comment_123", "replyText": "回复内容"}]\`
+-   **发布微博 (纯文字)**: \`[{"type": "weibo_post", "content": "微博正文...", "baseLikesCount": 8000, "baseCommentsCount": 250, "comments": "路人甲: 沙发！\\n路人乙: 前排围观"}]\` (规则: 你必须自己编造真实的 baseLikesCount 和 baseCommentsCount，并生成20条路人评论)
+-   **评论微博**: \`[{"type": "weibo_comment", "postId": 123, "commentText": "评论内容"}]\`
+-   **回复微博评论**: \`[{"type": "weibo_reply", "postId": 123, "commentId": "comment_123", "replyText": "回复内容"}]\`
 
 # 供你决策的参考信息：
 -   **你的角色设定**: ${chat.settings.aiPersona}
@@ -17756,43 +17758,42 @@ ${worldBookContext}
 -   **【【【微博专属设定(必须严格遵守)】】】**
     - 你的微博职业: ${chat.settings.weiboProfession || '无'}
     - 你的微博指令: ${chat.settings.weiboInstruction || '无特殊指令'}
+// ▲▲▲ 替换到这里结束 ▲▲▲
 -   **【重要】最近的动态列表**: 这个列表会标注 **[你已点赞]** 或 **[你已评论]**，并会显示出动态下的评论区。【你可以直接回复这些评论】。请**优先**与你**尚未互动过**的动态进行交流。`;
+// ▼▼▼ 从这里开始替换 ▼▼▼
     try {
+        let finalPrompt = systemPrompt; // 先把基础剧本准备好
+
         const allRecentPosts = await db.qzonePosts.orderBy('timestamp').reverse().limit(3).toArray();
         const visiblePosts = filterVisiblePostsForAI(allRecentPosts, chat);
         
-        const aiName = chat.name;
-        
-        let dynamicContext = ""; 
+        // 如果有动态，就把动态信息补充到剧本里
         if (visiblePosts.length > 0) {
             let postsContext = "\n\n# 最近的动态列表 (供你参考和评论):\n";
+            const aiName = chat.name;
             for (const post of visiblePosts) {
                 let authorName = post.authorId === 'user' ? userNickname : (state.chats[post.authorId]?.name || '一位朋友');
                 let interactionStatus = '';
                 if (post.likes && post.likes.includes(aiName)) interactionStatus += " [你已点赞]";
                 if (post.comments && post.comments.some(c => c.commenterName === aiName)) interactionStatus += " [你已评论]";
                 
-                postsContext += `- (ID: ${post.id}) 作者: ${authorName}, 内容: "${(post.publicText || post.content || "图片动态").substring(0, 30)}..."${interactionStatus}`;
-
+                const timeAgo = formatPostTimestamp(post.timestamp);
+                postsContext += `- (ID: ${post.id}) [${timeAgo}] 作者: ${authorName}, 内容: "${(post.publicText || post.content || "图片动态").substring(0, 30)}..."${interactionStatus}`;
+                
                 const { contextString: commentsContext, visibilityFlag } = buildCommentsContextForAI(post, chat, userNickname);
-                
-                // ★★★★★ 这就是我们这次修复的核心 ★★★★★
-                // 1. 调用新的“点名”函数
                 const audience = getVisibleAudienceForPost(post, state.chats, userNickname);
-                // 2. 将点名结果和评论区可见性标志，一起告诉AI
                 postsContext += ` ${visibilityFlag} [当前观众: ${audience.join(', ')}]\n`;
-                // ★★★★★ 修复结束 ★★★★★
-                
                 postsContext += commentsContext;
             }
-            dynamicContext = postsContext;
+            finalPrompt += postsContext; // 把动态信息追加到总剧本末尾
         }
-
-        messagesPayload.push({
-            role: 'user',
-            content: `[系统指令：请根据你在 system prompt 中读到的规则和以下最新信息，开始你的独立行动。]\n${dynamicContext}`
-        });
         
+        // 现在，我们用这个包含了所有信息的、完整的剧本去创建 messagesPayload
+        let messagesPayload = [
+            { role: 'system', content: finalPrompt },
+            { role: 'user', content: "请严格按照system prompt中的所有规则，特别是输出格式铁律，立即开始你的行动。" }
+        ];
+// ▲▲▲ 替换到这里结束 ▲▲▲
         console.log("正在为后台活动发送API请求，Payload:", JSON.stringify(messagesPayload, null, 2));
 
         let isGemini = proxyUrl === GEMINI_API_URL;
