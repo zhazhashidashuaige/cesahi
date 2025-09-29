@@ -15541,69 +15541,68 @@ ${countdownContext}
 ${worldBookContent}
 ${sharedContext} 
 现在，请根据以上规则和下面的对话历史，继续进行对话。`;
-            // ▼▼▼ 【V5最终修复版】构建单人聊天的messagesPayload ▼▼▼
-            messagesPayload = historySlice.map(msg => {
-                // 【核心修正】在这里，我们对 isHidden 消息进行特殊处理
-                if (msg.isHidden) {
-                    // 如果是隐藏消息，就把它作为一条 system 角色的消息发送给AI
-                    // AI能看到它，但它不会被误解为是用户的发言
-                    return { role: 'system', content: msg.content };
-                }
+// ▼▼▼ 请用这块【正确的代码】替换掉上面的错误代码 ▼▼▼
+messagesPayload = historySlice.map(msg => {
+    // 【核心修正】我们把所有写错的 context 改回了正确的 msg
+    if (msg.isHidden) {
+        return { role: 'system', content: msg.content };
+    }
 
-                if (msg.type === 'share_card') return null;
-                
-                if (msg.role === 'assistant') {
-                    let assistantMsgObject = { type: msg.type || 'text' };
-                    if (msg.type === 'sticker') {
-                        assistantMsgObject.url = msg.content;
-                        assistantMsgObject.meaning = msg.meaning;
-                    } else if (msg.type === 'transfer') {
-                        assistantMsgObject.amount = msg.amount;
-                        assistantMsgObject.note = msg.note;
-                    } else if (msg.type === 'waimai_request') {
-                        assistantMsgObject.productInfo = msg.productInfo;
-                        assistantMsgObject.amount = msg.amount;
-                    } else {
-                        if (msg.quote) {
-                            assistantMsgObject.quote_reply = {
-                                target_sender: msg.quote.senderName,
-                                target_content: msg.quote.content,
-                                reply_content: msg.content
-                            };
-                        } else {
-                             assistantMsgObject.content = msg.content;
-                        }
-                    }
-                    const assistantContent = JSON.stringify([assistantMsgObject]);
-                    return { role: 'assistant', content: `(Timestamp: ${msg.timestamp}) ${assistantContent}` };
-                }
+    if (msg.type === 'share_card') return null;
+    
+    if (msg.role === 'assistant') {
+        let assistantMsgObject = { type: msg.type || 'text' };
+        if (msg.type === 'sticker') {
+            assistantMsgObject.url = msg.content;
+            assistantMsgObject.meaning = msg.meaning;
+        } else if (msg.type === 'transfer') {
+            assistantMsgObject.amount = msg.amount;
+            assistantMsgObject.note = msg.note;
+        } else if (msg.type === 'waimai_request') {
+            assistantMsgObject.productInfo = msg.productInfo;
+            assistantMsgObject.amount = msg.amount;
+        } else {
+            if (msg.quote) {
+                assistantMsgObject.quote_reply = {
+                    target_sender: msg.quote.senderName,
+                    target_content: msg.quote.content,
+                    reply_content: msg.content
+                };
+            } else {
+                 assistantMsgObject.content = msg.content;
+            }
+        }
+        const assistantContent = JSON.stringify([assistantMsgObject]);
+        return { role: 'assistant', content: `(Timestamp: ${msg.timestamp}) ${assistantContent}` };
+    }
 
-                let contentStr = '';
-                contentStr += `(Timestamp: ${msg.timestamp}) `;
+    let contentStr = '';
+    contentStr += `(Timestamp: ${msg.timestamp}) `;
 
-                if (msg.quote) {
-                    const quotedSnippet = String(msg.quote.content || '').substring(0, 50);
-                    contentStr += `(回复 "${quotedSnippet}..."): ${msg.content}`;
-                } else {
-                    contentStr += msg.content;
-                }
-                
-                if (msg.type === 'user_photo') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [你收到了一张用户描述的照片，内容是：'${msg.content}']` };
-                if (msg.type === 'voice_message') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [用户发来一条语音消息，内容是：'${msg.content}']` };
-                if (msg.type === 'transfer') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [系统提示：你于时间戳 ${msg.timestamp} 收到了来自用户的转账: ${msg.amount}元, 备注: ${msg.note}。请你决策并使用 'accept_transfer' 或 'decline_transfer' 指令回应。]` };
-                if (msg.type === 'waimai_request') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [系统提示：用户于时间戳 ${msg.timestamp} 发起了外卖代付请求，商品是“${msg.productInfo}”，金额是 ${msg.amount} 元。请你决策并使用 waimai_response 指令回应。]` };
+    if (msg.quote) {
+        const quotedSnippet = String(msg.quote.content || '').substring(0, 50);
+        contentStr += `(回复 "${quotedSnippet}..."): ${msg.content}`;
+    } else {
+        contentStr += msg.content;
+    }
+    
+    if (msg.type === 'user_photo') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [你收到了一张用户描述的照片，内容是：'${msg.content}']` };
+    if (msg.type === 'voice_message') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [用户发来一条语音消息，内容是：'${msg.content}']` };
+    if (msg.type === 'transfer') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [系统提示：你于时间戳 ${msg.timestamp} 收到了来自用户的转账: ${msg.amount}元, 备注: ${msg.note}。请你决策并使用 'accept_transfer' 或 'decline_transfer' 指令回应。]` };
+    if (msg.type === 'waimai_request') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [系统提示：用户于时间戳 ${msg.timestamp} 发起了外卖代付请求，商品是“${msg.productInfo}”，金额是 ${msg.amount} 元。请你决策并使用 waimai_response 指令回应。]` };
 
-                if (Array.isArray(msg.content) && msg.content[0]?.type === 'image_url') {
-                    const prefix = `(Timestamp: ${msg.timestamp}) `;
-                    return { role: 'user', content: [ { type: 'text', text: prefix }, ...msg.content ] };
-                }
+    if (Array.isArray(msg.content) && msg.content[0]?.type === 'image_url') {
+        const prefix = `(Timestamp: ${msg.timestamp}) `;
+        return { role: 'user', content: [ { type: 'text', text: prefix }, ...msg.content ] };
+    }
 
-                if (msg.meaning) return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [用户发送了一个表情，意思是：'${msg.meaning}']` };
-                
-                return { role: msg.role, content: contentStr };
+    if (msg.meaning) return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [用户发送了一个表情，意思是：'${msg.meaning}']` };
+    
+    return { role: msg.role, content: contentStr };
 
-            }).filter(Boolean);
-            // ▲▲▲ 替换结束 ▲▲▲
+}).filter(Boolean);
+// ▲▲▲ 替换到这里结束 ▲▲▲
+
 
 // 检查 sharedContext 是否有内容（即，用户是否分享了聊天记录）
 if (sharedContext) {
