@@ -13270,6 +13270,12 @@ bubbleStylePresets
     // ▲▲▲ 【修改结束】 ▲▲▲
 
     state.chats = chatsArr.reduce((acc, chat) => {
+            // 【全新】为旧的群聊数据兼容专属表情库
+        if (chat.isGroup && (!chat.settings || !chat.settings.stickerLibrary)) {
+            if (!chat.settings) chat.settings = {}; // 以防万一连settings都没有
+            chat.settings.stickerLibrary = [];
+            console.log(`为旧群聊 "${chat.name}" 补全了专属表情库(stickerLibrary)属性。`);
+        }
             // 兼容旧数据：为没有专属表情库的角色添加一个空的表情库
         if (!chat.isGroup && (!chat.settings || !chat.settings.stickerLibrary)) {
             if (!chat.settings) chat.settings = {}; // 以防万一连settings都没有
@@ -13429,6 +13435,7 @@ if (!state.globalSettings.widgetData) {
 state.globalSettings.appIcons = { ...DEFAULT_APP_ICONS, ...(state.globalSettings.appIcons || {}) };
 
     state.userStickers = userStickers || [];
+    state.charStickers = charStickers || []; 
     state.worldBooks = worldBooks || [];
     musicState.playlist = musicLib?.playlist || [];
     state.personaPresets = personaPresets || [];
@@ -14945,44 +14952,42 @@ async function triggerAiResponse() {
 
 // ▼▼▼ 第3步 第1处修改 ▼▼▼
 
-// ▼▼▼ 第3步 第1处修改 ▼▼▼
-
-// 1. 准备专属表情包列表
-const exclusiveStickers = chat.settings.stickerLibrary || [];
-let exclusiveStickerContext = '';
-if (exclusiveStickers.length > 0) {
-    exclusiveStickerContext = `
-## 你的专属表情包 (只有你能用):
+    // ▼▼▼ 将剪切的代码粘贴到这里 ▼▼▼
+    // 1. 准备专属表情包列表 (现在对单聊和群聊都生效)
+    const exclusiveStickers = chat.settings.stickerLibrary || [];
+    let exclusiveStickerContext = '';
+    if (exclusiveStickers.length > 0) {
+        exclusiveStickerContext = `
+## ${chat.isGroup ? '本群专属表情包' : '你的专属表情包'} (只有你能用):
 ${exclusiveStickers.map(s => `- ${s.name}`).join('\n')}
 `;
-}
+    }
 
-// 2. 准备通用表情包列表
-const commonStickers = state.charStickers || [];
-let commonStickerContext = '';
-if (commonStickers.length > 0) {
-    commonStickerContext = `
+    // 2. 准备通用表情包列表
+    const commonStickers = state.charStickers || [];
+    let commonStickerContext = '';
+    if (commonStickers.length > 0) {
+        commonStickerContext = `
 ## 通用表情包 (所有角色都能用):
 ${commonStickers.map(s => `- ${s.name}`).join('\n')}
 `;
-}
+    }
 
-// 3. 组合成最终的表情包指令
-let stickerContext = '';
-if (exclusiveStickerContext || commonStickerContext) {
-    stickerContext = `
+    // 3. 组合成最终的表情包指令
+    let stickerContext = '';
+    if (exclusiveStickerContext || commonStickerContext) {
+        stickerContext = `
 # 关于表情包的【绝对规则】
 1.  你拥有一个表情包列表，分为“专属”和“通用”。
-2.  当你想要发送表情时，【必须且只能】使用以下JSON格式：
-    \`{"type": "sticker", "name": "表情的名字"}\`
-3.  【【【最高指令】】】你【必须】从下方列表中精确地选择一个有效的 "name"。如果你编造了一个列表中不存在的name，你的表情将会发送失败。这是强制性规则。
-4.  【严禁】使用旧的 \`[sticker:名字]\` 格式或返回图片URL。
+2.  当你扮演的角色想要发送表情时，【必须且只能】使用以下JSON格式：
+    \`{"type": "sticker", "name": "角色名", "sticker_name": "表情的名字"}\`
+3.  【【【最高指令】】】你【必须】从下方列表中精确地选择一个有效的 "sticker_name"。如果你编造了一个列表中不存在的名字，你的表情将会发送失败。这是强制性规则。
 
 ${exclusiveStickerContext}
 ${commonStickerContext}
 `;
-}
-// ▲▲▲ 修改结束 ▲▲▲
+    }
+    // ▲▲▲ 粘贴结束 ▲▲▲
 
 
 
@@ -15291,7 +15296,7 @@ const membersList = chat.members.map(m => `- **${m.originalName}**: ${m.persona}
 ## 你可以使用的操作指令 (JSON数组中的元素):
 -   **发送文本**: \`{"type": "text", "name": "角色名", "message": "文本内容"}\`
 -   **【【【全新】】】发送后立刻撤回 (动画效果)**: \`{"type": "send_and_recall", "name": "角色名", "content": "你想让角色说出后立刻消失的话"}\`
-- **发送表情**: \`{"type": "sticker", "url": "https://...表情URL...", "meaning": "(可选)表情的含义"}\`
+-   **发送表情**: \`{"type": "sticker", "name": "角色名", "sticker_name": "表情的名字"}\`
 -   **发送图片**: \`{"type": "ai_image", "name": "角色名", "description": "图片的详细文字描述"}\`
 -   **发送语音**: \`{"type": "voice_message", "name": "角色名", "content": "语音的文字内容"}\`
 -   **发起外卖代付**: \`{"type": "waimai_request", "name": "角色名", "productInfo": "一杯奶茶", "amount": 18}\`
@@ -15320,7 +15325,7 @@ ${worldBookContent}
 ${musicContext}
 ${countdownContext} // <--- 把备忘录加在这里
 ${sharedContext} 
-
+${stickerContext}
 # 群成员列表及人设
 ${membersList}
 
@@ -15519,7 +15524,7 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
 -   **记录回忆**: \`{"type": "create_memory", "description": "用你自己的话，记录下这个让你印象深刻的瞬间。"}\`
 -   **创建约定/倒计时**: \`{"type": "create_countdown", "title": "约定的标题", "date": "YYYY-MM-DDTHH:mm:ss"}\` (必须是未来的时间)
 -   **发送文本**: \`{"type": "text", "content": "你好呀！"}\`
--   **发送表情**: \`{"type": "sticker", "name": "表情的名字"}\`
+-   **发送表情**: \`{"type": "sticker", "sticker_name": "表情的名字"\`
 -   **发送图片**: \`{"type": "ai_image", "description": "图片的详细文字描述..."}\`
 -   **发送语音**: \`{"type": "voice_message", "content": "语音的文字内容..."}\`
 -   **发起转账**: \`{"type": "transfer", "amount": 5.20, "note": "一点心意"}\`
@@ -16097,6 +16102,34 @@ if (msgData.type === 'text' && messageText.startsWith('[SEND_LOCATION]')) {
 }
 // ▲▲▲ 粘贴到这里结束 ▲▲▲
             switch (msgData.type) {
+                          // ▼▼▼ 在这里粘贴下面的新代码块 ▼▼▼
+                case 'sticker': {
+                    // 这是为群聊设计的表情包逻辑
+                    const stickerName = msgData.sticker_name;
+                    if (!stickerName) {
+                        console.warn('AI在群聊中返回了sticker类型但没有sticker_name，已拦截:', msgData);
+                        continue; // 跳过这条无效指令
+                    }
+                    
+                    // 在所有可用表情库中查找
+                    const allStickers = [...state.userStickers, ...state.charStickers, ...(chat.settings.stickerLibrary || [])];
+                    const foundSticker = allStickers.find(s => s.name === stickerName);
+
+                    if (foundSticker) {
+                        // 找到了，就创建消息对象
+                        aiMessage = { 
+                            ...baseMessage, 
+                            type: 'sticker', 
+                            content: foundSticker.url, 
+                            meaning: foundSticker.name 
+                        };
+                    } else {
+                        // 没找到，说明AI幻觉了，记录警告并跳过
+                        console.warn(`AI在群聊中杜撰了不存在的表情: "${stickerName}"，已自动拦截。`);
+                    }
+                    break;
+                }
+                // ▲▲▲ 新代码粘贴结束 ▲▲▲
                 case 'waimai_response':
                     const requestMessageIndex = chat.history.findIndex(m => m.timestamp === msgData.for_timestamp);
                     if (requestMessageIndex > -1) {
@@ -16742,29 +16775,32 @@ case 'send_and_recall': {
     continue;
 }
                 
-// ▼▼▼ 用这【一整块】代码，完整替换旧的 case 'sticker' 和 case 'text' ▼▼▼
-            case 'sticker': { // 使用大括号创建独立作用域
-                const stickerName = msgData.name;
-                if (!stickerName) {
-                    console.warn('AI返回了sticker类型但没有name，已拦截:', msgData);
-                    continue;
-                }
-                
-                // 【安检站】在所有可能的表情库里查找
-                const allStickers = [...state.userStickers, ...state.charStickers, ...(chat.settings.stickerLibrary || [])];
-                const foundSticker = allStickers.find(s => s.name === stickerName);
+case 'sticker': {
+    // 这是为群聊和单聊统一设计的表情包逻辑
+    const stickerName = msgData.sticker_name; // 关键修改：统一使用 sticker_name
+    if (!stickerName) {
+        console.warn('AI返回了sticker类型但没有sticker_name，已拦截:', msgData);
+        continue; // 跳过这条无效指令
+    }
+    
+    // 在所有可用表情库中查找
+    const allStickers = [...state.userStickers, ...state.charStickers, ...(chat.settings.stickerLibrary || [])];
+    const foundSticker = allStickers.find(s => s.name === stickerName);
 
-                if (foundSticker) {
-                    // 【安检通过】创建消息对象
-                    aiMessage = { ...baseMessage, type: 'sticker', content: foundSticker.url, meaning: foundSticker.name };
-                } else {
-                    // 【安检失败】AI杜撰了名字
-                    console.warn(`AI杜撰了不存在的表情名: "${stickerName}"，已自动拦截。`);
-                    continue;
-                }
-                break;
-            }
-                
+    if (foundSticker) {
+        // 找到了，就创建消息对象
+        aiMessage = { 
+            ...baseMessage, 
+            type: 'sticker', 
+            content: foundSticker.url, 
+            meaning: foundSticker.name 
+        };
+    } else {
+        // 没找到，说明AI幻觉了，记录警告并跳过
+        console.warn(`AI杜撰了不存在的表情: "${stickerName}"，已自动拦截。`);
+    }
+    break;
+}
             case 'text': { 
                 const messageText = String(msgData.content || msgData.message || '');
                 
@@ -18885,6 +18921,7 @@ async function handleCreateGroup() {
             fontSize: 13,
             customCss: '',
             linkedWorldBookIds: [],
+            stickerLibrary: [], // <--- 新增这一行，为新群聊初始化专属表情库
         },
         history: [],
         musicData: { totalTime: 0 }
@@ -26830,7 +26867,13 @@ ${extraContext}
 async function openCharStickerManager() {
     if (!state.activeChatId) return;
     const chat = state.chats[state.activeChatId];
-    document.getElementById('sticker-manager-title').textContent = `“${chat.name}”的表情包`;
+        // 【修改】根据聊天类型显示不同的标题
+    if (chat.isGroup) {
+        document.getElementById('sticker-manager-title').textContent = `“${chat.name}”的群表情`;
+    } else {
+        document.getElementById('sticker-manager-title').textContent = `“${chat.name}”的表情包`;
+    }
+
 
     // 默认显示专属表情
     document.getElementById('sticker-tab-exclusive').click();
@@ -27734,12 +27777,13 @@ document.getElementById('reroll-call-btn-text').addEventListener('click', handle
     document.getElementById('npc-library-group').style.display = isGroup ? 'none' : 'block';
     // ▲▲▲ 粘贴结束 ▲▲▲
             // ▼▼▼ 第2步 第1处修改（新增代码） ▼▼▼
-        // 【全新】根据是否为单聊，显示或隐藏角色表情管理按钮
+        // 【修改】根据是否为单聊或群聊，显示表情管理按钮
         const charStickerGroup = document.getElementById('char-sticker-group');
         if (charStickerGroup) {
-            charStickerGroup.style.display = isGroup ? 'none' : 'block';
+            // 现在无论是单聊还是群聊，这个按钮都会显示
+            charStickerGroup.style.display = 'block';
         }
-        // ▲▲▲ 修改结束 ▲▲▲
+
 // 【核心新增】根据是否为群聊，显示或隐藏微博设置
 document.getElementById('weibo-profession-group').style.display = isGroup ? 'none' : 'block';
 document.getElementById('weibo-instruction-group').style.display = isGroup ? 'none' : 'block';
