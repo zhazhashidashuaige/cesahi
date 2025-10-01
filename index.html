@@ -14360,22 +14360,21 @@ if (msg.type === 'recalled_message') {
     const isUser = msg.role === 'user';
     const wrapper = document.createElement('div');
     wrapper.className = `message-wrapper ${isUser ? 'user' : 'ai'}`;
-
-    // ★★★【核心重构】★★★
-    // 这段逻辑现在用于查找成员对象，并显示其“群昵称”
-    if (chat.isGroup && !isUser) {
-        // 1. 使用AI返回的“本名”(`msg.senderName`)去列表里查找成员对象
-        const member = chat.members.find(m => m.originalName === msg.senderName);
-        
-        // 2. 创建用于显示名字的 div
-        const senderNameDiv = document.createElement('div');
-        senderNameDiv.className = 'sender-name';
-        
-        // 3. 如果找到了成员，就显示他的“群昵称”；如果找不到，就显示AI返回的“本名”作为备用
-        senderNameDiv.textContent = member ? member.groupNickname : (msg.senderName || '未知成员');
-        
-        wrapper.appendChild(senderNameDiv);
-    }
+// ★★★【核心重构】★★★
+// 这段逻辑现在用于查找成员对象，并显示其“群昵称”
+if (chat.isGroup && !isUser) {
+    // 1. 使用AI返回的“本名”(`msg.senderName`)去列表里查找成员对象
+    const member = chat.members.find(m => m.originalName === msg.senderName);
+    
+    // 2. 创建用于显示名字的 div
+    const senderNameDiv = document.createElement('div');
+    senderNameDiv.className = 'sender-name';
+    
+    // 3. 如果找到了成员，就显示他的“群昵称”；如果找不到，就显示AI返回的“本名”作为备用
+    senderNameDiv.textContent = member ? member.groupNickname : (msg.senderName || '未知成员');
+    
+    wrapper.appendChild(senderNameDiv);
+}
 
     const bubble = document.createElement('div');
     bubble.className = `message-bubble ${isUser ? 'user' : 'ai'}`;
@@ -15004,6 +15003,34 @@ if (isApiBlocked) {
     return; // 阻止API请求
 }
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
+    // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+
+    // 【全新】为AI准备微博互动的上下文(用于主动聊天)
+    let weiboContextForActiveChat = '';
+    try {
+        // 1. 从数据库里找出最新的5条微博
+        const recentWeiboPosts = await db.weiboPosts.orderBy('timestamp').reverse().limit(5).toArray();
+
+        if (recentWeiboPosts.length > 0) {
+            weiboContextForActiveChat = '\n\n# 最近的微博广场动态 (供你参考和评论)\n';
+            
+            recentWeiboPosts.forEach(post => {
+                const authorName = post.authorId === 'user' ? (state.qzoneSettings.weiboNickname || '我') : post.authorNickname;
+                const contentPreview = (post.content || post.hiddenContent || "(图片微博)").substring(0, 30);
+                
+                // 2. 检查你（AI角色）是否已经评论过
+                const hasCommented = (post.comments || []).some(c => c.authorNickname === chat.name);
+                const interactionStatus = hasCommented ? "[你已评论]" : "[你未互动]";
+                
+                weiboContextForActiveChat += `- (ID: ${post.id}) 作者: ${authorName}, 内容: "${contentPreview}..." ${interactionStatus}\n`;
+            });
+            weiboContextForActiveChat += ' - 【重要提示】请优先与你【未互动】的微博进行评论。如果都互动过了，可以考虑自己发一条新微博。';
+        }
+    } catch (e) {
+        console.error("生成微博主动聊天上下文时出错:", e);
+    }
+    
+    // ▲▲▲ 新代码粘贴结束 ▲▲▲
 
 const chatHeaderTitle = document.getElementById('chat-header-title');
 
@@ -15592,7 +15619,7 @@ ${timeContext}
 ${musicContext}
 
 ${countdownContext}
-
+${weiboContextForActiveChat}
 ${worldBookContent}
 ${sharedContext} 
 现在，请根据以上规则和下面的对话历史，继续进行对话。`;
@@ -17867,6 +17894,35 @@ function getVisibleAudienceForPost(post, allChats, userNickname) {
 }
 
 async function triggerInactiveAiAction(chatId) {
+    // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+
+    // 【全新】为AI准备微博互动的上下文
+    let weiboContextForAction = '';
+    try {
+        // 1. 从数据库里找出最新的5条微博
+        const recentWeiboPosts = await db.weiboPosts.orderBy('timestamp').reverse().limit(5).toArray();
+
+        if (recentWeiboPosts.length > 0) {
+            weiboContextForAction = '\n\n# 最近的微博广场动态 (供你参考和评论)\n';
+            
+            recentWeiboPosts.forEach(post => {
+                const authorName = post.authorId === 'user' ? (state.qzoneSettings.weiboNickname || '我') : post.authorNickname;
+                const contentPreview = (post.content || post.hiddenContent || "(图片微博)").substring(0, 30);
+                
+                // 2. 检查你（AI角色）是否已经评论过
+                const hasCommented = (post.comments || []).some(c => c.authorNickname === chat.name);
+                const interactionStatus = hasCommented ? "[你已评论]" : "[你未互动]";
+                
+                weiboContextForAction += `- (ID: ${post.id}) 作者: ${authorName}, 内容: "${contentPreview}..." ${interactionStatus}\n`;
+            });
+            weiboContextForAction += ' - 【重要提示】请优先与你【未互动】的微博进行评论。如果都互动过了，可以考虑自己发一条新微博。';
+        }
+    } catch (e) {
+        console.error("生成微博后台活动上下文时出错:", e);
+    }
+    
+    // ▲▲▲ 新代码粘贴结束 ▲▲▲
+
     const chat = state.chats[chatId];
     if (!chat) return;
 
@@ -17942,6 +17998,7 @@ let messagesPayload = [];
 # 供你决策的参考信息：
 -   **你的角色设定**: ${chat.settings.aiPersona}
 ${npcContextForAction}
+${weiboContextForAction}
 ${countdownContext}
 ${worldBookContext}
 -   **当前时间**: ${currentTime}
