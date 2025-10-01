@@ -15502,8 +15502,7 @@ ${npcContext}
 },
 {
 "type": "sticker",
-"url": "",
-"meaning": ""
+"sticker_name": "表情的名字"
 }
 ],
 "innerVoice": {
@@ -15551,7 +15550,7 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
 -   **记录回忆**: \`{"type": "create_memory", "description": "用你自己的话，记录下这个让你印象深刻的瞬间。"}\`
 -   **创建约定/倒计时**: \`{"type": "create_countdown", "title": "约定的标题", "date": "YYYY-MM-DDTHH:mm:ss"}\` (必须是未来的时间)
 -   **发送文本**: \`{"type": "text", "content": "你好呀！"}\`
--   **发送表情**: \`{"type": "sticker", "sticker_name": "表情的名字"\`
+-   **发送表情**: \`{"type": "sticker", "sticker_name": "表情的名字"}\`
 -   **发送图片**: \`{"type": "ai_image", "description": "图片的详细文字描述..."}\`
 -   **发送语音**: \`{"type": "voice_message", "content": "语音的文字内容..."}\`
 -   **发起转账**: \`{"type": "transfer", "amount": 5.20, "note": "一点心意"}\`
@@ -20930,7 +20929,7 @@ async function triggerGroupAiAction(chatId) {
 
 ## 你可以使用的操作指令 (JSON数组中的元素):
 -   **发送文本**: \`{"type": "text", "name": "角色名", "message": "文本内容"}\`
--   **发送表情**: \`{"type": "sticker", "url": "...", "meaning": "..."}\`
+-   **发送表情**: \`{"type": "sticker", "name": "角色名",  "sticker_name": "表情的名字"}\`
 -   **发送图片**: \`{"type": "ai_image", "name": "角色名", "description": "图片描述"}\`
 -   **发送语音**: \`{"type": "voice_message", "name": "角色名", "content": "语音内容"}\`
 -   **发起外卖代付**: \`{"type": "waimai_request", "name": "角色名", "productInfo": "一杯奶茶", "amount": 18}\` (向【群友】发起)
