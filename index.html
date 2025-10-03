@@ -9371,6 +9371,109 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 
 
+/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 的末尾 ▼▼▼ */
+
+/* === 主屏幕滑动与第二页样式 (哥特风格) === */
+
+/* 1. 重新定义主屏幕容器，让它可以容纳滑动器和分页点 */
+#home-screen {
+    display: block; 
+    padding: 0;
+    overflow: hidden;
+}
+
+/* 2. 滑动容器，横向排列两个页面 */
+.home-screen-slider {
+    display: flex;
+    width: 200%; /* 两个页面，所以是200% */
+    height: 100%;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 3. 单个页面的样式 */
+.home-page {
+    width: 50%; /* 每个页面占滑动容器的一半 */
+    height: 100%;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: calc(20px + env(safe-area-inset-top));
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+/* 4. 第二页的专属布局，让内容垂直居中 */
+#love-note-page {
+    justify-content: center; 
+}
+
+.love-note-widget {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* 5. 头像样式 */
+.love-note-avatar-container img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 3px solid rgba(128, 128, 128, 0.3); /* 灰色半透明边框 */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    object-fit: cover;
+}
+
+/* 6. 输入框样式 (匹配你的哥特风格) */
+.love-note-input {
+    width: 120px;
+    height: 150px;
+    background-color: rgba(60, 60, 60, 0.3); /* 半透明暗灰色 */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px; /* 圆角 */
+    color: #e0e0e0; /* 浅灰色文字 */
+    padding: 15px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: none;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-sizing: border-box;
+    text-align: center;
+}
+.love-note-input::placeholder {
+    color: #888;
+}
+
+/* 7. 分页小圆点 */
+.pagination-dots {
+    position: absolute;
+    bottom: 95px; /* 放在Dock栏上方 */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+.pagination-dots .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.3);
+    transition: background-color 0.3s, transform 0.3s;
+}
+.pagination-dots .dot.active {
+    background-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.1);
+}
+/* ▲▲▲ 新增CSS粘贴结束 ▲▲▲ */
+
+
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
     <style id="custom-theme-style"></style>
@@ -9406,90 +9509,94 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 <div id="lock-screen-background-blur" style="display: none;"></div>
 <!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
             
-<!-- ▼▼▼ 用下面这【一整块】修改后的代码，替换掉你旧的 <div id="home-screen"...>...</div> ▼▼▼ -->
+<!-- ▼▼▼ 用下面这【一整块】全新的代码，完整替换掉你文件中旧的 #home-screen 及其所有内容 ▼▼▼ -->
 <div id="home-screen" class="screen active">
     
-    <!-- 我们不再需要滑动容器了，直接放主要内容区 -->
-    <div id="main-content-area">
-        <div id="profile-widget">
-            <img id="profile-banner-img" src="https://i.postimg.cc/k495F4W5/profile-banner.jpg" class="editable-image">
-            <div class="profile-avatar-container">
-                <img id="profile-avatar-img" src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg" class="editable-image">
-            </div>
-            <div class="profile-info">
-                <p id="profile-username" class="editable-text">你的昵称</p>
-                <p id="profile-sub-username" class="editable-text">@your_id</p>
-                <p id="profile-bio" class="editable-text">点击这里编辑你的个性签名</p>
-<!-- ▼▼▼ 步骤 2.1：用这行新代码替换旧的地点 <p> 标签 ▼▼▼ -->
-<p id="profile-location" class="editable-text" data-placeholder="点击编辑地点"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"></path></svg><span>点击编辑地点</span></p>
-<!-- ▲▲▲ HTML 替换结束 ▲▲▲ -->
-            </div>
-        </div>
-        <div id="desktop-layout">
-            <div id="desktop-widget-column">
-    <!-- ▼▼▼ 这是全新的小组件结构 ▼▼▼ -->
-    <div class="custom-widget-container">
-        <div id="widget-bubble-1" class="widget-bubble editable-text" contenteditable="true">点击编辑文字</div>
-        <div class="widget-circle-uploader">
-            <img id="widget-image-1" src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg" class="editable-image" title="点击更换图片">
-        </div>
-        <div id="widget-subtext-1" class="widget-subtext editable-text" contenteditable="true">点击编辑文字</div>
-    </div>
-    <div class="custom-widget-container">
-        <div id="widget-bubble-2" class="widget-bubble editable-text" contenteditable="true">点击编辑文字</div>
-        <div class="widget-circle-uploader">
-            <img id="widget-image-2" src="https://i.postimg.cc/k495F4W5/profile-banner.jpg" class="editable-image" title="点击更换图片">
-        </div>
-        <div id="widget-subtext-2" class="widget-subtext editable-text" contenteditable="true">点击编辑文字</div>
-    </div>
-    <!-- ▲▲▲ 替换结束 ▲▲▲ -->
-</div>
+    <!-- 这个新的滑动容器将包裹所有主屏幕页面 -->
+    <div class="home-screen-slider">
 
-            <!-- 核心修改：我们把所有4个App图标都放在这个容器里 -->
-            <div id="desktop-app-container">
-                <div class="desktop-app-icon" onclick="showScreen('chat-list-screen')"><div class="icon-bg-desktop"><img id="icon-img-qq" src="https://i.postimg.cc/MTC3Tkw8/IMG-6436.jpg" alt="QQ"></div><span class="label">QQ</span></div>
-                <div class="desktop-app-icon" onclick="showScreen('world-book-screen')"><div class="icon-bg-desktop"><img id="icon-img-world-book" src="https://i.postimg.cc/HWf1JKzn/IMG-6435.jpg" alt="世界书"></div><span class="label">世界书</span></div>
-<!-- ▼▼▼ 核心修改：移除 onclick，添加 id ▼▼▼ -->
-<div id="check-phone-btn" class="desktop-app-icon">
-    <div class="icon-bg-desktop"><img id="icon-img-check-phone" src="https://i.postimg.cc/RVwpwr0r/IMG-8348.jpg" alt="查手机"></div>
-    <span class="label">查手机</span>
-</div>
-<!-- ▲▲▲ 修改结束 ▲▲▲ -->
-<!-- ▼▼▼ 用下面这段代码替换你旧的微博图标代码 ▼▼▼ -->
-<div class="desktop-app-icon" id="weibo-app-icon">
-    <div class="icon-bg-desktop"><img id="icon-img-weibo" src="https://i.postimg.cc/PqBY5wBq/weibo-icon.png" alt="微博"></div>
-    <span class="label">微博</span>
-</div>
-<!-- ▲▲▲ 替换结束 ▲▲▲ -->
-     <!-- ▼▼▼ 在这里添加下面这个新的图标 ▼▼▼ -->
-    <div class="desktop-app-icon" onclick="showScreen('forum-screen')">
-        <div class="icon-bg-desktop"><img id="icon-img-forum" src="https://i.postimg.cc/pr0T3WfC/douban-icon.png" alt="圈子"></div>
-        <span class="label">圈子</span>
-    </div>
-    <!-- ▲▲▲ 添加结束 ▲▲▲ -->
-     <!-- ▼▼▼ 【新功能】情侣空间App图标 ▼▼▼ -->
-<div class="desktop-app-icon" id="lovers-space-app-icon">
-    <div class="icon-bg-desktop"><img id="icon-img-lovers-space" src="https://i.postimg.cc/d1wZ39xW/lovers-space-icon.png" alt="情侣空间"></div>
-    <span class="label">情侣空间</span>
-</div>
-<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
-                <!-- 【注意】“外观设置”图标已从这里移走 -->
+        <!-- 页面一: 这是你原来的主屏幕内容 -->
+        <div id="main-home-page" class="home-page">
+            <div id="main-content-area">
+                <div id="profile-widget">
+                    <img id="profile-banner-img" src="https://i.postimg.cc/k495F4W5/profile-banner.jpg" class="editable-image">
+                    <div class="profile-avatar-container">
+                        <img id="profile-avatar-img" src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg" class="editable-image">
+                    </div>
+                    <div class="profile-info">
+                        <p id="profile-username" class="editable-text">你的昵称</p>
+                        <p id="profile-sub-username" class="editable-text">@your_id</p>
+                        <p id="profile-bio" class="editable-text">点击这里编辑你的个性签名</p>
+                        <p id="profile-location" class="editable-text" data-placeholder="点击编辑地点"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"></path></svg><span>点击编辑地点</span></p>
+                    </div>
+                </div>
+                <div id="desktop-layout">
+                    <div id="desktop-widget-column">
+                        <div class="custom-widget-container">
+                            <div id="widget-bubble-1" class="widget-bubble editable-text" contenteditable="true">点击编辑文字</div>
+                            <div class="widget-circle-uploader">
+                                <img id="widget-image-1" src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg" class="editable-image" title="点击更换图片">
+                            </div>
+                            <div id="widget-subtext-1" class="widget-subtext editable-text" contenteditable="true">点击编辑文字</div>
+                        </div>
+                        <div class="custom-widget-container">
+                            <div id="widget-bubble-2" class="widget-bubble editable-text" contenteditable="true">点击编辑文字</div>
+                            <div class="widget-circle-uploader">
+                                <img id="widget-image-2" src="https://i.postimg.cc/k495F4W5/profile-banner.jpg" class="editable-image" title="点击更换图片">
+                            </div>
+                            <div id="widget-subtext-2" class="widget-subtext editable-text" contenteditable="true">点击编辑文字</div>
+                        </div>
+                    </div>
+                    <div id="desktop-app-container">
+                        <div class="desktop-app-icon" onclick="showScreen('chat-list-screen')"><div class="icon-bg-desktop"><img id="icon-img-qq" src="https://i.postimg.cc/MTC3Tkw8/IMG-6436.jpg" alt="QQ"></div><span class="label">QQ</span></div>
+                        <div class="desktop-app-icon" onclick="showScreen('world-book-screen')"><div class="icon-bg-desktop"><img id="icon-img-world-book" src="https://i.postimg.cc/HWf1JKzn/IMG-6435.jpg" alt="世界书"></div><span class="label">世界书</span></div>
+                        <div id="check-phone-btn" class="desktop-app-icon">
+                            <div class="icon-bg-desktop"><img id="icon-img-check-phone" src="https://i.postimg.cc/RVwpwr0r/IMG-8348.jpg" alt="查手机"></div>
+                            <span class="label">查手机</span>
+                        </div>
+                        <div class="desktop-app-icon" id="weibo-app-icon">
+                            <div class="icon-bg-desktop"><img id="icon-img-weibo" src="https://i.postimg.cc/PqBY5wBq/weibo-icon.png" alt="微博"></div>
+                            <span class="label">微博</span>
+                        </div>
+                        <div class="desktop-app-icon" onclick="showScreen('forum-screen')">
+                            <div class="icon-bg-desktop"><img id="icon-img-forum" src="https://i.postimg.cc/pr0T3WfC/douban-icon.png" alt="圈子"></div>
+                            <span class="label">圈子</span>
+                        </div>
+                        <div class="desktop-app-icon" id="lovers-space-app-icon">
+                            <div class="icon-bg-desktop"><img id="icon-img-lovers-space" src="https://i.postimg.cc/d1wZ39xW/lovers-space-icon.png" alt="情侣空间"></div>
+                            <span class="label">情侣空间</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="desktop-dock">
+                <div class="desktop-app-icon" onclick="showScreen('api-settings-screen')"><div class="icon-bg-desktop"><img id="icon-img-api-settings" src="https://i.postimg.cc/MK8rJ8t7/IMG-6438.jpg" alt="API设置"></div><span class="label">API设置</span></div>
+                <div class="desktop-app-icon" onclick="showScreen('font-settings-screen')"><div class="icon-bg-desktop"><img id="icon-img-font" src="https://i.postimg.cc/pXxk1JXk/IMG-6442.jpg" alt="字体"></div><span class="label">字体</span></div>
+                <div class="desktop-app-icon" onclick="showScreen('wallpaper-screen')">
+                    <div class="icon-bg-desktop"><img id="icon-img-wallpaper" src="https://i.postimg.cc/T1j03pQr/IMG-6440.jpg" alt="外观设置"></div>
+                    <span class="label">外观设置</span>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- 底部 Dock 栏 (已修改) -->
-    <div id="desktop-dock">
-        <div class="desktop-app-icon" onclick="showScreen('api-settings-screen')"><div class="icon-bg-desktop"><img id="icon-img-api-settings" src="https://i.postimg.cc/MK8rJ8t7/IMG-6438.jpg" alt="API设置"></div><span class="label">API设置</span></div>
-        <div class="desktop-app-icon" onclick="showScreen('font-settings-screen')"><div class="icon-bg-desktop"><img id="icon-img-font" src="https://i.postimg.cc/pXxk1JXk/IMG-6442.jpg" alt="字体"></div><span class="label">字体</span></div>
-        <!-- 【新增】“外观设置”图标现在在这里了 -->
-        <div class="desktop-app-icon" onclick="showScreen('wallpaper-screen')">
-            <div class="icon-bg-desktop"><img id="icon-img-wallpaper" src="https://i.postimg.cc/T1j03pQr/IMG-6440.jpg" alt="外观设置"></div>
-            <span class="label">外观设置</span>
+        
+        <!-- 页面二: 这是你要求的新页面 -->
+        <div id="love-note-page" class="home-page">
+            <div class="love-note-widget">
+                <textarea id="love-note-left" class="love-note-input" placeholder="His..."></textarea>
+                <div class="love-note-avatar-container">
+                    <img id="love-note-avatar" src="https://i.postimg.cc/CKgDNYVb/IMG-5577.gif" class="editable-image">
+                </div>
+                <textarea id="love-note-right" class="love-note-input" placeholder="Hers..."></textarea>
+            </div>
         </div>
+
     </div>
     
-    <!-- 分页小圆点我们不再需要了，已经删掉 -->
+    <!-- 分页小圆点 -->
+    <div class="pagination-dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+    </div>
 </div>
 <!-- ▲▲▲ HTML 替换结束 ▲▲▲ -->
 <!-- ▼▼▼ 用下面这【一整块功能最全】的代码，完整替换掉你旧的 id="weibo-screen" 的整个 div ▼▼▼ -->
@@ -13987,6 +14094,131 @@ db.version(32).stores({
 // ===================================================================
 // 3. 所有功能函数定义
 // ===================================================================
+
+// ▼▼▼ 把这一整块全新的代码，粘贴到 init(); 的正上方 ▼▼▼
+
+/**
+ * 【全新】在 applyWidgetData 函数中，增加加载情书页内容的逻辑
+ */
+function applyWidgetData() {
+    if (!state.globalSettings.widgetData) return;
+    for (const elementId in state.globalSettings.widgetData) {
+        const element = document.getElementById(elementId);
+        const savedValue = state.globalSettings.widgetData[elementId];
+        if (element) {
+            if (element.tagName === 'IMG') {
+                element.src = savedValue;
+            } else if (elementId === 'profile-location') {
+                element.innerHTML = savedValue;
+            } else if (element.tagName === 'TEXTAREA') { // 新增：为textarea赋值
+                element.value = savedValue;
+            } else {
+                element.textContent = savedValue; 
+            }
+        }
+    }
+}
+
+/**
+ * 【全新】主屏幕滑动与第二页功能的核心函数
+ */
+function initHomeScreenSlider() {
+    const homeScreenContainer = document.getElementById('home-screen');
+    const homeScreenSlider = homeScreenContainer.querySelector('.home-screen-slider');
+    const dots = homeScreenContainer.querySelectorAll('.pagination-dots .dot');
+
+    if (!homeScreenSlider || dots.length === 0) return;
+
+    let currentPage = 0;
+    let touchStartX = 0;
+    let isDragging = false;
+
+    function updateDots() {
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentPage);
+        });
+    }
+
+    function slideToPage(pageIndex) {
+        currentPage = Math.max(0, Math.min(pageIndex, dots.length - 1));
+        const offset = - (currentPage * 100 / dots.length);
+        homeScreenSlider.style.transform = `translateX(${offset}%)`;
+        updateDots();
+    }
+    
+    function getEventX(e) {
+        return e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+    }
+
+    function handleDragStart(e) {
+        if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT' || e.target.closest('.desktop-app-icon') || e.target.closest('.editable-image') || e.target.closest('.editable-text')) {
+            return;
+        }
+        isDragging = true;
+        touchStartX = getEventX(e);
+        homeScreenSlider.style.transition = 'none';
+    }
+
+    function handleDragMove(e) {
+        if (!isDragging) return;
+        const currentX = getEventX(e);
+        const diffX = currentX - touchStartX;
+        const baseOffset = - (currentPage * homeScreenContainer.clientWidth);
+        homeScreenSlider.style.transform = `translateX(${baseOffset + diffX}px)`;
+    }
+
+    function handleDragEnd(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        homeScreenSlider.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+        
+        const touchEndX = e.type.includes('touchend') ? e.changedTouches[0].clientX : e.clientX;
+        const diffX = touchEndX - touchStartX;
+        const threshold = 50;
+
+        if (diffX < -threshold && currentPage < dots.length - 1) {
+            currentPage++;
+        } else if (diffX > threshold && currentPage > 0) {
+            currentPage--;
+        }
+        slideToPage(currentPage);
+    }
+    
+    homeScreenContainer.addEventListener('touchstart', handleDragStart, { passive: true });
+    homeScreenContainer.addEventListener('touchmove', handleDragMove, { passive: true });
+    homeScreenContainer.addEventListener('touchend', handleDragEnd);
+    homeScreenContainer.addEventListener('mousedown', handleDragStart);
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            e.preventDefault();
+            handleDragMove(e);
+        }
+    });
+    document.addEventListener('mouseup', handleDragEnd);
+
+    // 【全新】情书页输入框内容保存
+    function saveLoveNote() {
+        if (!state.globalSettings.widgetData) state.globalSettings.widgetData = {};
+        state.globalSettings.widgetData.loveNoteLeft = document.getElementById('love-note-left').value;
+        state.globalSettings.widgetData.loveNoteRight = document.getElementById('love-note-right').value;
+        db.globalSettings.put(state.globalSettings);
+    }
+    document.getElementById('love-note-left').addEventListener('input', saveLoveNote);
+    document.getElementById('love-note-right').addEventListener('input', saveLoveNote);
+    
+    // 【全新】让情书页的头像也可以被编辑
+    document.getElementById('love-note-avatar').addEventListener('click', (e) => {
+        handleEditImage(e.target);
+    });
+}
+
+// ▲▲▲ 把这一整块全新的代码，粘贴到 init(); 的正上方 ▲▲▲
+
+// ▼▼▼ 在 init() 函数的末尾, init(); 的正上方，添加下面这行调用代码 ▼▼▼
+initHomeScreenSlider();
+// ▲▲▲ 添加结束 ▲▲▲
+
+
 // ▼▼▼ 把这一整块全新的微博功能函数，粘贴到 init() 函数的上方 ▼▼▼
 
 /**
