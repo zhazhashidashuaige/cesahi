@@ -274,7 +274,17 @@ body {
         .app-icon:active .icon-bg { transform: scale(0.9); }
         .app-icon .icon-bg img { width: 100%; height: 100%; object-fit: cover; }
         .app-icon .label { color: white; }
-        .form-container, .list-container { padding: 20px; overflow-y: auto; flex-grow: 1; display:flex; flex-direction: column; }
+        /* 请将这段【修复后】的代码，替换掉你旧的 .list-container 样式 */
+
+.form-container, .list-container {
+    padding: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* ★★★ 核心修复：就是加上这一行！ ★★★ */
+}
+
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary); }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; box-sizing: border-box; }
@@ -7943,13 +7953,16 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▼▼▼ 请用这块新代码替换旧的 #post-detail-content 样式 ▼▼▼ */
+/* 用这段代码替换旧的 #post-detail-content 样式 */
 #post-detail-content {
-    flex-grow: 1;      /* 核心：让它占据所有可用的垂直空间 */
-    overflow-y: auto;  /* 核心：如果内容超出，则允许自身滚动 */
+    flex-grow: 1;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    padding: 20px;     /* 保留舒适的内边距 */
-    /* 不再需要为绝对定位的输入框留出额外的padding-bottom */
+    padding: 20px;
+    /* ★★★ 核心修复：增加一个底部的内边距 ★★★ */
+    /* 这个值大约是输入框的高度，你可以根据实际情况微调 */
+    padding-bottom: 80px; 
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
 .post-detail-header h1 {
@@ -9341,66 +9354,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 #post-screen #post-comment-input {
     flex-grow: 1 !important; /* 解决右侧空白的关键！ */
     min-height: 40px;
-    background-color: #f0f2f5 !important;
-    border-radius: 20px !important;
-    border: none !important;
-    padding: 10px 15px !important;
-    font-size: 14px !important;
-    line-height: 1.5;
-    resize: none;
-    box-sizing: border-box;
-}
-
-/* 4. 强制发送按钮的样式 */
-#post-screen #send-post-comment-btn {
-    height: 40px !important;
-    padding: 0 20px !important;
-    border-radius: 20px !important;
-    background-color: var(--accent-color) !important;
-    color: white !important;
-    font-weight: 600 !important;
-    font-size: 14px !important;
-    border: none !important;
-    flex-shrink: 0; /* 防止按钮被压缩 */
-}
-
-/* 夜间模式适配 */
-#phone-screen.dark-mode #post-screen #post-comment-input {
-    background-color: #2c2c2e !important;
-}
-
-
-/* === 【圈子评论区终极修复 - 覆盖继承版】 === */
-
-/* 
-   问题根源：圈子评论区(#post-comment-input-area)错误地继承了
-   主聊天输入区(.chat-input-area)的样式，导致布局错乱。
-   以下代码将针对圈子屏幕(#post-screen)下的评论区进行强制覆盖。
-*/
-
-/* 1. 强制重置评论区容器的布局，让它水平排列、垂直居中 */
-#post-screen #post-comment-input-area {
-    display: flex !important;
-    flex-direction: row !important; /* 强制横向排列 */
-    align-items: center !important;  /* 强制垂直居中，实现平行 */
-    gap: 10px !important;            /* 设置输入框和按钮的间距 */
-    padding: 10px 15px !important; /* 增加内边距，让它不贴边 */
-    padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important; /* 适配iPhone底部安全区 */
-}
-
-/* 2. 确保内层容器也正确伸展 */
-#post-screen #post-comment-input-area .chat-input-main-row {
-    flex-grow: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-}
-
-/* 3. 强制输入框的样式，并让它填满空间 */
-#post-screen #post-comment-input {
-    flex-grow: 1 !important; /* 解决右侧空白的关键！ */
-    min-height: 40px;
-    height: auto;
     background-color: #f0f2f5 !important;
     border-radius: 20px !important;
     border: none !important;
