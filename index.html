@@ -221,6 +221,7 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
+    height: 100%;
     background-size: cover;
     background-position: center;
     
@@ -6132,19 +6133,26 @@ body {
 }
 
 /* --- 2. 【核心】重新定义主屏幕布局 --- */
+/* 
+   这将把你的主屏幕从一个简单的垂直列表，变成一个撑满全屏、
+   使用Flexbox布局的强大容器，为新的“桌面式”布局打下基础。
+*/
 #home-screen {
+    /* 使用一个漂亮的线性渐变作为默认背景，当然你可以在“外观设置”里随时换掉它 */
     background: linear-gradient(135deg, #6DD5FA, #2980B9);
     background-size: cover;
     background-position: center;
     
+    /* 适配iPhone刘海和底部安全区 */
     padding-top: calc(20px + env(safe-area-inset-top));
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
     
+    /* 使用Flexbox让内容区和Dock栏上下分离 */
     display: flex;
     flex-direction: column;
     justify-content: space-between; 
     align-items: center;
-    height: 100%; /* <--- 就是这一行！删掉它！ */
+    height: 100%; /* 确保它撑满屏幕 */
 }
 
 /* --- 3. 中间主要内容区 (个人资料卡 + 小组件 + App图标) --- */
@@ -9291,6 +9299,19 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* ▲▲▲ 新增CSS结束 ▲▲▲ */
 
+/* --- 修复新增功能导致的滚动条问题 --- */
+
+/* 1. 强制隐藏你不要的“情侣空间播放列表” */
+#ls-music-playlist-panel {
+    display: none !important;
+}
+
+/* 2. 确保主屏幕容器绝对不会出现滚动条，实现固定效果 */
+#phone-screen {
+    overflow: hidden !important;
+}
+
+
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
     <style id="custom-theme-style"></style>
@@ -12202,7 +12223,12 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 <!-- 3. 这是播放列表的侧滑面板 -->
 <div id="ls-music-playlist-panel" class="music-playlist-panel">
-       <div class="playlist-body" id="ls-playlist-body">
+    <div class="playlist-header">
+        <span class="panel-btn" id="ls-close-playlist-btn">返回</span>
+        <span>播放列表</span>
+        <span class="panel-btn" id="ls-clear-playlist-btn" style="color: #ff3b30;">清空</span>
+    </div>
+    <div class="playlist-body" id="ls-playlist-body">
         <!-- 播放列表内容会在这里生成 -->
     </div>
 </div>
