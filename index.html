@@ -9368,110 +9368,63 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 #phone-screen.dark-mode #post-screen #post-comment-input {
     background-color: #2c2c2e !important;
 }
+/* ▼▼▼ 这是新增的主屏幕滑动样式 ▼▼▼ */
 
-
-
-/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 的末尾 ▼▼▼ */
-
-/* === 主屏幕滑动与第二页样式 (哥特风格) === */
-
-/* 1. 重新定义主屏幕容器，让它可以容纳滑动器和分页点 */
-#home-screen {
-    display: block; 
-    padding: 0;
-    overflow: hidden;
-}
-
-/* 2. 滑动容器，横向排列两个页面 */
+/* 主屏幕滑动容器 */
 .home-screen-slider {
-    display: flex;
-    width: 200%; /* 两个页面，所以是200% */
-    height: 100%;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 3. 单个页面的样式 */
-.home-page {
-    width: 50%; /* 每个页面占滑动容器的一半 */
-    height: 100%;
-    flex-shrink: 0;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: calc(20px + env(safe-area-inset-top));
-    padding-bottom: calc(20px + env(safe-area-inset-bottom));
-}
-
-/* 4. 第二页的专属布局，让内容垂直居中 */
-#love-note-page {
-    justify-content: center; 
-}
-
-.love-note-widget {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
     width: 100%;
-    padding: 20px;
+    height: 100%; /* 确保它能撑满父容器 */
+    display: flex; /* 让两页并排站好 */
+    overflow-x: auto; /* 允许水平滚动 */
+    overflow-y: hidden; /* 禁止垂直滚动 */
+    scroll-snap-type: x mandatory; /* 这就是滑动的魔法！让它自动吸附到每一页 */
+    -webkit-overflow-scrolling: touch; /* 在iOS上实现更平滑的滚动 */
+    scrollbar-width: none; /* 隐藏滚动条 (Firefox) */
+    -ms-overflow-style: none;  /* 隐藏滚动条 (IE) */
+}
+.home-screen-slider::-webkit-scrollbar {
+    display: none; /* 隐藏滚动条 (Chrome, Safari) */
+}
+
+/* 单个页面 */
+.home-page {
+    width: 100%; /* 每一页都占满整个屏幕宽度 */
+    height: 100%;
+    flex-shrink: 0; /* 防止页面被压缩变形 */
+    scroll-snap-align: start; /* 确保每次都对齐页面的开始位置 */
+    
+    /* 让页面内部的内容可以滚动 */
+    overflow-y: auto;
+    padding: 0 20px; /* 保持和你原来一样的左右边距 */
     box-sizing: border-box;
 }
 
-/* 5. 头像样式 */
-.love-note-avatar-container img {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    border: 3px solid rgba(128, 128, 128, 0.3); /* 灰色半透明边框 */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    object-fit: cover;
-}
-
-/* 6. 输入框样式 (匹配你的哥特风格) */
-.love-note-input {
-    width: 120px;
-    height: 150px;
-    background-color: rgba(60, 60, 60, 0.3); /* 半透明暗灰色 */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px; /* 圆角 */
-    color: #e0e0e0; /* 浅灰色文字 */
-    padding: 15px;
-    font-size: 14px;
-    font-family: inherit;
-    resize: none;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-sizing: border-box;
-    text-align: center;
-}
-.love-note-input::placeholder {
-    color: #888;
-}
-
-/* 7. 分页小圆点 */
+/* 分页小圆点的容器 */
 .pagination-dots {
     position: absolute;
-    bottom: 95px; /* 放在Dock栏上方 */
+    bottom: calc(100px + env(safe-area-inset-bottom)); /* 放在Dock栏上方 */
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 8px;
-    z-index: 10;
+    gap: 8px; /* 圆点之间的间距 */
 }
+
+/* 单个小圆点 */
 .pagination-dots .dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.3);
-    transition: background-color 0.3s, transform 0.3s;
+    background-color: rgba(255, 255, 255, 0.4); /* 未选中时的颜色 */
+    transition: background-color 0.3s ease; /* 添加一个平滑的颜色过渡动画 */
 }
+
+/* 被选中的小圆点 */
 .pagination-dots .dot.active {
-    background-color: rgba(255, 255, 255, 0.8);
-    transform: scale(1.1);
+    background-color: rgba(255, 255, 255, 0.9); /* 选中时变得更亮 */
 }
-/* ▲▲▲ 新增CSS粘贴结束 ▲▲▲ */
+
+/* ▲▲▲ 新增样式结束 ▲▲▲ */
+
 
 
     </style>
@@ -9509,14 +9462,13 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 <div id="lock-screen-background-blur" style="display: none;"></div>
 <!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
             
-<!-- ▼▼▼ 用下面这【一整块】全新的代码，完整替换掉你文件中旧的 #home-screen 及其所有内容 ▼▼▼ -->
+<!-- ▼▼▼ 用下面这【一整块】修改后的代码，替换掉你旧的 <div id="home-screen"...>...</div> ▼▼▼ -->
 <div id="home-screen" class="screen active">
     
-    <!-- 这个新的滑动容器将包裹所有主屏幕页面 -->
+    <!-- 我们用一个滑动容器把页面包起来 -->
     <div class="home-screen-slider">
-
-        <!-- 页面一: 这是你原来的主屏幕内容 -->
-        <div id="main-home-page" class="home-page">
+        <!-- 这是你的第一页，我们把原来的内容都放进来 -->
+        <div class="home-page">
             <div id="main-content-area">
                 <div id="profile-widget">
                     <img id="profile-banner-img" src="https://i.postimg.cc/k495F4W5/profile-banner.jpg" class="editable-image">
@@ -9569,35 +9521,36 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                     </div>
                 </div>
             </div>
-            <div id="desktop-dock">
-                <div class="desktop-app-icon" onclick="showScreen('api-settings-screen')"><div class="icon-bg-desktop"><img id="icon-img-api-settings" src="https://i.postimg.cc/MK8rJ8t7/IMG-6438.jpg" alt="API设置"></div><span class="label">API设置</span></div>
-                <div class="desktop-app-icon" onclick="showScreen('font-settings-screen')"><div class="icon-bg-desktop"><img id="icon-img-font" src="https://i.postimg.cc/pXxk1JXk/IMG-6442.jpg" alt="字体"></div><span class="label">字体</span></div>
-                <div class="desktop-app-icon" onclick="showScreen('wallpaper-screen')">
-                    <div class="icon-bg-desktop"><img id="icon-img-wallpaper" src="https://i.postimg.cc/T1j03pQr/IMG-6440.jpg" alt="外观设置"></div>
-                    <span class="label">外观设置</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 页面二: 这是你要求的新页面 -->
-        <div id="love-note-page" class="home-page">
-            <div class="love-note-widget">
-                <textarea id="love-note-left" class="love-note-input" placeholder="His..."></textarea>
-                <div class="love-note-avatar-container">
-                    <img id="love-note-avatar" src="https://i.postimg.cc/CKgDNYVb/IMG-5577.gif" class="editable-image">
-                </div>
-                <textarea id="love-note-right" class="love-note-input" placeholder="Hers..."></textarea>
-            </div>
         </div>
 
+<!-- 这是我们新增的第二页，现在中间有一个圆形图片小组件 -->
+<div class="home-page" style="display: flex; justify-content: center; align-items: flex-start; padding-top: 50px;">
+    <div class="custom-widget-container">
+        <div class="widget-circle-uploader">
+            <img id="widget-image-3" src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg" class="editable-image" title="点击更换图片">
+        </div>
+    </div>
+</div>
     </div>
     
-    <!-- 分页小圆点 -->
+    <!-- 底部 Dock 栏保持不变 -->
+    <div id="desktop-dock">
+        <div class="desktop-app-icon" onclick="showScreen('api-settings-screen')"><div class="icon-bg-desktop"><img id="icon-img-api-settings" src="https://i.postimg.cc/MK8rJ8t7/IMG-6438.jpg" alt="API设置"></div><span class="label">API设置</span></div>
+        <div class="desktop-app-icon" onclick="showScreen('font-settings-screen')"><div class="icon-bg-desktop"><img id="icon-img-font" src="https://i.postimg.cc/pXxk1JXk/IMG-6442.jpg" alt="字体"></div><span class="label">字体</span></div>
+        <div class="desktop-app-icon" onclick="showScreen('wallpaper-screen')">
+            <div class="icon-bg-desktop"><img id="icon-img-wallpaper" src="https://i.postimg.cc/T1j03pQr/IMG-6440.jpg" alt="外观设置"></div>
+            <span class="label">外观设置</span>
+        </div>
+    </div>
+
+    <!-- 这是我们新增的小圆点 -->
     <div class="pagination-dots">
         <span class="dot active"></span>
         <span class="dot"></span>
     </div>
 </div>
+<!-- ▲▲▲ HTML 替换结束 ▲▲▲ -->
+
 <!-- ▲▲▲ HTML 替换结束 ▲▲▲ -->
 <!-- ▼▼▼ 用下面这【一整块功能最全】的代码，完整替换掉你旧的 id="weibo-screen" 的整个 div ▼▼▼ -->
 <div id="weibo-screen" class="screen">
@@ -14094,131 +14047,6 @@ db.version(32).stores({
 // ===================================================================
 // 3. 所有功能函数定义
 // ===================================================================
-
-// ▼▼▼ 把这一整块全新的代码，粘贴到 init(); 的正上方 ▼▼▼
-
-/**
- * 【全新】在 applyWidgetData 函数中，增加加载情书页内容的逻辑
- */
-function applyWidgetData() {
-    if (!state.globalSettings.widgetData) return;
-    for (const elementId in state.globalSettings.widgetData) {
-        const element = document.getElementById(elementId);
-        const savedValue = state.globalSettings.widgetData[elementId];
-        if (element) {
-            if (element.tagName === 'IMG') {
-                element.src = savedValue;
-            } else if (elementId === 'profile-location') {
-                element.innerHTML = savedValue;
-            } else if (element.tagName === 'TEXTAREA') { // 新增：为textarea赋值
-                element.value = savedValue;
-            } else {
-                element.textContent = savedValue; 
-            }
-        }
-    }
-}
-
-/**
- * 【全新】主屏幕滑动与第二页功能的核心函数
- */
-function initHomeScreenSlider() {
-    const homeScreenContainer = document.getElementById('home-screen');
-    const homeScreenSlider = homeScreenContainer.querySelector('.home-screen-slider');
-    const dots = homeScreenContainer.querySelectorAll('.pagination-dots .dot');
-
-    if (!homeScreenSlider || dots.length === 0) return;
-
-    let currentPage = 0;
-    let touchStartX = 0;
-    let isDragging = false;
-
-    function updateDots() {
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === currentPage);
-        });
-    }
-
-    function slideToPage(pageIndex) {
-        currentPage = Math.max(0, Math.min(pageIndex, dots.length - 1));
-        const offset = - (currentPage * 100 / dots.length);
-        homeScreenSlider.style.transform = `translateX(${offset}%)`;
-        updateDots();
-    }
-    
-    function getEventX(e) {
-        return e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    }
-
-    function handleDragStart(e) {
-        if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT' || e.target.closest('.desktop-app-icon') || e.target.closest('.editable-image') || e.target.closest('.editable-text')) {
-            return;
-        }
-        isDragging = true;
-        touchStartX = getEventX(e);
-        homeScreenSlider.style.transition = 'none';
-    }
-
-    function handleDragMove(e) {
-        if (!isDragging) return;
-        const currentX = getEventX(e);
-        const diffX = currentX - touchStartX;
-        const baseOffset = - (currentPage * homeScreenContainer.clientWidth);
-        homeScreenSlider.style.transform = `translateX(${baseOffset + diffX}px)`;
-    }
-
-    function handleDragEnd(e) {
-        if (!isDragging) return;
-        isDragging = false;
-        homeScreenSlider.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-        
-        const touchEndX = e.type.includes('touchend') ? e.changedTouches[0].clientX : e.clientX;
-        const diffX = touchEndX - touchStartX;
-        const threshold = 50;
-
-        if (diffX < -threshold && currentPage < dots.length - 1) {
-            currentPage++;
-        } else if (diffX > threshold && currentPage > 0) {
-            currentPage--;
-        }
-        slideToPage(currentPage);
-    }
-    
-    homeScreenContainer.addEventListener('touchstart', handleDragStart, { passive: true });
-    homeScreenContainer.addEventListener('touchmove', handleDragMove, { passive: true });
-    homeScreenContainer.addEventListener('touchend', handleDragEnd);
-    homeScreenContainer.addEventListener('mousedown', handleDragStart);
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            e.preventDefault();
-            handleDragMove(e);
-        }
-    });
-    document.addEventListener('mouseup', handleDragEnd);
-
-    // 【全新】情书页输入框内容保存
-    function saveLoveNote() {
-        if (!state.globalSettings.widgetData) state.globalSettings.widgetData = {};
-        state.globalSettings.widgetData.loveNoteLeft = document.getElementById('love-note-left').value;
-        state.globalSettings.widgetData.loveNoteRight = document.getElementById('love-note-right').value;
-        db.globalSettings.put(state.globalSettings);
-    }
-    document.getElementById('love-note-left').addEventListener('input', saveLoveNote);
-    document.getElementById('love-note-right').addEventListener('input', saveLoveNote);
-    
-    // 【全新】让情书页的头像也可以被编辑
-    document.getElementById('love-note-avatar').addEventListener('click', (e) => {
-        handleEditImage(e.target);
-    });
-}
-
-// ▲▲▲ 把这一整块全新的代码，粘贴到 init(); 的正上方 ▲▲▲
-
-// ▼▼▼ 在 init() 函数的末尾, init(); 的正上方，添加下面这行调用代码 ▼▼▼
-initHomeScreenSlider();
-// ▲▲▲ 添加结束 ▲▲▲
-
-
 // ▼▼▼ 把这一整块全新的微博功能函数，粘贴到 init() 函数的上方 ▼▼▼
 
 /**
@@ -36939,73 +36767,9 @@ document.getElementById('home-screen').addEventListener('click', (e) => {
         handleEditImage(target);
     }
 });
-// ▼▼▼ 步骤 2.2：在 init() 函数的最末尾，粘贴这整块全新的滑动逻辑 ▼▼▼
 
-const homeScreenSlider = document.querySelector('.home-screen-slider');
-const dots = document.querySelectorAll('.pagination-dots .dot');
-if (homeScreenSlider && dots.length > 0) {
-    let currentPage = 0;
-    let touchStartX = 0;
-    let isDragging = false;
 
-    function updateDots() {
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === currentPage);
-        });
-    }
 
-    function slideToPage(pageIndex) {
-        currentPage = pageIndex;
-        const offset = - (currentPage * 100);
-        homeScreenSlider.style.transform = `translateX(${offset}%)`;
-        updateDots();
-    }
-    
-    function getEventX(e) {
-        return e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    }
-
-    function handleTouchStart(e) {
-        isDragging = true;
-        touchStartX = getEventX(e);
-        homeScreenSlider.style.transition = 'none';
-    }
-
-    function handleTouchMove(e) {
-        if (!isDragging) return;
-        const currentX = getEventX(e);
-        const diffX = currentX - touchStartX;
-        const baseOffset = - (currentPage * 100);
-        homeScreenSlider.style.transform = `translateX(calc(${baseOffset}% + ${diffX}px))`;
-    }
-
-    function handleTouchEnd(e) {
-        if (!isDragging) return;
-        isDragging = false;
-        homeScreenSlider.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-        
-        const touchEndX = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX;
-        const diffX = touchEndX - touchStartX;
-        const threshold = 50;
-
-        if (diffX < -threshold && currentPage < dots.length - 1) {
-            currentPage++;
-        } else if (diffX > threshold && currentPage > 0) {
-            currentPage--;
-        }
-        slideToPage(currentPage);
-    }
-    
-    const homeScreenContainer = document.getElementById('home-screen');
-    homeScreenContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
-    homeScreenContainer.addEventListener('touchmove', handleTouchMove, { passive: true });
-    homeScreenContainer.addEventListener('touchend', handleTouchEnd);
-    homeScreenContainer.addEventListener('mousedown', handleTouchStart);
-    document.addEventListener('mousemove', handleTouchMove);
-    document.addEventListener('mouseup', handleTouchEnd);
-}
-
-// ▲▲▲ 滑动逻辑粘贴结束 ▲▲▲
 // ▼▼▼ 【全新】“查手机”内容单条删除功能 ▼▼▼
 /**
  * 处理角色手机内数据删除的通用函数
@@ -38186,7 +37950,26 @@ document.getElementById('chat-messages').addEventListener('click', async (e) => 
 
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
 // ▲▲▲ 情侣空间事件监听结束 ▲▲▲
+// ▼▼▼ 【全新】这是主屏幕滑动分页的JS逻辑 ▼▼▼
+function initHomeScreenSlider() {
+    const slider = document.querySelector('.home-screen-slider');
+    const dots = document.querySelectorAll('.pagination-dots .dot');
 
+    if (!slider || dots.length === 0) return;
+
+    // 监听滑动事件
+    slider.addEventListener('scroll', () => {
+        // 计算当前滑到了第几页
+        const pageIndex = Math.round(slider.scrollLeft / slider.clientWidth);
+        
+        // 更新小圆点的状态
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === pageIndex);
+        });
+    });
+}
+// ▲▲▲ 新增JS逻辑结束 ▲▲▲
+initHomeScreenSlider(); // 初始化主屏幕滑动功能
 
 // ===================================================================
 // 5. 启动！
