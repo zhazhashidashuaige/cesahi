@@ -9383,13 +9383,15 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     flex-direction: row !important; /* 强制横向排列 */
     align-items: center !important;  /* 强制垂直居中，实现平行 */
     gap: 10px !important;            /* 设置输入框和按钮的间距 */
+    padding: 10px 15px !important;   /* 统一内边距 */
+    padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important; /* 适配iPhone底部安全区 */
 }
 
 /* 2. 确保内层容器也正确伸展 */
 #post-screen #post-comment-input-area .chat-input-main-row {
     flex-grow: 1 !important;
     display: flex !important;
-    align-items: center !important;
+    align-items: center !important; /* 这里改为center，让按钮和输入框更好对齐 */
     gap: 10px !important;
 }
 
@@ -9420,10 +9422,12 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     flex-shrink: 0; /* 防止按钮被压缩 */
 }
 
-/* 夜间模式适配 */
+/* 5. 适配夜间模式 */
 #phone-screen.dark-mode #post-screen #post-comment-input {
     background-color: #2c2c2e !important;
+    color: var(--text-primary) !important;
 }
+
 
 
     </style>
