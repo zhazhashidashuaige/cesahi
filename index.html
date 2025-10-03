@@ -57,15 +57,21 @@ body {
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
 /* 2. 让 #phone-screen 成为新的“根”容器，撑满整个浏览器窗口 */
-/* ▼▼▼ 请用这块【最终修正版】的代码，替换掉你现有的 #phone-screen 样式 ▼▼▼ */
+/* ▼▼▼ 使用这块【最终修复版】代码，替换掉你旧的 #phone-screen 样式 ▼▼▼ */
 #phone-screen {
-    width: 100%;
-    height: 100vh;
-    position: relative;
+    position: fixed;   /* ★★★ 核心修改：改为 fixed，彻底固定在视口上，杜绝任何滚动 ★★★ */
+    top: 0;
+    left: 0;
+    right: 0;            /* 新增，确保右边也贴紧 */
+    bottom: 0;           /* 新增，确保底部也贴紧 */
+    width: 100%;         /* 保留，与 left/right 配合，确保跨浏览器兼容性 */
+    height: 100%;        /* 保留 */
+    
+    /* 其他样式保持不变 */
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background-color: #ffffff; /* ★ 修改这里为白色 */
+    background-color: #ffffff; 
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
