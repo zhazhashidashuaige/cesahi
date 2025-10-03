@@ -36755,17 +36755,19 @@ document.querySelector('#background-activity-details').addEventListener('click',
 });
 // 使用事件委托，为所有可编辑元素统一绑定点击事件
 document.getElementById('home-screen').addEventListener('click', (e) => {
-    const target = e.target;
-    // 检查点击的是否是可编辑的文字
-    if (target.classList.contains('editable-text')) {
-        handleEditText(target);
+    // 【核心修正】使用 .closest() 来确保即使点击到子元素也能正确触发
+    const editableText = e.target.closest('.editable-text');
+    if (editableText) {
+        handleEditText(editableText);
+        return; // 处理完就退出，避免重复触发
     }
-    // 检查点击的是否是可编辑的图片
-    if (target.classList.contains('editable-image')) {
-        handleEditImage(target);
+
+    const editableImage = e.target.closest('.editable-image');
+    if (editableImage) {
+        handleEditImage(editableImage);
+        return;
     }
 });
-
 
 
 // ▼▼▼ 【全新】“查手机”内容单条删除功能 ▼▼▼
