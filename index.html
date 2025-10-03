@@ -11666,53 +11666,57 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 <!-- ▲▲▲ 新HTML粘贴结束 ▲▲▲ -->
 <!-- ▼▼▼ 【全新】在这里粘贴所有论坛相关的HTML代码 ▼▼▼ -->
 
-<!-- 1. 圈子主屏幕 (显示所有小组) -->
+<!-- 1. 论坛主屏幕 (显示所有小组) -->
 <div id="forum-screen" class="screen">
     <div class="header">
         <span class="back-btn" onclick="showScreen('home-screen')">‹</span>
         <span>圈子</span>
         <div class="header-actions">
-            <span class="action-btn" id="create-group-btn">+</span>
+            <span class="action-btn" id="create-group-btn" style="font-size: 28px; font-weight: 300;">+</span>
         </div>
     </div>
-    <div id="forum-group-list" class="list-container">
+    <div id="forum-group-list" class="list-container" style="padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-content: start;">
         <!-- 小组列表将由JS动态生成在这里 -->
     </div>
 </div>
 
-
-
-<!-- 2. 单个小组页面 (显示帖子列表) -->
+<!-- ▼▼▼ 用这整块代码替换旧的 id="group-screen" ▼▼▼ -->
 <div id="group-screen" class="screen">
     <div class="header">
         <span class="back-btn" id="back-to-forum-list">‹</span>
         <span id="group-screen-title">小组名称</span>
         <div class="header-actions">
+            <!-- 【核心修改】我们在这里新增了一个通用的“生成内容”按钮 -->
             <span class="action-btn" id="generate-group-content-btn" title="生成内容">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
             </span>
-            <span class="action-btn" id="create-forum-post-btn">+</span>
+            <span class="action-btn" id="create-forum-post-btn" style="font-size: 28px; font-weight: 300;">+</span>
         </div>
     </div>
-    <div id="fanfic-preference-bar">
-        <div class="form-group">
-            <label>选择CP偏好</label>
-            <div>
-                <select id="fanfic-char1-select"></select>
-                <span>&</span>
-                <select id="fanfic-char2-select"></select>
-                <button id="trigger-fanfic-generation-btn" class="form-button">生成</button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="fanfic-worldview-input">世界观偏好 (可选)</label>
-            <input type="text" id="fanfic-worldview-input" placeholder="例如：ABO、哨向、现代大学AU...">
+<!-- ▼▼▼ 用这块新代码替换 ▼▼▼ -->
+<div id="fanfic-preference-bar" style="display: none; padding: 10px 15px; background-color: #f0f2f5; border-bottom: 1px solid var(--border-color); flex-shrink: 0;">
+    <div class="form-group" style="margin: 0;">
+        <label style="font-size: 14px; margin-bottom: 5px;">选择CP偏好</label>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <select id="fanfic-char1-select" style="flex: 1;"></select>
+            <span>&</span>
+            <select id="fanfic-char2-select" style="flex: 1;"></select>
+            <button id="trigger-fanfic-generation-btn" class="form-button" style="margin: 0; padding: 10px 15px; width: auto;">生成</button>
         </div>
     </div>
-    <div id="group-post-list" class="list-container">
+    <!-- 这是我们新加的世界观输入框 -->
+    <div class="form-group" style="margin-top: 10px; margin-bottom: 0;">
+        <label for="fanfic-worldview-input" style="font-size: 14px; margin-bottom: 5px;">世界观偏好 (可选)</label>
+        <input type="text" id="fanfic-worldview-input" placeholder="例如：ABO、哨向、现代大学AU...">
+    </div>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+
+    <div id="group-post-list" class="list-container" style="padding-top: 0;">
         <!-- 帖子列表将由JS动态生成在这里 -->
     </div>
 </div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
 
 
 <!-- 3. 单个帖子页面 (显示帖子内容和评论) -->
@@ -11724,18 +11728,17 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             <span class="action-btn" id="repost-to-chat-btn">转载</span>
         </div>
     </div>
-    <div id="post-detail-content" class="list-container">
+    <div id="post-detail-content" class="list-container" style="padding: 20px;">
         <!-- 帖子和评论将由JS动态生成在这里 -->
     </div>
     <!-- 帖子页的评论输入框 -->
-    <div id="post-comment-input-area" class="chat-input-area">
+    <div id="post-comment-input-area" class="chat-input-area" style="visibility: visible;">
          <div class="chat-input-main-row">
             <textarea id="post-comment-input" rows="1" placeholder="发布你的评论..."></textarea>
             <button id="send-post-comment-btn" class="action-button">发送</button>
         </div>
     </div>
 </div>
-
 
 
 <!-- ▲▲▲ 论坛相关HTML代码粘贴结束 ▲▲▲ -->
