@@ -2,27 +2,32 @@
 <head>
     <meta charset="UTF-8">
 <!-- ▼▼▼ 用这整块代码替换掉你旧的meta和icon链接 ▼▼▼ -->
-
-<!-- 核心：定义视口，让网页在移动设备上正确显示 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-<!-- 核心：告诉苹果设备，这是一个可以全屏显示的Web应用 -->
+
+<!-- 1. (核心) 为苹果设备设置主屏幕图标 -->
+<link rel="apple-touch-icon" href="https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg">
+<link rel="apple-touch-icon" sizes="152x152" href="https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg">
+<link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg">
+<link rel="apple-touch-icon" sizes="167x167" href="https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg">
+
+<!-- 2. (核心) 链接到manifest文件 -->
+<link rel="manifest" href="manifest.json">
+
+<!-- 3. (核心) 告诉苹果设备，这是一个Web应用，可以全屏显示 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-<!-- 核心：设置苹果设备全屏模式下的状态栏样式 (可选: black, default, black-translucent) -->
+<!-- 4. (核心) 设置苹果设备全屏模式下的状态栏样式 -->
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<!-- 设置应用在主屏幕上显示的标题 -->
+<!-- 5. (可选) 设置应用在主屏幕上显示的标题 -->
 <meta name="apple-mobile-web-app-title" content="EPhone（兔k机版）">
 
-<!-- 为苹果设备设置主屏幕图标 -->
-<link rel="apple-touch-icon" href="https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg">
-
-<!-- (可选) 为其他设备和浏览器提供支持 -->
-<link rel="manifest" href="manifest.json">
+<!-- 6. (兼容) 为部分安卓浏览器提供支持 -->
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="icon" type="image/png" href="https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg">
 
+<!-- 7. (备用) 标准浏览器页签图标 -->
+<link rel="icon" type="image/png" href="https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg">
 <!-- ▲▲▲ 替换结束 ▲▲▲ -->
 
 
@@ -12205,12 +12210,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 <!-- 3. 这是播放列表的侧滑面板 -->
 <div id="ls-music-playlist-panel" class="music-playlist-panel">
-    <div class="playlist-header">
-        <span class="panel-btn" id="ls-close-playlist-btn">返回</span>
-        <span>播放列表</span>
-        <span class="panel-btn" id="ls-clear-playlist-btn" style="color: #ff3b30;">清空</span>
-    </div>
-    <div class="playlist-body" id="ls-playlist-body">
+       <div class="playlist-body" id="ls-playlist-body">
         <!-- 播放列表内容会在这里生成 -->
     </div>
 </div>
