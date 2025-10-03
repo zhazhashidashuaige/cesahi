@@ -6132,26 +6132,19 @@ body {
 }
 
 /* --- 2. 【核心】重新定义主屏幕布局 --- */
-/* 
-   这将把你的主屏幕从一个简单的垂直列表，变成一个撑满全屏、
-   使用Flexbox布局的强大容器，为新的“桌面式”布局打下基础。
-*/
 #home-screen {
-    /* 使用一个漂亮的线性渐变作为默认背景，当然你可以在“外观设置”里随时换掉它 */
     background: linear-gradient(135deg, #6DD5FA, #2980B9);
     background-size: cover;
     background-position: center;
     
-    /* 适配iPhone刘海和底部安全区 */
     padding-top: calc(20px + env(safe-area-inset-top));
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
     
-    /* 使用Flexbox让内容区和Dock栏上下分离 */
     display: flex;
     flex-direction: column;
     justify-content: space-between; 
     align-items: center;
-    height: 100%; /* 确保它撑满屏幕 */
+    height: 100%; /* <--- 就是这一行！删掉它！ */
 }
 
 /* --- 3. 中间主要内容区 (个人资料卡 + 小组件 + App图标) --- */
