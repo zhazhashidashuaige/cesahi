@@ -7942,18 +7942,15 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     justify-content: space-between;
 }
 
-/* ▼▼▼ 请用这块新代码替换旧的 #post-comment-input-area 样式 ▼▼▼ */
-#post-comment-input-area {
-    /* 
-    我们移除了 position: absolute; 和相关的 bottom, left 属性，
-    让它从一个“浮动层”变回一个正常的块级元素，自然地排在内容下方。
-    其他的样式会从 .chat-input-area 类继承，无需担心。
-    */
-    width: 100%;
-    box-sizing: border-box;
+/* ▼▼▼ 请用这块新代码替换旧的 #post-detail-content 样式 ▼▼▼ */
+#post-detail-content {
+    flex-grow: 1;      /* 核心：让它占据所有可用的垂直空间 */
+    overflow-y: auto;  /* 核心：如果内容超出，则允许自身滚动 */
+    display: flex;
+    flex-direction: column;
+    padding: 20px;     /* 保留舒适的内边距 */
+    /* 不再需要为绝对定位的输入框留出额外的padding-bottom */
 }
-/* ▲▲▲ 替换结束 ▲▲▲ */
-
 /* ▲▲▲ 替换结束 ▲▲▲ */
 .post-detail-header h1 {
     font-size: 22px;
