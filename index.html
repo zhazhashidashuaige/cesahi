@@ -9370,6 +9370,61 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     background-color: #2c2c2e !important;
 }
 
+/* === 【圈子评论区终极修复 - 覆盖继承版】 === */
+
+/* 
+   问题根源：圈子评论区(#post-comment-input-area)错误地继承了
+   主聊天输入区(.chat-input-area)的样式，导致布局错乱。
+   以下代码将针对圈子屏幕(#post-screen)下的评论区进行强制覆盖。
+*/
+
+/* 1. 强制重置评论区容器的布局，让它水平排列、垂直居中 */
+#post-screen #post-comment-input-area {
+    display: flex !important;
+    flex-direction: row !important; /* 核心：强制横向排列 */
+    align-items: center !important;  /* 核心：强制垂直居中，实现平行 */
+    gap: 10px !important;            /* 设置输入框和按钮的间距 */
+}
+
+/* 2. 确保内层容器也正确伸展 */
+#post-screen #post-comment-input-area .chat-input-main-row {
+    flex-grow: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+/* 3. 强制输入框的样式，并让它填满空间 */
+#post-screen #post-comment-input {
+    flex-grow: 1 !important; /* 解决右侧空白的关键！ */
+    min-height: 40px;
+    background-color: #f0f2f5 !important;
+    border-radius: 20px !important;
+    border: none !important;
+    padding: 10px 15px !important;
+    font-size: 14px !important;
+    line-height: 1.5;
+    resize: none;
+    box-sizing: border-box;
+}
+
+/* 4. 强制发送按钮的样式 */
+#post-screen #send-post-comment-btn {
+    height: 40px !important;
+    padding: 0 20px !important;
+    border-radius: 20px !important;
+    background-color: var(--accent-color) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    border: none !important;
+    flex-shrink: 0; /* 防止按钮被压缩 */
+}
+
+/* 夜间模式适配 */
+#phone-screen.dark-mode #post-screen #post-comment-input {
+    background-color: #2c2c2e !important;
+}
 
 
     </style>
