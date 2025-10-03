@@ -9313,70 +9313,129 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 
 
-/* ▼▼▼ 把这一整块全新的代码，粘贴到 <style> 的末尾 ▼▼▼ */
+/* === 【圈子评论区终极修复 - 覆盖继承版】 === */
 
-/* === 【全新】圈子详情页评论区样式 === */
+/* 
+   问题根源：圈子评论区(#post-comment-input-area)错误地继承了
+   主聊天输入区(.chat-input-area)的样式，导致布局错乱。
+   以下代码将针对圈子屏幕(#post-screen)下的评论区进行强制覆盖。
+*/
 
-/* 1. 评论区容器本身：这是解决问题的关键 */
-#post-comment-input-area {
-    /* --- 决定它作为flex子元素的行为 --- */
-    flex-shrink: 0; /* 关键！告诉父容器不要压缩我，我的高度是固定的 */
+/* 1. 强制重置评论区容器的布局，让它水平排列、垂直居中 */
+#post-screen #post-comment-input-area {
+    display: flex !important;
+    flex-direction: row !important; /* 强制横向排列 */
+    align-items: center !important;  /* 强制垂直居中，实现平行 */
+    gap: 10px !important;            /* 设置输入框和按钮的间距 */
+}
 
-    /* --- 决定它自身的外观 --- */
-    padding: 10px 15px; /* 设置舒适的内边距 */
-    padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* 适配iPhone底部安全区，防止被小黑条遮挡 */
-    background-color: rgba(247, 247, 247, 0.9); /* 半透明背景，与聊天页统一 */
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-top: 1px solid var(--border-color);
+/* 2. 确保内层容器也正确伸展 */
+#post-screen #post-comment-input-area .chat-input-main-row {
+    flex-grow: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+/* 3. 强制输入框的样式，并让它填满空间 */
+#post-screen #post-comment-input {
+    flex-grow: 1 !important; /* 解决右侧空白的关键！ */
+    min-height: 40px;
+    background-color: #f0f2f5 !important;
+    border-radius: 20px !important;
+    border: none !important;
+    padding: 10px 15px !important;
+    font-size: 14px !important;
+    line-height: 1.5;
+    resize: none;
     box-sizing: border-box;
+}
 
-    /* --- 决定它内部元素的排列 --- */
-    display: flex; /* 内部使用flex布局 */
-    align-items: center; /* 垂直居中输入框和按钮 */
-    gap: 10px; /* 输入框和按钮之间的间距 */
+/* 4. 强制发送按钮的样式 */
+#post-screen #send-post-comment-btn {
+    height: 40px !important;
+    padding: 0 20px !important;
+    border-radius: 20px !important;
+    background-color: var(--accent-color) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    border: none !important;
+    flex-shrink: 0; /* 防止按钮被压缩 */
 }
 
 /* 夜间模式适配 */
-#phone-screen.dark-mode #post-comment-input-area {
-    background-color: rgba(28, 28, 30, 0.85);
-    border-top-color: var(--border-color);
+#phone-screen.dark-mode #post-screen #post-comment-input {
+    background-color: #2c2c2e !important;
 }
 
-/* 2. 评论输入框样式 */
-#post-comment-input-area #post-comment-input {
-    flex-grow: 1; /* 关键！让输入框自动伸展，占满所有可用宽度 */
-    border: none;
-    background-color: #f0f2f5;
-    border-radius: 18px; /* 圆润的输入框 */
-    padding: 10px 15px;
-    font-size: 14px;
+/* === 【圈子帖子详情页 - 全屏修复】 === */
+
+/* 步骤1: 强制帖子详情页的总容器高度为100%，以确保子元素有正确的定位参考 */
+#post-screen {
+    height: 100%;
+}
+
+/* 步骤2: 让评论输入区“浮动”在页面最底部 */
+#post-screen #post-comment-input-area {
+    position: absolute; /* 核心：脱离文档流，浮动起来 */
+    bottom: 0;          /* 固定在底部 */
+    left: 0;
+    width: 100%;        /* 宽度撑满 */
+    box-sizing: border-box; /* 确保padding计算正确 */
+    background-color: rgba(247, 247, 247, 0.9); /* 美化：增加背景和毛玻璃效果 */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border-color);
+    padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* 适配iPhone底部安全区 */
+}
+
+/* 步骤3: 为帖子内容区（可滚动区域）添加“安全垫”，防止内容被输入框遮挡 */
+#post-detail-content {
+    /* 核心：增加一个和输入框差不多高的底部内边距 */
+    /* 60px 是一个比较安全的高度估值 */
+    padding-bottom: calc(60px + env(safe-area-inset-bottom)) !important;
+}
+
+/* 步骤4: 覆盖掉继承的错误内部样式，修复评论框和按钮的布局 */
+#post-screen #post-comment-input-area,
+#post-screen #post-comment-input-area .chat-input-main-row {
+    display: flex !important;
+    flex-direction: row !important; /* 强制改为水平排列 */
+    align-items: center !important;  /* 强制垂直居中 */
+    gap: 10px !important;            /* 设置输入框和按钮的间距 */
+}
+
+#post-screen #post-comment-input-area #post-comment-input {
+    flex-grow: 1 !important; /* 核心：让输入框填满剩余空间 */
+    min-height: 40px;
+    height: auto;
+    background-color: #f0f2f5 !important;
+    border-radius: 20px !important;
+    border: none !important;
+    padding: 10px 15px !important;
+    font-size: 14px !important;
     line-height: 1.5;
-    resize: none; /* 禁止拖拽大小 */
-    max-height: 80px; /* 限制最大高度，防止输入过多时无限增高 */
+    resize: none;
+    box-sizing: border-box;
 }
 
-/* 夜间模式下的输入框 */
-#phone-screen.dark-mode #post-comment-input-area #post-comment-input {
-    background-color: #2c2c2e;
-    color: var(--text-primary);
+#post-screen #post-comment-input-area #send-post-comment-btn {
+    height: 40px !important;
+    padding: 0 20px !important;
+    border-radius: 20px !important;
+    background-color: var(--accent-color) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    border: none !important;
+    flex-shrink: 0; /* 防止按钮被压缩 */
 }
 
-/* 3. 发送按钮样式 */
-#post-comment-input-area #send-post-comment-btn {
-    flex-shrink: 0; /* 防止发送按钮被压缩 */
-    height: 36px;
-    border-radius: 18px; /* 和输入框保持一致的圆角 */
-    padding: 0 20px;
-    border: none;
-    background-color: var(--accent-color);
-    color: white;
-    font-weight: 500;
-    cursor: pointer;
+/* 夜间模式适配 */
+#phone-screen.dark-mode #post-screen #post-comment-input {
+    background-color: #2c2c2e !important;
 }
-
-/* ▲▲▲ 新增代码粘贴结束 ▲▲▲ */
-
 
 
     </style>
