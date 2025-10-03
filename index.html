@@ -7243,7 +7243,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       - 数值越小，间距越小，微博内容离得越近。
       我已将它从 90px 减小到了 20px，你可以根据喜好再微调。
     */
-    margin-bottom: 50px;/* ★ 修改这里 ★ */
+    margin-bottom: 60px;/* ★ 修改这里 ★ */
 }
 
 /* 3. 背景图样式 (保持不变) */
@@ -7305,15 +7305,22 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     bottom: -20px; /* ★ 修改这里 */
 }
 
+/* ▼▼▼ 用这块新CSS替换掉旧的 ▼▼▼ */
 #weibo-user-profession-display {
     position: absolute;
-    left: 115px; 
-    bottom: -75px; /* 这个值通常需要跟着昵称一起调整 */
+    left: 35px;          /* 修改：从 left 改为 right，让它靠右对齐 */
+    bottom: -65px;        /* 修改：调整垂直位置，在头像下方 */
     z-index: 2;
     font-size: 13px;
     color: #8a8a8a;
     text-shadow: none;
+    text-align: right;    /* 新增：让文字本身也靠右对齐，更美观 */
+    cursor: pointer;      /* 新增：鼠标放上去时显示为小手形状 */
 }
+
+
+
+
 
 
 /* 6. 关注/粉丝/微博数据 */
@@ -9444,9 +9451,9 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                     </div>
                     <div class="weibo-nickname" id="weibo-nickname">你的昵称</div>
                     <!-- 【核心修改】在这里新增一个显示职业的地方 -->
-                    <div id="weibo-user-profession-display" style="font-size: 13px; color: #f0f0f0; margin-top: 8px; margin-bottom: 10px;">
-                        点击设置职业
-                    </div>
+                    <!-- ▼▼▼ 用这行新代码替换掉旧的 ▼▼▼ -->
+<div id="weibo-user-profession-display">点击设置职业</div>
+
                     <div class="weibo-stats">
                         <div id="weibo-following-btn" class="weibo-stat-item">
                             <span id="weibo-following-count" class="weibo-stat-number">0</span>
@@ -37116,13 +37123,21 @@ if (target.classList.contains('weibo-post-image') && target.dataset.hiddenText) 
 });
 
 // 3. 【核心】为微博个人主页的所有可编辑元素，绑定专属的编辑函数
+// ▼▼▼ 用这块新代码替换掉旧的 ▼▼▼
 document.getElementById('weibo-profile-page').addEventListener('click', (e) => {
     const target = e.target;
     if (target.id === 'weibo-avatar-img' || target.closest('.weibo-avatar-container')) {
         editWeiboAvatar();
     } else if (target.id === 'weibo-nickname') {
         editWeiboNickname();
-    } else if (target.id === 'weibo-background-img') {
+    } 
+    // ★★★ 新增的代码在这里 ★★★
+    else if (target.id === 'weibo-user-profession-display') {
+        // 点击职业时，打开微博用户设定弹窗
+        openWeiboUserSettingsModal();
+    } 
+    // ★★★ 新增结束 ★★★
+    else if (target.id === 'weibo-background-img') {
         editWeiboBackground();
     } else if (target.closest('#weibo-fans-item')) {
         editWeiboFansCount();
