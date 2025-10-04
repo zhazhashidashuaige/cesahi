@@ -9794,10 +9794,25 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 #status-bar                                     /* ★★★ 新增：顶部状态栏 ★★★ */
 {
     color: var(--home-icon-widget-text-color) !important;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.6) !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6) 
 }
-
-
+/* ▼▼▼ 【全新】去除主屏幕字体阴影的样式 ▼▼▼ */
+#phone-screen.no-home-font-shadow .app-icon .label,
+#phone-screen.no-home-font-shadow .desktop-app-icon .label,
+#phone-screen.no-home-font-shadow .widget-bubble,
+#phone-screen.no-home-font-shadow .widget-subtext,
+#phone-screen.no-home-font-shadow #avatar-subtitle,
+#phone-screen.no-home-font-shadow .corner-bubble,
+#phone-screen.no-home-font-shadow .new-widget-text,
+#phone-screen.no-home-font-shadow #widget-month-display,
+#phone-screen.no-home-font-shadow #profile-username,
+#phone-screen.no-home-font-shadow #profile-sub-username,
+#phone-screen.no-home-font-shadow #profile-bio,
+#phone-screen.no-home-font-shadow #profile-location,
+#phone-screen.no-home-font-shadow #clock-container {
+    text-shadow: none !important;
+}
+/* ▲▲▲ 新增样式结束 ▲▲▲ */
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
     <style id="custom-theme-style"></style>
@@ -10756,6 +10771,16 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     <input type="color" id="home-icon-widget-text-color-picker" value="#FFFFFF" style="width: 100%; height: 40px; padding: 0; border-radius: 8px;">
 </div>
 <!-- ▲▲▲ 步骤2 HTML代码替换结束 ▲▲▲ -->
+ <!-- ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼ -->
+<div class="form-group">
+    <label for="remove-home-font-shadow-toggle" class="toggle-switch-label">
+        <span class="toggle-switch-text">去除主屏幕字体阴影</span>
+        <input type="checkbox" id="remove-home-font-shadow-toggle">
+        <span class="toggle-switch-slider"></span>
+    </label>
+</div>
+<!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
+
         <!-- 【核心修改2】新增图标设置区域 -->
         <hr style="width: 80%; opacity: 0.3; margin: 30px 0;">
         <div style="width:100%; text-align: left; margin-bottom: 15px;">
@@ -16274,7 +16299,12 @@ if (!state.globalSettings.widgetData) {
 if (!state.globalSettings.homeIconWidgetTextColor) { // <-- 修改这里的名字
     state.globalSettings.homeIconWidgetTextColor = '#FFFFFF';
 }
+// 【全新】兼容字体阴影设置
+if (typeof state.globalSettings.removeHomeFontShadow === 'undefined') {
+    state.globalSettings.removeHomeFontShadow = false;
+}
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
+
 
     // ▼▼▼ 在这里添加下面这行代码 ▼▼▼
     // 【核心新增】加载歌词栏设置，如果不存在则使用默认值
@@ -16979,7 +17009,12 @@ function renderWallpaperScreen() {
     if (toggle) {
         toggle.checked = lockScreenEnabled;
     }
+// ▼▼▼ 在这里粘贴下面这段新代码 (或者修改你已有的) ▼▼▼
 document.getElementById('home-icon-widget-text-color-picker').value = state.globalSettings.homeIconWidgetTextColor || '#FFFFFF';
+// 【全新】渲染字体阴影开关的状态
+document.getElementById('remove-home-font-shadow-toggle').checked = !!state.globalSettings.removeHomeFontShadow;
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
     const preview = document.getElementById('wallpaper-preview'); 
     const bg = newWallpaperBase64 || state.globalSettings.wallpaper; 
     if (bg && bg.startsWith('data:image')) { 
@@ -34719,7 +34754,12 @@ document.getElementById('save-wallpaper-btn').addEventListener('click', async ()
     const isLockEnabled = document.getElementById('enable-lock-screen-toggle').checked;
     state.globalSettings.enableLockScreen = isLockEnabled;
     localStorage.setItem('lockScreenEnabled', isLockEnabled);
+// ▼▼▼ 在这里粘贴下面这两行新代码 ▼▼▼
 state.globalSettings.homeIconWidgetTextColor = document.getElementById('home-icon-widget-text-color-picker').value;
+// 【全新】保存字体阴影设置
+state.globalSettings.removeHomeFontShadow = document.getElementById('remove-home-font-shadow-toggle').checked;
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
 
     await db.globalSettings.put(state.globalSettings);
 
@@ -39213,6 +39253,11 @@ initHomeScreenSlider(); // 初始化主屏幕滑动功能
 // 监听主屏幕图标和小组件颜色选择器的实时变化
 document.getElementById('home-icon-widget-text-color-picker').addEventListener('input', (e) => {
     applyHomeIconWidgetTextColor(e.target.value);
+});
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+// 【全新】主屏幕字体阴影开关的实时预览事件
+document.getElementById('remove-home-font-shadow-toggle').addEventListener('change', (e) => {
+    document.getElementById('phone-screen').classList.toggle('no-home-font-shadow', e.target.checked);
 });
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
 
