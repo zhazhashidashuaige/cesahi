@@ -6137,6 +6137,7 @@ body {
    这将把你的主屏幕从一个简单的垂直列表，变成一个撑满全屏、
    使用Flexbox布局的强大容器，为新的“桌面式”布局打下基础。
 */
+/* --- 2. 【核心】重新定义主屏幕布局 --- */
 #home-screen {
     /* 使用一个漂亮的线性渐变作为默认背景，当然你可以在“外观设置”里随时换掉它 */
     background: linear-gradient(135deg, #6DD5FA, #2980B9);
@@ -6147,6 +6148,11 @@ body {
     padding-top: calc(20px + env(safe-area-inset-top));
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
     
+    /* ▼▼▼ 在这里添加下面这两行 ▼▼▼ */
+    padding-left: 0;
+    padding-right: 0;
+    /* ▲▲▲ 添加结束 ▲▲▲ */
+
     /* 使用Flexbox让内容区和Dock栏上下分离 */
     display: flex;
     flex-direction: column;
@@ -6154,6 +6160,7 @@ body {
     align-items: center;
     height: 100%; /* 确保它撑满屏幕 */
 }
+
 
 /* --- 3. 中间主要内容区 (个人资料卡 + 小组件 + App图标) --- */
 #main-content-area {
@@ -9386,7 +9393,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     display: none; /* 隐藏滚动条 (Chrome, Safari) */
 }
 
-/* 单个页面 */
 .home-page {
     width: 100%; /* 每一页都占满整个屏幕宽度 */
     height: 100%;
@@ -9397,7 +9403,9 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     overflow-y: auto;
     padding: 0 20px; /* 保持和你原来一样的左右边距 */
     box-sizing: border-box;
+    position: relative; /* ★★★ 在这里添加这一行！ ★★★ */
 }
+
 
 /* 分页小圆点的容器 */
 .pagination-dots {
@@ -9424,6 +9432,308 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▲▲▲ 新增样式结束 ▲▲▲ */
+/* ▼▼▼ 把这段新样式粘贴到 <style> 标签的最末尾 ▼▼▼ */
+
+/* 这是第二页布局的全新样式 (V2 美化版) */
+
+/* 1. 把头像小组件定位到左半屏的中间 */
+#second-page-left-widget {
+    position: absolute;
+    top: 50px; 
+    left: 25%; 
+    transform: translateX(-50%); 
+}
+
+/* ★★★ 这是为头像小组件新增的放大和细边框样式 ★★★ */
+#second-page-left-widget .widget-circle-uploader {
+    width: 65px;  /* 头像宽度从 65px 放大到 80px */
+    height: 65px; /* 头像高度从 65px 放大到 80px */
+    border-width: 1px; /* 轮廓线从 2px 减小到 1px，变得很细 */
+    padding: 1px; /* ★★★ 在这里添加这一行，把缝隙减小到1像素 ★★★ */
+}
+/* 2. 把右上角的图标改为并排排列 */
+#second-page-top-right-apps {
+    position: absolute;
+    top: 50px;
+    right: 30px;
+    display: flex;
+    gap: 30px; /* ★★★ 图标间距从 25px 增加到 30px，拉开距离 ★★★ */
+}
+
+/* 3. 文字颜色样式保持不变 */
+#second-page-top-right-apps .desktop-app-icon .label {
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+/* ▼▼▼ 把这段新样式粘贴到 <style> 标签的最末尾 ▼▼▼ */
+
+/* ▼▼▼ 请用这【一整块新代码】完整替换掉你上次添加的、关于第二页头像的所有CSS ▼▼▼ */
+
+/* 1. 容器：移除元素间距，让头像和气泡靠拢 (保持不变) */
+#second-page-left-widget {
+    /* ★★★ 在这里新增一个宽度，作为“主宽度” ★★★ */
+    width: 150px;
+    gap: 0;
+}
+
+#second-page-bubble {
+    margin-top: -10px;
+    padding: 10px 15px;
+    border-radius: 30px;
+    /* ★★★ 修改点1：移除 min-width 和 display: inline-block ★★★ */
+    /* min-width: 140px; */
+    /* display: inline-block; */
+
+    /* ★★★ 修改点2：添加下面这三行，让它占满父容器宽度并居中 ★★★ */
+    width: 100%;
+    box-sizing: border-box; /* 确保 padding 不会撑破布局 */
+    text-align: center;     /* 让文字在变宽的容器里居中 */
+    
+    background-color: rgba(255, 255, 255, 0.4);
+    color: #1c1c1e;
+    text-shadow: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+}
+
+
+
+/* ★★★ 修改点2：在这里明确移除那个不想要的尖角 ★★★ */
+#second-page-bubble::after {
+    content: none; /* 强制移除继承自 .widget-bubble 的尖角伪元素 */
+}
+
+/* 3. 提升头像层级 (保持不变) */
+#second-page-left-widget .widget-circle-uploader {
+    position: relative; 
+    z-index: 2;         
+}
+
+/* ▲▲▲ 替换结束 ▲▲▲ */
+/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 标签的最末尾 ▼▼▼ */
+
+/* 1. 新增气泡的容器，负责整体布局和宽度 */
+#new-bubbles-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* ★★★ 核心修改：将固定的 180px 改为 100%，让它自动跟随父容器 ★★★ */
+    width: 100%;
+    margin-top: 8px;
+}
+
+
+/* ▼▼▼ 用这块【全新的代码】替换旧的 #flat-capsule-bubble 样式 ▼▼▼ */
+/* ▼▼▼ 用这块【修改后】的代码替换旧的 #flat-capsule-bubble 样式 ▼▼▼ */
+#flat-capsule-bubble {
+    flex-grow: 1;
+    min-width: auto;
+    /* ★★★ 修改点1：高度从 44px 减小到 38px ★★★ */
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+    /* ★★★ 修改点2：新增背景色，将透明度从 0.4 提升到 0.6，让它更不透明 ★★★ */
+    background-color: rgba(255, 255, 255, 0.4);
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
+#flat-capsule-bubble::after {
+    content: none; /* 移除继承来的小尾巴 */
+}
+
+
+/* ▼▼▼ 用这块【修改后】的代码替换旧的 #circular-bubble 样式 ▼▼▼ */
+#circular-bubble {
+    flex-shrink: 0;
+    /* ★★★ 修改点1：宽度和高度都从 44px 减小到 38px ★★★ */
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: auto;
+    /* ★★★ 修改点2：新增背景色，与胶囊气泡保持一致，更不透明 ★★★ */
+    background-color: rgba(255, 255, 255, 0.4);
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
+/* 4. 移除圆形气泡的小尾巴 */
+#circular-bubble::after {
+    content: none;
+}
+
+/* ▲▲▲ 新增CSS结束 ▲▲▲ */
+/* ▼▼▼ 请将这段新样式粘贴到 <style> 的末尾 ▼▼▼ */
+
+/* 1. 新头像组件的定位：中间偏上 */
+#second-page-center-avatar {
+    position: absolute;
+    top: 235px; /* 控制上下位置，数值越小越靠上 */
+    transform: translateX(-50%); /* 水平居中 */
+    z-index: 5; /* 确保它在其他元素之上 */
+}
+
+/* 2. 新头像的尺寸和样式：比第一个大，且没有轮廓线 */
+#second-page-center-avatar .widget-circle-uploader {
+    width: 85px;  /* 比第一个头像(65px)大一圈 */
+    height: 85px; /* 保持正圆 */
+    border: none; /* 移除轮廓线 */
+    padding: 0;   /* 移除内边距，让图片填满 */
+}
+
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 标签的最末尾 ▼▼▼ */
+/* 1. 这是包裹头像和所有新气泡的总容器 (V2 加大版) */
+#center-avatar-wrapper {
+    position: absolute;
+    top: 180px;
+    transform: translateX(-50%);
+    z-index: 5;
+    
+    /* ★ 修改点：把这个“看不见的盒子”的尺寸变大 */
+    width: 300px;  /* 从 250px 增加到了 300px */
+    height: 180px; /* 从 150px 增加到了 180px */
+}
+
+
+/* 2. 把你原来的头像在总容器里居中，这样它的位置看起来和原来一模一样 */
+#second-page-center-avatar {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* 我们不再需要它自己来定位了，所以把旧的定位样式移除 */
+}
+
+#avatar-subtitle {
+    position: absolute;
+    bottom: 5px; /* ★ 修改点：把它从容器外面移到里面，位置更协调 */
+    left: 50%;
+    transform: translateX(-50%);
+    
+    background-color: transparent;
+    border: none;
+    outline: none;
+    
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    cursor: pointer;
+    padding: 2px 8px;
+}
+
+
+/* 4. 这是四个角落气泡的通用样式 (V3 最终版) */
+.corner-bubble {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 8px 12px;
+    
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    
+    min-width: 80px; /* ★ 修改点：把最小宽度从40px增加到了60px */
+    cursor: pointer;
+}
+
+
+/* 5. 分别定位四个角落的气泡 */
+#bubble-top-left {
+    top: 0;
+    left: 0;
+}
+#bubble-top-right {
+    top: 0;
+    right: 0;
+}
+#bubble-bottom-left {
+    bottom: 0;
+    left: 0;
+}
+#bubble-bottom-right {
+    bottom: 0;
+    right: 0;
+}
+
+/* ▲▲▲ 新增CSS粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【这是修改后的版本】请用这整块代码替换旧的 ▼▼▼ */
+
+/* 1. 总容器：移除了顶部的内边距 */
+#new-custom-widget {
+    position: absolute;
+    bottom: 55px;
+    right: 20px;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    /* padding-top: 50px;  <-- 这行已经被删掉了 */
+}
+
+/* 2. 【全新】头部容器：负责让月份和头像水平排列 */
+#new-widget-header {
+    width: 100%; /* 占满父容器宽度 */
+    display: flex;
+    justify-content: space-between; /* 把月份推到最左边，头像推到最右边 */
+    align-items: center; /* 让它们垂直居中对齐 */
+    margin-bottom: 5px; /* 和下方的文字拉开一点距离 */
+}
+
+/* 3. 月份：移除了绝对定位，现在是普通的flex项目 */
+#widget-month-display {
+    font-size: 25px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+    line-height: 1;
+}
+
+/* 4. 头像：移除了不必要的样式，因为布局由父容器控制了 */
+#new-custom-widget #new-widget-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    outline: none;
+}
+
+/* 5. 可编辑文字和分割线 (保持不变) */
+#new-custom-widget .new-widget-text {
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 2px 4px;
+    border-radius: 3px;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+    text-align: right;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#new-custom-widget .new-widget-divider {
+    width: 100%;
+    height: 1px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.3);
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
 
 
 
@@ -9510,26 +9820,78 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                             <div class="icon-bg-desktop"><img id="icon-img-weibo" src="https://i.postimg.cc/PqBY5wBq/weibo-icon.png" alt="微博"></div>
                             <span class="label">微博</span>
                         </div>
-                        <div class="desktop-app-icon" onclick="showScreen('forum-screen')">
-                            <div class="icon-bg-desktop"><img id="icon-img-forum" src="https://i.postimg.cc/pr0T3WfC/douban-icon.png" alt="圈子"></div>
-                            <span class="label">圈子</span>
-                        </div>
-                        <div class="desktop-app-icon" id="lovers-space-app-icon">
-                            <div class="icon-bg-desktop"><img id="icon-img-lovers-space" src="https://i.postimg.cc/d1wZ39xW/lovers-space-icon.png" alt="情侣空间"></div>
-                            <span class="label">情侣空间</span>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-<!-- 这是我们新增的第二页，现在中间有一个圆形图片小组件 -->
-<div class="home-page" style="display: flex; justify-content: center; align-items: flex-start; padding-top: 50px;">
-    <div class="custom-widget-container">
+<!-- 这是我们新增的第二页，现在是自定义布局 -->
+<div class="home-page">
+<!-- 这是左半边的头像小组件 -->
+<div id="second-page-left-widget" class="custom-widget-container">
+    <div class="widget-circle-uploader">
+        <img id="widget-image-3" src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg" class="editable-image" title="点击更换图片">
+    </div>
+    
+    <!-- ▼▼▼ 这是我们新增的可编辑胶囊气泡 ▼▼▼ -->
+    <div id="second-page-bubble" class="widget-bubble editable-text" contenteditable="true">
+        点击编辑文字
+    </div>
+    <!-- ▲▲▲ 新增结束 ▲▲▲ -->
+<!-- ▼▼▼ 在这里添加下面这段全新的HTML代码 ▼▼▼ -->
+<div id="new-bubbles-container">
+    <div id="flat-capsule-bubble" class="widget-bubble editable-text" contenteditable="true">可编辑</div>
+    <div id="circular-bubble" class="widget-bubble editable-text" contenteditable="true">文字</div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+
+</div>
+    <!-- 这是右上角的两个并排图标 -->
+    <div id="second-page-top-right-apps">
+        <div class="desktop-app-icon" onclick="showScreen('forum-screen')">
+            <div class="icon-bg-desktop"><img id="icon-img-forum" src="https://i.postimg.cc/pr0T3WfC/douban-icon.png" alt="圈子"></div>
+            <span class="label">圈子</span>
+        </div>
+        <div class="desktop-app-icon" id="lovers-space-app-icon">
+            <div class="icon-bg-desktop"><img id="icon-img-lovers-space" src="https://i.postimg.cc/d1wZ39xW/lovers-space-icon.png" alt="情侣空间"></div>
+            <span class="label">情侣空间</span>
+        </div>
+<!-- ▼▼▼ 用下面这整块【新代码】，替换掉你旧的 id="second-page-center-avatar" 的那个 div ▼▼▼ -->
+<div id="center-avatar-wrapper">
+    <!-- 这是你原来的头像，我们把它放在了新容器的中心 -->
+    <div id="second-page-center-avatar" class="custom-widget-container">
         <div class="widget-circle-uploader">
-            <img id="widget-image-3" src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg" class="editable-image" title="点击更换图片">
+            <img id="widget-image-4" src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg" class="editable-image" title="点击更换图片">
         </div>
     </div>
+    
+    <!-- 这是新增的、头像下方的透明可编辑文字框 -->
+    <div id="avatar-subtitle" contenteditable="true">点击编辑文字</div>
+
+    <!-- 这是新增的、头像四个角的可编辑气泡 -->
+    <div class="corner-bubble" id="bubble-top-left" contenteditable="true">左上角</div>
+    <div class="corner-bubble" id="bubble-top-right" contenteditable="true">右上角</div>
+    <div class="corner-bubble" id="bubble-bottom-left" contenteditable="true">左下角</div>
+    <div class="corner-bubble" id="bubble-bottom-right" contenteditable="true">右下角</div>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+
+    </div>
+<!-- ▼▼▼ 【这是修改后的版本】请用这整块代码，完整替换掉旧的 id="new-custom-widget" ▼▼▼ -->
+<div id="new-custom-widget">
+    <!-- 我们用一个新的容器把月份和头像包起来 -->
+    <div id="new-widget-header">
+        <div id="widget-month-display"></div>
+        <img id="new-widget-avatar" src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg" class="editable-image">
+    </div>
+    <div id="new-widget-text-1" class="new-widget-text editable-text" contenteditable="true">可编辑文字</div>
+    <div class="new-widget-divider"></div>
+    <div id="new-widget-text-2" class="new-widget-text editable-text" contenteditable="true">可编辑文字</div>
+    <div class="new-widget-divider"></div>
+    <div id="new-widget-text-3" class="new-widget-text editable-text" contenteditable="true">可编辑文字</div>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 </div>
     </div>
     
@@ -17625,7 +17987,6 @@ let geminiConfig = toGeminiRequestData(model,apiKey,'', messagesForDecision,isGe
                         throw new Error(`API失败: ${(await response.json()).error.message}`);
                     }
                     const data = await response.json();
-
                     // 净化并解析AI的回复
     let rawContent = isGemini? data.candidates[0].content.parts[0].text : data.choices[0].message.content;
      rawContent = rawContent.replace(/^```json\s*/, '').replace(/```$/, '').trim()
@@ -18754,6 +19115,53 @@ if (msgData.type === 'text' && messageText.startsWith('[SEND_LOCATION]')) {
                     continue;
 // ▼▼▼ 在 switch (msgData.type) 结构内粘贴 ▼▼▼
 // ▼▼▼ 在 triggerAiResponse 的 switch (msgData.type) 结构内，用这整块新代码替换旧的 case 'weibo_post' ▼▼▼
+// ▼▼▼ 把下面这整块新代码，粘贴到 case 'qzone_like' 的 continue; 之后 ▼▼▼
+case 'weibo_post': {
+    const newPost = {
+        authorId: chatId, // 使用当前AI角色的ID作为作者ID
+        authorType: 'char',
+        authorNickname: chat.name,
+        authorAvatar: chat.settings.aiAvatar || defaultAvatar,
+        content: msgData.content || '',
+        postType: msgData.postType || 'text_only',
+        hiddenContent: msgData.hiddenContent || '',
+        imageUrl: msgData.imageUrl || '',
+        timestamp: Date.now(),
+        likes: [],
+        comments: [],
+        baseLikesCount: msgData.baseLikesCount || 0,
+        baseCommentsCount: msgData.baseCommentsCount || 0
+    };
+
+    // 处理AI生成的水军评论
+    if (msgData.comments && typeof msgData.comments === 'string') {
+        newPost.comments = msgData.comments.split('\n').map(c => {
+            const parts = c.split(/[:：]/);
+            const commenter = parts.shift() || '路人';
+            const commentText = parts.join(':').trim();
+            return {
+                commentId: 'comment_' + Date.now() + Math.random(),
+                authorNickname: commenter,
+                commentText: commentText
+            };
+        }).filter(c => c.commentText);
+    }
+
+    // 将新微博存入数据库
+    await db.weiboPosts.add(newPost);
+    
+    // 弹出通知告诉你自己，角色发微博了
+    showNotification(chatId, `${chat.name} 发了一条新微博`);
+
+    // 如果你正好在看微博页面，就自动刷新一下
+    if (document.getElementById('weibo-screen').classList.contains('active')) {
+        await renderFollowingWeiboFeed();
+    }
+    
+    // 这是一个后台操作，不需要在聊天里显示消息，所以用 continue 跳过
+    continue;
+}
+// ▲▲▲ 粘贴结束 ▲▲▲
 case 'weibo_comment': {
                     // 这是一个AI评论微博的指令
                     const postIdToComment = msgData.postId;
@@ -28952,12 +29360,12 @@ async function editWeiboFansCount() {
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
 
 
-// ▼▼▼ 用这个【新版本】替换旧的 switchToWeiboView 函数 ▼▼▼
+// ▼▼▼ 请用这块【修复后】的代码，完整替换掉你旧的 switchToWeiboView 函数 ▼▼▼
 /**
  * 【全新】切换微博主界面中的不同页面视图
  * @param {string} viewId - 要切换到的视图的ID
  */
-function switchToWeiboView(viewId) {
+async function switchToWeiboView(viewId) {
     // 1. 隐藏所有微博页面
     document.querySelectorAll('.weibo-view').forEach(view => {
         view.style.display = 'none'; // 使用 style.display 确保隐藏
@@ -28977,8 +29385,20 @@ function switchToWeiboView(viewId) {
     if (targetNavItem) {
         targetNavItem.classList.add('active');
     }
+
+    // --- ▼▼▼【核心修复】▼▼▼ ---
+    // 4. 根据你点击的页签，去加载并显示对应的微博内容
+    if (viewId === 'weibo-following-view') {
+        // 如果是“关注的人”页，就调用渲染关注列表的函数
+        await renderFollowingWeiboFeed();
+    } else if (viewId === 'weibo-my-profile-view') {
+        // 如果是“我的微博”页，就调用渲染“我”的微博的函数
+        await renderMyWeiboFeed();
+    }
+    // --- ▲▲▲【修复结束】▲▲▲ ---
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
 
 // ▼▼▼ 在这里开始复制 ▼▼▼
 
@@ -29379,13 +29799,11 @@ async function saveCurrentHomeScreenAsPreset() {
         return;
     }
 
-    // ▼▼▼ 核心修改在这里 ▼▼▼
-    // 在保存之前，先确保 state.globalSettings.appIcons 包含了最新的微博图标
-    // 这样所有图标数据就统一了！
     state.globalSettings.appIcons['weibo'] = document.getElementById('icon-img-weibo').src;
-    // ▲▲▲ 修改结束 ▲▲▲
 
+    // 收集所有需要保存的数据
     const presetData = {
+        // --- 第一页数据 (这部分保持不变) ---
         'profile-banner-img': document.getElementById('profile-banner-img').src,
         'profile-avatar-img': document.getElementById('profile-avatar-img').src,
         'profile-username': document.getElementById('profile-username').textContent,
@@ -29398,10 +29816,27 @@ async function saveCurrentHomeScreenAsPreset() {
         'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
         'widget-image-2': document.getElementById('widget-image-2').src,
         'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
-        'appIcons': { ...state.globalSettings.appIcons }, // 现在这里就包含了最新的微博图标
+
+        // --- ▼▼▼【全新添加】第二页的数据 ▼▼▼ ---
+        'widget-image-3': document.getElementById('widget-image-3').src,
+        'second-page-bubble': document.getElementById('second-page-bubble').textContent,
+        'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
+        'circular-bubble': document.getElementById('circular-bubble').textContent,
+        'widget-image-4': document.getElementById('widget-image-4').src,
+        'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
+        'bubble-top-left': document.getElementById('bubble-top-left').textContent,
+        'bubble-top-right': document.getElementById('bubble-top-right').textContent,
+        'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
+        'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
+        'new-widget-avatar': document.getElementById('new-widget-avatar').src,
+        'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
+        'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
+        'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
+        // --- ▲▲▲ 添加结束 ▲▲▲ ---
+
+        // --- 全局设置 (这部分保持不变) ---
+        'appIcons': { ...state.globalSettings.appIcons },
         'wallpaper': state.globalSettings.wallpaper
-        // 我们不再需要下面这行单独的代码了
-        // 'weiboIcon': document.getElementById('icon-img-weibo').src 
     };
     await db.homeScreenPresets.add({ name: presetName.trim(), data: presetData });
     await loadHomeScreenPresetsToDropdown();
@@ -29427,12 +29862,10 @@ async function updateSelectedHomeScreenPreset() {
     );
 
     if (confirmed) {
-        // ▼▼▼ 核心修改在这里 ▼▼▼
-        // 同样，在更新前，先确保 state 里的数据是最新的
         state.globalSettings.appIcons['weibo'] = document.getElementById('icon-img-weibo').src;
-        // ▲▲▲ 修改结束 ▲▲▲
-
+        
         const presetData = {
+            // --- 第一页数据 (这部分保持不变) ---
             'profile-banner-img': document.getElementById('profile-banner-img').src,
             'profile-avatar-img': document.getElementById('profile-avatar-img').src,
             'profile-username': document.getElementById('profile-username').textContent,
@@ -29445,9 +29878,27 @@ async function updateSelectedHomeScreenPreset() {
             'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
             'widget-image-2': document.getElementById('widget-image-2').src,
             'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
+
+            // --- ▼▼▼【全新添加】第二页的数据 ▼▼▼ ---
+            'widget-image-3': document.getElementById('widget-image-3').src,
+            'second-page-bubble': document.getElementById('second-page-bubble').textContent,
+            'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
+            'circular-bubble': document.getElementById('circular-bubble').textContent,
+            'widget-image-4': document.getElementById('widget-image-4').src,
+            'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
+            'bubble-top-left': document.getElementById('bubble-top-left').textContent,
+            'bubble-top-right': document.getElementById('bubble-top-right').textContent,
+            'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
+            'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
+            'new-widget-avatar': document.getElementById('new-widget-avatar').src,
+            'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
+            'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
+            'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
+            // --- ▲▲▲ 添加结束 ▲▲▲ ---
+
+            // --- 全局设置 (这部分保持不变) ---
             'appIcons': { ...state.globalSettings.appIcons },
             'wallpaper': state.globalSettings.wallpaper
-            // 单独的 weiboIcon 也不再需要了
         };
 
         await db.homeScreenPresets.update(activeHomePresetId, { data: presetData });
@@ -29455,9 +29906,6 @@ async function updateSelectedHomeScreenPreset() {
         await showCustomAlert('成功', `预设 "${currentPreset.name}" 已更新！`);
     }
 }
-
-
-
 
 /**
  * 重命名选中的预设
@@ -29693,6 +30141,13 @@ ${extraContext}
         }
 
         const data = await response.json();
+        // ▼▼▼ 在这里添加下面的安全检查代码 ▼▼▼
+if (data.error) {
+    // 如果API返回的数据中直接包含了 error 对象，说明请求出错了
+    // 我们主动抛出一个包含详细错误信息的Error
+    throw new Error(`API返回错误: ${data.error.message || JSON.stringify(data.error)}`);
+}
+// ▲▲▲ 添加结束 ▲▲▲
         const aiResponseContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content)
             .replace(/^```json\s*|```$/g, '').trim();
         
@@ -33096,7 +33551,14 @@ async function handleLoversSpaceResponse(timestamp, choice) {
 
         async function init() {
 
-    // ▼▼▼ 在 init() 函数的【最开头】，粘贴下面这两行代码 ▼▼▼
+    // ▼▼▼ 在 init()    // ▼▼▼ 在这里粘贴下面这几行新代码 ▼▼▼
+    // 更新小组件的月份显示
+    const monthElement = document.getElementById('widget-month-display');
+    if (monthElement) {
+        const currentMonth = new Date().getMonth() + 1; // getMonth()返回0-11，所以要+1
+        monthElement.textContent = currentMonth;
+    }
+    // ▲▲▲ 新代码粘贴结束 ▲▲▲ 函数的【最开头】，粘贴下面这两行代码 ▼▼▼
     const savedTheme = localStorage.getItem('ephone-theme') || 'light'; // 默认为日间模式
     applyTheme(savedTheme);
     // ▲▲▲ 粘贴结束 ▲▲▲
@@ -33484,7 +33946,55 @@ document.getElementById('search-results-list').addEventListener('click', (e) => 
 document.getElementById('send-btn').addEventListener('click', async () => { 
     const content = chatInput.value.trim(); 
     if (!content || !state.activeChatId) return; 
-    
+        // --- ▼▼▼【核心修复代码】▼▼▼ ---
+    try {
+        const command = JSON.parse(content);
+        // 检查：这是否是一个让角色发微博的指令？
+        if (command && command.type === 'weibo_post') {
+            const chat = state.chats[state.activeChatId];
+            if (chat.isGroup) {
+                alert("不能在群聊中为单个角色发布微博。");
+                return;
+            }
+
+            // 创建一个新的微博帖子对象
+            const newPost = {
+                authorId: chat.id, // 关键！作者ID是当前角色的ID，而不是'user'
+                authorType: 'char',
+                authorNickname: chat.name,
+                authorAvatar: chat.settings.aiAvatar || defaultAvatar,
+                content: command.content || '',
+                timestamp: Date.now(),
+                likes: [],
+                comments: [],
+                baseLikesCount: command.baseLikesCount || 0,
+                baseCommentsCount: command.baseCommentsCount || 0
+            };
+
+            // 如果JSON里有路人评论，就解析并添加
+            if (command.comments && typeof command.comments === 'string') {
+                newPost.comments = command.comments.split('\n').map(c => {
+                    const parts = c.split(/[:：]/);
+                    const commenter = parts.shift() || '路人';
+                    const commentText = parts.join(':').trim();
+                    return { commentId: 'comment_' + Date.now() + Math.random(), authorNickname: commenter, commentText: commentText };
+                }).filter(c => c.commentText);
+            }
+
+            await db.weiboPosts.add(newPost);
+            
+            // 刷新“关注的人”列表，新微博就会出现了！
+            await renderFollowingWeiboFeed();
+
+            await showCustomAlert('操作成功', `已为 “${chat.name}” 发布了一条新微博！`);
+            
+            chatInput.value = ''; // 清空输入框
+            return; // 结束函数，不再执行后面的代码
+        }
+    } catch (e) {
+        // 如果解析JSON失败，说明它不是指令，只是普通文本，就让代码继续往下走
+    }
+    // --- ▲▲▲【修复代码结束】▲▲▲ ---
     const chat = state.chats[state.activeChatId]; 
     
     // --- 【核心修改】在这里添加 ---
