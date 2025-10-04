@@ -9591,8 +9591,8 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* 1. 这是包裹头像和所有新气泡的总容器 (V2 加大版) */
 #center-avatar-wrapper {
     position: absolute;
-    top: 180px;
-    transform: translateX(-50%);
+    top: 190px;
+    transform: translateX(-55%);
     z-index: 5;
     
     /* ★ 修改点：把这个“看不见的盒子”的尺寸变大 */
@@ -9734,7 +9734,68 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border-top: 1px dashed rgba(255, 255, 255, 0.3);
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
+/* ▼▼▼ 【精致版】请用这整块代码替换旧的论坛帖子删除按钮样式 ▼▼▼ */
 
+/* 1. 帖子列表项样式 (保持不变，只是确保右侧有足够空间) */
+.forum-post-item {
+    position: relative;
+    padding-right: 40px; 
+}
+
+/* 2. 删除按钮的新样式 - 小巧精致版 */
+.forum-post-delete-btn {
+    position: absolute;
+    top: 50%;
+    right: 12px; /* 离边缘稍微近一点 */
+    transform: translateY(-50%);
+
+    /* --- 核心修改：尺寸变小 --- */
+    width: 24px;
+    height: 24px;
+
+    /* --- 核心修改：外观更精致 --- */
+    background-color: transparent; /* 默认背景透明，不突兀 */
+    color: var(--text-secondary);  /* 默认颜色使用次要文字的灰色，更柔和 */
+    border: none;
+    border-radius: 50%;
+    font-size: 18px;      /* 减小 "×" 的大小 */
+    line-height: 24px;    /* 确保 "×" 垂直居中 */
+    text-align: center;
+    cursor: pointer;
+    
+    /* --- 核心修改：交互动效 --- */
+    transition: all 0.2s ease; /* 为所有变化添加平滑过渡 */
+}
+
+/* 3. 鼠标悬停时的反馈效果 */
+.forum-post-delete-btn:hover {
+    background-color: #ff3b30; /* 悬停时才显示醒目的红色背景 */
+    color: white;              /* "×" 变为白色 */
+    transform: translateY(-50%) scale(1.1); /* 轻微放大，更有动感 */
+}
+
+/* ▲▲▲ 替换结束 ▲▲▲ */
+/* 1. 定义一个通用的、控制所有主屏幕文字颜色的变量 (保持不变) */
+#phone-screen {
+    --home-icon-widget-text-color: #FFFFFF;
+}
+
+/* 2. 【核心】创建一个“超级选择器”，一次性选中所有需要变色的文字 */
+/* 这次我们加入了顶部状态栏和底部Dock栏的图标文字 */
+.desktop-app-icon .label,                        /* ▼▼▼ 核心修改：移除了前面的ID限定，让它能同时选中主屏幕和Dock栏的图标文字 ▼▼▼ */
+#desktop-widget-column .widget-bubble,           
+#desktop-widget-column .widget-subtext,        
+#second-page-left-widget .widget-bubble,           
+#second-page-left-widget .widget-subtext,        
+#avatar-subtitle,                                
+.corner-bubble,                                   
+#new-custom-widget .new-widget-text,              
+#widget-month-display,
+#status-bar                                     /* ★★★ 新增：顶部状态栏 ★★★ */
+{
+    color: var(--home-icon-widget-text-color) !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6) !important;
+}
 
 
     </style>
@@ -9856,7 +9917,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             <div class="icon-bg-desktop"><img id="icon-img-lovers-space" src="https://i.postimg.cc/d1wZ39xW/lovers-space-icon.png" alt="情侣空间"></div>
             <span class="label">情侣空间</span>
         </div>
-<!-- ▼▼▼ 用下面这整块【新代码】，替换掉你旧的 id="second-page-center-avatar" 的那个 div ▼▼▼ -->
+<!-- ▼▼▼ 用下面这整块【修复后】的代码，替换掉你旧的 id="center-avatar-wrapper" 的那个 div ▼▼▼ -->
 <div id="center-avatar-wrapper">
     <!-- 这是你原来的头像，我们把它放在了新容器的中心 -->
     <div id="second-page-center-avatar" class="custom-widget-container">
@@ -9865,17 +9926,16 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         </div>
     </div>
     
-    <!-- 这是新增的、头像下方的透明可编辑文字框 -->
-    <div id="avatar-subtitle" contenteditable="true">点击编辑文字</div>
+    <!-- 这是修复后的、头像下方的可编辑文字框 -->
+    <div id="avatar-subtitle" class="editable-text">点击编辑文字</div>
 
-    <!-- 这是新增的、头像四个角的可编辑气泡 -->
-    <div class="corner-bubble" id="bubble-top-left" contenteditable="true">左上角</div>
-    <div class="corner-bubble" id="bubble-top-right" contenteditable="true">右上角</div>
-    <div class="corner-bubble" id="bubble-bottom-left" contenteditable="true">左下角</div>
-    <div class="corner-bubble" id="bubble-bottom-right" contenteditable="true">右下角</div>
+    <!-- 这是修复后的、头像四个角的可编辑气泡 -->
+    <div class="corner-bubble editable-text" id="bubble-top-left">左上角</div>
+    <div class="corner-bubble editable-text" id="bubble-top-right">右上角</div>
+    <div class="corner-bubble editable-text" id="bubble-bottom-left">左下角</div>
+    <div class="corner-bubble editable-text" id="bubble-bottom-right">右下角</div>
 </div>
 <!-- ▲▲▲ 替换结束 ▲▲▲ -->
-
     </div>
 <!-- ▼▼▼ 【这是修改后的版本】请用这整块代码，完整替换掉旧的 id="new-custom-widget" ▼▼▼ -->
 <div id="new-custom-widget">
@@ -10686,7 +10746,16 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ UI替换结束 ▲▲▲ -->
-
+<!-- ▼▼▼ 步骤2：用这段新代码替换旧的颜色选择器HTML ▼▼▼ -->
+<hr style="width: 80%; opacity: 0.3; margin: 30px 0;">
+<div style="width:100%; text-align: left; margin-bottom: 15px;">
+    <label style="font-weight: 500; color: var(--text-secondary);">主屏幕图标及小组件字体颜色</label>
+</div>
+<div class="form-group">
+    <label for="home-icon-widget-text-color-picker">自定义字体颜色</label>
+    <input type="color" id="home-icon-widget-text-color-picker" value="#FFFFFF" style="width: 100%; height: 40px; padding: 0; border-radius: 8px;">
+</div>
+<!-- ▲▲▲ 步骤2 HTML代码替换结束 ▲▲▲ -->
         <!-- 【核心修改2】新增图标设置区域 -->
         <hr style="width: 80%; opacity: 0.3; margin: 30px 0;">
         <div style="width:100%; text-align: left; margin-bottom: 15px;">
@@ -10778,49 +10847,54 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     <div id="character-selection-list" class="list-container"></div>
 </div>
 
-<!-- 2. 角色的手机“外壳”容器 -->
+<!-- ▼▼▼ 请用这【一整块】全新的代码，完整替换掉你旧的 id="character-phone-container" 及其所有内容 ▼▼▼ -->
 <div id="character-phone-container" class="screen">
     <div class="character-phone-frame">
         <div class="character-phone-notch"></div>
         <div class="character-phone-inner-screen">
             
-            <!-- 2a. 角色手机的主界面 -->
+            <!-- 1. 角色手机的主界面 -->
             <div id="character-phone-screen" class="character-phone-page active">
                 <div class="header character-phone-header">
-                    <!-- 【核心修改】移除了onclick，换成data-target-page -->
                     <span class="back-btn" data-target-screen="character-selection-screen">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                     </span>
                     <span id="character-phone-owner-name"></span>
                     <div class="header-actions">
-                        <span class="action-btn" id="clear-character-data-btn" title="清空数据">
+                        <span class="action-btn" id="clear-character-data-btn" title="清空全部数据">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                         </span>
-                        <span class="action-btn" id="generate-character-data-btn" title="刷新数据">
+                        <span class="action-btn" id="generate-character-data-btn" title="刷新全部数据">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L20.5 10M3.5 14a9 9 0 0114.85 3.36L20.5 14"/></svg>
                         </span>
                     </div>
                 </div>
-                <!-- ▼▼▼ 核心修改：删除了 "app-grid" 这个class ▼▼▼ -->
-<div id="character-app-grid" class="app-grid-standard" style="padding-top: 60px;"></div>
+                <div id="character-app-grid" class="app-grid-standard" style="padding-top: 60px;"></div>
             </div>
 
-            <!-- 2b. 角色手机 - 聊天列表 -->
+            <!-- 2. 角色手机 - 聊天列表 -->
             <div id="character-chat-list-screen" class="character-phone-page">
                 <div class="header character-phone-header">
-                    <!-- 【核心修改】移除了onclick，换成data-target-page -->
                     <span class="back-btn" data-target-page="character-phone-screen">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                     </span>
                     <span>消息</span>
+                    <div class="header-actions">
+                        <!-- ★ 新增：消息页的删除按钮 ★ -->
+                        <span class="action-btn" id="clear-npc-chats-btn" title="清空所有NPC聊天">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </span>
+                        <span class="action-btn" id="generate-chat-message-btn" title="生成新聊天">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </span>
+                    </div>
                 </div>
                 <div id="character-chat-list" class="list-container" style="padding: 0;"></div>
             </div>
 
-            <!-- 2c. 角色手机 - 具体聊天记录 -->
+            <!-- 3. 角色手机 - 具体聊天记录 -->
             <div id="character-chat-history-screen" class="character-phone-page">
                 <div class="header character-phone-header">
-                     <!-- 【核心修改】移除了onclick，换成data-target-page -->
                      <span class="back-btn" data-target-page="character-chat-list-screen">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                     </span>
@@ -10829,42 +10903,67 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                 <div id="character-chat-history-messages" class="list-container" style="padding: 15px; display: flex; flex-direction: column; gap: 15px; background-color: #e5ddd5;"></div>
             </div>
 
-            <!-- 2d. 角色手机 - 购物车 -->
+            <!-- 4. 角色手机 - 购物车 -->
             <div id="character-shopping-cart-screen" class="character-phone-page">
                 <div class="header character-phone-header">
-                    <!-- 【核心修改】移除了onclick，换成data-target-page -->
                     <span class="back-btn" data-target-page="character-phone-screen">
                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                     </span>
                     <span>购物车</span>
+                    <div class="header-actions">
+                        <!-- ★ 新增：购物车页的删除按钮 ★ -->
+                        <span class="action-btn" id="clear-cart-items-btn" title="清空购物车">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </span>
+                        <span class="action-btn" id="generate-cart-item-btn" title="添加新商品">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </span>
+                    </div>
                 </div>
                 <div id="character-shopping-cart-list" class="list-container"></div>
             </div>
-            
-            <!-- 2e. 角色手机 - 备忘录 -->
+
+            <!-- 5. 角色手机 - 备忘录 -->
             <div id="character-memos-screen" class="character-phone-page">
                  <div class="header character-phone-header">
-                    <!-- 【核心修改】移除了onclick，换成data-target-page -->
                     <span class="back-btn" data-target-page="character-phone-screen">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                     </span>
                     <span>备忘录</span>
+                    <div class="header-actions">
+                        <!-- ★ 新增：备忘录页的删除按钮 ★ -->
+                        <span class="action-btn" id="clear-memos-btn" title="清空备忘录">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </span>
+                        <span class="action-btn" id="generate-memo-btn" title="写新备忘录">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </span>
+                    </div>
                 </div>
                 <div id="character-memos-list" class="list-container"></div>
             </div>
 
-            <!-- 2f. 角色手机 - 浏览器 -->
+            <!-- 6. 角色手机 - 浏览器 -->
             <div id="character-browser-screen" class="character-phone-page">
                  <div class="header character-phone-header">
                     <span class="back-btn" data-target-page="character-phone-screen">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                     </span>
                     <span>浏览器</span>
+                    <div class="header-actions">
+                        <!-- ★ 新增：浏览器页的删除按钮 ★ -->
+                        <span class="action-btn" id="clear-browser-history-btn" title="清空历史记录">
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </span>
+                        <span class="action-btn" id="generate-browser-history-btn" title="生成新历史">
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg>
+                        </span>
+                    </div>
                 </div>
                 <div id="character-browser-list" class="list-container"></div>
             </div>
 
-            <!-- 2k. 角色手机 - 浏览器搜索结果详情 -->
+            <!-- 7. 角色手机 - 浏览器搜索结果详情 -->
             <div id="character-browser-detail-screen" class="character-phone-page">
                  <div class="header character-phone-header">
                     <span class="back-btn" data-target-page="character-browser-screen">
@@ -10875,51 +10974,87 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                 <div id="character-browser-detail-content" class="list-container" style="padding: 15px; line-height: 1.7;"></div>
             </div>
 
-            <!-- 2g. 角色手机 - 相册 -->
+            <!-- 8. 角色手机 - 相册 -->
             <div id="character-album-screen" class="character-phone-page">
                  <div class="header character-phone-header">
                     <span class="back-btn" data-target-page="character-phone-screen">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                     </span>
                     <span>相册</span>
+                    <div class="header-actions">
+                        <!-- ★ 新增：相册页的删除按钮 ★ -->
+                        <span class="action-btn" id="clear-album-photos-btn" title="清空相册">
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </span>
+                        <span class="action-btn" id="generate-album-photo-btn" title="生成新照片">
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        </span>
+                    </div>
                 </div>
                 <div id="character-album-grid" class="list-container"></div>
             </div>
-            
-            <!-- 2h. 角色手机 - 银行 -->
+
+            <!-- 9. 角色手机 - 银行 -->
             <div id="character-bank-screen" class="character-phone-page">
                  <div class="header character-phone-header">
                     <span class="back-btn" data-target-page="character-phone-screen">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                     </span>
                     <span>钱包</span>
+                    <div class="header-actions">
+                        <!-- ★ 新增：钱包页的删除按钮 ★ -->
+                        <span class="action-btn" id="clear-bank-transactions-btn" title="清空交易记录">
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </span>
+                        <span class="action-btn" id="generate-bank-transaction-btn" title="生成新交易">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        </span>
+                    </div>
                 </div>
                 <div id="character-bank-details" class="list-container"></div>
             </div>
-            
-            <!-- 2i. 角色手机 - 行动轨迹 -->
+
+            <!-- 10. 角色手机 - 行动轨迹 -->
             <div id="character-trajectory-screen" class="character-phone-page">
                  <div class="header character-phone-header">
                     <span class="back-btn" data-target-page="character-phone-screen">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                     </span>
                     <span>足迹</span>
+                    <div class="header-actions">
+                        <!-- ★ 新增：足迹页的删除按钮 ★ -->
+                        <span class="action-btn" id="clear-trajectory-btn" title="清空足迹">
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </span>
+                        <span class="action-btn" id="generate-trajectory-btn" title="生成新足迹">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        </span>
+                    </div>
                 </div>
                 <div id="character-trajectory-list" class="list-container"></div>
             </div>
-            
-            <!-- 2j. 角色手机 - APP使用记录 -->
+
+            <!-- 11. 角色手机 - APP使用记录 -->
             <div id="character-app-usage-screen" class="character-phone-page">
                  <div class="header character-phone-header">
                     <span class="back-btn" data-target-page="character-phone-screen">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                     </span>
                     <span>屏幕使用时间</span>
+                    <div class="header-actions">
+                        <!-- ★ 新增：使用记录页的删除按钮 ★ -->
+                        <span class="action-btn" id="clear-app-usage-btn" title="清空记录">
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </span>
+                        <span class="action-btn" id="generate-app-usage-btn" title="生成新记录">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path></svg>
+                        </span>
+                    </div>
                 </div>
                 <div id="character-app-usage-list" class="list-container"></div>
             </div>
 
-            <!-- 2l. 角色手机 - 日记 -->
+            <!-- 12. 角色手机 - 日记 -->
             <div id="character-diary-screen" class="character-phone-page">
                  <div class="header character-phone-header">
                     <span class="back-btn" data-target-page="character-phone-screen">
@@ -10927,7 +11062,10 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                     </span>
                     <span>日记</span>
                     <div class="header-actions">
-                        <!-- 这是日记专属的刷新按钮 -->
+                        <!-- ★ 新增：日记页的删除按钮 ★ -->
+                        <span class="action-btn" id="clear-diary-entries-btn" title="清空日记">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </span>
                         <span class="action-btn" id="generate-diary-entry-btn" title="写新日记">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                         </span>
@@ -10935,10 +11073,12 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                 </div>
                 <div id="character-diary-list" class="list-container"></div>
             </div>
-
+            
         </div>
     </div>
 </div>
+<!-- ▲▲▲ HTML 替换结束 ▲▲▲ -->
+
 
 <!-- 加载动画遮罩层 (保持不变) -->
 <div id="generation-overlay" class="modal" style="background-color: rgba(0,0,0,0.6); z-index: 2000;">
@@ -14967,42 +15107,31 @@ async function createCharacterFromData(data, avatarBase64) {
     
     // 步骤 2: 创建新的聊天对象 (不变)
     const newChatId = 'chat_' + Date.now();
-                    // ▼▼▼ 从这里开始替换 ▼▼▼
-// ▼▼▼ 用这块代码替换 ▼▼▼
+// 这是修改后的新代码块
 const newChat = {
     id: newChatId,
-    name: name.trim(),
+    name: characterName,
     isGroup: false,
     isPinned: false,
     npcLibrary: [],
-    relationship: {
-        status: 'friend',
-        blockedTimestamp: null,
-        applicationReason: ''
-    },
-    status: {
-        text: '在线',
-        lastUpdate: Date.now(),
-        isBusy: false
-    },
-    // 注意：loversSpaceData 字段在这里被移除了，实现了默认未开启！
+    relationship: { status: 'friend', blockedTimestamp: null, applicationReason: '' },
+    status: { text: '在线', lastUpdate: Date.now(), isBusy: false },
     settings: {
-        aiPersona: '你是谁呀。',
+        aiPersona: charData.description || '该角色没有描述。',
         myPersona: '我是谁呀。',
         maxMemory: 10,
-        aiAvatar: defaultAvatar,
+        aiAvatar: avatarBase64,
         myAvatar: defaultAvatar,
         background: '',
         theme: 'default',
         fontSize: 13,
         customCss: '',
         linkedWorldBookIds: [],
-        isCoupleAvatar: false,
-        coupleAvatarDescription: '',
         aiAvatarLibrary: [],
     },
     history: [],
     musicData: { totalTime: 0 },
+    // ▼▼▼ 把原来的那一行替换成下面这整块 ▼▼▼
     characterPhoneData: {
         lastGenerated: null,
         chats: {},
@@ -15015,8 +15144,8 @@ const newChat = {
         appUsage: [],
         diary: []
     }
+    // ▲▲▲ 替换结束 ▲▲▲
 };
-// ▲▲▲ 替换结束 ▲▲▲
     await db.chats.put(newChat);
     state.chats[newChatId] = newChat;
     
@@ -15724,24 +15853,31 @@ async function exportBackup() {
         // 但为了完全保留你的新功能逻辑，我们暂时留着它。
         // 未来的导入函数如果需要，就可以从 homeScreenState 中读取这些UI状态。
         backupData.homeScreenState = {
-            // 1. 原有的个人资料卡和小组件数据
-            'profile-banner-img': document.getElementById('profile-banner-img').src,
-            'profile-avatar-img': document.getElementById('profile-avatar-img').src,
-            'profile-username': document.getElementById('profile-username').textContent,
-            'profile-sub-username': document.getElementById('profile-sub-username').textContent,
-            'profile-bio': document.getElementById('profile-bio').textContent,
-            'profile-location': document.getElementById('profile-location').innerHTML,
-            'widget-bubble-1': document.getElementById('widget-bubble-1').textContent,
-            'widget-image-1': document.getElementById('widget-image-1').src,
-            'widget-subtext-1': document.getElementById('widget-subtext-1').textContent,
-            'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
-            'widget-image-2': document.getElementById('widget-image-2').src,
-            'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
+    // ... 这里是你原来的第一页数据，保持不变 ...
+    'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
+    'widget-image-2': document.getElementById('widget-image-2').src,
+    'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
 
-            // 2. 【全新添加】壁纸和图标数据
-            'wallpaper': state.globalSettings.wallpaper,
-            'lockscreenWallpaper': state.globalSettings.lockscreenWallpaper,
-            'appIcons': state.globalSettings.appIcons,
+    // --- ▼▼▼【全新添加】把和上面完全一样的代码块也粘贴到这里 ▼▼▼ ---
+    'widget-image-3': document.getElementById('widget-image-3').src,
+    'second-page-bubble': document.getElementById('second-page-bubble').textContent,
+    'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
+    'circular-bubble': document.getElementById('circular-bubble').textContent,
+    'widget-image-4': document.getElementById('widget-image-4').src,
+    'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
+    'bubble-top-left': document.getElementById('bubble-top-left').textContent,
+    'bubble-top-right': document.getElementById('bubble-top-right').textContent,
+    'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
+    'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
+    'new-widget-avatar': document.getElementById('new-widget-avatar').src,
+    'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
+    'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
+    'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
+    // --- ▲▲▲ 添加结束 ▲▲▲ ---
+
+    // ... 这里是原来的 'appIcons' 和 'wallpaper' 数据，保持不变 ...
+    'appIcons': { ...state.globalSettings.appIcons },
+    'wallpaper': state.globalSettings.wallpaper
         };
         // --- ▲▲▲ 新功能保留结束 ▲▲▲
 
@@ -16126,14 +16262,19 @@ state.globalSettings = globalSettings || {
     appIcons: { ...DEFAULT_APP_ICONS },
     ringtoneUrl: 'https://files.catbox.moe/3w7gla.mp3',
     widgetData: {}, // 【核心修改】在这里新增一个空对象，用来存放你的自定义内容
-    globalChatBackground: ''
+    globalChatBackground: '',
+    homeIconWidgetTextColor: '#FFFFFF', // <-- 修改这里的名字
 };
 // 确保即使从旧数据库加载，这个属性也存在
 if (!state.globalSettings.widgetData) {
     state.globalSettings.widgetData = {};
 }
 // ▲▲▲ 替换结束 ▲▲▲
-
+// ▼▼▼ 在这里粘贴下面这段新代码 (或者修改你已有的) ▼▼▼
+if (!state.globalSettings.homeIconWidgetTextColor) { // <-- 修改这里的名字
+    state.globalSettings.homeIconWidgetTextColor = '#FFFFFF';
+}
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 
     // ▼▼▼ 在这里添加下面这行代码 ▼▼▼
     // 【核心新增】加载歌词栏设置，如果不存在则使用默认值
@@ -16838,8 +16979,7 @@ function renderWallpaperScreen() {
     if (toggle) {
         toggle.checked = lockScreenEnabled;
     }
-    // ▲▲▲ 新代码粘贴结束 ▲▲▲
-
+document.getElementById('home-icon-widget-text-color-picker').value = state.globalSettings.homeIconWidgetTextColor || '#FFFFFF';
     const preview = document.getElementById('wallpaper-preview'); 
     const bg = newWallpaperBase64 || state.globalSettings.wallpaper; 
     if (bg && bg.startsWith('data:image')) { 
@@ -18381,6 +18521,7 @@ ${npcContext}
 这个JSON对象【必须】包含两个顶级键: "chatResponse" 和 "innerVoice"。
 如果user发布了新微博或者新动态，必须去评论！
 如果user转载给了你小组的帖子，必须去原先的帖子下面进行评论。
+请主动的及时的进行情侣空间的活动，感觉对话氛围到了，就随机选择情侣空间的一项活动进行，user在情侣空间发了说说和提问要及时回复，发送了情书也要及时回信。
 ## 1. "chatResponse" 键:
 - 它的值【必须】是一个JSON数组，代表你要在聊天中发送的消息。
 - 数组中的每个元素都是一个独立的消息对象，这可以让你一次性发送多条消息，模拟真人的聊天习惯。
@@ -18493,6 +18634,7 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
 -   **【新】在情侣空间提问**: \`{"type": "ls_ask_question", "questionText": "你想问的问题..."}\`
 -   **【新】在情侣空间回答**: \`{"type": "ls_answer_question", "questionId": "q_123456789", "answerText": "你的回答..."}\`
 -   **【新】在情侣空间发说说**:\`{"type": "ls_moment", "content": "我想对你说的话..."}\`
+-   **【新】在情侣空间评论说说**: \`{"type": "ls_comment", "momentIndex": 0, "commentText": "你的评论内容..."}\`(momentIndex 是说说的索引，最新的一个是0)
 -   **【新】在情侣空间发照片**: \`{"type": "ls_photo", "description": "对这张照片的文字描述..."}\`
 -   **【新】在情侣空间写情书**: \`{"type": "ls_letter", "content": "情书的正文内容..."}\`
 -   **【重要】如何回信**: 当你收到 \`[系统提示：用户...给你写了一封情书...]\` 时，你【必须】使用上面的\`ls_letter\` 指令来写一封回信，表达你的感受。
@@ -19321,6 +19463,7 @@ case 'ls_answer_question': { // 使用大括号创建块级作用域
     }
     continue; // 这是一个后台操作，不需要在聊天界面显示，所以用 continue 跳过
 }
+// ▲▲▲ 粘贴结束 ▲▲▲
 case 'ls_ask_question': {
     const { questionText } = msgData;
     if (questionText) {
@@ -19357,8 +19500,26 @@ case 'ls_moment': {
     }
     continue; // 这是一个后台操作，不需要在聊天界面显示，所以用 continue 跳过
 }
-// ▼▼▼ 把下面这一整块代码粘贴到指定位置 ▼▼▼
 
+case 'ls_comment': {
+    const { momentIndex, commentText } = msgData;
+    if (chat.loversSpaceData && chat.loversSpaceData.moments) {
+        // AI返回的 index 是从0开始代表最新的，我们需要转换成真实索引
+        const realIndex = chat.loversSpaceData.moments.length - 1 - momentIndex;
+        if (realIndex >= 0 && realIndex < chat.loversSpaceData.moments.length) {
+            const momentToComment = chat.loversSpaceData.moments[realIndex];
+            if (!momentToComment.comments) {
+                momentToComment.comments = [];
+            }
+            momentToComment.comments.push({
+                author: chat.name,
+                text: commentText
+            });
+            console.log(`AI 评论了情侣空间说说 (索引: ${realIndex}): ${commentText}`);
+        }
+    }
+    continue; // 同样是后台操作
+}
 case 'ls_photo': { // 这是处理AI发相册的逻辑
     if (chat.loversSpaceData) {
         if (!chat.loversSpaceData.photos) {
@@ -26965,6 +27126,349 @@ function renderCharacterAppGrid() {
         gridEl.appendChild(iconEl);
     });
 }
+// ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+
+// ▼▼▼ 用下面这整块【数量增强版】代码，替换你旧的 generateCharacterPhoneDataSegment 函数 ▼▼▼
+
+// ▼▼▼ 用下面这整块【终极社交版】代码，替换你旧的 generateCharacterPhoneDataSegment 函数 ▼▼▼
+
+/**
+ * 【AI核心 V4 - 智能余额版】为“查手机”功能单独生成某一项数据的通用函数
+ * @param {string} dataType - 要生成的数据类型 (例如: 'diary', 'chats', 'shoppingCart')
+ */
+async function generateCharacterPhoneDataSegment(dataType) {
+    if (!activeCharacterPhoneId) return;
+    const chat = state.chats[activeCharacterPhoneId];
+    if (!chat) return;
+
+    // 这个对象定义了每种数据类型的【默认】生成指令和JSON结构
+    const dataTypeMap = {
+        chats: {
+            description: `2到5段你与【不同的】NPC朋友们的【全新的、接续上文的】聊天记录。`,
+            jsonStructure: `"chats": [\n    {\n      "contactName": "【NPC朋友A的名字】",\n      "messages": [\n        {"sender": "【联系人名A】", "content": "消息内容1..."},\n        {"sender": "${chat.name}", "content": "你的回复1..."}\n      ]\n    },\n    {\n      "contactName": "【NPC朋友B的名字】",\n      "messages": [\n        {"sender": "【联系人名B】", "content": "消息内容1..."},\n        {"sender": "${chat.name}", "content": "你的回复1..."}\n      ]\n    }\n  ]`
+        },
+        shoppingCart: {
+            description: "3到5件你最近加入购物车的新商品。",
+            jsonStructure: `"shoppingCart": [\n    {"name": "商品名1", "price": 123.45, "store": "店铺名"},\n    {"name": "商品名2", "price": 67.89, "store": "店铺名"}\n  ]`
+        },
+        memos: {
+            description: "2到3篇你新写的简短备忘录。",
+            jsonStructure: `"memos": [\n    {"title": "备忘录标题1", "content": "备忘录详细内容1..."},\n    {"title": "备忘录标题2", "content": "备忘录详细内容2..."}\n  ]`
+        },
+        browserHistory: {
+            description: "2到3条你最近的浏览器搜索记录或浏览的文章。",
+            jsonStructure: `"browserHistory": [\n    {"query": "搜索标题1", "result": "模拟文章内容1..."},\n    {"query": "搜索标题2", "result": "模拟文章内容2..."}\n  ]`
+        },
+        photoAlbum: {
+            description: "2到3张你“拍摄”的新照片的文字描述（用于文字生图）。",
+            jsonStructure: `"photoAlbum": [\n    {"hiddenContent": "对新照片画面1的详细文字描述..."},\n    {"hiddenContent": "对新照片画面2的详细文字描述..."}\n  ]`
+        },
+        bank: {
+            description: "3到5条你最近的银行交易记录（收入或支出）。",
+            jsonStructure: `"bank": {\n    "transactions": [\n      {"type": "收入或支出", "amount": 123.45, "description": "交易描述1"},\n      {"type": "收入或支出", "amount": 67.89, "description": "交易描述2"}\n    ]\n  }`
+        },
+        trajectory: {
+            description: "2到3条你最近的行动轨迹记录。",
+            jsonStructure: `"trajectory": [\n    {"time": "时间段1", "location": "地点1", "activity": "干了什么事1"},\n    {"time": "时间段2", "location": "地点2", "activity": "干了什么事2"}\n  ]`
+        },
+        appUsage: {
+            description: "3到5条你最近的应用使用记录。",
+            jsonStructure: `"appUsage": [\n    {"appName": "应用名1", "duration": "使用时长1"},\n    {"appName": "应用名2", "duration": "使用时长2"}\n  ]`
+        },
+        diary: {
+            description: `一篇全新的日记。`,
+            jsonStructure: `"diary": [\n    {"timestamp": ${Date.now()}, "content": "【用Markdown语法写一篇符合人设和情景的新日记】"}\n  ]`
+        }
+    };
+
+    const dataTypeInfo = dataTypeMap[dataType];
+    if (!dataTypeInfo) {
+        console.error("请求了无效的数据生成类型:", dataType);
+        return;
+    }
+
+    // ★★★★★ 这就是我们本次修改的核心逻辑！ ★★★★★
+    // 动态修改dataTypeInfo，以适应不同情况
+    let finalDataTypeInfo = { ...dataTypeInfo }; 
+
+    if (dataType === 'bank') {
+        const hasExistingTransactions = chat.characterPhoneData?.bank?.transactions?.length > 0;
+        
+        if (!hasExistingTransactions) {
+            // 如果是第一次生成，就修改指令，要求AI提供初始余额
+            finalDataTypeInfo.description = "一个符合你人设的【初始银行余额】，以及3到5条初始交易记录。";
+            finalDataTypeInfo.jsonStructure = `"bank": {\n    "balance": 12345.67,\n    "transactions": [\n      {"type": "收入或支出", "amount": 123.45, "description": "交易描述1"}\n    ]\n  }`;
+        } else {
+            // 如果是后续生成，就告诉AI当前余额，只要求新交易
+            const currentBalance = (chat.characterPhoneData.bank.balance || 0).toFixed(2);
+            finalDataTypeInfo.description = `3到5条【全新的】银行交易记录（收入或支出）。【提示：你当前的余额是 ${currentBalance} 元，请在此基础上生成合理的交易】`;
+            // 此时的JSON结构不需要balance字段
+            finalDataTypeInfo.jsonStructure = `"bank": {\n    "transactions": [\n      {"type": "收入或支出", "amount": 123.45, "description": "交易描述1"}\n    ]\n  }`;
+        }
+    }
+    // ★★★★★ 修改结束 ★★★★★
+
+    document.getElementById('generation-overlay').classList.add('visible');
+
+    try {
+        const userNickname = state.qzoneSettings.nickname || '我';
+        const persona = (chat.settings.aiPersona || '').substring(0, 4000);
+        const recentHistory = chat.history.slice(-20).map(msg => {
+            const sender = msg.role === 'user' ? userNickname : chat.name;
+            return `${sender}: ${msg.content}`;
+        }).join('\n');
+        
+        let worldBookContext = '';
+        if (chat.settings.linkedWorldBookIds && chat.settings.linkedWorldBookIds.length > 0) {
+            worldBookContext = '--- 世界观设定 (必须严格遵守) ---\n' +
+                chat.settings.linkedWorldBookIds.map(id => {
+                    const book = state.worldBooks.find(b => b.id === id);
+                    return book ? `[${book.name}]: ${book.content}` : '';
+                }).join('\n\n');
+        }
+        
+        const npcLibrary = chat.npcLibrary || [];
+        let npcContext = '';
+        if (npcLibrary.length > 0) {
+            npcContext = '# 你的专属NPC好友列表 (你必须从中随机选择2-3位朋友进行对话)\n' +
+                '这些人是你的好朋友，你和他们非常熟悉。请根据他们的人设，生成符合你们关系的、自然的聊天记录。\n' +
+                npcLibrary.map(npc => `- **${npc.name}**: ${npc.persona}`).join('\n');
+        } else {
+            npcContext = '# 你的专属NPC好友列表\n(你当前没有专属NPC，请虚构2-3个普通朋友并生成对话)';
+        }
+
+        let npcChatHistoryContext = '';
+        const existingNpcChats = Object.entries(chat.characterPhoneData.chats || {}).filter(([name, chatData]) => chatData.history && chatData.history.length > 0);
+        if (existingNpcChats.length > 0) {
+            npcChatHistoryContext += '\n\n# 已有的聊天记录摘要 (请在此基础上继续对话)\n';
+            existingNpcChats.forEach(([contactName, chatData]) => {
+                const recentMessages = chatData.history.slice(-5).map(msg => `  - ${msg.sender}: ${msg.content}`).join('\n');
+                npcChatHistoryContext += `\n## 你和“${contactName}”的最近对话:\n${recentMessages}\n`;
+            });
+        }
+        
+        // 使用修改后的 finalDataTypeInfo 来构建Prompt
+        const prompt = `
+# 任务
+你现在是角色 "${chat.name}"。请根据你的信息和最近的聊天记录，【只生成一项】你手机中的新数据。
+具体任务是：生成${finalDataTypeInfo.description}
+
+# 【【【情景一致性铁律】】】
+你生成的所有数据（尤其是"trajectory"行动轨迹）**必须**与“最近聊天记录摘要”中提到的最新情景保持绝对一致。
+
+# 【【【绝对禁止事项】】】
+在生成 "chats" 数据时，**绝对不允许**让用户（${userNickname}）出现在你与其他NPC的对话中。
+
+# 【【【重要指令：关于聊天记录生成】】】
+- 你正在续写对话。你提供的聊天记录是上下文，你【绝对不能】重复或改写其中的任何内容。你的生成必须从【全新的、下一条】消息开始。
+- 如果“你的专属NPC好友列表”不为空，你【必须】从中随机选择2-3位朋友，并为他们生成对话。
+- 如果列表为空，你可以虚构2-3个普通朋友并生成对话。
+- 你必须为每个选中的联系人生成一段【至少包含5-8条消息】的对话。
+
+# 你的信息
+- 你的名字: ${chat.name}
+- 你的人设: ${persona}
+${worldBookContext}
+# 和${userNickname}的最近聊天记录摘要
+${recentHistory}
+${npcContext}
+${npcChatHistoryContext}
+
+# JSON输出格式 (必须严格遵守，只包含你被要求的那个键)
+{
+  ${finalDataTypeInfo.jsonStructure}
+}
+`;
+        
+        const { proxyUrl, apiKey, model } = state.apiConfig;
+        let isGemini = proxyUrl === GEMINI_API_URL;
+        let geminiConfig = toGeminiRequestData(model, apiKey, prompt, [{role: 'user', content: prompt}], isGemini);
+        
+        const response = isGemini 
+            ? await fetch(geminiConfig.url, geminiConfig.data) 
+            : await fetch(`${proxyUrl}/v1/chat/completions`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+                body: JSON.stringify({
+                    model: model,
+                    messages: [{role: 'user', content: prompt}],
+                    temperature: 0.8,
+                    response_format: { type: "json_object" }
+                })
+            });
+
+        if (!response.ok) {
+            let errorMsg = `API请求失败: ${response.status} - ${await response.text()}`;
+            throw new Error(errorMsg);
+        }
+        
+        const data = await response.json();
+        const aiResponseContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content)
+            .replace(/^```json\s*|```$/g, '');
+
+        const newData = JSON.parse(aiResponseContent);
+
+        let phoneData = chat.characterPhoneData;
+        phoneData.lastGenerated = Date.now();
+        let updateSuccess = false;
+
+        if (newData && newData[dataType]) {
+            if (dataType === 'bank' && newData.bank.transactions) {
+                 if(!phoneData.bank) phoneData.bank = { balance: 0, transactions: [] };
+                 if (typeof phoneData.bank.balance !== 'number') phoneData.bank.balance = 0;
+                (newData.bank.transactions || []).forEach(transaction => {
+                    const amount = parseFloat(transaction.amount);
+                    if (!isNaN(amount)) {
+                        if (transaction.type === '收入') phoneData.bank.balance += amount;
+                        else if (transaction.type === '支出') phoneData.bank.balance -= amount;
+                    }
+                });
+                 phoneData.bank.transactions.push(...(newData.bank.transactions || []));
+                 if (typeof newData.bank.balance === 'number') {
+                     phoneData.bank.balance = newData.bank.balance;
+                 }
+                 updateSuccess = true;
+            } else if (dataType === 'chats' && newData.chats) {
+                 newData.chats.forEach(newChat => {
+                    if (!newChat.messages) return;
+                    const contactName = newChat.contactName;
+                    if (phoneData.chats[contactName] && phoneData.chats[contactName].history) {
+                        phoneData.chats[contactName].history.push(...newChat.messages);
+                    } else {
+                        phoneData.chats[contactName] = { 
+                            avatar: newChat.avatar, 
+                            history: newChat.messages 
+                        };
+                    }
+                 });
+                 updateSuccess = true;
+            } else if (dataType === 'appUsage' && Array.isArray(newData.appUsage)) {
+                const usageMap = new Map();
+                (phoneData.appUsage || []).forEach(item => {
+                    usageMap.set(item.appName, (usageMap.get(item.appName) || 0) + parseDurationToMinutes(item.duration));
+                });
+                newData.appUsage.forEach(item => {
+                    usageMap.set(item.appName, (usageMap.get(item.appName) || 0) + parseDurationToMinutes(item.duration));
+                });
+                const mergedUsage = [];
+                for (const [appName, totalMinutes] of usageMap.entries()) {
+                    mergedUsage.push({ appName: appName, duration: formatMinutesToDuration(totalMinutes) });
+                }
+                phoneData.appUsage = mergedUsage;
+                updateSuccess = true;
+            } else if (Array.isArray(phoneData[dataType])) {
+                phoneData[dataType].push(...(newData[dataType] || []));
+                updateSuccess = true;
+            }
+        }
+        
+        if (!updateSuccess) {
+            throw new Error(`AI返回的JSON中缺少'${dataType}'字段或格式不正确。`);
+        }
+
+        await db.chats.put(chat);
+        alert(`“${chat.name}”的${dataTypeMap[dataType].description.split('。')[0]}已更新！`);
+
+        switch(dataType) {
+            case 'chats': renderCharacterChatList(); break;
+            case 'shoppingCart': renderCharacterShoppingCart(); break;
+            case 'memos': renderCharacterMemos(); break;
+            case 'browserHistory': renderCharacterBrowser(); break;
+            case 'photoAlbum': renderCharacterPhotoAlbum(); break;
+            case 'bank': renderCharacterBank(); break;
+            case 'trajectory': renderCharacterTrajectory(); break;
+            case 'appUsage': renderCharacterAppUsage(); break;
+            case 'diary': renderCharacterDiary(); break;
+        }
+
+    } catch (error) {
+        console.error(`生成角色手机数据(${dataType})失败:`, error);
+        await showCustomAlert('生成失败', `发生了一个错误：\n\n${error.message}`);
+    } finally {
+        document.getElementById('generation-overlay').classList.remove('visible');
+    }
+}
+
+// ▼▼▼ 把这一整块全新的函数，粘贴到你的JS功能函数定义区 ▼▼▼
+
+/**
+ * 【全新】处理“查手机”各个APP页面“全部删除”功能的通用函数
+ * @param {string} dataType - 要清空的数据类型，例如 'shoppingCart', 'memos', 'bank.transactions'
+ */
+async function handleClearCharacterDataSegment(dataType) {
+    if (!activeCharacterPhoneId) return;
+    const chat = state.chats[activeCharacterPhoneId];
+    if (!chat) return;
+
+    // 为不同数据类型设置更人性化的提示文本
+    const dataTypeMap = {
+        chats: { name: 'NPC聊天记录', dataKey: 'chats' },
+        shoppingCart: { name: '购物车', dataKey: 'shoppingCart' },
+        memos: { name: '备忘录', dataKey: 'memos' },
+        browserHistory: { name: '浏览器历史', dataKey: 'browserHistory' },
+        photoAlbum: { name: '相册', dataKey: 'photoAlbum' },
+        'bank.transactions': { name: '交易记录', dataKey: 'bank' },
+        trajectory: { name: '足迹', dataKey: 'trajectory' },
+        appUsage: { name: '使用记录', dataKey: 'appUsage' },
+        diary: { name: '日记', dataKey: 'diary' }
+    };
+
+    const info = dataTypeMap[dataType];
+    if (!info) {
+        console.error("未知的清空数据类型:", dataType);
+        return;
+    }
+
+    // 弹出确认框
+    const confirmed = await showCustomConfirm(
+        `确认清空`,
+        `确定要清空“${chat.name}”手机里的所有【${info.name}】吗？此操作不可恢复。`,
+        { confirmButtonClass: 'btn-danger' }
+    );
+
+    if (!confirmed) return;
+
+    try {
+        // 【核心删除逻辑】
+        if (dataType === 'chats') {
+            // 特殊处理：清空所有NPC聊天（不包括和user的）
+            chat.characterPhoneData.chats = {};
+        } else if (dataType === 'bank.transactions') {
+            // 特殊处理：清空银行交易记录，【同时将余额归零】
+            if (chat.characterPhoneData.bank) {
+                chat.characterPhoneData.bank.transactions = [];
+                // ★★★ 核心修复：在这里将余额归零 ★★★
+                chat.characterPhoneData.bank.balance = 0; 
+            }
+        } else if (chat.characterPhoneData[info.dataKey]) {
+            // 通用处理：清空数组
+            chat.characterPhoneData[info.dataKey] = [];
+        }
+
+        // 保存到数据库
+        await db.chats.put(chat);
+
+        // 刷新当前页面
+        switch(dataType) {
+            case 'chats': renderCharacterChatList(); break;
+            case 'shoppingCart': renderCharacterShoppingCart(); break;
+            case 'memos': renderCharacterMemos(); break;
+            case 'browserHistory': renderCharacterBrowser(); break;
+            case 'photoAlbum': renderCharacterPhotoAlbum(); break;
+            case 'bank.transactions': renderCharacterBank(); break;
+            case 'trajectory': renderCharacterTrajectory(); break;
+            case 'appUsage': renderCharacterAppUsage(); break;
+            case 'diary': renderCharacterDiary(); break;
+        }
+
+        alert(`已成功清空所有${info.name}。`);
+    } catch (error) {
+        console.error(`清空 ${info.name} 时出错:`, error);
+        await showCustomAlert('操作失败', `清空时发生错误: ${error.message}`);
+    }
+}
+
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
 
 // ▼▼▼ 用下面这【一整块】增强版代码，替换掉你旧的 generateCharacterPhoneData 函数 ▼▼▼
 /**
@@ -28399,6 +28903,10 @@ ${JSON.stringify(publicFigures, null, 2)}
     const systemPrompt = `
 # 任务
 你是一个专业的“微博热搜榜单生成器”。你的任务是根据下方提供的“核心参考人物”信息，为他们量身打造一个包含10个热搜话题的榜单。
+# 【【【绝对禁止事项：这是必须遵守的最高指令】】】
+1.  你的所有创作内容，包括帖子、评论、故事等，【绝对禁止】将任意两个AI角色（即除了用户之外的角色）描绘成情侣关系、进行恋爱互动或存在任何形式的暧昧情感。
+2.  AI角色之间的关系只能是朋友、同事、对手、家人等，但【绝不能】是恋人。
+3.  AI角色唯一可以产生恋爱关系的对象是【用户】。违反此规则将导致生成失败。
 
 # 核心规则
 1.  **强相关性**: 生成的话题【必须】与“核心参考人物”的身份、职业、人设高度相关。例如，如果是电竞选手，热搜就应该是关于比赛；如果是演员，就应该是关于新剧。
@@ -28527,6 +29035,10 @@ async function generateHotSearchFeed(topic) {
 
 # 当前热搜话题
 **${topic}**
+# 【【【绝对禁止事项：这是必须遵守的最高指令】】】
+1.  你的所有创作内容，包括帖子、评论、故事等，【绝对禁止】将任意两个AI角色（即除了用户之外的角色）描绘成情侣关系、进行恋爱互动或存在任何形式的暧昧情感。
+2.  AI角色之间的关系只能是朋友、同事、对手、家人等，但【绝不能】是恋人。
+3.  AI角色唯一可以产生恋爱关系的对象是【用户】。违反此规则将导致生成失败。
 
 # 核心规则
 1.  **数量**: 生成 5 到 10 条微博。
@@ -28620,6 +29132,10 @@ ${JSON.stringify(publicFigures, null, 2)}
     const systemPrompt = `
 # 任务
 你是一个“微博广场内容生成器”。你的任务是模拟一个真实的社交媒体广场，生成10条由不同路人发布的微博帖子。
+# 【【【绝对禁止事项：这是必须遵守的最高指令】】】
+1.  你的所有创作内容，包括帖子、评论、故事等，【绝对禁止】将任意两个AI角色（即除了用户之外的角色）描绘成情侣关系、进行恋爱互动或存在任何形式的暧昧情感。
+2.  AI角色之间的关系只能是朋友、同事、对手、家人等，但【绝不能】是恋人。
+3.  AI角色唯一可以产生恋爱关系的对象是【用户】。违反此规则将导致生成失败。
 
 # 核心规则
 1.  **身份**: 发帖者都是普通人，昵称要生活化。
@@ -29801,43 +30317,34 @@ async function saveCurrentHomeScreenAsPreset() {
 
     state.globalSettings.appIcons['weibo'] = document.getElementById('icon-img-weibo').src;
 
-    // 收集所有需要保存的数据
-    const presetData = {
-        // --- 第一页数据 (这部分保持不变) ---
-        'profile-banner-img': document.getElementById('profile-banner-img').src,
-        'profile-avatar-img': document.getElementById('profile-avatar-img').src,
-        'profile-username': document.getElementById('profile-username').textContent,
-        'profile-sub-username': document.getElementById('profile-sub-username').textContent,
-        'profile-bio': document.getElementById('profile-bio').textContent,
-        'profile-location': document.getElementById('profile-location').innerHTML,
-        'widget-bubble-1': document.getElementById('widget-bubble-1').textContent,
-        'widget-image-1': document.getElementById('widget-image-1').src,
-        'widget-subtext-1': document.getElementById('widget-subtext-1').textContent,
-        'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
-        'widget-image-2': document.getElementById('widget-image-2').src,
-        'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
+// ▼▼▼ 在 `saveCurrentHomeScreenAsPreset` 函数内部找到 `presetData` 对象 ▼▼▼
+const presetData = {
+    // ... 这里是你原来的第一页数据，保持不变 ...
+    'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
+    'widget-image-2': document.getElementById('widget-image-2').src,
+    'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
 
-        // --- ▼▼▼【全新添加】第二页的数据 ▼▼▼ ---
-        'widget-image-3': document.getElementById('widget-image-3').src,
-        'second-page-bubble': document.getElementById('second-page-bubble').textContent,
-        'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
-        'circular-bubble': document.getElementById('circular-bubble').textContent,
-        'widget-image-4': document.getElementById('widget-image-4').src,
-        'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
-        'bubble-top-left': document.getElementById('bubble-top-left').textContent,
-        'bubble-top-right': document.getElementById('bubble-top-right').textContent,
-        'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
-        'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
-        'new-widget-avatar': document.getElementById('new-widget-avatar').src,
-        'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
-        'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
-        'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
-        // --- ▲▲▲ 添加结束 ▲▲▲ ---
+    // --- ▼▼▼【全新添加】把下面这整块代码粘贴到这里 ▼▼▼ ---
+    'widget-image-3': document.getElementById('widget-image-3').src,
+    'second-page-bubble': document.getElementById('second-page-bubble').textContent,
+    'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
+    'circular-bubble': document.getElementById('circular-bubble').textContent,
+    'widget-image-4': document.getElementById('widget-image-4').src,
+    'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
+    'bubble-top-left': document.getElementById('bubble-top-left').textContent,
+    'bubble-top-right': document.getElementById('bubble-top-right').textContent,
+    'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
+    'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
+    'new-widget-avatar': document.getElementById('new-widget-avatar').src,
+    'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
+    'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
+    'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
+    // --- ▲▲▲ 添加结束 ▲▲▲ ---
 
-        // --- 全局设置 (这部分保持不变) ---
-        'appIcons': { ...state.globalSettings.appIcons },
-        'wallpaper': state.globalSettings.wallpaper
-    };
+    // ... 这里是原来的 'appIcons' 和 'wallpaper' 数据，保持不变 ...
+    'appIcons': { ...state.globalSettings.appIcons },
+    'wallpaper': state.globalSettings.wallpaper
+};
     await db.homeScreenPresets.add({ name: presetName.trim(), data: presetData });
     await loadHomeScreenPresetsToDropdown();
     alert(`预设 "${presetName.trim()}" 已保存！`);
@@ -29864,42 +30371,35 @@ async function updateSelectedHomeScreenPreset() {
     if (confirmed) {
         state.globalSettings.appIcons['weibo'] = document.getElementById('icon-img-weibo').src;
         
-        const presetData = {
-            // --- 第一页数据 (这部分保持不变) ---
-            'profile-banner-img': document.getElementById('profile-banner-img').src,
-            'profile-avatar-img': document.getElementById('profile-avatar-img').src,
-            'profile-username': document.getElementById('profile-username').textContent,
-            'profile-sub-username': document.getElementById('profile-sub-username').textContent,
-            'profile-bio': document.getElementById('profile-bio').textContent,
-            'profile-location': document.getElementById('profile-location').innerHTML,
-            'widget-bubble-1': document.getElementById('widget-bubble-1').textContent,
-            'widget-image-1': document.getElementById('widget-image-1').src,
-            'widget-subtext-1': document.getElementById('widget-subtext-1').textContent,
-            'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
-            'widget-image-2': document.getElementById('widget-image-2').src,
-            'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
+// ▼▼▼ 在 `updateSelectedHomeScreenPreset` 函数内部找到 `presetData` 对象 ▼▼▼
+const presetData = {
+    // ... 这里是你原来的第一页数据，保持不变 ...
+    'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
+    'widget-image-2': document.getElementById('widget-image-2').src,
+    'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
 
-            // --- ▼▼▼【全新添加】第二页的数据 ▼▼▼ ---
-            'widget-image-3': document.getElementById('widget-image-3').src,
-            'second-page-bubble': document.getElementById('second-page-bubble').textContent,
-            'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
-            'circular-bubble': document.getElementById('circular-bubble').textContent,
-            'widget-image-4': document.getElementById('widget-image-4').src,
-            'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
-            'bubble-top-left': document.getElementById('bubble-top-left').textContent,
-            'bubble-top-right': document.getElementById('bubble-top-right').textContent,
-            'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
-            'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
-            'new-widget-avatar': document.getElementById('new-widget-avatar').src,
-            'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
-            'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
-            'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
-            // --- ▲▲▲ 添加结束 ▲▲▲ ---
+    // --- ▼▼▼【全新添加】把和上面完全一样的代码块也粘贴到这里 ▼▼▼ ---
+    'widget-image-3': document.getElementById('widget-image-3').src,
+    'second-page-bubble': document.getElementById('second-page-bubble').textContent,
+    'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
+    'circular-bubble': document.getElementById('circular-bubble').textContent,
+    'widget-image-4': document.getElementById('widget-image-4').src,
+    'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
+    'bubble-top-left': document.getElementById('bubble-top-left').textContent,
+    'bubble-top-right': document.getElementById('bubble-top-right').textContent,
+    'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
+    'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
+    'new-widget-avatar': document.getElementById('new-widget-avatar').src,
+    'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
+    'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
+    'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
+    // --- ▲▲▲ 添加结束 ▲▲▲ ---
 
-            // --- 全局设置 (这部分保持不变) ---
-            'appIcons': { ...state.globalSettings.appIcons },
-            'wallpaper': state.globalSettings.wallpaper
-        };
+    // ... 这里是原来的 'appIcons' 和 'wallpaper' 数据，保持不变 ...
+    'appIcons': { ...state.globalSettings.appIcons },
+    'wallpaper': state.globalSettings.wallpaper
+};
+
 
         await db.homeScreenPresets.update(activeHomePresetId, { data: presetData });
         
@@ -30489,7 +30989,6 @@ async function openGroup(groupId, groupName) {
 }
 // ▲▲▲ 替换结束 ▲▲▲
 
-
 /**
  * 渲染小组内的帖子列表
  */
@@ -30505,15 +31004,19 @@ async function renderGroupPosts(groupId) {
         const commentCount = await db.forumComments.where('postId').equals(post.id).count();
         const item = document.createElement('div');
         item.className = 'forum-post-item';
+        // 【核心修改1】为列表项添加 data-post-id，方便我们识别是哪个帖子
+        item.dataset.postId = post.id;
+        // 【核心修改2】在 HTML 中加入删除按钮
         item.innerHTML = `
             <div class="post-item-title">${post.title}</div>
             <div class="post-item-meta">
                 <span>作者: ${post.author}</span>
                 <span>评论: ${commentCount}</span>
             </div>
+            <button class="forum-post-delete-btn" title="删除帖子">×</button>
         `;
-        // 【关键】就是这里的 openPost 函数丢失了
-        item.addEventListener('click', () => openPost(post.id));
+        // 【核心修改3】移除旧的、独立的点击事件监听器，我们将用事件委托统一处理
+        // item.addEventListener('click', () => openPost(post.id));
         listEl.appendChild(item);
     }
 }
@@ -30862,6 +31365,10 @@ async function generateForumContentWithAPI(groupId, groupName) {
         const passerbyPrompt = `
 # 任务
 你是一个专业的“论坛内容生成器”。你的任务是为名为“${groupName}”的论坛小组，生成【${passerbyPostCount}条】全新的、有趣的、符合小组主题的帖子，并为每条帖子生成2-3条符合情景的评论。
+# 【【【绝对禁止事项：这是必须遵守的最高指令】】】
+1.  你的所有创作内容，包括帖子、评论、故事等，【绝对禁止】将任意两个AI角色（即除了用户之外的角色）描绘成情侣关系、进行恋爱互动或存在任何形式的暧昧情感。
+2.  AI角色之间的关系只能是朋友、同事、对手、家人等，但【绝不能】是恋人。
+3.  AI角色唯一可以产生恋爱关系的对象是【用户】。违反此规则将导致生成失败。
 
 # 核心规则
 1.  **主题相关**: 所有帖子的标题、内容和评论都必须与小组主题“${groupName}”高度相关。
@@ -31403,6 +31910,10 @@ ${topicsContext}
     -   **标题**: 口语化、有悬念、或者缩写黑话。例如：“救命，刚吃到的瓜，关于xxx”、“不懂就问，他为什么能火啊？”、“kdl，这对真的好甜”。
     -   **作者**: 昵称必须是生活化的豆瓣风格，例如：“momo”、“已注销”、“阿...”、“你的网友小张”。【绝对禁止】出现“XX工作室”、“XX资讯”这类微博风格的ID，也【绝对禁止】使用下方公众人物列表中的名字作为作者。
     -   **评论**: 大量使用豆瓣黑话和网络用语，例如：“同意楼上姐妹！”、“马了，感谢楼主分享”、“蹲一个后续”、“哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈”。
+# 【【【绝对禁止事项：这是必须遵守的最高指令】】】
+1.  你的所有创作内容，包括帖子、评论、故事等，【绝对禁止】将任意两个AI角色（即除了用户之外的角色）描绘成情侣关系、进行恋爱互动或存在任何形式的暧昧情感。
+2.  AI角色之间的关系只能是朋友、同事、对手、家人等，但【绝不能】是恋人。
+3.  AI角色唯一可以产生恋爱关系的对象是【用户】。违反此规则将导致生成失败。
 
 2.  **【【【角色扮演铁律】】】**: 你生成的帖子内容可以【讨论或提及】下方的公众人物，但【不能扮演他们】亲自发帖。所有帖子都必须是路人视角。
     
@@ -32312,6 +32823,20 @@ async function handlePostMoment() {
     
     renderLSMoments(chat.loversSpaceData.moments, chat);
     document.getElementById('ls-create-moment-modal').classList.remove('visible');
+// ▼▼▼ 在 handlePostMoment 函数的末尾，粘贴下面这块新代码 ▼▼▼
+// 创建一条对用户隐藏，但对AI可见的系统消息
+const hiddenMessage = {
+    role: 'system',
+    content: `[系统提示：用户（${chat.settings.myNickname || '我'}）刚刚在我们的情侣空间发布了一条新的说说，内容是：“${content}”。请你根据人设，使用 'ls_comment' 指令对这条说说发表你的看法。]`,
+    timestamp: Date.now(),
+    isHidden: true // 这个标记能让消息对你隐藏，但AI能看见
+};
+chat.history.push(hiddenMessage);
+await db.chats.put(chat); // 再次保存，确保隐藏消息被存入
+
+// （可选）如果你希望AI在你发完说说后立刻就去评论，可以取消下面这行的注释
+// triggerAiResponse();
+// ▲▲▲ 粘贴结束 ▲▲▲
 }
 
 
@@ -32745,15 +33270,18 @@ async function handlePostQuestion() {
     renderLSQuestions(chat.loversSpaceData.questions, chat);
     document.getElementById('ls-ask-question-modal').classList.remove('visible');
     
-    // 发送隐藏消息通知AI
-    const hiddenMessage = {
-        role: 'system',
-        content: `[系统提示：用户在情侣空间向你提了一个问题：“${content}”，问题ID是“${newQuestion.id}”。请使用 'ls_answer_question' 指令来回答。]`,
-        timestamp: Date.now(),
-        isHidden: true
-    };
-    chat.history.push(hiddenMessage);
-    await db.chats.put(chat);
+// ▼▼▼ 在 handlePostQuestion 函数的末尾，粘贴下面这块新代码 ▼▼▼
+// 创建一条对用户隐藏，但对AI可见的系统消息
+const hiddenMessage = {
+    role: 'system',
+    content: `[系统提示：用户在情侣空间向你提了一个问题：“${content}”，问题ID是“${newQuestion.id}”。请使用 'ls_answer_question' 指令来回答。]`,
+    timestamp: Date.now(),
+    isHidden: true
+};
+chat.history.push(hiddenMessage);
+await db.chats.put(chat);
+
+
 }
 
 /**
@@ -32786,6 +33314,16 @@ async function handlePostAnswer() {
         question.answerer = 'user'; // 明确回答者是用户
         question.answerText = answerText;
         await db.chats.put(chat);
+        // ▼▼▼ 用这块新代码替换上面的 ▼▼▼
+const hiddenMessage = {
+    role: 'system',
+    content: `[系统提示：用户（${chat.settings.myNickname || '我'}）刚刚在情侣空间回答了你之前提出的问题。你的问题是：“${question.questionText}”，用户的回答是：“${answerText}”。]`,
+    timestamp: Date.now(),
+    isHidden: true
+};
+chat.history.push(hiddenMessage);
+await db.chats.put(chat);
+// ▲▲▲ 替换结束 ▲▲▲
         renderLSQuestions(chat.loversSpaceData.questions, chat);
     }
     document.getElementById('ls-answer-question-modal').classList.remove('visible');
@@ -33545,9 +34083,61 @@ async function handleLoversSpaceResponse(timestamp, choice) {
     triggerAiResponse();
 }
 
-// ▲▲▲ 粘贴结束 ▲▲▲
+/**
+ * 【全新】应用主屏幕图标和小组件的文字颜色
+ * @param {string} color - 颜色代码, e.g., '#FFFFFF'
+ */
+function applyHomeIconWidgetTextColor(color) {
+    const phoneScreen = document.getElementById('phone-screen');
+    if (phoneScreen && color) {
+        // 使用新的CSS变量名
+        phoneScreen.style.setProperty('--home-icon-widget-text-color', color);
+    }
+}
+/**
+ * 【新增辅助函数1】将时长字符串（如“2.5小时”, "30m"）解析为分钟数
+ * @param {string} durationString - 时长描述文本
+ * @returns {number} - 对应的分钟数
+ */
+function parseDurationToMinutes(durationString) {
+    if (!durationString || typeof durationString !== 'string') return 0;
+    
+    const text = durationString.toLowerCase();
+    const num = parseFloat(text.match(/(\d+(\.\d+)?)/)?.[0]) || 0;
 
+    if (text.includes('小时') || text.includes('h')) {
+        return num * 60;
+    }
+    if (text.includes('分钟') || text.includes('m')) {
+        return num;
+    }
+    // 如果没有单位，但数值大于等于10，我们猜测是分钟
+    if (num >= 10) {
+        return num;
+    }
+    // 其他情况（如数值很小且无单位），猜测是小时
+    return num * 60;
+}
 
+/**
+ * 【新增辅助函数2】将总分钟数格式化为 "X小时Y分钟" 的字符串
+ * @param {number} totalMinutes - 总分钟数
+ * @returns {string} - 格式化后的时长字符串
+ */
+function formatMinutesToDuration(totalMinutes) {
+    if (totalMinutes < 1) return '不到1分钟';
+    
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = Math.round(totalMinutes % 60);
+
+    if (hours > 0 && minutes > 0) {
+        return `${hours}小时${minutes}分钟`;
+    } else if (hours > 0) {
+        return `${hours}小时`;
+    } else {
+        return `${minutes}分钟`;
+    }
+}
 
         async function init() {
 
@@ -33588,6 +34178,7 @@ async function handleLoversSpaceResponse(timestamp, choice) {
             window.renderWorldBookScreenProxy = renderWorldBookScreen;
 
             await loadAllDataFromDB();
+            applyHomeIconWidgetTextColor(state.globalSettings.homeIconWidgetTextColor);
             await loadAllFontPresetsOnStartup(); // <---- 在这里添加这一行新代码
             await addDefaultDarkModeThemeIfNeeded();
             applyWidgetData();
@@ -33629,25 +34220,86 @@ applyAppIcons();
             // ==========================================================
             // ▼▼▼ 在 init() 函数的事件监听器区域末尾，添加下面这行代码 ▼▼▼
 // ▼▼▼ 用这块新代码，替换旧的 weibo-screen 事件监听器 ▼▼▼
-            // ▼▼▼ 【全新】“查角色手机”功能事件监听器 ▼▼▼
+            // ▼▼▼ 【全新】“查角色手机”功能事件监听器 (V2 - 单独生成版) ▼▼▼
 
-// 1. 绑定主屏幕上的“查手机”APP图标
-//    【核心修复】我们现在用 JS 来绑定事件，而不是用 HTML 的 onclick
-document.getElementById('check-phone-btn').addEventListener('click', openCharacterSelectionScreen);
+            // 1. 绑定主屏幕上的“查手机”APP图标
+            document.getElementById('check-phone-btn').addEventListener('click', openCharacterSelectionScreen);
 
-// 2. 角色选择列表的点击事件 (事件委托)
-document.getElementById('character-selection-list').addEventListener('click', (e) => {
-    const item = e.target.closest('.character-select-item');
-    if (item && item.dataset.chatId) {
-        openCharacterPhone(item.dataset.chatId);
+            // 2. 角色选择列表的点击事件 (事件委托)
+            document.getElementById('character-selection-list').addEventListener('click', (e) => {
+                const item = e.target.closest('.character-select-item');
+                if (item && item.dataset.chatId) {
+                    openCharacterPhone(item.dataset.chatId);
+                }
+            });
+
+            // 3. 【总生成/清空】角色手机顶部的“刷新”和“清空”按钮
+            document.getElementById('generate-character-data-btn').addEventListener('click', generateCharacterPhoneData);
+            document.getElementById('clear-character-data-btn').addEventListener('click', clearCharacterPhoneData);
+
+// ▼▼▼ 请用这一整块【功能增强版】的代码，完整替换掉你旧的 character-phone-container 事件监听器 ▼▼▼
+document.getElementById('character-phone-container').addEventListener('click', (e) => {
+    const backBtn = e.target.closest('.back-btn');
+    const actionBtn = e.target.closest('.action-btn');
+
+    // 1. 处理返回按钮
+    if (backBtn) {
+        if (backBtn.dataset.targetPage) {
+            showCharacterPhonePage(backBtn.dataset.targetPage);
+        } else if (backBtn.dataset.targetScreen) {
+            showScreen(backBtn.dataset.targetScreen);
+        }
+        return;
+    }
+    
+    // 2. 处理所有操作按钮（生成 + 删除）
+    if (actionBtn) {
+        switch (actionBtn.id) {
+            // --- 单独生成按钮 ---
+            case 'generate-chat-message-btn': 
+                generateCharacterPhoneDataSegment('chats'); break;
+            case 'generate-cart-item-btn':
+                generateCharacterPhoneDataSegment('shoppingCart'); break;
+            case 'generate-memo-btn':
+                generateCharacterPhoneDataSegment('memos'); break;
+            case 'generate-browser-history-btn':
+                generateCharacterPhoneDataSegment('browserHistory'); break;
+            case 'generate-album-photo-btn':
+                generateCharacterPhoneDataSegment('photoAlbum'); break;
+            case 'generate-bank-transaction-btn':
+                generateCharacterPhoneDataSegment('bank'); break;
+            case 'generate-trajectory-btn':
+                generateCharacterPhoneDataSegment('trajectory'); break;
+            case 'generate-app-usage-btn':
+                generateCharacterPhoneDataSegment('appUsage'); break;
+            case 'generate-diary-entry-btn':
+                generateCharacterPhoneDataSegment('diary'); break;
+
+            // --- ★★★ 这就是我们新增的全部删除按钮的逻辑 ★★★ ---
+            case 'clear-npc-chats-btn':
+                handleClearCharacterDataSegment('chats'); break;
+            case 'clear-cart-items-btn':
+                handleClearCharacterDataSegment('shoppingCart'); break;
+            case 'clear-memos-btn':
+                handleClearCharacterDataSegment('memos'); break;
+            case 'clear-browser-history-btn':
+                handleClearCharacterDataSegment('browserHistory'); break;
+            case 'clear-album-photos-btn':
+                handleClearCharacterDataSegment('photoAlbum'); break;
+            case 'clear-bank-transactions-btn':
+                handleClearCharacterDataSegment('bank.transactions'); break;
+            case 'clear-trajectory-btn':
+                handleClearCharacterDataSegment('trajectory'); break;
+            case 'clear-app-usage-btn':
+                handleClearCharacterDataSegment('appUsage'); break;
+            case 'clear-diary-entries-btn':
+                handleClearCharacterDataSegment('diary'); break;
+        }
     }
 });
+// ▲▲▲ 替换结束 ▲▲▲
 
-// 3. 角色手机顶部的“刷新”和“清空”按钮
-document.getElementById('generate-character-data-btn').addEventListener('click', generateCharacterPhoneData);
-document.getElementById('clear-character-data-btn').addEventListener('click', clearCharacterPhoneData);
 
-// ▲▲▲ 事件监听器添加结束 ▲▲▲
 // ▼▼▼ 【V3最终美化版】主屏幕预设功能事件绑定 ▼▼▼
 document.getElementById('home-preset-selector').addEventListener('change', handleHomePresetSelection);
 document.getElementById('apply-home-preset-btn').addEventListener('click', applySelectedHomeScreenPreset);
@@ -34067,6 +34719,7 @@ document.getElementById('save-wallpaper-btn').addEventListener('click', async ()
     const isLockEnabled = document.getElementById('enable-lock-screen-toggle').checked;
     state.globalSettings.enableLockScreen = isLockEnabled;
     localStorage.setItem('lockScreenEnabled', isLockEnabled);
+state.globalSettings.homeIconWidgetTextColor = document.getElementById('home-icon-widget-text-color-picker').value;
 
     await db.globalSettings.put(state.globalSettings);
 
@@ -37851,6 +38504,52 @@ document.getElementById('chat-messages').addEventListener('click', (e) => {
 });
 
 // ▲▲▲ 新增代码结束 ▲▲▲
+// ▼▼▼ 【全新】论坛帖子列表事件委托 ▼▼▼
+document.getElementById('group-post-list').addEventListener('click', async (e) => {
+    const postItem = e.target.closest('.forum-post-item');
+    if (!postItem) return;
+
+    // 检查点击的是否是删除按钮
+    if (e.target.classList.contains('forum-post-delete-btn')) {
+        const postId = postItem.dataset.postId;
+        if (!postId) return;
+        
+        const post = await db.forumPosts.get(parseInt(postId));
+        if (!post) return;
+
+        const confirmed = await showCustomConfirm(
+            '删除帖子', 
+            `确定要删除帖子《${post.title}》吗？此操作将同时删除帖子下的所有评论，且无法恢复。`, 
+            { confirmButtonClass: 'btn-danger' }
+        );
+
+        if (confirmed) {
+            try {
+                // 使用数据库事务来确保帖子和评论被同时删除
+                await db.transaction('rw', db.forumPosts, db.forumComments, async () => {
+                    // 1. 删除所有与该帖子关联的评论
+                    await db.forumComments.where('postId').equals(parseInt(postId)).delete();
+                    // 2. 删除帖子本身
+                    await db.forumPosts.delete(parseInt(postId));
+                });
+
+                await showCustomAlert('删除成功', '帖子及其所有评论已被删除。');
+                // 刷新帖子列表
+                await renderGroupPosts(activeGroupId);
+            } catch (error) {
+                console.error('删除帖子失败:', error);
+                await showCustomAlert('删除失败', `操作失败: ${error.message}`);
+            }
+        }
+    } else {
+        // 如果点击的不是删除按钮，那就是点击了帖子本身，执行跳转逻辑
+        const postId = postItem.dataset.postId;
+        if (postId) {
+            openPost(parseInt(postId));
+        }
+    }
+});
+// ▲▲▲ 新事件监听器结束 ▲▲▲
 
 
 // ▲▲▲ 论坛事件监听器结束 ▲▲▲
@@ -38509,6 +39208,14 @@ function initHomeScreenSlider() {
 }
 // ▲▲▲ 新增JS逻辑结束 ▲▲▲
 initHomeScreenSlider(); // 初始化主屏幕滑动功能
+
+// ▼▼▼ 在这里粘贴新代码 ▼▼▼
+// 监听主屏幕图标和小组件颜色选择器的实时变化
+document.getElementById('home-icon-widget-text-color-picker').addEventListener('input', (e) => {
+    applyHomeIconWidgetTextColor(e.target.value);
+});
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
 
 // ===================================================================
 // 5. 启动！
