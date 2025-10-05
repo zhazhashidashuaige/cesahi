@@ -9819,6 +9819,24 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     text-shadow: none !important;
 }
 /* ▲▲▲ 新增样式结束 ▲▲▲ */
+
+/* ▼▼▼ 【全新】这是微博主页头像框的专属样式 ▼▼▼ */
+.weibo-avatar-container .weibo-avatar-frame {
+    position: absolute;
+    /* 调整这个百分比可以改变框相对于头像的大小 */
+    width: 140%;
+    height: 140%;
+    /* 使用transform进行精确定位，确保完美居中 */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* 确保头像框在头像之上 */
+    z-index: 4;
+    /* 让鼠标可以“穿透”头像框，点击到下面的头像 */
+    pointer-events: none;
+}
+
+
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
     <style id="custom-theme-style"></style>
@@ -10021,9 +10039,14 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             <div id="weibo-profile-page">
                 <div class="weibo-profile-header">
                     <img id="weibo-background-img" src="https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg" class="weibo-background">
-                    <div class="weibo-avatar-container">
-                        <img id="weibo-avatar-img" src="https://files.catbox.moe/q6z5fc.jpeg" class="weibo-avatar">
-                    </div>
+                  <!-- ▼▼▼ 用下面这整块代码，替换旧的 weibo-avatar-container ▼▼▼ -->
+<div class="weibo-avatar-container">
+    <img id="weibo-avatar-img" src="https://files.catbox.moe/q6z5fc.jpeg" class="weibo-avatar">
+    <!-- ▼▼▼ 我们在这里新增了一个用于显示头像框的img元素 ▼▼▼ -->
+    <img id="weibo-avatar-frame" class="weibo-avatar-frame" src="" style="display: none;">
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+
                     <div class="weibo-nickname" id="weibo-nickname">你的昵称</div>
                     <!-- 【核心修改】在这里新增一个显示职业的地方 -->
                     <!-- ▼▼▼ 用这行新代码替换掉旧的 ▼▼▼ -->
@@ -16353,6 +16376,10 @@ if (!state.qzoneSettings.weiboBackground) state.qzoneSettings.weiboBackground = 
 if (!state.qzoneSettings.weiboUserProfession) state.qzoneSettings.weiboUserProfession = '点击设置职业';
 if (!state.qzoneSettings.weiboUserPersona) state.qzoneSettings.weiboUserPersona = '一个普通的微博用户。';
 if (!state.qzoneSettings.weiboUserPersonaPresets) state.qzoneSettings.weiboUserPersonaPresets = [];
+// ▼▼▼ 在这里粘贴新代码 ▼▼▼
+if (!state.qzoneSettings.weiboAvatarFrame) state.qzoneSettings.weiboAvatarFrame = '';
+// ▲▲▲ 粘贴结束 ▲▲▲
+
 // ▲▲▲ 替换结束 ▲▲▲
 
     // ▼▼▼ 【确保这一行在 Promise.all 之后，并使用解构赋值得到的 initialFavorites】 ▼▼▼
@@ -25716,8 +25743,7 @@ function handleUploadCustomFrame() {
 
 // ▲▲▲ 新增功能函数结束 ▲▲▲
 
-// ▼▼▼ 用这【一整块】全新的代码，替换掉你旧的 openFrameSelectorModal 函数 ▼▼▼
-
+// ▼▼▼ 用这块【已添加微博分支】的代码替换旧的 ▼▼▼
 async function openFrameSelectorModal(type, targetId = null) {
     const grid = document.getElementById('avatar-frame-grid');
     grid.innerHTML = '';
@@ -25729,8 +25755,15 @@ async function openFrameSelectorModal(type, targetId = null) {
     let currentFrameUrl = '';
     let previewAvatarUrl = '';
 
-    // 确定当前使用的是哪个头像框和哪个头像
-    if (type === 'ai') {
+    // --- ▼▼▼ 核心修改在这里 ▼▼▼ ---
+    // 判断我们这次是要给谁换框
+    if (type === 'weibo_profile') {
+        // 如果是微博主页，就从全局微博设置里读数据
+        currentFrameUrl = state.qzoneSettings.weiboAvatarFrame || '';
+        previewAvatarUrl = state.qzoneSettings.weiboAvatar || defaultAvatar;
+    } 
+    // --- ▲▲▲ 修改结束 ▲▲▲
+    else if (type === 'ai') {
         currentFrameUrl = chat.settings.aiAvatarFrame || '';
         previewAvatarUrl = chat.settings.aiAvatar || defaultAvatar;
     } else if (type === 'my') {
@@ -25744,12 +25777,7 @@ async function openFrameSelectorModal(type, targetId = null) {
         }
     }
     
-    // 【核心改造】
-    // 1. 从数据库读取你自己的自定义头像框
     const customFrames = await db.customAvatarFrames.toArray();
-
-    // 2. 将内置的头像框数组和你的自定义头像框数组合并成一个大列表
-    //    我们使用 Set 来自动去重，防止内置的和自定义的URL重复
     const frameUrlSet = new Set();
     const allFrames = [...avatarFrames, ...customFrames].filter(frame => {
         if (!frame.url || !frameUrlSet.has(frame.url)) {
@@ -25759,22 +25787,17 @@ async function openFrameSelectorModal(type, targetId = null) {
         return false;
     });
 
-    // 3. 遍历这个合并后的大列表来创建所有选项
     allFrames.forEach(frame => {
         const item = createFrameItem(frame, previewAvatarUrl);
-        // 如果当前头像框的URL和列表中的某一项匹配，就默认选中它
         if (currentFrameUrl === frame.url) {
             item.classList.add('selected');
-            // 确保初始选择被记录
             currentFrameSelection.url = frame.url;
         }
         grid.appendChild(item);
     });
 
-    // 最后，显示模态框
     document.getElementById('avatar-frame-modal').classList.add('visible');
 }
-
 // ▲▲▲ 替换结束 ▲▲▲
 
 // 辅助函数：创建一个头像框选项
@@ -25795,31 +25818,49 @@ function createFrameItem(frame, previewAvatarSrc) {
 }
 
 // 保存选择
+// ▼▼▼ 用这块【已添加微博分支】的代码替换旧的 ▼▼▼
 async function saveSelectedFrames() {
     const chat = state.chats[state.activeChatId];
-    if (!chat) return;
-
+    // 这里我们不需要chat了，因为微博设置是全局的
+    
     const { type, url, target } = currentFrameSelection;
 
-    if (type === 'ai') {
+    // --- ▼▼▼ 核心修改在这里 ▼▼▼ ---
+    if (type === 'weibo_profile') {
+        // 1. 确保 qzoneSettings 对象存在
+        if (!state.qzoneSettings) state.qzoneSettings = {};
+        // 2. 将选择的头像框URL保存到专属字段
+        state.qzoneSettings.weiboAvatarFrame = url;
+        // 3. 调用保存函数，将更改写入数据库
+        await saveQzoneSettings();
+        // 4. 调用渲染函数，让新头像框立刻显示出来
+        await renderWeiboProfile();
+    } 
+    // --- ▲▲▲ 修改结束 ▲▲▲
+    else if (type === 'ai') {
         chat.settings.aiAvatarFrame = url;
+        await db.chats.put(chat);
     } else if (type === 'my') {
         chat.settings.myAvatarFrame = url;
+        await db.chats.put(chat);
     } else if (type === 'member' && target) {
         const member = chat.members.find(m => m.id === target);
         if (member) member.avatarFrame = url;
+        await db.chats.put(chat);
     }
     
-    await db.chats.put(chat);
     document.getElementById('avatar-frame-modal').classList.remove('visible');
     
-    // 刷新UI
-    renderChatInterface(state.activeChatId);
-    // 如果聊天设置弹窗还开着，就刷新一下里面的头像预览
-    if (document.getElementById('chat-settings-modal').classList.contains('visible')) {
-        document.getElementById('chat-settings-btn').click(); 
+    // 只有在修改聊天内头像时才需要刷新聊天界面
+    if (type !== 'weibo_profile') {
+        renderChatInterface(state.activeChatId);
+        if (document.getElementById('chat-settings-modal').classList.contains('visible')) {
+            document.getElementById('chat-settings-btn').click(); 
+            document.getElementById('chat-settings-btn').click();
+        }
     }
 }
+// ▲▲▲ 替换结束 ▲▲▲
 
 /**
  * 检查两个时间戳是否在不同的自然日
@@ -29759,10 +29800,7 @@ function showFollowingList() {
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
 // ▼▼▼ 【全新】微博页面功能函数 ▼▼▼
 
-// ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼
-
-// ▼▼▼ 把这一整块全新的微博功能函数，粘贴到 init() 函数的上方 ▼▼▼
-
+// ▼▼▼ 用这块【已添加头像框渲染逻辑】的代码替换旧的 ▼▼▼
 /**
  * 【微博专属】渲染微博个人主页的所有数据
  */
@@ -29787,14 +29825,31 @@ async function renderWeiboProfile() {
     // 动态计算微博数
     const postsCount = await db.weiboPosts.where('authorId').equals('user').count();
     document.getElementById('weibo-posts-count').textContent = postsCount;
-        // ▼▼▼ 在这里粘贴新代码 ▼▼▼
+    
     const professionEl = document.getElementById('weibo-user-profession-display');
     if (professionEl) {
         professionEl.textContent = settings.weiboUserProfession || '点击设置职业';
     }
-    // ▲▲▲ 粘贴结束 ▲▲▲
 
+    // --- ▼▼▼ 以下是本次新增的核心代码 ▼▼▼ ---
+    // 1. 获取保存的头像框URL
+    const frameUrl = settings.weiboAvatarFrame || '';
+    // 2. 找到头像框的img元素
+    const frameImg = document.getElementById('weibo-avatar-frame');
+    if (frameImg) {
+        // 3. 如果URL存在，就显示它
+        if (frameUrl) {
+            frameImg.src = frameUrl;
+            frameImg.style.display = 'block';
+        } else {
+            // 4. 如果URL为空（即选择了“无”），就隐藏它
+            frameImg.src = '';
+            frameImg.style.display = 'none';
+        }
+    }
+    // --- ▲▲▲ 新增代码结束 ▲▲▲
 }
+// ▲▲▲ 替换结束 ▲▲▲
 
 /**
  * 【微博专属】编辑微博头像
@@ -38416,26 +38471,41 @@ if (target.classList.contains('weibo-post-image') && target.dataset.hiddenText) 
 });
 
 // 3. 【核心】为微博个人主页的所有可编辑元素，绑定专属的编辑函数
-// ▼▼▼ 用这块新代码替换掉旧的 ▼▼▼
-document.getElementById('weibo-profile-page').addEventListener('click', (e) => {
+// ▼▼▼ 用这块【功能增强版】的代码，替换旧的 weibo-profile-page 事件监听器 ▼▼▼
+document.getElementById('weibo-profile-page').addEventListener('click', async (e) => {
     const target = e.target;
+    
+    // --- ▼▼▼ 核心修改在这里 ▼▼▼ ---
     if (target.id === 'weibo-avatar-img' || target.closest('.weibo-avatar-container')) {
-        editWeiboAvatar();
-    } else if (target.id === 'weibo-nickname') {
+        // 1. 弹出一个选择菜单，让用户决定是换头像还是换框
+        const choice = await showChoiceModal("编辑头像", [
+            { text: '更换头像图片', value: 'avatar' },
+            { text: '更换头像框', value: 'frame' }
+        ]);
+        
+        // 2. 根据用户的选择，执行不同的操作
+        if (choice === 'avatar') {
+            editWeiboAvatar(); // 调用原来的更换头像函数
+        } else if (choice === 'frame') {
+            openFrameSelectorModal('weibo_profile'); // 调用我们新增的更换头像框函数
+        }
+        return; // 处理完后直接退出
+    } 
+    // --- ▲▲▲ 修改结束 ▲▲▲
+
+    else if (target.id === 'weibo-nickname') {
         editWeiboNickname();
     } 
-    // ★★★ 新增的代码在这里 ★★★
     else if (target.id === 'weibo-user-profession-display') {
-        // 点击职业时，打开微博用户设定弹窗
         openWeiboUserSettingsModal();
     } 
-    // ★★★ 新增结束 ★★★
     else if (target.id === 'weibo-background-img') {
         editWeiboBackground();
     } else if (target.closest('#weibo-fans-item')) {
         editWeiboFansCount();
     }
 });
+// ▲▲▲ 替换结束 ▲▲▲
 
 // 4. 【核心】为“关注”数字和“发布微博”按钮绑定事件
 document.getElementById('weibo-following-btn').addEventListener('click', showFollowingList);
