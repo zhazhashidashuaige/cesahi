@@ -8356,27 +8356,23 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* 内容区域 */
-/* ▼▼▼ 用这块新代码替换旧的 #ls-content-area 样式 ▼▼▼ */
 #ls-content-area {
-    flex-grow: 1; /* 关键：让内容区占据所有剩余的垂直空间 */
+    flex-grow: 1;
     position: relative;
-    overflow: hidden; /* 自身不滚动，让内部的 .ls-view 滚动 */
+    /* overflow: hidden; */ /* ← 像这样注释掉或直接删除这一行 */
 }
-/* ▼▼▼ 用这块新代码替换旧的 .ls-view 样式 ▼▼▼ */
+
 .ls-view {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     overflow-y: auto;
     display: none;
     padding: 15px;
-
-    /* --- ▼▼▼ 核心修改在这里 ▼▼▼ --- */
-    /* 为浮动按钮和iPhone底部安全区留出足够空间 */
-    padding-bottom: calc(80px + env(safe-area-inset-bottom));
-    box-sizing: border-box; /* 确保内边距被正确计算 */
-    /* --- ▲▲▲ 修改结束 ▲▲▲ --- */
+    box-sizing: border-box;
+    /* ▼▼▼ 新增下面这行“垫子” ▼▼▼ */
+    /* 15px(原来的边距) + 50px(按钮高度) + 20px(额外间距) + iPhone安全区 */
+    padding-bottom: calc(85px + env(safe-area-inset-bottom)); 
 }
-/* ▲▲▲ 替换结束 ▲▲▲ */
 
 .ls-view.active {
     display: block;
