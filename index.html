@@ -16396,6 +16396,9 @@ state.globalSettings = globalSettings || {
     appIcons: { ...DEFAULT_APP_ICONS },
     ringtoneUrl: 'https://files.catbox.moe/3w7gla.mp3',
     widgetData: {}, // 【核心修改】在这里新增一个空对象，用来存放你的自定义内容
+// 在 state.globalSettings 的初始化对象里添加：
+homeAvatarFrame: '', // 为主屏幕头像框添加默认空值
+
     globalChatBackground: '',
     homeIconWidgetTextColor: '#FFFFFF', // <-- 修改这里的名字
   // ▼▼▼ 在这里粘贴新代码 ▼▼▼
@@ -30479,7 +30482,7 @@ function handleHomePresetSelection() {
 }
 
 /**
- * 【新】应用当前选中的预设
+ * 【V2 修复版】应用当前选中的预设
  */
 async function applySelectedHomeScreenPreset() {
     if (!activeHomePresetId) {
@@ -30488,38 +30491,57 @@ async function applySelectedHomeScreenPreset() {
     }
     const preset = await db.homeScreenPresets.get(activeHomePresetId);
     if (preset && preset.data) {
+        // 将预设数据加载到全局状态
         state.globalSettings.widgetData = preset.data;
 
         if (preset.data.wallpaper) {
             state.globalSettings.wallpaper = preset.data.wallpaper;
-            applyGlobalWallpaper();
         }
-
-        // 核心：现在这一段代码会自动处理好包括微博在内的所有图标！
         if (preset.data.appIcons) {
             state.globalSettings.appIcons = { ...preset.data.appIcons };
-            applyAppIcons();
         }
-        
-        // 我们不再需要下面这段单独处理微博图标的代码了，可以删掉它！
-        /*
-        if (preset.data.weiboIcon) {
-            document.getElementById('icon-img-weibo').src = preset.data.weiboIcon;
+        // ★★★ 新增：处理头像框数据 ★★★
+        if (typeof preset.data.homeAvatarFrame !== 'undefined') {
+            state.globalSettings.homeAvatarFrame = preset.data.homeAvatarFrame;
         }
-        */
-        
+
+        // 保存所有更新到数据库
         await db.globalSettings.put(state.globalSettings);
+        
+        // 依次应用所有设置
+        applyGlobalWallpaper();
+        applyAppIcons();
         applyWidgetData(); 
+        renderHomeScreenProfileFrame(); // ★★★ 新增：应用头像框 ★★★
 
         alert(`已成功应用预设: "${preset.name}"！`);
         showScreen('home-screen');
     }
 }
-
+/**
+ * 【全新】渲染主屏幕个人资料卡的头像框
+ */
+function renderHomeScreenProfileFrame() {
+    // 1. 获取保存的头像框URL
+    const frameUrl = state.globalSettings.homeAvatarFrame || '';
+    // 2. 找到头像框的img元素
+    const frameImg = document.getElementById('profile-avatar-frame');
+    if (frameImg) {
+        // 3. 如果URL存在，就显示它
+        if (frameUrl) {
+            frameImg.src = frameUrl;
+            frameImg.style.display = 'block';
+        } else {
+            // 4. 如果URL为空（即选择了“无”），就隐藏它
+            frameImg.src = '';
+            frameImg.style.display = 'none';
+        }
+    }
+}
 
 
 /**
- * 保存当前的主屏幕设置为一个新的预设
+ * 【V2 修复版】保存当前的主屏幕设置为一个新的预设
  */
 async function saveCurrentHomeScreenAsPreset() {
     const presetName = await showCustomPrompt("保存预设", "请为这个主屏幕美化方案起个名字：");
@@ -30528,43 +30550,55 @@ async function saveCurrentHomeScreenAsPreset() {
         return;
     }
 
-    state.globalSettings.appIcons['weibo'] = document.getElementById('icon-img-weibo').src;
+    // 核心：构建一个包含所有主屏幕元素的完整数据对象
+    const presetData = {
+        // --- 个人资料卡片 ---
+        'profile-banner-img': document.getElementById('profile-banner-img').src,
+        'profile-avatar-img': document.getElementById('profile-avatar-img').src,
+        'homeAvatarFrame': document.getElementById('profile-avatar-frame').src, // ★★★ 新增：保存头像框 ★★★
+        'profile-username': document.getElementById('profile-username').textContent,
+        'profile-sub-username': document.getElementById('profile-sub-username').textContent,
+        'profile-bio': document.getElementById('profile-bio').textContent,
+        'profile-location': document.getElementById('profile-location').innerHTML,
 
-// ▼▼▼ 在 `saveCurrentHomeScreenAsPreset` 函数内部找到 `presetData` 对象 ▼▼▼
-const presetData = {
-    // ... 这里是你原来的第一页数据，保持不变 ...
-    'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
-    'widget-image-2': document.getElementById('widget-image-2').src,
-    'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
+        // --- 第一页小组件 ---
+        'widget-bubble-1': document.getElementById('widget-bubble-1').textContent,
+        'widget-image-1': document.getElementById('widget-image-1').src,
+        'widget-subtext-1': document.getElementById('widget-subtext-1').textContent,
+        'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
+        'widget-image-2': document.getElementById('widget-image-2').src,
+        'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
+        
+        // --- 第二页小组件 ---
+        'widget-image-3': document.getElementById('widget-image-3').src,
+        'second-page-bubble': document.getElementById('second-page-bubble').textContent,
+        'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
+        'circular-bubble': document.getElementById('circular-bubble').textContent,
+        'widget-image-4': document.getElementById('widget-image-4').src,
+        'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
+        'bubble-top-left': document.getElementById('bubble-top-left').textContent,
+        'bubble-top-right': document.getElementById('bubble-top-right').textContent,
+        'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
+        'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
+        'new-widget-avatar': document.getElementById('new-widget-avatar').src,
+        'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
+        'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
+        'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
+        'widget-month-display': document.getElementById('widget-month-display').textContent,
+        
+        // --- App图标和壁纸 ---
+        'appIcons': { ...state.globalSettings.appIcons },
+        'wallpaper': state.globalSettings.wallpaper
+    };
 
-    // --- ▼▼▼【全新添加】把下面这整块代码粘贴到这里 ▼▼▼ ---
-    'widget-image-3': document.getElementById('widget-image-3').src,
-    'second-page-bubble': document.getElementById('second-page-bubble').textContent,
-    'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
-    'circular-bubble': document.getElementById('circular-bubble').textContent,
-    'widget-image-4': document.getElementById('widget-image-4').src,
-    'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
-    'bubble-top-left': document.getElementById('bubble-top-left').textContent,
-    'bubble-top-right': document.getElementById('bubble-top-right').textContent,
-    'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
-    'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
-    'new-widget-avatar': document.getElementById('new-widget-avatar').src,
-    'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
-    'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
-    'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
-    // --- ▲▲▲ 添加结束 ▲▲▲ ---
-
-    // ... 这里是原来的 'appIcons' 和 'wallpaper' 数据，保持不变 ...
-    'appIcons': { ...state.globalSettings.appIcons },
-    'wallpaper': state.globalSettings.wallpaper
-};
+    // 保存到数据库
     await db.homeScreenPresets.add({ name: presetName.trim(), data: presetData });
-    await loadHomeScreenPresetsToDropdown();
+    await loadHomeScreenPresetsToDropdown(); // 刷新下拉列表
     alert(`预设 "${presetName.trim()}" 已保存！`);
 }
 
 /**
- * 【全新】更新当前选中的预设
+ * 【V2 修复版】更新当前选中的预设
  */
 async function updateSelectedHomeScreenPreset() {
     if (!activeHomePresetId) {
@@ -30582,40 +30616,41 @@ async function updateSelectedHomeScreenPreset() {
     );
 
     if (confirmed) {
-        state.globalSettings.appIcons['weibo'] = document.getElementById('icon-img-weibo').src;
-        
-// ▼▼▼ 在 `updateSelectedHomeScreenPreset` 函数内部找到 `presetData` 对象 ▼▼▼
-const presetData = {
-    // ... 这里是你原来的第一页数据，保持不变 ...
-    'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
-    'widget-image-2': document.getElementById('widget-image-2').src,
-    'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
-
-    // --- ▼▼▼【全新添加】把和上面完全一样的代码块也粘贴到这里 ▼▼▼ ---
-    'widget-image-3': document.getElementById('widget-image-3').src,
-    'second-page-bubble': document.getElementById('second-page-bubble').textContent,
-    'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
-    'circular-bubble': document.getElementById('circular-bubble').textContent,
-    'widget-image-4': document.getElementById('widget-image-4').src,
-    'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
-    'bubble-top-left': document.getElementById('bubble-top-left').textContent,
-    'bubble-top-right': document.getElementById('bubble-top-right').textContent,
-    'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
-    'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
-    'new-widget-avatar': document.getElementById('new-widget-avatar').src,
-    'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
-    'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
-    'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
-    // --- ▲▲▲ 添加结束 ▲▲▲ ---
-
-    // ... 这里是原来的 'appIcons' 和 'wallpaper' 数据，保持不变 ...
-    'appIcons': { ...state.globalSettings.appIcons },
-    'wallpaper': state.globalSettings.wallpaper
-};
-
+        // 构建与保存时完全相同的完整数据对象
+        const presetData = {
+            'profile-banner-img': document.getElementById('profile-banner-img').src,
+            'profile-avatar-img': document.getElementById('profile-avatar-img').src,
+            'homeAvatarFrame': document.getElementById('profile-avatar-frame').src, // ★★★ 新增：保存头像框 ★★★
+            'profile-username': document.getElementById('profile-username').textContent,
+            'profile-sub-username': document.getElementById('profile-sub-username').textContent,
+            'profile-bio': document.getElementById('profile-bio').textContent,
+            'profile-location': document.getElementById('profile-location').innerHTML,
+            'widget-bubble-1': document.getElementById('widget-bubble-1').textContent,
+            'widget-image-1': document.getElementById('widget-image-1').src,
+            'widget-subtext-1': document.getElementById('widget-subtext-1').textContent,
+            'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
+            'widget-image-2': document.getElementById('widget-image-2').src,
+            'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
+            'widget-image-3': document.getElementById('widget-image-3').src,
+            'second-page-bubble': document.getElementById('second-page-bubble').textContent,
+            'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
+            'circular-bubble': document.getElementById('circular-bubble').textContent,
+            'widget-image-4': document.getElementById('widget-image-4').src,
+            'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
+            'bubble-top-left': document.getElementById('bubble-top-left').textContent,
+            'bubble-top-right': document.getElementById('bubble-top-right').textContent,
+            'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
+            'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
+            'new-widget-avatar': document.getElementById('new-widget-avatar').src,
+            'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
+            'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
+            'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
+            'widget-month-display': document.getElementById('widget-month-display').textContent,
+            'appIcons': { ...state.globalSettings.appIcons },
+            'wallpaper': state.globalSettings.wallpaper
+        };
 
         await db.homeScreenPresets.update(activeHomePresetId, { data: presetData });
-        
         await showCustomAlert('成功', `预设 "${currentPreset.name}" 已更新！`);
     }
 }
@@ -34391,6 +34426,9 @@ function formatMinutesToDuration(totalMinutes) {
             window.renderWorldBookScreenProxy = renderWorldBookScreen;
 
             await loadAllDataFromDB();
+            // ▼▼▼ 把新代码粘贴到这里 ▼▼▼
+            renderHomeScreenProfileFrame(); // 初始化时渲染主页头像框
+            // ▲▲▲ 粘贴结束 ▲▲▲
             applyHomeIconWidgetTextColor(state.globalSettings.homeIconWidgetTextColor);
             await loadAllFontPresetsOnStartup(); // <---- 在这里添加这一行新代码
             await addDefaultDarkModeThemeIfNeeded();
