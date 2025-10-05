@@ -8356,21 +8356,26 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* 内容区域 */
-#ls-content-area {
-    flex-grow: 1;
-    position: relative;
-    /* overflow: hidden; */ /* ← 像这样注释掉或直接删除这一行 */
-}
-
+/* 这是修改后的代码 */
 .ls-view {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    overflow-y: auto;
     display: none;
     padding: 15px;
     box-sizing: border-box;
-    /* ▼▼▼ 新增下面这行“垫子” ▼▼▼ */
-    /* 15px(原来的边距) + 50px(按钮高度) + 20px(额外间距) + iPhone安全区 */
+    padding-bottom: calc(85px + env(safe-area-inset-bottom));
+}
+
+
+/* 这是修改后的代码 */
+.ls-view {
+    /* 核心修改：移除所有绝对定位相关的属性 */
+    /* position: absolute; */
+    /* top: 0; left: 0; width: 100%; height: 100%; */
+    /* overflow-y: auto;  <-- 滚动已经交给父元素，这里不再需要 */
+
+    display: none;
+    padding: 15px;
+    box-sizing: border-box;
+    /* 保留这个“垫子”，防止内容被底部浮动按钮遮挡 */
     padding-bottom: calc(85px + env(safe-area-inset-bottom)); 
 }
 
