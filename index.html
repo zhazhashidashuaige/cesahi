@@ -9874,6 +9874,20 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
 
+/* ▼▼▼ 【全新】这是主屏幕头像框的专属样式 ▼▼▼ */
+#profile-widget .profile-avatar-container .weibo-avatar-frame {
+    position: absolute;
+    width: 140%; /* 相对大小，你可以微调 */
+    height: 140%;
+    /* 使用transform进行精确定位，确保完美居中 */
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    z-index: 4; /* 确保在头像之上 */
+    pointer-events: none; /* 让鼠标事件可以穿透它 */
+}
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -9920,9 +9934,14 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             <div id="main-content-area">
                 <div id="profile-widget">
                     <img id="profile-banner-img" src="https://i.postimg.cc/k495F4W5/profile-banner.jpg" class="editable-image">
-                    <div class="profile-avatar-container">
-                        <img id="profile-avatar-img" src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg" class="editable-image">
-                    </div>
+                    <!-- ▼▼▼ 用下面这整块代码，替换旧的 profile-avatar-container ▼▼▼ -->
+<div class="profile-avatar-container">
+    <img id="profile-avatar-img" src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg" class="editable-image">
+    <!-- ▼▼▼ 我们在这里新增了一个用于显示头像框的img元素 ▼▼▼ -->
+    <img id="profile-avatar-frame" class="weibo-avatar-frame" src="" style="display: none;">
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+
                     <div class="profile-info">
                         <p id="profile-username" class="editable-text">你的昵称</p>
                         <p id="profile-sub-username" class="editable-text">@your_id</p>
@@ -16379,6 +16398,9 @@ state.globalSettings = globalSettings || {
     widgetData: {}, // 【核心修改】在这里新增一个空对象，用来存放你的自定义内容
     globalChatBackground: '',
     homeIconWidgetTextColor: '#FFFFFF', // <-- 修改这里的名字
+  // ▼▼▼ 在这里粘贴新代码 ▼▼▼
+    homeAvatarFrame: '' // 为主屏幕头像框添加默认空值
+    // ▲▲▲ 新代码粘贴结束 ▲▲▲
 };
 // 确保即使从旧数据库加载，这个属性也存在
 if (!state.globalSettings.widgetData) {
@@ -24335,6 +24357,31 @@ function closeAiAvatarLibraryModal() {
 }
 
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
+
+// ▼▼▼ 在这里粘贴下面这整块新代码 ▼▼▼
+/**
+ * 【全新】渲染主屏幕个人资料卡的头像框
+ */
+function renderHomeScreenProfileFrame() {
+    // 1. 获取保存的头像框URL
+    const frameUrl = state.globalSettings.homeAvatarFrame || '';
+    // 2. 找到头像框的img元素
+    const frameImg = document.getElementById('profile-avatar-frame');
+    if (frameImg) {
+        // 3. 如果URL存在，就显示它
+        if (frameUrl) {
+            frameImg.src = frameUrl;
+            frameImg.style.display = 'block';
+        } else {
+            // 4. 如果URL为空（即选择了“无”），就隐藏它
+            frameImg.src = '';
+            frameImg.style.display = 'none';
+        }
+    }
+}
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
+
 /* ▼▼▼ 步骤 3.2：将这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼ */
 
 // ▼▼▼ 用下面这【一整块】代码，替换你旧的 applyWidgetData 函数 ▼▼▼
@@ -25804,7 +25851,7 @@ function handleUploadCustomFrame() {
 
 // ▲▲▲ 新增功能函数结束 ▲▲▲
 
-// ▼▼▼ 用这块【已添加微博分支】的代码替换旧的 ▼▼▼
+// ▼▼▼ 用这块【已添加新分支】的代码替换旧的 ▼▼▼
 async function openFrameSelectorModal(type, targetId = null) {
     const grid = document.getElementById('avatar-frame-grid');
     grid.innerHTML = '';
@@ -25816,14 +25863,15 @@ async function openFrameSelectorModal(type, targetId = null) {
     let currentFrameUrl = '';
     let previewAvatarUrl = '';
 
-    // --- ▼▼▼ 核心修改在这里 ▼▼▼ ---
-    // 判断我们这次是要给谁换框
-    if (type === 'weibo_profile') {
-        // 如果是微博主页，就从全局微博设置里读数据
+    if (type === 'home_profile') {
+        // 如果是主屏幕头像，就从全局设置里读数据
+        currentFrameUrl = state.globalSettings.homeAvatarFrame || '';
+        previewAvatarUrl = document.getElementById('profile-avatar-img').src;
+    } 
+    else if (type === 'weibo_profile') {
         currentFrameUrl = state.qzoneSettings.weiboAvatarFrame || '';
         previewAvatarUrl = state.qzoneSettings.weiboAvatar || defaultAvatar;
     } 
-    // --- ▲▲▲ 修改结束 ▲▲▲
     else if (type === 'ai') {
         currentFrameUrl = chat.settings.aiAvatarFrame || '';
         previewAvatarUrl = chat.settings.aiAvatar || defaultAvatar;
@@ -25879,25 +25927,25 @@ function createFrameItem(frame, previewAvatarSrc) {
 }
 
 // 保存选择
-// ▼▼▼ 用这块【已添加微博分支】的代码替换旧的 ▼▼▼
+// ▼▼▼ 用这块【已添加新分支】的代码替换旧的 ▼▼▼
 async function saveSelectedFrames() {
     const chat = state.chats[state.activeChatId];
-    // 这里我们不需要chat了，因为微博设置是全局的
-    
     const { type, url, target } = currentFrameSelection;
 
-    // --- ▼▼▼ 核心修改在这里 ▼▼▼ ---
-    if (type === 'weibo_profile') {
-        // 1. 确保 qzoneSettings 对象存在
-        if (!state.qzoneSettings) state.qzoneSettings = {};
-        // 2. 将选择的头像框URL保存到专属字段
-        state.qzoneSettings.weiboAvatarFrame = url;
-        // 3. 调用保存函数，将更改写入数据库
-        await saveQzoneSettings();
-        // 4. 调用渲染函数，让新头像框立刻显示出来
-        await renderWeiboProfile();
+    if (type === 'home_profile') {
+        // 如果是主屏幕头像，就保存到全局设置
+        if (!state.globalSettings) state.globalSettings = {};
+        state.globalSettings.homeAvatarFrame = url;
+        await db.globalSettings.put(state.globalSettings);
+        // 保存后立刻渲染，让新框显示出来
+        renderHomeScreenProfileFrame(); 
     } 
-    // --- ▲▲▲ 修改结束 ▲▲▲
+    else if (type === 'weibo_profile') {
+        if (!state.qzoneSettings) state.qzoneSettings = {};
+        state.qzoneSettings.weiboAvatarFrame = url;
+        await saveQzoneSettings();
+        await renderWeiboProfile();
+    }
     else if (type === 'ai') {
         chat.settings.aiAvatarFrame = url;
         await db.chats.put(chat);
@@ -25912,11 +25960,10 @@ async function saveSelectedFrames() {
     
     document.getElementById('avatar-frame-modal').classList.remove('visible');
     
-    // 只有在修改聊天内头像时才需要刷新聊天界面
-    if (type !== 'weibo_profile') {
+    if (type !== 'weibo_profile' && type !== 'home_profile') {
         renderChatInterface(state.activeChatId);
         if (document.getElementById('chat-settings-modal').classList.contains('visible')) {
-            document.getElementById('chat-settings-btn').click(); 
+            document.getElementById('chat-settings-btn').click();
             document.getElementById('chat-settings-btn').click();
         }
     }
@@ -38095,7 +38142,9 @@ document.querySelector('#background-activity-details').addEventListener('click',
     }
 });
 // 使用事件委托，为所有可编辑元素统一绑定点击事件
-document.getElementById('home-screen').addEventListener('click', (e) => {
+// ▼▼▼ 用这块【功能增强版】的代码替换旧的 ▼▼▼
+// 使用事件委托，为所有可编辑元素统一绑定点击事件
+document.getElementById('home-screen').addEventListener('click', async (e) => { // <-- 把这行也改成 async
     // 【核心修正】使用 .closest() 来确保即使点击到子元素也能正确触发
     const editableText = e.target.closest('.editable-text');
     if (editableText) {
@@ -38105,10 +38154,30 @@ document.getElementById('home-screen').addEventListener('click', (e) => {
 
     const editableImage = e.target.closest('.editable-image');
     if (editableImage) {
-        handleEditImage(editableImage);
+        // --- ▼▼▼ 这就是我们本次修改的核心代码 ▼▼▼ ---
+        // 1. 判断被点击的图片是不是主屏幕的那个大头像
+        if (editableImage.id === 'profile-avatar-img') {
+            // 2. 如果是，就弹出一个选择菜单
+            const choice = await showChoiceModal("编辑头像", [
+                { text: '更换头像图片', value: 'avatar' },
+                { text: '更换头像框', value: 'frame' }
+            ]);
+            
+            // 3. 根据用户的选择，执行不同的操作
+            if (choice === 'avatar') {
+                handleEditImage(editableImage); // 调用原来的更换图片函数
+            } else if (choice === 'frame') {
+                openFrameSelectorModal('home_profile'); // 调用我们新增的更换头像框函数
+            }
+        } else {
+            // 4. 如果点击的不是主头像（比如是其他小组件的图片），就还执行原来的逻辑
+            handleEditImage(editableImage);
+        }
+        // --- ▲▲▲ 核心代码修改结束 ▲▲▲ ---
         return;
     }
 });
+// ▲▲▲ 替换结束 ▲▲▲
 
 
 // ▼▼▼ 【全新】“查手机”内容单条删除功能 ▼▼▼
