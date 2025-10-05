@@ -9588,17 +9588,17 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
 /* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 标签的最末尾 ▼▼▼ */
+/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 标签的最末尾 ▼▼▼ */
 /* 1. 这是包裹头像和所有新气泡的总容器 (V2 加大版) */
-/* 这是包裹头像和所有新气泡的总容器 (V2 加大版) */
 #center-avatar-wrapper {
     position: absolute;
     top: 190px;
-    left: 50%; /* ★ 新增：让容器的左边移动到屏幕中心 */
-    transform: translateX(-87%); /* ★ 修改：从 -55% 改为 -50%，让容器向左移动自身宽度的一半，实现完美居中 */
+    transform: translateX(-55%);
     z-index: 5;
     
-    width: 300px;
-    height: 180px;
+    /* ★ 修改点：把这个“看不见的盒子”的尺寸变大 */
+    width: 300px;  /* 从 250px 增加到了 300px */
+    height: 180px; /* 从 150px 增加到了 180px */
 }
 
 
