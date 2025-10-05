@@ -9821,19 +9821,16 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▲▲▲ 新增样式结束 ▲▲▲ */
 
 /* ▼▼▼ 【全新】这是微博主页头像框的专属样式 ▼▼▼ */
-.weibo-avatar-container .weibo-avatar-frame {
+.weibo-avatar-container .weibo-avatar-frame{
     position: absolute;
-    /* 调整这个百分比可以改变框相对于头像的大小 */
-    width: 140%;
-    height: 140%;
+    width: 121%; /* 相对大小，你可以微调 */
+    height: 121%;
     /* 使用transform进行精确定位，确保完美居中 */
+    transform: translate(-50%, -57%);
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    /* 确保头像框在头像之上 */
-    z-index: 4;
-    /* 让鼠标可以“穿透”头像框，点击到下面的头像 */
-    pointer-events: none;
+    z-index: 4; /* 确保在头像之上 */
+    pointer-events: none; /* 让鼠标事件可以穿透它 */
 }
 
 
@@ -9863,13 +9860,13 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* 容器内的头像框图片 */
 .weibo-post-header .avatar-with-frame .avatar-frame {
     position: absolute;
-    width: 140%; /* 相对大小，你可以微调 */
-    height: 140%;
+    width: 121%; /* 相对大小，你可以微调 */
+    height: 121%;
     /* 使用transform进行精确定位，确保完美居中 */
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -57%);
     top: 50%;
     left: 50%;
-    z-index: 2; /* 确保在头像的上面 */
+    z-index: 4; /* 确保在头像之上 */
     pointer-events: none; /* 让鼠标事件可以穿透它 */
 }
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
@@ -9877,10 +9874,10 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▼▼▼ 【全新】这是主屏幕头像框的专属样式 ▼▼▼ */
 #profile-widget .profile-avatar-container .weibo-avatar-frame {
     position: absolute;
-    width: 140%; /* 相对大小，你可以微调 */
-    height: 140%;
+    width: 121%; /* 相对大小，你可以微调 */
+    height: 121%;
     /* 使用transform进行精确定位，确保完美居中 */
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -57%);
     top: 50%;
     left: 50%;
     z-index: 4; /* 确保在头像之上 */
