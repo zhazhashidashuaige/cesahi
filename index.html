@@ -7242,7 +7242,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* 2. 头部容器：负责背景图，并为下方内容留出空间 */
 .weibo-profile-header {
     position: relative;
-    height: 180px;
+    height: 270px;
     /* 
       ★★★ 手动调整区：微博内容与上方区域的【上下间距】 ★★★
       这个值决定了你的第一条微博，和上方个人信息区域的距离。
@@ -7250,7 +7250,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       - 数值越小，间距越小，微博内容离得越近。
       我已将它从 90px 减小到了 20px，你可以根据喜好再微调。
     */
-    margin-bottom: 60px;/* ★ 修改这里 ★ */
+    margin-bottom: -5px;/* ★ 修改这里 ★ */
 }
 
 /* 3. 背景图样式 (保持不变) */
@@ -7278,11 +7278,11 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
     /* --- 左右位置 --- */
     /* 数值越大，越往右。数值越小，越往左。*/
-    left: 20px; /* ★ 修改这里 */
+    left: 15px; /* ★ 修改这里 */
 
     /* --- 上下位置 --- */
     /* 数值越小 (比如 -50px), 越往下。数值越大 (比如 -30px), 越往上。*/
-    bottom: -40px; /* ★ 修改这里 */
+    bottom: 50px; /* ★ 修改这里 */
 }
 
 .weibo-avatar {
@@ -7305,18 +7305,18 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
     /* --- 左右位置 --- */
     /* 数值越大，越往右。数值越小，越往左。*/
-    left: 120px; /* ★ 修改这里 */
+    left: 35px; /* ★ 修改这里 */
 
     /* --- 上下位置 --- */
     /* 数值越小 (比如 -60px), 越往下。数值越大 (比如 -50px), 越往上。*/
-    bottom: -20px; /* ★ 修改这里 */
+    bottom: 30px; /* ★ 修改这里 */
 }
 
 /* ▼▼▼ 用这块新CSS替换掉旧的 ▼▼▼ */
 #weibo-user-profession-display {
     position: absolute;
     left: 35px;          /* 修改：从 left 改为 right，让它靠右对齐 */
-    bottom: -65px;        /* 修改：调整垂直位置，在头像下方 */
+    bottom: -5px;        /* 修改：调整垂直位置，在头像下方 */
     z-index: 2;
     font-size: 13px;
     color: #8a8a8a;
@@ -7340,11 +7340,11 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
     /* --- 左右位置 --- */
     /* 数值越大，越往右。数值越小，越往左。*/
-    left: 120px; /* ★ 修改这里 */
+    left: 35px; /* ★ 修改这里 */
 
     /* --- 上下位置 --- */
     /* 数值越小 (比如 -90px), 这行数据越往下。数值越大 (比如 -70px), 越往上。*/
-    bottom: -40px; /* ★ 修改这里 */
+    bottom: 15px; /* ★ 修改这里 */
 }
 
 
@@ -9884,6 +9884,31 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     pointer-events: none; /* 让鼠标事件可以穿透它 */
 }
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+
+
+/* ▼▼▼ 把这段全新的CSS，粘贴到你 <style> 标签的最末尾 ▼▼▼ */
+
+.weibo-background {
+    /* 核心代码：使用 mask-image 创建一个从上到下的渐变蒙版 */
+    
+    /* a. -webkit- 前缀是为了兼容旧版的 Chrome 和 Safari 浏览器 */
+    -webkit-mask-image: linear-gradient(
+        to bottom,          /* 渐变方向：从上到下 */
+        
+        /* ★★★ 这里是你可以自己调整的地方 ★★★ */
+        black 60%,          /* 前60%的部分是完全不透明的 (黑色=不透明) */
+        transparent 100%    /* 从60%的位置开始，到底部(100%)，逐渐过渡到完全透明 */
+    );
+    
+    /* b. 这是标准语法，兼容现代浏览器 */
+    mask-image: linear-gradient(
+        to bottom,
+        black 60%,
+        transparent 100%
+    );
+}
+
+/* ▲▲▲ 粘贴结束 ▲▲▲ */
 
 
     </style>
