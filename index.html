@@ -8262,11 +8262,12 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 /* ▼▼▼ 第1步：从这里开始复制替换 ▼▼▼ */
 
-/* 修改后：移除所有背景属性，它现在只负责布局 */
 #lovers-space-screen {
-    /* 所有 background- 相关属性都已被删除 */
+    background-color: #f0f2f5;   /* 保留一个备用背景色 */
+    background-size: cover;      /* 背景图覆盖整个区域 */
+    background-position: center; /* 背景图居中显示 */
+    background-repeat: no-repeat;/* 背景图不重复 */
 }
-
 
 /* 头部 */
 #ls-header {
@@ -8355,40 +8356,19 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* 内容区域 */
-/* 【最终修复版】 */
 #ls-content-area {
-    flex-grow: 1;       /* 核心：让它填满剩余空间 */
+    flex-grow: 1;
     position: relative;
-    
-    /* 核心：让它自己负责垂直滚动 */
-    overflow-y: auto;
-    
-    /* 核心：把背景图和相关属性都移到这里！*/
-    background-color: #f0f2f5;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    
-    /* 修复在iOS上的滚动卡顿问题 */
-    -webkit-overflow-scrolling: touch; 
+    overflow: hidden;
 }
-
-/* 【最终修复版】 */
 .ls-view {
-    /* 移除所有绝对定位和自己的滚动条 */
-    /* position, top, left, width, height, overflow-y 都被移除了 */
-
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    overflow-y: auto;
     display: none;
     padding: 15px;
     box-sizing: border-box;
-    
-    /* 确保背景是透明的，以显示父元素的背景图 */
-    background-color: transparent;
-
-    /* 为底部的浮动按钮留出空间 */
-    padding-bottom: calc(85px + env(safe-area-inset-bottom));
 }
-
 .ls-view.active {
     display: block;
 }
