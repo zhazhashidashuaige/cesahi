@@ -8263,11 +8263,21 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▼▼▼ 第1步：从这里开始复制替换 ▼▼▼ */
 
 #lovers-space-screen {
-    background-color: #f0f2f5;   /* 保留一个备用背景色 */
-    background-size: cover;      /* 背景图覆盖整个区域 */
-    background-position: center; /* 背景图居中显示 */
-    background-repeat: no-repeat;/* 背景图不重复 */
+    /* ★ 新增：让它成为一个Flex容器，这是实现全屏布局最关键的一步 */
+    display: flex;
+    /* ★ 新增：让内部元素（头部、页签栏、内容区）从上到下垂直排列 */
+    flex-direction: column;
+
+    /* ▼ 下面这些是你原来就有的背景设置，我们保留它 ▼ */
+    background-color: #f0f2f5;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
+
+
+/* ▲▲▲ 第1步：复制替换到这里结束 ▲▲▲ */
+
 
 /* 头部 */
 #ls-header {
@@ -9909,27 +9919,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▲▲▲ 粘贴结束 ▲▲▲ */
-
-
-/* ▼▼▼ 【情侣空间全屏修复】粘贴这段代码到末尾 ▼▼▼ */
-
-#lovers-space-screen {
-    /* 核心修复：给Flex父容器一个明确的高度，让flex-grow:1能正确计算。*/
-    height: 100%; 
-}
-
-/* （可选优化）让Tab栏也变成半透明毛玻璃效果，使壁纸能透过去，与头部风格统一 */
-#ls-tab-bar {
-    background-color: rgba(247, 247, 247, 0.8);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-}
-
-/* （可选优化）让内容区的背景色在没有内容时是透明的，完全展示壁纸 */
-.ls-view {
-    background-color: transparent;
-}
-/* ▲▲▲ 修复代码结束 ▲▲▲ */
 
 
     </style>
