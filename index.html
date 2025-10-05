@@ -441,7 +441,15 @@ body {
         #send-btn { background-color: var(--accent-color); height: 40px; padding: 0 15px;}
         .modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; }
         .modal.visible { display: flex; }
-        .modal-content { width: 90%; max-height: 90%; background-color: white; border-radius: 15px; display: flex; flex-direction: column; }
+        .modal-content { 
+    width: 90%; 
+    max-height: 90%; /*  <-- 问题就在这里！ */
+    background-color: white; 
+    border-radius: 15px; 
+    display: flex; 
+    flex-direction: column; 
+}
+
         .modal-header { padding: 15px; font-weight: 600; border-bottom: 1px solid var(--border-color); text-align: center; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 15px; overflow-y: auto; }
         .modal-footer { padding: 15px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; }
@@ -9186,12 +9194,16 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    
-    /* 为iPhone的刘海和底部小黑条留出安全距离 */
+    padding: 50px 20px;
+    box-sizing: border-box;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+
+    /* (可选优化) 为iPhone的刘海和底部小黑条留出安全距离，让界面更美观 */
     padding-top: calc(50px + env(safe-area-inset-top));
     padding-bottom: calc(50px + env(safe-area-inset-bottom));
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
+
 /* ▼▼▼ 用这段新代码替换 ▼▼▼ */
 .pomodoro-char-avatar-container {
     position: relative;
