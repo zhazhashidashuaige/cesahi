@@ -29805,47 +29805,74 @@ function highlightText(text, keyword) {
     return text.replace(regex, `<span class="highlight">$&</span>`);
 }
 
+// ▼▼▼ 请用这块【最终修复版】的代码，完整替换旧的 jumpToMessage 函数 ▼▼▼
 /**
- * 点击搜索结果，跳转到对应的消息位置
+ * 【最终修复版】点击搜索结果，跳转到对应的消息位置
  * @param {number} timestamp - 目标消息的时间戳
  */
 async function jumpToMessage(timestamp) {
     const chat = state.chats[state.activeChatId];
     if (!chat) return;
-    
-    // 1. 切换回聊天界面
-    showScreen('chat-interface-screen');
-    // 短暂延迟，确保界面已切换
-    await new Promise(resolve => setTimeout(resolve, 50));
 
-    // 2. 为了确保能找到消息，我们临时渲染所有历史记录
-    const messagesContainer = document.getElementById('chat-messages');
-    messagesContainer.innerHTML = ''; // 清空
-    chat.history.forEach(msg => {
-        // 这里我们用一个简化版的渲染，不处理日期戳，只为了能找到元素
-        if (!msg.isHidden) {
-             appendMessage(msg, chat, true);
-        }
-    });
-
-    // 3. 找到目标消息元素并滚动到视图
-    const targetMessage = messagesContainer.querySelector(`.message-bubble[data-timestamp="${timestamp}"]`);
-    if (targetMessage) {
-        targetMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        // 4. 添加闪烁高亮效果
-        targetMessage.classList.add('flash');
-        setTimeout(() => {
-            targetMessage.classList.remove('flash');
-        }, 1500);
+    const targetIndex = chat.history.findIndex(msg => msg.timestamp === timestamp);
+    if (targetIndex === -1) {
+        await showCustomAlert('错误', '找不到该条消息，可能已被删除。');
+        return;
     }
 
-    // 5. 等待跳转和动画效果结束后，恢复正常的按需加载模式
-    setTimeout(() => {
-        renderChatInterface(state.activeChatId);
-    }, 1600);
-}
+    // 1. 切换回聊天界面
+    showScreen('chat-interface-screen');
+    await new Promise(resolve => setTimeout(resolve, 50));
 
-// ▲▲▲ 新增函数粘贴结束 ▲▲▲
+    const messagesContainer = document.getElementById('chat-messages');
+    messagesContainer.innerHTML = ''; // 清空当前内容
+
+    // 2. 计算要渲染的消息窗口（以目标消息为中心）
+    const windowSize = 50; // 和 MESSAGE_RENDER_WINDOW 保持一致
+    const startIndex = Math.max(0, targetIndex - Math.floor(windowSize / 2));
+    const messagesToRender = chat.history.slice(startIndex);
+
+    // 3. 更新 currentRenderedCount 以同步加载状态
+    //    这一步至关重要，它告诉“加载更多”功能下次应该从哪里开始加载
+    currentRenderedCount = messagesToRender.length;
+
+    // 4. 如果计算出的起始位置大于0，说明前面还有更早的记录，需要显示“加载更多”按钮
+    if (startIndex > 0) {
+        prependLoadMoreButton(messagesContainer);
+    }
+
+    // 5. 渲染消息窗口和日期戳
+    let lastMessageTimestamp = startIndex > 0 ? chat.history[startIndex - 1].timestamp : null;
+    messagesToRender.forEach(msg => {
+        if (msg.isHidden) return;
+        if (isNewDay(msg.timestamp, lastMessageTimestamp)) {
+            const dateStampEl = createDateStampElement(msg.timestamp);
+            messagesContainer.appendChild(dateStampEl);
+        }
+        // 使用 true 作为第三个参数，表示这是初始加载，不应播放动画
+        appendMessage(msg, chat, true); 
+        lastMessageTimestamp = msg.timestamp;
+    });
+
+    // 6. 滚动到目标消息并高亮它
+    //    使用 setTimeout 确保 DOM 元素已经完全渲染到页面上
+    setTimeout(() => {
+        const targetMessage = messagesContainer.querySelector(`.message-bubble[data-timestamp="${timestamp}"]`);
+        if (targetMessage) {
+            // 使用 'auto' 滚动，比 'smooth' 更快速直接
+            targetMessage.scrollIntoView({ behavior: 'auto', block: 'center' });
+            
+            // 添加闪烁高亮效果，让用户能注意到
+            targetMessage.classList.add('flash');
+            setTimeout(() => {
+                targetMessage.classList.remove('flash');
+            }, 1500);
+        }
+    }, 100);
+
+    // 7. 【最关键】我们已经移除了导致页面跳回的 setTimeout(renderChatInterface, ...)
+}
+// ▲▲▲ 替换结束 ▲▲▲
 // ▼▼▼ 把下面这【两段】全新的函数，粘贴到 init() 函数的【正上方】 ▼▼▼
 
 /**
