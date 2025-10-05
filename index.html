@@ -441,15 +441,7 @@ body {
         #send-btn { background-color: var(--accent-color); height: 40px; padding: 0 15px;}
         .modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; }
         .modal.visible { display: flex; }
-        .modal-content { 
-    width: 90%; 
-    max-height: 90%; /*  <-- 问题就在这里！ */
-    background-color: white; 
-    border-radius: 15px; 
-    display: flex; 
-    flex-direction: column; 
-}
-
+        .modal-content { width: 90%; max-height: 90%; background-color: white; border-radius: 15px; display: flex; flex-direction: column; }
         .modal-header { padding: 15px; font-weight: 600; border-bottom: 1px solid var(--border-color); text-align: center; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 15px; overflow-y: auto; }
         .modal-footer { padding: 15px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; }
@@ -8363,30 +8355,20 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border-radius: 1.5px;
 }
 
-/* ▼▼▼ 用这块新代码替换旧的 #ls-content-area 样式 ▼▼▼ */
+/* 内容区域 */
 #ls-content-area {
     flex-grow: 1;
-    display: flex; /* 新增：让它自己也成为一个flex容器 */
-    flex-direction: column; /* 新增：让它的子元素垂直排列 */
     position: relative;
     overflow: hidden;
 }
-/* ▲▲▲ 替换结束 ▲▲▲ */
-
-/* ▼▼▼ 用这块新代码替换旧的 .ls-view 样式 ▼▼▼ */
 .ls-view {
-    /* 移除了 position: absolute 和相关的 top/left/width/height */
-    
-    flex-grow: 1;           /* 核心：让它在父容器(#ls-content-area)中撑满所有可用空间 */
-    min-height: 0;          /* 一个flex布局下的安全属性，确保滚动条在复杂内容下也能正常工作 */
-
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
     overflow-y: auto;
     display: none;
     padding: 15px;
     box-sizing: border-box;
 }
-/* ▲▲▲ 替换结束 ▲▲▲ */
-
 .ls-view.active {
     display: block;
 }
@@ -9927,6 +9909,27 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▲▲▲ 粘贴结束 ▲▲▲ */
+
+
+/* ▼▼▼ 【情侣空间全屏修复】粘贴这段代码到末尾 ▼▼▼ */
+
+#lovers-space-screen {
+    /* 核心修复：给Flex父容器一个明确的高度，让flex-grow:1能正确计算。*/
+    height: 100%; 
+}
+
+/* （可选优化）让Tab栏也变成半透明毛玻璃效果，使壁纸能透过去，与头部风格统一 */
+#ls-tab-bar {
+    background-color: rgba(247, 247, 247, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* （可选优化）让内容区的背景色在没有内容时是透明的，完全展示壁纸 */
+.ls-view {
+    background-color: transparent;
+}
+/* ▲▲▲ 修复代码结束 ▲▲▲ */
 
 
     </style>
