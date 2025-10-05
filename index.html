@@ -8284,8 +8284,10 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 .ls-header-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent, rgba(0,0,0,0.2));
+    /* 核心修改：将原来的黑色渐变改为完全透明 */
+    background: transparent;
 }
+
 .ls-header-top-bar {
     position: relative;
     z-index: 2;
@@ -8330,7 +8332,9 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     background-color: var(--secondary-bg);
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
+    margin-top: 10px; /* ★★★ 新增：在这里添加了向上的外边距 ★★★ */
 }
+
 .ls-tab-item {
     flex: 1;
     text-align: center;
@@ -8534,7 +8538,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* 【新增】头像和计数器的总容器，负责整体定位 */
 .ls-avatar-and-counter-wrapper {
     position: absolute;
-    bottom: 20px;
+    bottom: 0px; /* ★★★ 修改这里 ★★★ */
     left: 50%;
     transform: translateX(-50%);
     z-index: 2;
@@ -8543,6 +8547,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     align-items: center; /* 水平居中 */
     gap: 10px; /* 头像和计数器之间的垂直间距 */
 }
+
 
 /* 【修改】移除旧的头像绝对定位，因为它现在被新容器管理了 */
 .ls-header-avatars {
