@@ -9929,6 +9929,78 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     color: #0A84FF;
 }
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】圈子/小组分类筛选功能样式 ▼▼▼ */
+
+/* 筛选图标的样式 */
+.header .filter-btn {
+    font-size: 20px; /* 图标大小 */
+    cursor: pointer;
+    color: var(--accent-color); /* 跟随主题色 */
+    position: relative; /* 为了定位小红点 */
+}
+
+/* 当筛选生效时，图标上显示一个小点提示 */
+.header .filter-btn.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background-color: #ff3b30;
+    border-radius: 50%;
+    border: 1.5px solid var(--secondary-bg);
+}
+
+/* 筛选弹窗内的分类列表 */
+#forum-filter-category-list {
+    display: flex;
+    flex-wrap: wrap; /* 自动换行 */
+    gap: 10px; /* 标签之间的间距 */
+    padding: 10px;
+}
+
+#forum-filter-category-list label {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f0f2f5;
+    padding: 6px 12px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+#phone-screen.dark-mode #forum-filter-category-list label {
+    background-color: #3a3a3c;
+}
+
+#forum-filter-category-list input[type="checkbox"] {
+    display: none; /* 隐藏原始的复选框 */
+}
+
+/* 选中后的样式 */
+#forum-filter-category-list input[type="checkbox"]:checked + span {
+    color: white;
+    font-weight: 500;
+}
+
+/* 默认给标签一个好看的颜色循环 */
+#forum-filter-category-list label:nth-of-type(6n+1) input:checked + span { background-color: #007bff; }
+#forum-filter-category-list label:nth-of-type(6n+2) input:checked + span { background-color: #28a745; }
+#forum-filter-category-list label:nth-of-type(6n+3) input:checked + span { background-color: #fd7e14; }
+#forum-filter-category-list label:nth-of-type(6n+4) input:checked + span { background-color: #6f42c1; }
+#forum-filter-category-list label:nth-of-type(6n+5) input:checked + span { background-color: #dc3545; }
+#forum-filter-category-list label:nth-of-type(6n+6) input:checked + span { background-color: #ffc107; }
+
+/* 标签内的文字部分，也需要设置样式，特别是选中后的背景色 */
+#forum-filter-category-list label span {
+    padding: 6px 12px;
+    margin: -6px -12px; /* 抵消label的padding，让背景色填满 */
+    border-radius: 15px;
+    transition: all 0.2s ease;
+}
+/* ▲▲▲ 样式粘贴结束 ▲▲▲ */
 
 
     </style>
@@ -12459,6 +12531,11 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         <span class="back-btn" onclick="showScreen('home-screen')">‹</span>
         <span>圈子</span>
         <div class="header-actions">
+                  <!-- ▼▼▼ 在这里添加筛选图标 ▼▼▼ -->
+        <span class="action-btn filter-btn" id="forum-filter-btn" title="筛选">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+        </span>
+        <!-- ▲▲▲ 添加结束 ▲▲▲ -->
             <span class="action-btn" id="create-group-btn" style="font-size: 28px; font-weight: 300;">+</span>
         </div>
     </div>
@@ -12473,6 +12550,11 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         <span class="back-btn" id="back-to-forum-list">‹</span>
         <span id="group-screen-title">小组名称</span>
         <div class="header-actions">
+                  <!-- ▼▼▼ 在这里添加筛选图标 ▼▼▼ -->
+        <span class="action-btn filter-btn" id="group-filter-btn" title="筛选">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+        </span>
+        <!-- ▲▲▲ 添加结束 ▲▲▲ -->
             <!-- 【核心修改】我们在这里新增了一个通用的“生成内容”按钮 -->
             <span class="action-btn" id="generate-group-content-btn" title="生成内容">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
@@ -12526,6 +12608,25 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         </div>
     </div>
 </div>
+<!-- ▼▼▼ 【全新】这是为圈子分类筛选新增的弹窗 ▼▼▼ -->
+<div id="forum-filter-modal" class="modal">
+    <div class="modal-content" style="height: auto; max-height: 60%;">
+        <div class="modal-header">
+            <span>按分类筛选</span>
+        </div>
+        <div class="modal-body">
+            <div id="forum-filter-category-list">
+                <!-- 分类标签将由JS动态生成在这里 -->
+            </div>
+        </div>
+        <div class="modal-footer" style="justify-content: space-between;">
+            <button class="cancel" id="reset-forum-filter-btn" style="width: 30%;">重置</button>
+            <button class="cancel" id="cancel-forum-filter-btn" style="width: 30%;">取消</button>
+            <button class="save" id="apply-forum-filter-btn" style="width: 30%;">应用</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 
 
 <!-- ▲▲▲ 论坛相关HTML代码粘贴结束 ▲▲▲ -->
@@ -14350,6 +14451,11 @@ async function searchAndPlaySong(name, artist) {
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
 
 // ▲▲▲ 新增函数粘贴结束 ▲▲▲
+let activeForumFilters = { 
+    global: [], // 用于主页小组列表的筛选
+    group: {}   // 用于存储每个小组内部帖子的筛选, e.g., { 1: ['科幻'], 2: ['剧情'] }
+};
+let currentFilterContext = { type: 'global', id: null }; // 记录当前打开筛选的是哪个页面
 
         let photoViewerState = {
             isOpen: false,
@@ -16044,7 +16150,7 @@ function resetCreatePostModal() {
     textImageModeContent.classList.remove('active');
 }
 
-// ▼▼▼ 用这个【真正修复版】，完整替换掉你现在的 exportBackup 函数 ▼▼▼
+// ▼▼▼ 用这个【已修复】的版本，完整替换掉你旧的 exportBackup 函数 ▼▼▼
 async function exportBackup() {
     try {
         const backupData = {
@@ -16052,23 +16158,22 @@ async function exportBackup() {
             timestamp: Date.now()
         };
 
-        // --- 核心修复：我们恢复使用精确的、逐个导出的方式 ---
-        // 这样可以确保单条记录的表（如 globalSettings）被正确导出为对象，而不是数组
+        // --- 这部分数据库读取的代码保持不变 ---
         const [
             chats, worldBooks, userStickers, apiConfig, globalSettings,
             personaPresets, musicLibrary, qzoneSettings, qzonePosts,
             qzoneAlbums, qzonePhotos, favorites, qzoneGroups, memories,
             worldBookCategories, callRecords, customAvatarFrames, themes,
-            apiPresets, bubbleStylePresets
+            apiPresets, bubbleStylePresets, fontPresets, homeScreenPresets
         ] = await Promise.all([
             db.chats.toArray(),
             db.worldBooks.toArray(),
             db.userStickers.toArray(),
-            db.apiConfig.get('main'),          // <--- 看这里，使用 .get('main')
-            db.globalSettings.get('main'),     // <--- 看这里，使用 .get('main')
+            db.apiConfig.get('main'),
+            db.globalSettings.get('main'),
             db.personaPresets.toArray(),
-            db.musicLibrary.get('main'),       // <--- 看这里，使用 .get('main')
-            db.qzoneSettings.get('main'),      // <--- 看这里，使用 .get('main')
+            db.musicLibrary.get('main'),
+            db.qzoneSettings.get('main'),
             db.qzonePosts.toArray(),
             db.qzoneAlbums.toArray(),
             db.qzonePhotos.toArray(),
@@ -16081,51 +16186,54 @@ async function exportBackup() {
             db.themes.toArray(),
             db.apiPresets.toArray(),
             db.bubbleStylePresets.toArray(),
-            
+            db.fontPresets.toArray(),
+            db.homeScreenPresets.toArray()
         ]);
 
-        // 将所有从数据库获取的数据正确地存入备份对象
         Object.assign(backupData, {
             chats, worldBooks, userStickers, apiConfig, globalSettings,
             personaPresets, musicLibrary, qzoneSettings, qzonePosts,
             qzoneAlbums, qzonePhotos, favorites, qzoneGroups, memories,
             worldBookCategories, callRecords, customAvatarFrames, themes,
-            apiPresets, bubbleStylePresets
+            apiPresets, bubbleStylePresets, fontPresets, homeScreenPresets
         });
         
-        // --- ▼▼▼ 这是你新添加的功能，我们把它保留在这里 ▼▼▼ ---
-        // 它现在会包含所有主屏幕和锁屏的外观元素
-        // 注意：因为 globalSettings 已经被正确导出了，这里的壁纸、图标等数据其实是冗余的，
-        // 但为了完全保留你的新功能逻辑，我们暂时留着它。
-        // 未来的导入函数如果需要，就可以从 homeScreenState 中读取这些UI状态。
+        // --- ▼▼▼ 核心修改就在这里！▼▼▼ ---
+        // 我们重构了 homeScreenState 对象，确保它能包含第一页的所有数据
         backupData.homeScreenState = {
-    // ... 这里是你原来的第一页数据，保持不变 ...
-    'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
-    'widget-image-2': document.getElementById('widget-image-2').src,
-    'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
-
-    // --- ▼▼▼【全新添加】把和上面完全一样的代码块也粘贴到这里 ▼▼▼ ---
-    'widget-image-3': document.getElementById('widget-image-3').src,
-    'second-page-bubble': document.getElementById('second-page-bubble').textContent,
-    'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
-    'circular-bubble': document.getElementById('circular-bubble').textContent,
-    'widget-image-4': document.getElementById('widget-image-4').src,
-    'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
-    'bubble-top-left': document.getElementById('bubble-top-left').textContent,
-    'bubble-top-right': document.getElementById('bubble-top-right').textContent,
-    'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
-    'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
-    'new-widget-avatar': document.getElementById('new-widget-avatar').src,
-    'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
-    'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
-    'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
-    // --- ▲▲▲ 添加结束 ▲▲▲ ---
-
-    // ... 这里是原来的 'appIcons' 和 'wallpaper' 数据，保持不变 ...
-    'appIcons': { ...state.globalSettings.appIcons },
-    'wallpaper': state.globalSettings.wallpaper
+            // --- 这是我们新增的第一页数据 ---
+            'profile-banner-img': document.getElementById('profile-banner-img').src,
+            'profile-avatar-img': document.getElementById('profile-avatar-img').src,
+            'profile-username': document.getElementById('profile-username').textContent,
+            'profile-sub-username': document.getElementById('profile-sub-username').textContent,
+            'profile-bio': document.getElementById('profile-bio').textContent,
+            'profile-location': document.getElementById('profile-location').innerHTML, // 使用innerHTML来保存SVG图标
+            'widget-bubble-1': document.getElementById('widget-bubble-1').textContent,
+            'widget-image-1': document.getElementById('widget-image-1').src, // 这是你特别提到的组件
+            'widget-subtext-1': document.getElementById('widget-subtext-1').textContent,
+            'widget-bubble-2': document.getElementById('widget-bubble-2').textContent,
+            'widget-image-2': document.getElementById('widget-image-2').src,
+            'widget-subtext-2': document.getElementById('widget-subtext-2').textContent,
+            'widget-image-3': document.getElementById('widget-image-3').src,
+            'second-page-bubble': document.getElementById('second-page-bubble').textContent,
+            'flat-capsule-bubble': document.getElementById('flat-capsule-bubble').textContent,
+            'circular-bubble': document.getElementById('circular-bubble').textContent,
+            'widget-image-4': document.getElementById('widget-image-4').src,
+            'avatar-subtitle': document.getElementById('avatar-subtitle').textContent,
+            'bubble-top-left': document.getElementById('bubble-top-left').textContent,
+            'bubble-top-right': document.getElementById('bubble-top-right').textContent,
+            'bubble-bottom-left': document.getElementById('bubble-bottom-left').textContent,
+            'bubble-bottom-right': document.getElementById('bubble-bottom-right').textContent,
+            'new-widget-avatar': document.getElementById('new-widget-avatar').src,
+            'new-widget-text-1': document.getElementById('new-widget-text-1').textContent,
+            'new-widget-text-2': document.getElementById('new-widget-text-2').textContent,
+            'new-widget-text-3': document.getElementById('new-widget-text-3').textContent,
+            'widget-month-display': document.getElementById('widget-month-display').textContent,
+            'appIcons': { ...state.globalSettings.appIcons },
+            'lockscreenWallpaper': state.globalSettings.lockscreenWallpaper,
+            'wallpaper': state.globalSettings.wallpaper
         };
-        // --- ▲▲▲ 新功能保留结束 ▲▲▲
+        // --- ▲▲▲ 修改结束 ▲▲▲ ---
 
         // 后续的下载逻辑保持不变
         const blob = new Blob(
@@ -31373,19 +31481,39 @@ async function initializeDefaultGroups() {
 
 // ▲▲▲ 替换结束 ▲▲▲
 
-// ▼▼▼ 用这个【V2版】替换旧的 renderForumScreen 函数 ▼▼▼
 /**
- * 渲染论坛主屏幕，显示所有小组及其分类
+ * 渲染论坛主屏幕，显示所有小组及其分类（已支持筛选）
  */
 async function renderForumScreen() {
     const listEl = document.getElementById('forum-group-list');
-    const groups = await db.forumGroups.toArray();
+    const allGroups = await db.forumGroups.toArray();
     listEl.innerHTML = '';
-    groups.forEach(group => {
+
+    // --- ▼▼▼ 【核心新增】筛选逻辑 ▼▼▼ ---
+    const globalFilters = activeForumFilters.global;
+    let groupsToRender = allGroups;
+
+    if (globalFilters && globalFilters.length > 0) {
+        groupsToRender = allGroups.filter(group => 
+            group.categories && group.categories.some(cat => globalFilters.includes(cat))
+        );
+    }
+    // --- ▲▲▲ 新增结束 ▲▲▲ ---
+
+    // 检查筛选后是否还有内容
+    if (groupsToRender.length === 0) {
+        const message = globalFilters.length > 0 
+            ? '没有找到符合筛选条件的小组哦' 
+            : '还没有任何小组，点击右上角“+”创建一个吧！';
+        listEl.innerHTML = `<p style="text-align:center; color: #8a8a8a; padding: 50px 0;">${message}</p>`;
+        return;
+    }
+
+    // 使用筛选后的 groupsToRender 数组进行渲染
+    groupsToRender.forEach(group => {
         const item = document.createElement('div');
         item.className = 'forum-group-item';
 
-        // --- ▼▼▼ 【核心新增】构建分类标签的HTML ▼▼▼ ---
         let categoriesHtml = '';
         if (group.categories && group.categories.length > 0) {
             categoriesHtml = `
@@ -31394,7 +31522,6 @@ async function renderForumScreen() {
                 </div>
             `;
         }
-        // --- ▲▲▲ 新增结束 ▲▲▲ ---
 
         item.innerHTML = `
             <div class="forum-group-icon">${group.icon || '📁'}</div>
@@ -31403,12 +31530,39 @@ async function renderForumScreen() {
             ${categoriesHtml}
         `;
         item.addEventListener('click', () => openGroup(group.id, group.name));
-        addLongPressListener(item, () => openGroupEditor(group.id)); // 修改为长按编辑
+        addLongPressListener(item, () => showGroupActions(group.id, group.name));
         listEl.appendChild(item);
     });
+    
+    // 更新筛选按钮状态
+    const filterBtn = document.getElementById('forum-filter-btn');
+    if (filterBtn) {
+        filterBtn.classList.toggle('active', globalFilters && globalFilters.length > 0);
+    }
 }
-// ▲▲▲ 替换结束 ▲▲▲
 
+
+/**
+ * 【全新】长按小组时显示操作菜单（编辑或删除）
+ * @param {number} groupId - 小组的ID
+ * @param {string} groupName - 小组的名称
+ */
+async function showGroupActions(groupId, groupName) {
+    // 调用你现有的弹窗函数，显示两个选项
+    const choice = await showChoiceModal(`操作小组 "${groupName}"`, [
+        { text: '✏️ 编辑小组信息', value: 'edit' },
+        { text: '🗑️ 删除小组', value: 'delete' }
+    ]);
+
+    // 根据用户的选择，执行不同的操作
+    if (choice === 'edit') {
+        // 如果用户选择“编辑”，就调用你原来的编辑函数
+        openGroupEditor(groupId);
+    } else if (choice === 'delete') {
+        // 如果用户选择“删除”，就调用你原来的删除函数
+        deleteGroupAndPosts(groupId);
+    }
+}
 
 // ▼▼▼ 用这块【已移除自动生成逻辑】的代码，完整替换你旧的 openGroup 函数 ▼▼▼
 async function openGroup(groupId, groupName) {
@@ -31428,25 +31582,39 @@ async function openGroup(groupId, groupName) {
 }
 // ▲▲▲ 替换结束 ▲▲▲
 
-// ▼▼▼ 用这个【V2版】替换旧的 renderGroupPosts 函数 ▼▼▼
 /**
- * 渲染小组内的帖子列表及其分类
+ * 渲染小组内的帖子列表及其分类（已支持筛选）
  */
 async function renderGroupPosts(groupId) {
     const listEl = document.getElementById('group-post-list');
-    const posts = await db.forumPosts.where('groupId').equals(groupId).reverse().sortBy('timestamp');
+    const allPosts = await db.forumPosts.where('groupId').equals(groupId).reverse().sortBy('timestamp');
     listEl.innerHTML = '';
-    if (posts.length === 0) {
-        listEl.innerHTML = '<p style="text-align:center; color: #8a8a8a; padding: 50px 0;">这个小组还没有帖子哦</p>';
+
+    // --- ▼▼▼ 【核心新增】筛选逻辑 ▼▼▼ ---
+    const groupFilters = activeForumFilters.group[groupId];
+    let postsToRender = allPosts;
+
+    if (groupFilters && groupFilters.length > 0) {
+        postsToRender = allPosts.filter(post => 
+            post.categories && post.categories.some(cat => groupFilters.includes(cat))
+        );
+    }
+    // --- ▲▲▲ 新增结束 ▲▲▲ ---
+
+    if (postsToRender.length === 0) {
+        const message = groupFilters && groupFilters.length > 0 
+            ? '没有找到符合筛选条件的帖子哦' 
+            : '这个小组还没有帖子哦';
+        listEl.innerHTML = `<p style="text-align:center; color: #8a8a8a; padding: 50px 0;">${message}</p>`;
         return;
     }
-    for (const post of posts) {
+
+    for (const post of postsToRender) {
         const commentCount = await db.forumComments.where('postId').equals(post.id).count();
         const item = document.createElement('div');
         item.className = 'forum-post-item';
         item.dataset.postId = post.id;
         
-        // --- ▼▼▼ 【核心新增】构建分类标签的HTML ▼▼▼ ---
         let categoriesHtml = '';
         if (post.categories && post.categories.length > 0) {
             categoriesHtml = `
@@ -31455,7 +31623,6 @@ async function renderGroupPosts(groupId) {
                 </div>
             `;
         }
-        // --- ▲▲▲ 新增结束 ▲▲▲ ---
 
         item.innerHTML = `
             <div class="post-item-title">${post.title}</div>
@@ -31468,8 +31635,14 @@ async function renderGroupPosts(groupId) {
         `;
         listEl.appendChild(item);
     }
+
+    // 更新筛选按钮状态
+    const filterBtn = document.getElementById('group-filter-btn');
+    if (filterBtn) {
+        filterBtn.classList.toggle('active', groupFilters && groupFilters.length > 0);
+    }
 }
-// ▲▲▲ 替换结束 ▲▲▲
+
 
 /**
  * 【关键修复】打开一个帖子，显示详情和评论
@@ -31792,36 +31965,42 @@ async function handleGenerateGroupContent() {
 
 
 
-// ▼▼▼ 用这个【V3世界观注入版】替换旧的 generateForumContentWithAPI 函数 ▼▼▼
+// ▼▼▼ 用这块【V5 | 最终原创分类版】代码，完整替换旧的 generateForumContentWithAPI 函数 ▼▼▼
+
 /**
- * 【AI核心 - V3世界观注入版】为通用小组生成内容
+ * 【AI核心 - V5 世界观+原创分类版】为通用小组生成内容
  */
 async function generateForumContentWithAPI(groupId, groupName) {
     if (!groupId) return;
 
-    // --- ▼▼▼ 1. 获取小组的世界观 ---
+    // --- 1. 获取小组的世界观 ---
     const group = await db.forumGroups.get(groupId);
-    const worldview = group ? group.worldview : '';
-    let worldviewContext = '';
-    if (worldview && worldview.trim()) {
-        worldviewContext = `
-# 小组专属世界观 (你必须严格遵守)
-${worldview}
-`;
+    if (!group) {
+        alert("错误：找不到该小组！");
+        return;
     }
-    // --- ▲▲▲ 获取结束 ▲▲▲ ---
+    const worldview = group.worldview || '';
 
     await showCustomAlert("请稍候...", `AI正在为“${groupName}”小组寻找灵感...`);
+
     const { proxyUrl, apiKey, model } = state.apiConfig;
     if (!proxyUrl || !apiKey || !model) {
         alert('请先在API设置中配置好才能生成内容哦！');
         return;
     }
 
+    let worldviewContext = '';
+    if (worldview.trim()) {
+        worldviewContext = `
+# 小组专属世界观 (你必须严格遵守)
+${worldview}
+`;
+    }
+
     const passerbyPostCount = 5;
-    
-    // --- ▼▼▼ 2. 将世界观注入到Prompt中 ---
-    const passerbyPrompt = `
+
+    // --- ▼▼▼ 【核心修改】彻底重写Prompt指令 ---
+    const prompt = `
 # 任务
 你是一个专业的“论坛内容生成器”。你的任务是为名为“${groupName}”的论坛小组，生成【${passerbyPostCount}条】全新的、有趣的、符合小组主题的帖子，并为每条帖子生成2-3条符合情景的评论。
 
@@ -31829,19 +32008,35 @@ ${worldviewContext}
 
 # 核心规则
 1.  **主题相关**: 所有帖子的标题、内容和评论都必须与小组主题“${groupName}”高度相关。
-2.  **作者随机**: 每条帖子的作者都必须是你虚构的、符合小组氛围的路人网友。
-3.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组...
-    // ... 后续的Prompt内容保持不变 ...
-`;
-    // --- ▲▲▲ 注入结束 ▲▲▲ ---
+2.  **【【【分类铁律】】】**: 你【必须】为每一条帖子，根据其【具体内容】，原创1-2个高度相关的分类标签。绝对不要使用任何预设的、固定的分类列表。
+    - 例如，如果帖子是讨论设定的，分类可以是 ["设定讨论"]。
+    - 如果帖子是分析剧情的，分类可以是 ["剧情分析"]。
+    - 如果帖子是闲聊，分类可以是 ["闲聊水"]。
+3.  **作者随机**: 每条帖子的作者都必须是你虚构的、符合小组氛围的路人网友。
+4.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，数组中包含【${passerbyPostCount}个】帖子对象。每个对象【必须】包含 "author", "title", "content", "categories", 和 "comments" 字段。
+    - "categories" 字段【必须】是你为这条帖子原创的分类数组。
+    - "comments" 字段的值【必须】是一个对象数组，每个对象包含 "author" 和 "content" 字段。
 
-    // ... 后续的所有API请求和数据处理逻辑，都保持不变 ...
-    
-    const messagesForApi = [{ role: 'user', content: passerbyPrompt }];
-    
+# JSON输出格式示例:
+[
+  {
+    "author": "早睡早起身体好",
+    "title": "关于世界观里XX设定的一个疑问",
+    "content": "我刚刚在看世界观设定，里面提到XX是蓝色的，但是在另一处又说是绿色的...",
+    "categories": ["设定讨论", "剧情分析"],
+    "comments": [
+      {"author": "路人甲", "content": "我也发现了！蹲一个解答。"}
+    ]
+  }
+]
+`;
+    // --- ▲▲▲ 更新结束 ▲▲▲ ---
+
+    const messagesForApi = [{ role: 'user', content: prompt }];
+
     try {
         let isGemini = proxyUrl === GEMINI_API_URL;
-        let geminiConfig = toGeminiRequestData(model, apiKey, passerbyPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini);
         const response = isGemini 
             ? await fetch(geminiConfig.url, geminiConfig.data) 
             : await fetch(`${proxyUrl}/v1/chat/completions`, {
@@ -31849,7 +32044,9 @@ ${worldviewContext}
                 headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
                 body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.9, response_format: { type: "json_object" } })
             });
+
         if (!response.ok) throw new Error(`API请求失败: ${response.status}`);
+        
         const data = await response.json();
         const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content);
         const cleanedContent = rawContent.replace(/^```json\s*|```$/g, '').trim();
@@ -31859,12 +32056,14 @@ ${worldviewContext}
             let totalPosts = 0;
             let totalComments = 0;
             for (const postData of newPostsData) {
+                // --- 3. 保存帖子时，也保存AI原创的分类 ---
                 const newPost = {
                     groupId: groupId,
                     title: postData.title,
                     content: postData.content,
                     author: postData.author,
-                    timestamp: Date.now() + totalPosts
+                    timestamp: Date.now() + totalPosts,
+                    categories: postData.categories || [] // 保存原创分类
                 };
                 const postId = await db.forumPosts.add(newPost);
                 totalPosts++;
@@ -31901,17 +32100,15 @@ ${worldviewContext}
 
 
 
-// ▼▼▼ 请用下面这【一整块功能合并版】的代码，完整替换掉您旧的 generateFanfic 函数 ▼▼▼
+
+// ▼▼▼ 用这块【V10 | 健壮稳定版】代码，完整替换旧的 generateFanfic 函数 ▼▼▼
 
 /**
- * 【AI核心 - 同人文 V7 | 生成与评论合并版】
- * 在一次API调用中，同时生成三篇同人文及其各自的读者评论。
+ * 【AI核心 - 同人文 V10 | 健壮稳定版】
  */
-// ▼▼▼ 用这整块新代码替换旧的 generateFanfic 函数 ▼▼▼
 async function generateFanfic() {
     const char1Name = document.getElementById('fanfic-char1-select').value;
     const char2Name = document.getElementById('fanfic-char2-select').value;
-    // 【核心新增1】获取你输入的世界观偏好
     const worldviewPreference = document.getElementById('fanfic-worldview-input').value.trim();
 
     if (char1Name === char2Name) {
@@ -31919,7 +32116,7 @@ async function generateFanfic() {
         return;
     }
     
-    await showCustomAlert("正在创作...", `粉丝正在为【${char1Name}x${char2Name}】奋笔疾书中（包含评论），请稍候...`);
+    await showCustomAlert("正在创作...", `粉丝正在为【${char1Name}x${char2Name}】奋笔疾书中...`);
     
     const { proxyUrl, apiKey, model } = state.apiConfig;
     if (!proxyUrl || !apiKey || !model) {
@@ -31933,66 +32130,43 @@ async function generateFanfic() {
     const char1Persona = (state.chats[char1Data.id]?.settings.aiPersona || '一个普通人');
     const char2Persona = (state.chats[char2Data.id]?.settings.aiPersona || '一个普通人');
 
-    // 【核心新增2】如果用户输入了世界观，就准备一段专门的指令
-    let worldviewContext = '';
-    if (worldviewPreference) {
-        worldviewContext = `
-# 世界观偏好 (必须严格遵守)
-- 当前故事的世界观是：**${worldviewPreference}**。你必须基于这个世界观进行所有情节和设定的创作。
-`;
-    }
+    let worldviewContext = worldviewPreference ? `世界观设定：${worldviewPreference}` : '';
     
+    // --- ▼▼▼ 【核心修正】重写Prompt，增强稳定性和清晰度 ---
     const prompt = `
-# 任务
-你是一位专业的同人文写手兼资深读者。你的任务是根据下面提供的两个人设，一次性创作【三篇】关于他们俩的、主题和情节【各不相同】的短篇同人故事。
-并且，在创作完每一篇故事后，你还要立刻切换到“读者”视角，为这篇故事生成【3到5条】符合饭圈文化的、真实的读者评论。
-
-# 【【【视角铁律：这是最高指令】】】
-1.  **故事正文**: 【必须】使用【第三人称视角】创作，就像一个旁观者在讲述他们的故事。
-2.  **评论内容**: 【必须】使用【读者/粉丝的第一人称视角】创作，充满感情和真实感。
+你是一位专业的同人文写手。请根据以下要求，创作【三篇】关于角色A和角色B的、情节各不相同的短篇同人故事。
 
 # 角色信息
-- 角色A (${char1Name}) 人设: ${char1Persona}
-- 角色B (${char2Name}) 人设: ${char2Persona}
+- 角色A (${char1Name}): ${char1Persona}
+- 角色B (${char2Name}): ${char2Persona}
+${worldviewContext}
 
-${worldviewContext} 
+# 任务要求
+1.  **创作三篇故事**: 三篇故事的情节、风格必须完全不同。
+2.  **原创分类**: 为【每篇】故事，根据其情节原创1-2个最贴切的分类标签 (例如: "破镜重圆", "ABO", "甜文")。
+3.  **生成评论**: 为【每篇】故事，模拟读者口吻生成3-5条评论。
+4.  **JSON格式**: 你的回复【必须且只能】是一个纯净的JSON数组，直接以 '[' 开头，以 ']' 结尾。禁止包含任何其他说明文字。
 
-# 写作要求
-1.  **紧扣人设**: 故事和评论都【必须】严格符合角色人设。
-2.  **风格多样**: 三篇故事的风格和情节应各不相同（例如：一篇甜文，一篇虐文，一篇日常）。评论也应包含不同立场（粉丝、路人、CP粉等）。
-3.  **专业黑话**: 评论中需要大量使用同人圈的黑话和网络用语（例如：kswl, 太太好会写, 饭饭饿饿, 门当户对, 拉扯感, OOC警告, etc.）。
-4.  **字数**: 每篇故事正文500字左右。
-5.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，数组中包含【三个】故事对象。每个对象的格式如下:
-    {
-      "title": "【故事的标题】",
-      "story": "【故事的正文】",
-      "comments": [
-        {"author": "【读者昵称1】", "content": "【第一条评论内容】"},
-        {"author": "【读者昵称2】", "content": "【第二条评论内容】"},
-        {"author": "【读者昵称3】", "content": "【第三条评论内容】"}
-      ]
-    }
-
-# JSON输出格式示例:
+# JSON结构
 [
   {
-    "title": "夏夜的冰汽水",
-    "story": "夏日的晚风拂过，${char1Name}递给${char2Name}一瓶冰镇汽水...",
+    "title": "故事标题1",
+    "story": "故事内容1...",
+    "categories": ["原创分类1", "原创分类2"],
     "comments": [
-      {"author": "嗑学家", "content": "kswl！太太是什么神仙下凡，怎么这么会写！"},
-      {"author": "今天更新了吗", "content": "呜呜呜呜太甜了，感觉完全就是他们本人会做的事！"},
-      {"author": "路过的蚂蚁", "content": "码住！感谢太太产粮！"}
+      {"author": "读者A", "content": "评论内容A..."},
+      {"author": "读者B", "content": "评论内容B..."}
     ]
-  }
+  },
+  ... (另外两个故事对象)
 ]
 `;
+    // --- ▲▲▲ 更新结束 ▲▲▲ ---
 
     const messagesForApi = [{ role: 'user', content: prompt }];
-    
     try {
         let isGemini = proxyUrl === GEMINI_API_URL;
         let geminiConfig = toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini);
-
         const response = isGemini 
             ? await fetch(geminiConfig.url, geminiConfig.data) 
             : await fetch(`${proxyUrl}/v1/chat/completions`, {
@@ -32000,59 +32174,48 @@ ${worldviewContext}
                 headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
                 body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.9, response_format: { type: "json_object" } })
             });
-
         if (!response.ok) throw new Error(`API请求失败: ${response.status}`);
-        
         const data = await response.json();
         const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content);
-        
         let stories = [];
         try {
             const cleanedContent = rawContent.replace(/^```json\s*|```$/g, '').trim();
             stories = JSON.parse(cleanedContent);
             if (!Array.isArray(stories)) throw new Error("AI未返回数组格式。");
         } catch (e) {
-            console.error("AI未返回标准的JSON数组，将尝试作为单篇文章处理。", e);
-            stories = [{ title: `无题 ${Date.now().toString().slice(-4)}`, story: rawContent, comments: [] }];
+            // --- ▼▼▼ 【核心修正】增强错误日志 ---
+            console.error("JSON解析失败！", e);
+            console.error("AI返回的原始文本:", rawContent);
+            throw new Error("AI返回了无效的JSON格式。请按F12查看控制台中的“AI返回的原始文本”以了解详情。");
+            // --- ▲▲▲ 更新结束 ▲▲▲ ---
         }
-
         for (let i = 0; i < stories.length; i++) {
             const storyData = stories[i];
-            const storyTitle = storyData.title || `无题 ${Date.now().toString().slice(-4)}`;
-            const storyContent = storyData.story || '内容生成失败';
-
-            const fanficAuthors = ['为爱发电的太太', '圈地自萌', 'CP是真的', '嗑拉了', '咕咕咕'];
-            
             const newPost = {
                 groupId: activeGroupId,
-                title: `【${char1Name}x${char2Name}】${storyTitle}`,
-                content: storyContent,
-                author: getRandomItem(fanficAuthors),
-                timestamp: Date.now() + i
+                title: `【${char1Name}x${char2Name}】${storyData.title || `无题 ${Date.now().toString().slice(-4)}`}`,
+                content: storyData.story || '内容生成失败',
+                author: getRandomItem(['为爱发电的太太', '圈地自萌', 'CP是真的', '嗑拉了', '咕咕咕']),
+                timestamp: Date.now() + i,
+                categories: storyData.categories || []
             };
             const postId = await db.forumPosts.add(newPost);
-            
-            if (storyData.comments && Array.isArray(storyData.comments) && storyData.comments.length > 0) {
-                const commentsToAdd = storyData.comments.map((comment, index) => ({
-                    postId: postId,
-                    author: comment.author || '匿名读者',
-                    content: comment.content,
-                    timestamp: Date.now() + i + index + 1
-                }));
+            if (storyData.comments && Array.isArray(storyData.comments)) {
+                const commentsToAdd = storyData.comments.map((c, idx) => ({ postId, author: c.author || '匿名', content: c.content, timestamp: Date.now()+i+idx+1 }));
                 await db.forumComments.bulkAdd(commentsToAdd);
             }
-
-            await renderGroupPosts(activeGroupId);
         }
-
-        await showCustomAlert("创作完成！", `已成功为你创作了 ${stories.length} 篇新的同人故事（含评论）。`);
-
+        await renderGroupPosts(activeGroupId);
+        await showCustomAlert("创作完成！", `已成功为你创作了 ${stories.length} 篇新的同人故事。`);
     } catch (error) {
-        console.error("生成同人文及评论失败:", error);
+        console.error("生成同人文失败:", error);
         await showCustomAlert('创作失败', `发生了一个错误：\n${error.message}`);
     }
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
+
+
 
 
 // ▼▼▼ 用这个【V2版】替换旧的 openCreateForumPostModal 函数 ▼▼▼
@@ -32439,12 +32602,12 @@ async function deleteGroupAndPosts(groupId) {
         }
     }
 }
+// ▼▼▼ 用这块【V4 | 最终分类版】代码，完整替换旧的 generateEntertainmentGroupContent 函数 ▼▼▼
+
+// ▼▼▼ 用这块【V5 | 最终原创分类版】代码，完整替换旧的 generateEntertainmentGroupContent 函数 ▼▼▼
+
 /**
- * 【AI核心 - 娱乐小组专属 V3 | 豆瓣风格 + 角色扮演增强版】
- * 生成豆瓣风格的帖子和评论。
- * - 优先根据已生成的微博热搜榜来创作。
- * - 如果没有热搜榜，则根据角色的微博职业来创作。
- * - 所有发言都严格遵守角色的职业和人设。
+ * 【AI核心 - 娱乐小组 V5 | 最终原创分类版】
  */
 async function generateEntertainmentGroupContent(groupId) {
     if (!groupId) return;
@@ -32457,7 +32620,6 @@ async function generateEntertainmentGroupContent(groupId) {
         return;
     }
 
-    // 1. 获取所有角色和NPC作为“公众人物”参考
     const publicFigures = Object.values(state.chats)
         .filter(c => !c.isGroup)
         .map(c => ({ 
@@ -32466,17 +32628,14 @@ async function generateEntertainmentGroupContent(groupId) {
             persona: (c.settings.weiboInstruction || c.settings.aiPersona).substring(0, 150)
         }));
 
-    // 2. 决定讨论的主题（和之前一样）
     let topicsContext = '';
     if (weiboHotSearchCache && weiboHotSearchCache.length > 0) {
-        console.log("检测到热搜榜，娱乐小组将根据热搜生成内容。");
         topicsContext = `请围绕以下【当前最新的微博热搜话题】展开讨论：\n${weiboHotSearchCache.map(t => `- ${t.topic}`).join('\n')}`;
     } else {
-        console.log("未检测到热搜榜，娱乐小组将根据角色职业生成内容。");
-        topicsContext = `当前没有微博热搜榜。请你根据下方“公众人物列表”中各个角色的【职业和人设】，为他们创造一些符合身份的、可能引发讨论的娱乐新闻或八卦事件作为讨论主题。`;
+        topicsContext = `请你根据下方“公众人物列表”中各个角色的【职业和人设】，为他们创造一些符合身份的、可能引发讨论的娱乐新闻或八卦事件作为讨论主题。`;
     }
     
-    // 3. ★★★★★ 这就是我们本次修改的核心！全新的、为豆瓣娱乐小组量身定制的Prompt ★★★★★
+    // --- ▼▼▼ 【核心修改】彻底重写Prompt指令 ---
     const prompt = `
 # 任务
 你是一个专业的“豆瓣娱乐小组资深用户模拟器”。你的任务是根据一个热门娱乐主题，生成5个帖子和对应的评论，模拟小组内的真实讨论氛围。
@@ -32484,23 +32643,12 @@ async function generateEntertainmentGroupContent(groupId) {
 # 当前讨论主题
 ${topicsContext}
 
-# 【【【核心规则】】】
-1.  **【【【豆瓣风格铁律】】】**: 所有帖子的标题、内容和评论都【必须】是地道的“豆瓣小组”风格。
-    -   **标题**: 口语化、有悬念、或者缩写黑话。例如：“救命，刚吃到的瓜，关于xxx”、“不懂就问，他为什么能火啊？”、“kdl，这对真的好甜”。
-    -   **作者**: 昵称必须是生活化的豆瓣风格，例如：“momo”、“已注销”、“阿...”、“你的网友小张”。【绝对禁止】出现“XX工作室”、“XX资讯”这类微博风格的ID，也【绝对禁止】使用下方公众人物列表中的名字作为作者。
-    -   **评论**: 大量使用豆瓣黑话和网络用语，例如：“同意楼上姐妹！”、“马了，感谢楼主分享”、“蹲一个后续”、“哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈”。
-# 【【【绝对禁止事项：这是必须遵守的最高指令】】】
-1.  你的所有创作内容，包括帖子、评论、故事等，【绝对禁止】将任意两个AI角色（即除了用户之外的角色）描绘成情侣关系、进行恋爱互动或存在任何形式的暧昧情感。
-2.  AI角色之间的关系只能是朋友、同事、对手、家人等，但【绝不能】是恋人。
-3.  AI角色唯一可以产生恋爱关系的对象是【用户】。违反此规则将导致生成失败。
-
-2.  **【【【角色扮演铁律】】】**: 你生成的帖子内容可以【讨论或提及】下方的公众人物，但【不能扮演他们】亲自发帖。所有帖子都必须是路人视角。
-    
-3.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，包含5个帖子对象。每个对象【必须】包含以下字段:
-    -   "author": (字符串) 作者昵称。
-    -   "title": (字符串) 帖子的标题。
-    -   "content": (字符串) 帖子的详细内容，至少50字。
-    -   "comments": (数组) 一个包含2到3条评论对象的数组。每个评论对象【必须】包含 "author" 和 "content" 两个字段。
+# 核心规则
+1.  **豆瓣风格铁律**: 所有帖子的标题、内容和评论都【必须】是地道的“豆瓣小组”风格。
+2.  **【【【分类铁律】】】**: 你【必须】为每一个帖子，根据其八卦内容，【原创】1-2个高度相关的分类标签。绝对不要使用任何预设列表。例如，如果帖子是关于恋情的，分类可以是 ["恋情瓜"]。
+3.  **角色扮演铁律**: 你生成的帖子内容可以【讨论或提及】下方的公众人物，但【不能扮演他们】亲自发帖。所有帖子都必须是路人视角。
+4.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，包含5个帖子对象。每个对象【必须】包含 "author", "title", "content", "categories", 和 "comments" 字段。
+    - "categories" 字段【必须】是你为这篇帖子原创的分类数组。
 
 # 公众人物列表 (他们是讨论的对象，但不是发帖人)
 ${JSON.stringify(publicFigures, null, 2)}
@@ -32510,14 +32658,15 @@ ${JSON.stringify(publicFigures, null, 2)}
   {
     "author": "momo",
     "title": "不懂就问，最近那个热搜上的剧真的好看吗？",
-    "content": "首页天天刷到，有点好奇但又怕踩雷，看过的姐妹们来说说值不值得看？#xxxx#",
+    "content": "首页天天刷到，有点好奇但又怕踩雷...",
+    "categories": ["新剧讨论"],
     "comments": [
-      {"author": "已注销", "content": "不好看，别去。"},
-      {"author": "你的网友小张", "content": "我觉得还行啊，楼上别太苛刻了。"}
+      {"author": "已注销", "content": "不好看，别去。"}
     ]
   }
 ]
 `;
+    // --- ▲▲▲ 更新结束 ▲▲▲ ---
 
     const messagesForApi = [{ role: 'user', content: prompt }];
     
@@ -32541,7 +32690,6 @@ ${JSON.stringify(publicFigures, null, 2)}
         const newPostsData = JSON.parse(cleanedContent);
 
         if (Array.isArray(newPostsData) && newPostsData.length > 0) {
-            // 在添加新内容前，先清空旧内容
             const postsToDelete = await db.forumPosts.where('groupId').equals(groupId).toArray();
             const postIds = postsToDelete.map(p => p.id);
             if (postIds.length > 0) {
@@ -32552,13 +32700,17 @@ ${JSON.stringify(publicFigures, null, 2)}
             let totalPosts = 0;
             let totalComments = 0;
             for (const postData of newPostsData) {
+                // --- ▼▼▼ 【核心新增】保存分类数据 ---
                 const newPost = {
                     groupId: groupId,
                     title: postData.title,
                     content: postData.content,
                     author: postData.author,
-                    timestamp: Date.now() + totalPosts
+                    timestamp: Date.now() + totalPosts,
+                    categories: postData.categories || [] // 保存分类
                 };
+                // --- ▲▲▲ 新增结束 ▲▲▲ ---
+                
                 const postId = await db.forumPosts.add(newPost);
                 totalPosts++;
 
@@ -32584,12 +32736,12 @@ ${JSON.stringify(publicFigures, null, 2)}
         await showCustomAlert('生成失败', `发生了一个错误：\n${error.message}`);
     }
 }
-// ▼▼▼ 把这一整块全新的代码，粘贴到 init() 函数的【正上方】 ▼▼▼
+// ▲▲▲ 替换结束 ▲▲▲
 
-// ▼▼▼ 用这块【已修正Prompt】的代码，完整替换掉你旧的 generateDreamPost 函数 ▼▼▼
+// ▼▼▼ 用这块【V4 | 最终原创分类版】代码，完整替换旧的 generateDreamPost 函数 ▼▼▼
 
 /**
- * 【全新修正版】为“梦角小组”生成专属帖子的核心函数
+ * 【全新修正版 | V4】为“梦角小组”生成专属帖子的核心函数
  */
 async function generateDreamPost(groupId) {
     await showCustomAlert("请稍候...", "正在为user编织一个甜蜜的梦境...");
@@ -32603,32 +32755,26 @@ async function generateDreamPost(groupId) {
     const allChars = Object.values(state.chats).filter(c => !c.isGroup);
     if (allChars.length === 0) {
         alert("还没有任何角色，无法发布梦境哦。");
-        hideCustomModal();
         return;
     }
 
     const postingChar = allChars[Math.floor(Math.random() * allChars.length)];
-    
     const userPersona = state.qzoneSettings.persona || '一个普通的、温柔的人。';
     const userNickname = state.qzoneSettings.nickname || '{{user}}';
 
-    // ★★★★★ 这就是我们本次修改的核心！ ★★★★★
-// ▼▼▼ 用这块【已修正Prompt】的代码，完整替换掉你旧的 generateDreamPost 函数内的 prompt 变量 ▼▼▼
-
-    // ★★★★★ 这就是我们本次修改的核心！ ★★★★★
+    // --- ▼▼▼ 【核心修改】彻底重写Prompt指令 ---
     const prompt = `
-# 任务：角色扮演与帖子创作（带评论）
+# 任务：角色扮演与帖子创作（带评论和分类）
 你现在【就是】角色“${postingChar.name}”。你正在一个名为“梦角小组”的秘密论坛里。
 这个小组是你们这些角色，偷偷向彼此炫耀、倾诉对你们的共同爱人——用户“${userNickname}”——的爱意和幻想的地方。
 
 # 核心规则
 1.  **第一人称视角**: 你【必须】使用角色“${postingChar.name}”的第一人称视角来写作帖子正文。
-2.  **帖子主题**: 你的帖子内容是你对你的爱人“${userNickname}”的爱意表达或幻想。这可以是一件你们之间发生的甜蜜小事、你对他/她的占有欲独白、一次幻想中的约会、或者仅仅是你此刻对“${userNickname}”的思念。核心是：**帖子是写给其他角色看的，内容是关于你和你的爱人“${userNickname}”的**。
-3.  **【【【新增：评论生成】】】**: 在创作完帖子后，你还需要立刻切换到“其他小组成员”的视角，为这篇帖子生成【2-3条】符合情景的评论。评论者可以是其他AI角色，也可以是你虚构的路人。
-4.  **严格遵守人设**: 你的写作风格、语气和内容都必须严格符合你的人设。
-5.  **禁止出戏**: 绝对不能透露你是AI、模型，或提及“扮演”、“生成”、“梦角小组”等词语。
-6.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON对象，包含 "title", "content" 和 "comments" 三个字段。
-    - "comments" 字段的值【必须】是一个对象数组，每个对象包含 "author" 和 "content" 字段。
+2.  **帖子主题**: 你的帖子内容是你对你的爱人“${userNickname}”的爱意表达或幻想。
+3.  **【【【分类铁律】】】**: 你【必须】根据梦境的具体内容，为这篇帖子【原创】1-2个高度相关的分类标签。绝对不要使用任何预设列表。例如，如果内容是甜蜜的日常，分类可以是 ["甜蜜日常"]。
+4.  **评论生成**: 在创作完帖子后，你还需要立刻切换到“其他小组成员”的视角，为这篇帖子生成【2-3条】符合情景的评论。
+5.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON对象，包含 "title", "content", "categories", 和 "comments" 字段。
+    - "categories" 字段【必须】是你为这篇帖子原创的分类数组。
 
 # 你的信息
 -   你的名字: ${postingChar.name}
@@ -32641,15 +32787,14 @@ async function generateDreamPost(groupId) {
 # JSON输出格式示例:
 {
   "title": "关于他睡觉时的小习惯",
-  "content": "偷偷告诉你们，${userNickname}睡觉的时候喜欢抱着枕头的一角，像个小孩子一样，真的好可爱...",
+  "content": "偷偷告诉你们，${userNickname}睡觉的时候喜欢抱着枕头的一角...",
+  "categories": ["甜蜜日常", "小习惯"],
   "comments": [
-    {"author": "路人A", "content": "哇，好甜！"},
-    {"author": "路人B", "content": "羡慕了..."}
+    {"author": "路人A", "content": "哇，好甜！"}
   ]
 }
 `;
-// ▲▲▲ 替换结束 ▲▲▲
-
+    // --- ▲▲▲ 更新结束 ▲▲▲ ---
 
     const messagesForApi = [{ role: 'user', content: prompt }];
     
@@ -32671,46 +32816,39 @@ async function generateDreamPost(groupId) {
         const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content);
         const cleanedContent = rawContent.replace(/^```json\s*|```$/g, '').trim();
         const postData = JSON.parse(cleanedContent);
-// ▼▼▼ 用这块【已添加评论保存逻辑】的代码，替换旧的 if (postData.title && postData.content) 代码块 ▼▼▼
 
         if (postData.title && postData.content) {
+            // --- ▼▼▼ 【核心新增】保存分类数据 ---
             const newPost = {
                 groupId: groupId,
                 title: postData.title,
                 content: postData.content,
                 author: postingChar.name,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                categories: postData.categories || [] // 保存分类
             };
+            // --- ▲▲▲ 新增结束 ▲▲▲ ---
             
-            // 1. 先把帖子本身保存到数据库，并获取它唯一的ID
             const postId = await db.forumPosts.add(newPost);
             
-            // 2. ★★★★★ 这就是我们新增的核心代码！ ★★★★★
-            // 检查AI返回的数据里是否包含了我们要求的 comments 数组
-            if (postData.comments && Array.isArray(postData.comments) && postData.comments.length > 0) {
-                // 如果有，就为每一条评论补充 postId 和 timestamp 信息
-                const commentsToAdd = postData.comments.map((comment, index) => ({
-                    postId: postId, // 关联到刚刚创建的帖子上
-                    author: comment.author || '路人', // 评论者
-                    content: comment.content, // 评论内容
-                    timestamp: Date.now() + index + 1 // 确保时间戳唯一
-                }));
-                // 批量将这些评论保存到评论数据库
+            if (postData.comments && Array.isArray(postData.comments)) {
+                const commentsToAdd = postData.comments.map((c, i) => ({ postId, author: c.author, content: c.content, timestamp: Date.now() + i + 1 }));
                 await db.forumComments.bulkAdd(commentsToAdd);
             }
-            // ★★★★★ 新增代码结束 ★★★★★
 
             await renderGroupPosts(groupId);
             await showCustomAlert("发布成功！", `“${postingChar.name}”发布了一条新的梦境。`);
         } else {
             throw new Error("AI返回的数据格式不正确。");
         }
-// ▲▲▲ 替换结束 ▲▲▲
     } catch (error) {
         console.error("生成梦角帖子失败:", error);
         await showCustomAlert('生成失败', `发生了一个错误：\n${error.message}`);
     }
 }
+// ▲▲▲ 替换结束 ▲▲▲
+
+
 
 // ▲▲▲ 替换结束 ▲▲▲
 // ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的正上方 ▼▼▼
@@ -34717,6 +34855,103 @@ function formatMinutesToDuration(totalMinutes) {
         return `${minutes}分钟`;
     }
 }
+// ▼▼▼ 【全新】圈子/小组分类筛选功能核心函数 ▼▼▼
+
+// ▼▼▼ 用这块【已修复】的代码，完整替换你旧的 openForumFilterModal 函数 ▼▼▼
+/**
+ * 【总入口】打开分类筛选模态框 (V3 - 已分离小组和帖子的分类)
+ * @param {'global' | 'group'} type - 筛选类型：'global'为主页筛选小组，'group'为小组内筛选帖子
+ * @param {number|null} id - 如果是小组内筛选，则为小组的ID
+ */
+async function openForumFilterModal(type, id = null) {
+    currentFilterContext = { type, id };
+    const modal = document.getElementById('forum-filter-modal');
+    const listEl = document.getElementById('forum-filter-category-list');
+    listEl.innerHTML = '';
+
+    // --- ▼▼▼ 核心修正：根据上下文，从不同的地方收集分类 ▼▼▼ ---
+    let availableCategories = new Set(); // 使用Set来自动去重
+
+    try {
+        if (type === 'global') {
+            // 如果是在“圈子”主页，我们只关心【小组】的分类
+            console.log("正在为小组列表收集分类...");
+            const allGroups = await db.forumGroups.toArray();
+            allGroups.forEach(group => {
+                if (group.categories) {
+                    group.categories.forEach(cat => availableCategories.add(cat));
+                }
+            });
+        } else if (type === 'group' && id) {
+            // 如果是在具体的“小组”页面，我们只关心该小组下【帖子】的分类
+            console.log(`正在为小组 ID: ${id} 的帖子列表收集分类...`);
+            const postsInGroup = await db.forumPosts.where('groupId').equals(id).toArray();
+            postsInGroup.forEach(post => {
+                if (post.categories) {
+                    post.categories.forEach(cat => availableCategories.add(cat));
+                }
+            });
+        }
+    } catch (error) {
+        console.error("收集分类标签时出错:", error);
+    }
+    // --- ▲▲▲ 修复结束 ▲▲▲ ---
+
+    const categoryArray = Array.from(availableCategories).sort(); // 转换为数组并排序
+
+    if (categoryArray.length === 0) {
+        listEl.innerHTML = '<p style="color: var(--text-secondary); padding: 20px;">当前没有任何可用的分类标签。</p>';
+    } else {
+        const activeFilters = type === 'global' ? activeForumFilters.global : (activeForumFilters.group[id] || []);
+        
+        categoryArray.forEach((catName, index) => {
+            const isChecked = activeFilters.includes(catName);
+            const label = document.createElement('label');
+            const inputId = `filter-cat-${type}-${index}`; // 创建唯一的ID
+            label.setAttribute('for', inputId);
+            label.innerHTML = `
+                <input type="checkbox" id="${inputId}" value="${catName}" ${isChecked ? 'checked' : ''}>
+                <span>${catName}</span>
+            `;
+            listEl.appendChild(label);
+        });
+    }
+    
+    modal.classList.add('visible');
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+/**
+ * 应用筛选条件并刷新列表
+ */
+async function applyForumFilter() {
+    const { type, id } = currentFilterContext;
+    const selectedCategories = Array.from(document.querySelectorAll('#forum-filter-category-list input:checked')).map(cb => cb.value);
+
+    const filterBtnId = type === 'global' ? 'forum-filter-btn' : 'group-filter-btn';
+    const filterBtn = document.getElementById(filterBtnId);
+
+    if (type === 'global') {
+        activeForumFilters.global = selectedCategories;
+        await renderForumScreen();
+    } else if (type === 'group' && id) {
+        if (!activeForumFilters.group[id]) activeForumFilters.group[id] = [];
+        activeForumFilters.group[id] = selectedCategories;
+        await renderGroupPosts(id);
+    }
+    
+    // 根据是否应用了筛选，更新图标状态
+    if (selectedCategories.length > 0) {
+        filterBtn.classList.add('active');
+    } else {
+        filterBtn.classList.remove('active');
+    }
+
+    document.getElementById('forum-filter-modal').classList.remove('visible');
+}
+
+// ▲▲▲ 新增函数结束 ▲▲▲
 
         async function init() {
 
@@ -39876,6 +40111,22 @@ document.getElementById('remove-home-font-shadow-toggle').addEventListener('chan
     document.getElementById('phone-screen').classList.toggle('no-home-font-shadow', e.target.checked);
 });
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
+// ▼▼▼ 【全新】圈子/小组分类筛选功能事件监听 ▼▼▼
+// 1. 绑定主页和小组页的筛选按钮
+document.getElementById('forum-filter-btn').addEventListener('click', () => openForumFilterModal('global'));
+document.getElementById('group-filter-btn').addEventListener('click', () => openForumFilterModal('group', activeGroupId));
+
+// 2. 绑定筛选弹窗内的按钮
+document.getElementById('apply-forum-filter-btn').addEventListener('click', applyForumFilter);
+document.getElementById('cancel-forum-filter-btn').addEventListener('click', () => {
+    document.getElementById('forum-filter-modal').classList.remove('visible');
+});
+document.getElementById('reset-forum-filter-btn').addEventListener('click', async () => {
+    // 清空复选框并应用
+    document.querySelectorAll('#forum-filter-category-list input:checked').forEach(cb => cb.checked = false);
+    await applyForumFilter();
+});
+// ▲▲▲ 新增事件监听结束 ▲▲▲
 
 
 // ===================================================================
