@@ -46,30 +46,26 @@ html {
     height: 100%; /* 确保html元素也能撑满 */
 }
 
-/* ▼▼▼ 【核心修复】用这块终极锁定版代码，替换掉你现有的 body 样式 ▼▼▼ */
 body {
     margin: 0;
     font-family: 'bulangni', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-weight: normal;
     background-color: #f0f2f5;
-    
-    /* --- 核心修改从这里开始 --- */
-    height: 100%;
-    width: 100%;
-    position: fixed; /* ★★★ 魔法！将body固定在屏幕上，让键盘无法推动它 ★★★ */
-    overflow: hidden;  /* 防止任何意外的滚动 */
-    top: 0;
-    left: 0;
-    /* --- 核心修改结束 --- */
+    height: 100%; /* 让body也撑满父元素(html) */
+    overflow: hidden; /* 防止body本身出现滚动条 */
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
-
-/* 2. 让 #phone-screen 成为新的“根”容器，撑满整个浏览器窗口 */
-/* ▼▼▼ 还原 #phone-screen 的高度 ▼▼▼ */
+/* ▼▼▼ 请用这块【JS联动版】的代码，替换掉你现有的 #phone-screen 样式 ▼▼▼ */
 #phone-screen {
     width: 100%;
-    height: 100%; /* ★★★ 核心！改回 100% ★★★ */
+    /* 
+      核心修改：我们不再写死高度，而是使用一个变量。
+      这个变量的初始值/备用值是 100dvh，确保PWA全屏和浏览器初始加载都正确。
+      之后JS会接管这个变量，在键盘弹出时动态修改它！
+    */
+    height: var(--app-height, 100dvh); 
+    
     position: relative;
     overflow: hidden;
     display: flex;
@@ -77,7 +73,6 @@ body {
     background-color: #ffffff;
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
-
 
 /* 3. 【核心】隐藏掉模拟器的状态栏 */
 #status-bar {
@@ -12982,6 +12977,34 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+
+
+<!-- ▼▼▼ 请将这一整块 <script> 代码，粘贴到 </body> 标签的正上方 ▼▼▼ -->
+<script>
+    // 这是一个现代浏览器提供的API，能获取到真正可见的视口信息
+    const visualViewport = window.visualViewport;
+
+    // 定义一个函数，用来更新我们CSS里的高度变量
+    function updateHeight() {
+      if (!visualViewport) {
+        return; // 如果浏览器太老，不支持此API，就啥也不干
+      }
+      // 获取当前可见区域的真实高度，并设置给CSS变量 --app-height
+      document.documentElement.style.setProperty(
+        '--app-height',
+        `${visualViewport.height}px`
+      );
+    }
+
+    // 页面一加载，就先执行一次，设置初始高度
+    updateHeight();
+
+    // 当窗口大小变化时（比如键盘弹出/收起），再次执行更新函数
+    visualViewport.addEventListener('resize', updateHeight);
+</script>
+<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
+
+
 <!-- ▼▼▼ 把这一整块全新的HTML代码，粘贴到 </body> 标签的正上方 ▼▼▼ -->
 
 <!-- 【全新】情侣空间-提问弹窗 -->
