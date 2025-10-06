@@ -46,21 +46,30 @@ html {
     height: 100%; /* 确保html元素也能撑满 */
 }
 
+/* ▼▼▼ 【核心修复】用这块终极锁定版代码，替换掉你现有的 body 样式 ▼▼▼ */
 body {
     margin: 0;
     font-family: 'bulangni', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-weight: normal;
     background-color: #f0f2f5;
-    height: 100%; /* 让body也撑满父元素(html) */
-    overflow: hidden; /* 防止body本身出现滚动条 */
+    
+    /* --- 核心修改从这里开始 --- */
+    height: 100%;
+    width: 100%;
+    position: fixed; /* ★★★ 魔法！将body固定在屏幕上，让键盘无法推动它 ★★★ */
+    overflow: hidden;  /* 防止任何意外的滚动 */
+    top: 0;
+    left: 0;
+    /* --- 核心修改结束 --- */
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
+
 /* 2. 让 #phone-screen 成为新的“根”容器，撑满整个浏览器窗口 */
-/* ▼▼▼ 请用这块【终极全屏修复版】的代码，替换掉你现有的 #phone-screen 样式 ▼▼▼ */
+/* ▼▼▼ 还原 #phone-screen 的高度 ▼▼▼ */
 #phone-screen {
     width: 100%;
-    height: 100dvh; /* ★★★ 核心！使用 100dvh 来完美适配所有场景 ★★★ */
+    height: 100%; /* ★★★ 核心！改回 100% ★★★ */
     position: relative;
     overflow: hidden;
     display: flex;
@@ -68,6 +77,7 @@ body {
     background-color: #ffffff;
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
+
 
 /* 3. 【核心】隐藏掉模拟器的状态栏 */
 #status-bar {
