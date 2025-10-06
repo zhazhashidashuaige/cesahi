@@ -57,15 +57,15 @@ body {
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
 /* 2. 让 #phone-screen 成为新的“根”容器，撑满整个浏览器窗口 */
-/* ▼▼▼ 请用这块【最终修正版】的代码，替换掉你现有的 #phone-screen 样式 ▼▼▼ */
+/* ▼▼▼ 请用这块【终极全屏修复版】的代码，替换掉你现有的 #phone-screen 样式 ▼▼▼ */
 #phone-screen {
     width: 100%;
-    height: 100vh;
+    height: 100dvh; /* ★★★ 核心！使用 100dvh 来完美适配所有场景 ★★★ */
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background-color: #ffffff; /* ★ 修改这里为白色 */
+    background-color: #ffffff;
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
@@ -323,20 +323,14 @@ body {
 /* ▼▼▼ 用这块【终极修复版】代码，替换你旧的 #chat-interface-screen 和 #chat-messages 样式 ▼▼▼ */
 
 /* 1. 聊天屏幕总容器：让它成为一个撑满屏幕的Flex列布局 */
-/* ▼▼▼ 用这块【修复版】代码，替换你旧的 #chat-interface-screen 样式 ▼▼▼ */
-
-/* 1. 聊天屏幕总容器：让它成为一个撑满屏幕的Flex列布局 */
 #chat-interface-screen { 
     background-size: cover; 
     background-position: center; 
-    display: flex;          /* <-- 核心：必须是flex布局 */
+    display: flex; /* <-- 核心：必须是flex布局 */
     flex-direction: column; /* <-- 核心：子元素垂直排列 */
-    /* height: 100%; */     /* ★★★ 把这一行删掉或注释掉！★★★ */
-    overflow: hidden;       /* <-- 核心：防止任何意外溢出 */
+    height: 100%; /* <-- 核心：撑满父容器 */
+    overflow: hidden; /* <-- 核心：防止任何意外溢出 */
 }
-
-/* ▲▲▲ 替换结束 ▲▲▲ */
-
 
 /* 2. 聊天消息区域：让它自动填充剩余空间，而不是固定高度 */
 #chat-messages {
