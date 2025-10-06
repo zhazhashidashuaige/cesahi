@@ -58,22 +58,16 @@ body {
 
 /* 2. 让 #phone-screen 成为新的“根”容器，撑满整个浏览器窗口 */
 /* ▼▼▼ 请用这块【最终修正版】的代码，替换掉你现有的 #phone-screen 样式 ▼▼▼ */
-/* ▼▼▼ 用这块【最终修复版】代码，替换掉你现有的 #phone-screen 样式 ▼▼▼ */
 #phone-screen {
-    position: fixed;        /* 核心修改1：使用固定定位，脱离文档流，相对于浏览器窗口定位 */
-    top: 0;                 /* 核心修改2：从顶部开始 */
-    left: 0;                /* 核心修改3：从左侧开始 */
-    right: 0;               /* 核心修改4：一直延伸到右侧 */
-    bottom: 0;              /* 核心修改5：一直延伸到底部 */
-    /* width 和 height 都不再需要了，因为上面四行已经定义了它的尺寸 */
-    
-    overflow: hidden;       /* 保持：防止容器自身出现滚动条 */
-    display: flex;          /* 保持：让内部元素可以flex布局 */
-    flex-direction: column; /* 保持：让内部元素垂直排列 */
-    background-color: #ffffff; 
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff; /* ★ 修改这里为白色 */
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
-
 
 /* 3. 【核心】隐藏掉模拟器的状态栏 */
 #status-bar {
