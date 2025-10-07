@@ -10277,8 +10277,260 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 /* ▲▲▲ 新增样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】海龟汤游戏样式 ▼▼▼ */
+
+.sts-log-entry {
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    line-height: 1.6;
+}
+
+/* 系统消息 (谜面、提示等) */
+.sts-log-entry.system {
+    background-color: #e9ecef;
+    color: var(--text-secondary);
+    text-align: center;
+    font-weight: 500;
+}
+#phone-screen.dark-mode .sts-log-entry.system {
+    background-color: #2c2c2e;
+}
+
+/* 玩家提问 */
+.sts-log-entry.question {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+}
+#phone-screen.dark-mode .sts-log-entry.question {
+    background-color: #1c1c1e;
+}
+.sts-log-entry .speaker {
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+/* ▼▼▼ 【全新】海龟汤 - 出题人回答气泡美化 ▼▼▼ */
+.sts-log-entry.answer {
+    text-align: right;
+}
+.sts-log-entry.answer .answer-text {
+    display: inline-block;
+    padding: 8px 12px; /* 增加内边距，让气泡更饱满 */
+    border-radius: 18px; /* 增加圆角 */
+    font-weight: 500; /* 字体不用太粗 */
+    background-color: #f0f2f5; /* 统一的、中性的浅灰色背景 */
+    color: var(--text-primary); /* 文字颜色使用主题的主色，适配夜间模式 */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08); /* 稍微调整阴影 */
+}
+
+/* 移除旧的、按颜色区分的样式，确保所有回答都用上面的新样式 */
+.sts-log-entry.answer .answer-text.yes,
+.sts-log-entry.answer .answer-text.no,
+.sts-log-entry.answer .answer-text.irrelevant {
+    background-color: #f0f2f5; /* 确保所有都用这个颜色 */
+}
+
+/* 夜间模式适配 */
+#phone-screen.dark-mode .sts-log-entry.answer .answer-text,
+#phone-screen.dark-mode .sts-log-entry.answer .answer-text.yes,
+#phone-screen.dark-mode .sts-log-entry.answer .answer-text.no,
+#phone-screen.dark-mode .sts-log-entry.answer .answer-text.irrelevant {
+     background-color: #3a3a3c; /* 夜间模式下的深灰色 */
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
 
 
+/* AI猜测 */
+.sts-log-entry.guess {
+    font-style: italic;
+    color: #fd7e14;
+    border-left: 3px solid #fd7e14;
+    padding-left: 12px;
+}
+
+/* 玩家座位上的身份指示器 */
+.player-seat .player-role-indicator.riddle-master {
+    background-color: #ffc107; /* 黄色代表出题人 */
+    display: flex;
+}
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】海龟汤聊天日志美化样式 ▼▼▼ */
+.sts-log-entry.question,
+.sts-log-entry.answer,
+.sts-log-entry.guess {
+    display: flex;
+    align-items: flex-start; /* 头像和气泡顶部对齐 */
+    gap: 10px;
+    max-width: 85%;
+    margin-bottom: 12px;
+}
+
+/* 提问和猜测靠左 */
+.sts-log-entry.question,
+.sts-log-entry.guess {
+    align-self: flex-start;
+}
+
+/* 回答靠右 */
+.sts-log-entry.answer {
+    align-self: flex-end;
+    flex-direction: row-reverse; /* 关键：让头像在右边 */
+}
+
+/* 头像样式 */
+.sts-log-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+/* ▼▼▼ 【全新】海龟汤聊天日志美化样式 (气泡透明版) ▼▼▼ */
+.sts-log-entry.question .sts-log-content,
+.sts-log-entry.guess .sts-log-content {
+    background-color: transparent; /* <-- 修改点1：背景改为透明 */
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: none; /* <-- 修改点2：移除边框，让它彻底“消失” */
+}
+
+#phone-screen.dark-mode .sts-log-entry.question .sts-log-content,
+#phone-screen.dark-mode .sts-log-entry.guess .sts-log-content {
+    background-color: #1c1c1e;
+}
+
+/* 修正回答气泡的样式，因为它不是一个完整的块 */
+.sts-log-entry.answer .answer-text {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+.player-seat .player-avatar.active-turn {
+    border-color: #007bff; /* 使用主题色作为边框颜色 */
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.7); /* 添加发光效果 */
+    animation: sts-pulse-glow 1.5s infinite ease-in-out; /* 应用动画 */
+}
+
+@keyframes sts-pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(0, 123, 255, 1);
+    }
+}
+/* ▼▼▼ 【海龟汤布局修复】请将这段新样式粘贴到 <style> 的末尾 ▼▼▼ */
+#sts-game-log {
+    display: flex;
+    flex-direction: column;
+}
+/* ▲▲▲ 修复结束 ▲▲▲ */
+/* ▼▼▼ 【全新】海龟汤聊天日志美化样式 ▼▼▼ */
+.sts-log-entry.question,
+.sts-log-entry.answer,
+.sts-log-entry.guess {
+    display: flex;
+    align-items: flex-start; /* 头像和气泡顶部对齐 */
+    gap: 10px;
+    max-width: 85%;
+    margin-bottom: 12px;
+    /* 移除旧的背景和边框，因为现在由子元素处理 */
+    background-color: transparent;
+    border: none;
+}
+
+/* 提问和猜测（猜题方）靠左 */
+.sts-log-entry.question,
+.sts-log-entry.guess {
+    align-self: flex-start;
+}
+
+/* 回答（出题人）靠右 */
+.sts-log-entry.answer {
+    align-self: flex-end;
+    flex-direction: row-reverse; /* 关键：让头像在右边 */
+}
+
+/* 头像样式 */
+.sts-log-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+/* 包含发言人和内容的气泡 */
+.sts-log-entry.question .sts-log-content,
+.sts-log-entry.guess .sts-log-content {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+}
+
+#phone-screen.dark-mode .sts-log-entry.question .sts-log-content,
+#phone-screen.dark-mode .sts-log-entry.guess .sts-log-content {
+    background-color: #1c1c1e;
+}
+
+/* 修正回答气泡的样式，因为它不是一个完整的块 */
+.sts-log-entry.answer .answer-text {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* 让日志容器支持flex布局的对齐 */
+#sts-game-log {
+    display: flex;
+    flex-direction: column;
+}
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【海龟汤输入区终极修复版】 ▼▼▼ */
+
+/* 1. 强制重置整个输入区域的布局为“横向排列” */
+#sts-action-area {
+    display: flex !important;
+    flex-direction: row !important; /* 关键：从纵向改为横向 */
+    align-items: flex-end !important;  /* 关键：让输入框和按钮底部对齐 */
+    gap: 8px !important;            /* 设置元素之间的间距 */
+}
+
+/* 2. 强制内部的 main-row 不再需要纵向布局那一套了 */
+#sts-action-area .chat-input-main-row {
+    align-items: flex-end; /* 保持底部对齐 */
+}
+
+/* 3. 美化输入框本身，并让它自动撑满宽度 */
+#sts-action-area #sts-question-input {
+    flex-grow: 1; /* 核心：让输入框自动伸展，占满所有可用宽度 */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    background-color: var(--secondary-bg);
+    font-size: 16px;
+    resize: none;
+    max-height: 100px; /* 和主输入框保持一致 */
+    line-height: 1.5;
+}
+
+/* 4. 【关键】统一所有按钮的高度和样式，让它们和输入框完美适配 */
+#sts-action-area #guess-sts-answer-btn,
+#sts-action-area #send-sts-question-btn {
+    height: 40px; /* 和主聊天发送按钮一样高 */
+    border-radius: 20px;
+    padding: 0 15px;
+    flex-shrink: 0; /* 防止按钮被压缩 */
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* 夜间模式适配 */
+#phone-screen.dark-mode #sts-action-area #sts-question-input {
+    background-color: #2c2c2e;
+    color: var(--text-primary);
+}
+/* ▲▲▲ 修复结束 ▲▲▲ */
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
     <style id="custom-theme-style"></style>
@@ -10404,12 +10656,12 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             <span class="label">情侣空间</span>
         </div>
 
-<!-- ▼▼▼ 在这里粘贴新增的 X社交App 图标代码 ▼▼▼ -->
+<!-- 这是你现在的代码 -->
 <div id="second-page-x-social-app" class="desktop-app-icon" onclick="showScreen('x-social-screen')">
     <div class="icon-bg-desktop"><img id="icon-img-x-social" src="https://i.postimg.cc/8P1H0vQ8/x-logo.png" alt="X社交"></div>
     <span class="label">X社交</span>
 </div>
-<!-- ▲▲▲ 新增代码粘贴结束 ▲▲▲ -->
+
 
 
 <!-- ▼▼▼ 用下面这整块【修复后】的代码，替换掉你旧的 id="center-avatar-wrapper" 的那个 div ▼▼▼ -->
@@ -13568,6 +13820,15 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                     <div class="game-desc">考验默契的时候到了</div>
                 </div>
             </div>
+            <!-- ▼▼▼ 在这里粘贴新的飞行棋游戏卡片 ▼▼▼ -->
+<div class="game-card" data-game="flying-chess">
+    <div class="game-icon">✈️</div>
+    <div class="game-info">
+        <div class="game-title">飞行棋</div>
+        <div class="game-desc">运气与策略的比拼</div>
+    </div>
+</div>
+<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
              <p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary); font-size: 14px; margin-top: 20px;">更多游戏正在火速开发中...</p>
         </div>
     </div>
@@ -13663,6 +13924,125 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 【全新】这是整个海龟汤功能的HTML，请粘贴到 </body> 标签前 ▼▼▼ -->
+
+<!-- 1. 海龟汤游戏主界面 -->
+<div id="sea-turtle-soup-screen" class="screen">
+    <div class="header">
+        <span class="back-btn" id="exit-sts-game-btn">‹ 退出</span>
+        <span>海龟汤</span>
+        <span class="action-btn" id="reveal-sts-answer-btn">揭晓答案</span>
+    </div>
+    <div id="sts-game-content" style="display: flex; flex-direction: column; height: 100%; overflow: hidden; padding: 10px; box-sizing: border-box;">
+        <!-- 玩家座位区 -->
+        <div id="sts-players-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 10px; padding: 10px; flex-shrink: 0;">
+            <!-- 玩家头像和状态将由JS动态生成 -->
+        </div>
+        <!-- 游戏日志/信息区 -->
+        <div id="sts-log-container" style="flex-grow: 1; background-color: rgba(0,0,0,0.05); border-radius: 10px; padding: 10px; overflow-y: auto; margin: 10px 0; min-height: 0;">
+            <div id="sts-game-log">
+                <!-- 游戏过程信息会显示在这里 -->
+            </div>
+        </div>
+<!-- ▼▼▼ 用这块新代码替换旧的 id="sts-action-area" ▼▼▼ -->
+<div id="sts-action-area" class="chat-input-area" style="visibility: visible;">
+     <div class="chat-input-main-row">
+        <textarea id="sts-question-input" rows="1" placeholder="输入问题或答案..."></textarea>
+        <!-- 【核心修改】新增“猜答案”按钮 -->
+        <button id="guess-sts-answer-btn" class="action-button" style="background-color: #ff9800;">猜答案</button>
+        <button id="send-sts-question-btn" class="action-button">提问</button>
+    </div>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+    </div>
+</div>
+
+<!-- 2. 海龟汤游戏设置模态框 -->
+<div id="sea-turtle-soup-setup-modal" class="modal">
+    <div class="modal-content" style="height: auto; max-height: 85%;">
+        <div class="modal-header">
+            <span>海龟汤 - 游戏设置</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>邀请玩家 (你已自动加入)</label>
+                <div id="sts-player-selection" class="list-container" style="height: 200px; border: 1px solid var(--border-color); border-radius: 8px;">
+                    <!-- 玩家选择列表将由JS动态生成 -->
+                </div>
+            </div>
+            <div class="form-group">
+                <label>谁来出题？</label>
+                <select id="sts-riddle-provider-select">
+                    <option value="user">我来出题</option>
+                    <option value="random_ai">随机一位AI</option>
+                </select>
+            </div>
+            <!-- 用户出题的输入区 (默认隐藏) -->
+            <div id="sts-user-riddle-input-area" style="display: none;">
+                <div class="form-group">
+                    <label for="sts-user-riddle-surface">谜面</label>
+                    <textarea id="sts-user-riddle-surface" rows="2" placeholder="例如：一个男人走进酒吧，要了一杯水..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="sts-user-riddle-answer">谜底 (完整故事)</label>
+                    <textarea id="sts-user-riddle-answer" rows="4" placeholder="例如：男人在打嗝，他想喝水止嗝..."></textarea>
+                </div>
+            </div>
+            <!-- AI出题的输入区 (默认隐藏) -->
+            <div id="sts-ai-riddle-input-area" style="display: none;">
+                <div class="form-group">
+                    <label for="sts-ai-riddle-type">谜题类型 (可选)</label>
+                    <input type="text" id="sts-ai-riddle-type" placeholder="例如：恐怖、温情、脑洞、经典">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="cancel-sts-setup-btn">取消</button>
+            <button class="save" id="start-sts-game-btn">开始游戏</button>
+        </div>
+    </div>
+</div>
+<!-- ▼▼▼ 【全新】请将这两块代码粘贴到 </body> 标签前 ▼▼▼ -->
+
+<!-- 1. 海龟汤游戏结算卡片 -->
+<div id="sts-summary-modal" class="modal">
+    <div class="modal-content" style="height: auto; max-height: 80%;">
+        <div class="modal-header">
+            <span>游戏结算</span>
+        </div>
+        <div class="modal-body" id="sts-summary-content" style="white-space: pre-wrap; line-height: 1.7;">
+            <!-- 结算内容将由JS动态生成在这里 -->
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="share-sts-summary-btn">分享复盘</button>
+            <button class="save" id="back-to-hall-from-sts-btn">返回大厅</button>
+        </div>
+    </div>
+</div>
+
+<!-- 2. 海龟汤复盘发送目标选择器 -->
+<div id="sts-share-target-modal" class="modal">
+    <div class="modal-content" style="height: 60%;">
+        <div class="modal-header">
+            <span>选择要分享的玩家</span>
+        </div>
+        <div class="modal-body" id="sts-share-target-list" style="padding: 0;">
+            <!-- 玩家列表将由JS动态生成在这里 -->
+        </div>
+        <div class="modal-footer">
+            <button id="sts-select-all-btn" class="form-button-secondary" style="width: 45%; margin: 0;">全选</button>
+            <button id="sts-deselect-all-btn" class="form-button-secondary" style="width: 45%; margin: 0;">全不选</button>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="sts-cancel-share-btn">取消</button>
+            <button class="save" id="sts-confirm-share-btn">确认分享</button>
+        </div>
+    </div>
+</div>
+
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+
+<!-- ▲▲▲ 海龟汤功能HTML结束 ▲▲▲ -->
 
 <!-- ▲▲▲ HTML代码粘贴结束 ▲▲▲ -->
 <!-- ▼▼▼ 【全新】心声功能模态框 ▼▼▼ -->
@@ -14479,6 +14859,18 @@ let werewolfGameState = {
     gameConfig: {}        // 游戏配置
 };
 // ▲▲▲ 新增变量结束 ▲▲▲
+// ▼▼▼ 【全新】这是海龟汤游戏的状态管理器 ▼▼▼
+let seaTurtleSoupState = {
+    isActive: false,      // 游戏是否正在进行
+    phase: 'setup',       // 游戏阶段: setup, guessing, reveal
+    players: [],          // 玩家列表 { id, name, avatar, persona, isUser, isProvider }
+    riddleProvider: null, // 出题人对象
+    riddle: '',           // 谜面
+    answer: '',           // 谜底
+    gameLog: [],          // 游戏日志
+    currentTurnIndex: 0   // 当前轮到谁行动的索引
+};
+// ▲▲▲ 新增变量结束 ▲▲▲
 
 let currentReplyContext = null; // <--- 新增这行，用来存储当前正在引用的消息信息
 let currentSearchKeyword = ''; // 用于在搜索结果中高亮关键词
@@ -15149,6 +15541,7 @@ const THEME_CSS_TEMPLATE = `
 `;
 
 // ▼▼▼ 在JS顶部，变量定义区，添加这个新常量 ▼▼▼
+// ▼▼▼ 用下面这段【修改后】的代码，完整替换掉你旧的 DEFAULT_APP_ICONS ▼▼▼
 const DEFAULT_APP_ICONS = {
     'world-book': 'https://i.postimg.cc/HWf1JKzn/IMG-6435.jpg',
     'qq': 'https://i.postimg.cc/MTC3Tkw8/IMG-6436.jpg',
@@ -15157,11 +15550,13 @@ const DEFAULT_APP_ICONS = {
     'font': 'https://i.postimg.cc/pXxk1JXk/IMG-6442.jpg',
     'check-phone': 'https://i.postimg.cc/RVwpwr0r/IMG-8348.jpg',
     'weibo': 'https://i.postimg.cc/PqBY5wBq/weibo-icon.png',
-    // ▼▼▼ 在这里添加下面这行新代码 ▼▼▼
     'forum': 'https://i.postimg.cc/pr0T3WfC/douban-icon.png',
     'lovers-space': 'https://i.postimg.cc/d1wZ39xW/lovers-space-icon.png',
-    'game-hall': 'https://i.postimg.cc/P5gL5z2g/game-controller-icon.png'
+    'game-hall': 'https://i.postimg.cc/P5gL5z2g/game-controller-icon.png',
+    'x-social': 'https://i.postimg.cc/8P1H0vQ8/x-logo.png'
 };
+// ▲▲▲ 替换结束 ▲▲▲
+
 
         const STICKER_REGEX = /^(https:\/\/i\.postimg\.cc\/.+|https:\/\/files\.catbox\.moe\/.+|data:image)/;
         const MESSAGE_RENDER_WINDOW = 50;
@@ -15342,7 +15737,7 @@ db.version(33).stores({
     pomodoroSessions: '++id, chatId, startTime'
 });
 // ▲▲▲ 替换结束 ▲▲▲
-
+window.db = db;
 
 // ===================================================================
 // 3. 所有功能函数定义
@@ -25455,6 +25850,7 @@ function renderIconSettings() {
     if (!grid) return;
     grid.innerHTML = '';
 
+// ▼▼▼ 用下面这段【修改后】的代码，完整替换掉你旧的 appLabels ▼▼▼
 const appLabels = {
     'world-book': '世界书',
     'qq': 'QQ',
@@ -25464,8 +25860,12 @@ const appLabels = {
     'check-phone': '查手机',
     'weibo': '微博',
     'forum': '圈子',
-    'lovers-space': '情侣空间'
+    'lovers-space': '情侣空间',
+    'game-hall': '游戏大厅',
+    'x-social': 'X社交'
 };
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 
 
@@ -35905,7 +36305,7 @@ function renderWerewolfGameScreen(options = {}) {
     werewolfGameState.players.forEach(player => {
         const seat = document.createElement('div');
         seat.className = 'player-seat';
-        const avatarClass = `player-avatar ${!player.isAlive ? 'dead' : ''} ${options.speakingPlayerId === player.id ? 'speaking' : ''}`;
+        const avatarClass = `player-avatar ${!player.isAlive ? 'dead' : ''} ${options.speakingPlayerId === player.id ? 'speaking' : ''} ${options.activePlayerId === player.id ? 'active-turn' : ''}`;
         
         let roleIndicator = '';
         const user = werewolfGameState.players.find(p => p.isUser);
@@ -36455,6 +36855,676 @@ function sleep(ms) {
 }
 
 // ▲▲▲ 狼人杀功能函数结束 ▲▲▲
+// ▼▼▼ 【全新】这里是海龟汤游戏的所有核心功能函数 ▼▼▼
+
+/**
+ * 【海龟汤】总入口：打开游戏设置界面
+ */
+async function openSeaTurtleSoupSetup() {
+    // 1. 重置游戏状态
+    seaTurtleSoupState = {
+        isActive: false, phase: 'setup', players: [], riddleProvider: null,
+        riddle: '', answer: '', gameLog: [], currentTurnIndex: 0
+    };
+
+    // 2. 渲染玩家选择列表
+    const selectionEl = document.getElementById('sts-player-selection');
+    selectionEl.innerHTML = '<p>正在加载角色列表...</p>';
+
+    const singleChats = Object.values(state.chats).filter(chat => !chat.isGroup);
+    const allNpcs = Object.values(state.chats).flatMap(chat => (chat.npcLibrary || []).map(npc => ({ ...npc, owner: chat.name })));
+
+    let playerOptions = [
+        ...singleChats.map(c => ({ id: c.id, name: c.name, avatar: c.settings.aiAvatar, type: '角色' })),
+        ...allNpcs.map(n => ({ id: n.id, name: n.name, avatar: n.avatar, type: `NPC (${n.owner})` }))
+    ];
+
+    selectionEl.innerHTML = '';
+    playerOptions.forEach(player => {
+        const item = document.createElement('div');
+        item.className = 'player-selection-item'; // 复用狼人杀的样式
+        item.innerHTML = `
+            <input type="checkbox" class="sts-player-checkbox" value="${player.id}">
+            <img src="${player.avatar || defaultAvatar}" alt="${player.name}">
+            <span class="name">${player.name}</span>
+            <span class="type-tag">${player.type}</span>
+        `;
+        selectionEl.appendChild(item);
+    });
+
+    // 3. 重置并显示设置弹窗
+    document.getElementById('sts-riddle-provider-select').value = 'random';
+    document.getElementById('sts-user-riddle-input-area').style.display = 'none';
+    document.getElementById('sts-ai-riddle-input-area').style.display = 'none';
+    document.getElementById('sea-turtle-soup-setup-modal').classList.add('visible');
+}
+
+/**
+ * 【海龟汤】开始游戏的核心逻辑
+ */
+async function startSeaTurtleSoupGame() {
+    const selectedCheckboxes = document.querySelectorAll('.sts-player-checkbox:checked');
+    if (selectedCheckboxes.length < 1) {
+        alert('请至少邀请一位AI或NPC玩家！');
+        return;
+    }
+
+    await showCustomAlert("请稍候...", "正在准备海龟汤游戏...");
+
+    // 1. 收集玩家信息
+    let players = [{
+        id: 'user', name: state.qzoneSettings.nickname || '我',
+        avatar: state.qzoneSettings.avatar || defaultAvatar, isUser: true, persona: '一个好奇的普通人'
+    }];
+    selectedCheckboxes.forEach(checkbox => {
+        const playerId = checkbox.value;
+        const chat = Object.values(state.chats).find(c => c.id === playerId);
+        if (chat) { // 是主要角色
+            players.push({ id: chat.id, name: chat.name, avatar: chat.settings.aiAvatar, persona: chat.settings.aiPersona, isUser: false });
+        } else { // 是NPC
+            for (const c of Object.values(state.chats)) {
+                const npc = (c.npcLibrary || []).find(n => n.id === playerId);
+                if (npc) {
+                    players.push({ id: npc.id, name: npc.name, avatar: npc.avatar, persona: npc.persona, isUser: false });
+                    break;
+                }
+            }
+        }
+    });
+    players.sort(() => Math.random() - 0.5); // 打乱座位顺序
+    seaTurtleSoupState.players = players;
+
+    // 2. 决定出题人
+    const providerChoice = document.getElementById('sts-riddle-provider-select').value;
+    let providerIndex = -1;
+
+    if (providerChoice === 'user') {
+        providerIndex = players.findIndex(p => p.isUser);
+    } else if (providerChoice === 'random_ai') {
+        const aiIndices = players.map((p, i) => !p.isUser ? i : -1).filter(i => i !== -1);
+        providerIndex = aiIndices[Math.floor(Math.random() * aiIndices.length)];
+    } else { // random
+        providerIndex = Math.floor(Math.random() * players.length);
+    }
+    
+    seaTurtleSoupState.players[providerIndex].isProvider = true;
+    seaTurtleSoupState.riddleProvider = seaTurtleSoupState.players[providerIndex];
+
+    // 3. 获取谜面和谜底
+    if (seaTurtleSoupState.riddleProvider.isUser) {
+        const riddle = document.getElementById('sts-user-riddle-surface').value.trim();
+        const answer = document.getElementById('sts-user-riddle-answer').value.trim();
+        if (!riddle || !answer) {
+            alert('作为出题人，谜面和谜底都不能为空哦！');
+            return;
+        }
+        seaTurtleSoupState.riddle = riddle;
+        seaTurtleSoupState.answer = answer;
+    } else {
+        const riddleType = document.getElementById('sts-ai-riddle-type').value.trim();
+        const { riddle, answer } = await generateSeaTurtleRiddle(seaTurtleSoupState.riddleProvider, riddleType);
+        if (!riddle || !answer) {
+            alert('AI出题失败，请检查API或稍后重试。');
+            return;
+        }
+        seaTurtleSoupState.riddle = riddle;
+        seaTurtleSoupState.answer = answer;
+    }
+
+    // 4. 初始化游戏
+    seaTurtleSoupState.isActive = true;
+    seaTurtleSoupState.phase = 'guessing';
+    logToStsGame(`游戏开始！出题人是 ${seaTurtleSoupState.riddleProvider.name}。`, 'system', seaTurtleSoupState.riddleProvider);
+    logToStsGame(`【谜面】\n${seaTurtleSoupState.riddle}`);
+    
+    document.getElementById('sea-turtle-soup-setup-modal').classList.remove('visible');
+    showScreen('sea-turtle-soup-screen');
+    renderSeaTurtleGameScreen({ activePlayerId: 'user' });
+    
+    // 游戏开始，进入第一个回合
+    await processStsTurn();
+}
+
+/**
+ * 【海龟汤-AI核心】让AI根据指定类型出题
+ */
+async function generateSeaTurtleRiddle(provider, riddleType) {
+    const { proxyUrl, apiKey, model } = state.apiConfig;
+    if (!proxyUrl || !apiKey || !model) return { riddle: null, answer: null };
+
+    const typePrompt = riddleType ? `请创作一个【${riddleType}】类型的` : '请创作一个';
+
+    const systemPrompt = `
+# 任务
+你现在是角色“${provider.name}”，你的人设是：“${provider.persona}”。
+你的任务是扮演这个角色，${typePrompt}经典的海龟汤谜题。
+
+# 核心规则
+1.  **原创性**: 谜题需要有创意，符合海龟汤的风格（一个看似离奇的情景，背后有一个合理但曲折的解释）。
+2.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON对象，包含 "riddle" (谜面) 和 "answer" (谜底) 两个字段。
+3.  **禁止出戏**: 不要说任何与出题无关的话。
+
+# JSON输出格式示例:
+{
+  "riddle": "一个男人走进一家酒吧，向酒保要了一杯水。酒保却掏出了一把枪指着他。男人说了一声“谢谢”，然后离开了。为什么？",
+  "answer": "这个男人在打嗝。他想通过喝水来止嗝，但酒保用更有效的方法——惊吓，帮他治好了打嗝。所以男人表示感谢后就离开了。"
+}
+`;
+    try {
+        const messagesForApi = [{ role: 'user', content: systemPrompt }];
+        let isGemini = proxyUrl === GEMINI_API_URL;
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+
+        const response = isGemini 
+            ? await fetch(geminiConfig.url, geminiConfig.data) 
+            : await fetch(`${proxyUrl}/v1/chat/completions`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+                body: JSON.stringify({ model, messages: messagesForApi, temperature: 1.0, response_format: { type: "json_object" } })
+            });
+        if (!response.ok) throw new Error(await response.text());
+        const data = await response.json();
+        const content = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(/^```json\s*|```$/g, '');
+        return JSON.parse(content);
+    } catch (error) {
+        console.error("AI出题失败:", error);
+        return { riddle: null, answer: null };
+    }
+}
+
+/**
+ * 【海龟汤】渲染游戏主界面 (已添加当前回合玩家高亮)
+ */
+function renderSeaTurtleGameScreen(options = {}) {
+    const playersGrid = document.getElementById('sts-players-grid');
+    const logContainer = document.getElementById('sts-game-log');
+    
+    // 渲染玩家座位
+    playersGrid.innerHTML = '';
+    seaTurtleSoupState.players.forEach(player => {
+        const seat = document.createElement('div');
+        seat.className = 'player-seat';
+        const roleIndicator = player.isProvider ? '<div class="player-role-indicator riddle-master" title="出题人">👑</div>' : '';
+        const avatarClass = `player-avatar ${options.activePlayerId === player.id ? 'active-turn' : ''}`;
+
+        seat.innerHTML = `
+            ${roleIndicator}
+            <img src="${player.avatar}" class="${avatarClass}">
+            <span class="player-name">${player.name}</span>
+        `;
+        playersGrid.appendChild(seat);
+    });
+
+    // 渲染游戏日志
+    logContainer.innerHTML = ''; 
+    seaTurtleSoupState.gameLog.forEach(log => {
+        const logEl = document.createElement('div');
+        logEl.className = `sts-log-entry ${log.type}`;
+
+        let avatarUrl = 'https://i.postimg.cc/PxZrFFFL/o-o-1.jpg';
+        if (log.speakerObj && log.speakerObj.avatar) {
+            avatarUrl = log.speakerObj.avatar;
+        }
+
+        switch (log.type) {
+            case 'system':
+                logEl.innerHTML = log.message.replace(/\n/g, '<br>');
+                break;
+            case 'question':
+            case 'guess':
+                logEl.innerHTML = `
+                    <img src="${avatarUrl}" class="sts-log-avatar">
+                    <div class="sts-log-content">
+                        <div class="speaker">${log.speaker}</div>
+                        <div>${log.message}</div>
+                    </div>
+                `;
+                break;
+            case 'answer':
+                const answerClass = { '是': 'yes', '否': 'no', '无关': 'irrelevant' }[log.message] || 'irrelevant';
+                logEl.innerHTML = `
+                    <div class="sts-log-content">
+                         <span class="answer-text ${answerClass}">${log.message}</span>
+                    </div>
+                    <img src="${avatarUrl}" class="sts-log-avatar">
+                `;
+                break;
+        }
+        logContainer.appendChild(logEl);
+    });
+
+    logContainer.scrollTop = logContainer.scrollHeight;
+}
+
+/**
+ * 【海龟汤】添加一条游戏日志
+ */
+function logToStsGame(message, type = 'system', speakerObj = { name: '系统' }) {
+    seaTurtleSoupState.gameLog.push({ message, type, speaker: speakerObj.name, speakerObj }); // 保存整个对象
+    renderSeaTurtleGameScreen();
+}
+
+
+
+/**
+ * 【海龟汤】处理用户提问
+ */
+async function handleStsUserQuestion() {
+    if (seaTurtleSoupState.phase !== 'guessing') return;
+    const input = document.getElementById('sts-question-input');
+    const question = input.value.trim();
+    if (!question) return;
+
+    const userPlayer = seaTurtleSoupState.players.find(p => p.isUser);
+    logToStsGame(question, 'question', userPlayer);
+    input.value = '';
+
+    // 将控制权交给游戏主循环，并告知是用户在提问
+    await processStsTurn(question, userPlayer);
+}
+
+// ▼▼▼ 把这一整块全新的函数，粘贴到 handleStsUserQuestion 函数的后面 ▼▼▼
+
+/**
+ * 【海龟汤】处理用户猜测答案
+ */
+async function handleStsUserGuess() {
+    if (seaTurtleSoupState.phase !== 'guessing') return;
+    const input = document.getElementById('sts-question-input');
+    const guess = input.value.trim();
+    if (!guess) {
+        alert("猜测的内容不能为空！");
+        return;
+    }
+
+    const userPlayer = seaTurtleSoupState.players.find(p => p.isUser);
+    logToStsGame(guess, 'guess', userPlayer);
+    input.value = '';
+
+    const provider = seaTurtleSoupState.riddleProvider;
+    let isCorrect = false;
+
+    if (provider.isUser) {
+        isCorrect = await showCustomConfirm("判断猜测", `玩家 ${userPlayer.name} 猜测的答案是：\n\n"${guess}"\n\n这个猜测是否正确？`);
+    } else {
+        const aiEvaluation = await triggerStsAiTurn(provider, 'evaluate_guess', guess);
+        isCorrect = aiEvaluation.isCorrect;
+    }
+
+    if (isCorrect) {
+        logToStsGame(`${userPlayer.name} 猜对了！游戏结束！`, 'system', userPlayer);
+        await revealStsAnswer();
+    } else {
+        logToStsGame('不对哦。', 'answer', provider);
+        await processStsTurn();
+    }
+}
+
+/**
+ * 【海龟汤】游戏主循环/引擎
+ */
+async function processStsTurn(userQuestion = null, userObj = null) {
+    if (!seaTurtleSoupState.isActive || seaTurtleSoupState.phase !== 'guessing') return;
+
+    // 1. 如果有用户提问，出题人先回答
+    if (userQuestion && userObj) {
+        const provider = seaTurtleSoupState.riddleProvider;
+        let providerAnswerResponse;
+        if (provider.isUser) {
+            const choice = await showChoiceModal(`回答 ${userObj.name} 的问题: "${userQuestion}"`, [
+                { text: '是', value: '是' }, { text: '否', value: '否' }, { text: '无关', value: '无关' }
+            ]);
+            providerAnswerResponse = { judgement: choice || '无关', remark: '' }; 
+        } else {
+            providerAnswerResponse = await triggerStsAiTurn(provider, 'answer', { question: userQuestion, askerName: userObj.name });
+        }
+        
+        logToStsGame(providerAnswerResponse.judgement, 'answer', provider);
+        if (providerAnswerResponse.remark) {
+            await sleep(500);
+            logToStsGame(providerAnswerResponse.remark, 'question', provider);
+        }
+    }
+
+    // 2. 轮到AI玩家行动 (提问或猜测)
+    const guessers = seaTurtleSoupState.players.filter(p => !p.isProvider);
+    if (guessers.length === 0) return;
+
+    for (const guesser of guessers) {
+        if (guesser.isUser) continue; 
+        
+        await sleep(2000 + Math.random() * 2000); 
+
+        renderSeaTurtleGameScreen({ activePlayerId: guesser.id });
+        const aiAction = await triggerStsAiTurn(guesser, 'guess');
+        
+        if (aiAction.type === 'question') {
+            logToStsGame(aiAction.content, 'question', guesser);
+          await sleep(6000);
+            
+            const provider = seaTurtleSoupState.riddleProvider;
+            let providerAnswerResponse;
+            if (provider.isUser) {
+                const choice = await showChoiceModal(`回答 ${guesser.name} 的问题: "${aiAction.content}"`, [
+                    { text: '是', value: '是' }, { text: '否', value: '否' }, { text: '无关', value: '无关' }
+                ]);
+                providerAnswerResponse = { judgement: choice || '无关', remark: '' }; 
+            } else {
+                providerAnswerResponse = await triggerStsAiTurn(provider, 'answer', { question: aiAction.content, askerName: guesser.name });
+            }
+
+            logToStsGame(providerAnswerResponse.judgement, 'answer', provider);
+            if (providerAnswerResponse.remark) {
+                await sleep(500);
+                logToStsGame(providerAnswerResponse.remark, 'question', provider);
+            }
+
+        } else if (aiAction.type === 'guess') {
+            logToStsGame(aiAction.content, 'guess', guesser);
+            
+            let isCorrect = false;
+            if (seaTurtleSoupState.riddleProvider.isUser) {
+                isCorrect = await showCustomConfirm("判断猜测", `玩家 ${guesser.name} 猜测的答案是：\n\n"${aiAction.content}"\n\n这个猜测是否正确？`);
+            } else {
+                const aiEvaluation = await triggerStsAiTurn(seaTurtleSoupState.riddleProvider, 'evaluate_guess', aiAction.content);
+                isCorrect = aiEvaluation.isCorrect;
+            }
+
+            if (isCorrect) {
+                logToStsGame(`${guesser.name} 猜对了！游戏结束！`, 'system', guesser); 
+                await revealStsAnswer();
+                return;
+            } else {
+                logToStsGame('不对哦。', 'answer', seaTurtleSoupState.riddleProvider);
+            }
+        }
+    }
+
+    renderSeaTurtleGameScreen({ activePlayerId: 'user' });
+}
+
+
+/**
+ * 【海龟汤-AI核心 V2】触发AI行动（回答、提问、判断或猜测）
+ */
+async function triggerStsAiTurn(player, actionType, contextPayload = {}) {
+    const { proxyUrl, apiKey, model } = state.apiConfig;
+    if (!proxyUrl || !apiKey || !model) return { type: 'question', content: '我不知道该问什么了。' };
+
+    let systemPrompt = '';
+    const gameLogText = seaTurtleSoupState.gameLog
+        .map(log => `${log.speaker}: ${log.message}`)
+        .slice(-15)
+        .join('\n');
+
+    if (actionType === 'answer') {
+        systemPrompt = `
+# 任务: 海龟汤出题人
+你正在扮演角色“${player.name}”，人设是：“${player.persona}”。
+你是海龟汤的出题人。你的谜底是：“${seaTurtleSoupState.answer}”。
+现在，玩家“${contextPayload.askerName}”向你提问：“${contextPayload.question}”。
+你的任务是先给出判断，然后可以根据你的人设，对这个问题发表一句简短的、口语化的看法。
+
+# 核心规则
+1.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON对象，包含 "judgement" 和 "remark" 两个字段。
+    - "judgement": 必须是 "是"、"否" 或 "无关" 中的一个。
+    - "remark": 一段符合你人设的、自然的吐槽或补充说明 (可以为空字符串 "")，尽可能发言字数多些。
+2.  **禁止Emoji**: 【绝对禁止】在你的任何回复中使用Emoji表情符号。
+3.  **判断标准**: "是/否/无关"的判断要严格。
+
+# JSON输出格式示例:
+{
+  "judgement": "否",
+  "remark": "嗯...这个问题问得有点偏哦。"
+}
+
+现在，请直接输出你的JSON判断。`;
+    }
+    else if (actionType === 'evaluate_guess') {
+        systemPrompt = `
+# 任务: 海龟汤出题人 - 判断猜测
+你正在扮演角色“${player.name}”，人设是：“${player.persona}”。
+你是海龟汤的出题人。你的谜底是：“${seaTurtleSoupState.answer}”。
+现在，有玩家直接猜测了谜底，内容是：“${contextPayload}”。
+你的任务是判断这个猜测是否与你的谜底【核心意思一致】。
+
+# 核心规则
+1.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON对象，格式为: \`{"isCorrect": true}\` 或 \`{"isCorrect": false}\`。
+2.  **判断标准**: 只要猜测的核心情节、人物关系、关键道具和最终结果与谜底一致即可，不需要逐字匹配。
+
+现在，请直接输出你的判断。`;
+    }
+
+    else { // 'guess'
+        systemPrompt = `
+# 任务: 海龟汤猜测者
+你正在扮演角色“${player.name}”，人设是：“${player.persona}”。
+你正在玩海龟汤游戏，需要根据已知信息提问或猜测谜底。
+
+# 游戏信息
+- 谜面: ${seaTurtleSoupState.riddle}
+- 已有线索 (完整的对话记录):
+${gameLogText}
+
+# 核心规则
+1.  **【【【逻辑推理铁律】】】**: 你【必须】仔细分析上方的“已有线索”，避免提出重复或与已知线索矛盾的问题。你的提问或猜测应该建立在已有信息之上，展现出逻辑推理能力。
+2.  **【【【人格扮演铁律】】】**: 你的提问和猜测都【必须】符合你的人设和口吻，就像真人在玩游戏一样。你可以适当加入一些自己的思考过程或情绪表达，让对话更生动。例如，你可以说：“让我想想... 既然和地点无关，那是不是和时间有关？”，尽可能发言字数多点。
+3.  **决策**: 根据线索，决定是提出一个关键的“是/否”问题来缩小范围，还是直接猜测谜底。当线索足够时，大胆地使用 "guess" 指令来猜测完整的故事。
+4.  **【【【加速规则】】】**: 如果“已有线索”的对话记录已经超过了30条，这说明游戏时间过长。在这种情况下，你【应该更倾向于直接猜测谜底】，而不是继续提出细节问题。
+5.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON对象。
+   - 如果提问, 格式: \`{"type": "question", "content": "你的问题..."}\`
+   - 如果猜测, 格式: \`{"type": "guess", "content": "你猜测的完整故事..."}\`
+6.  **禁止Emoji**: 【绝对禁止】在你的任何回复中使用Emoji表情符号。
+
+现在，请根据你的人设和判断，生成你的行动。`;
+    }
+
+// ▼▼▼ 请用这块【全新的正确代码】进行替换 ▼▼▼
+    try {
+        // 1. 【核心修正】将系统指令和用户触发语明确分开
+        const messagesForApi = [{ role: 'user', content: "请根据你在系统指令中读到的规则，立即开始你的行动。" }];
+        let isGemini = proxyUrl === GEMINI_API_URL;
+        
+        // 2. 【核心修正】为Gemini正确传递systemPrompt
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+
+        // 3. 发起API请求
+        const response = isGemini 
+            ? await fetch(geminiConfig.url, geminiConfig.data) 
+            : await fetch(`${proxyUrl}/v1/chat/completions`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+                body: JSON.stringify({
+                    model: model,
+                    // 4. 【核心修正】为OpenAI类接口正确构建messages数组，将prompt作为system角色
+                    messages: [{ role: 'system', content: systemPrompt }, ...messagesForApi],
+                    temperature: 0.9,
+                    response_format: { type: "json_object" }
+                })
+            });
+    // ▲▲▲ 替换结束 ▲▲▲
+        if (!response.ok) throw new Error(await response.text());
+        const data = await response.json();
+        const content = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(/^```json\s*|```$/g, '');
+        return JSON.parse(content);
+
+    } catch (error) {
+        console.error("海龟汤AI行动失败:", error);
+        if (actionType === 'answer') return { judgement: '无关', remark: '（AI思考短路了...）' };
+        if (actionType === 'evaluate_guess') return { isCorrect: false };
+        return { type: 'question', content: '他/她是人类吗？' };
+    }
+}
+
+/**
+ * 【海龟汤 V2 - 结算增强版】揭晓答案并显示结算界面
+ */
+async function revealStsAnswer() {
+    if (!seaTurtleSoupState.isActive) return;
+    
+    // 1. 标记游戏结束
+    seaTurtleSoupState.isActive = false; // 确保游戏状态变为非激活
+    seaTurtleSoupState.phase = 'reveal';
+    
+    // 2. 隐藏游戏中的操作区域
+    document.getElementById('sts-action-area').style.visibility = 'hidden';
+    
+    // 3. 准备复盘内容
+    const summaryText = generateStsSummary();
+    
+    // 4. 显示结算弹窗
+    showStsSummaryModal(summaryText);
+}
+// ▼▼▼ 【全新】海龟汤结算与分享功能函数 ▼▼▼
+
+/**
+ * 生成海龟汤的复盘文本
+ * @returns {string} 格式化后的复盘Markdown文本
+ */
+function generateStsSummary() {
+    let summaryText = `**海龟汤 - 游戏复盘**\n\n`;
+    summaryText += `**出题人:** ${seaTurtleSoupState.riddleProvider.name}\n\n`;
+    summaryText += `**谜面:**\n${seaTurtleSoupState.riddle}\n\n`;
+    summaryText += `**谜底:**\n${seaTurtleSoupState.answer}`;
+    return summaryText;
+}
+
+/**
+ * 显示游戏结算卡片模态框
+ * @param {string} summaryText - 复盘文本
+ */
+function showStsSummaryModal(summaryText) {
+    const modal = document.getElementById('sts-summary-modal');
+    const contentEl = document.getElementById('sts-summary-content');
+    
+    // 使用你已有的Markdown渲染函数，让复盘更好看
+    contentEl.innerHTML = renderMarkdown(summaryText);
+    
+    // 为按钮绑定事件 (使用克隆节点防止重复绑定)
+    const shareBtn = document.getElementById('share-sts-summary-btn');
+    const newShareBtn = shareBtn.cloneNode(true);
+    shareBtn.parentNode.replaceChild(newShareBtn, shareBtn);
+    newShareBtn.onclick = () => openStsShareTargetPicker(summaryText);
+
+    const backBtn = document.getElementById('back-to-hall-from-sts-btn');
+    const newBackBtn = backBtn.cloneNode(true);
+    backBtn.parentNode.replaceChild(newBackBtn, backBtn);
+    newBackBtn.onclick = () => {
+        modal.classList.remove('visible');
+        showScreen('game-hall-screen');
+    };
+
+    modal.classList.add('visible');
+}
+
+/**
+ * 打开复盘分享目标选择器
+ * @param {string} summaryText - 要分享的复盘文本
+ */
+function openStsShareTargetPicker(summaryText) {
+    const modal = document.getElementById('sts-share-target-modal');
+    const listEl = document.getElementById('sts-share-target-list');
+    listEl.innerHTML = '';
+
+    // 从游戏状态中获取所有非出题人的AI玩家
+    const aiPlayers = seaTurtleSoupState.players.filter(p => !p.isUser && !p.isProvider);
+
+    if (aiPlayers.length === 0) {
+        alert("没有可以分享的AI玩家。");
+        return;
+    }
+
+    // 渲染可选的AI玩家列表
+    aiPlayers.forEach(player => {
+        const item = document.createElement('div');
+        item.className = 'player-selection-item'; // 复用样式
+        item.innerHTML = `
+            <input type="checkbox" class="sts-target-checkbox" value="${player.id}" checked>
+            <img src="${player.avatar || defaultAvatar}" alt="${player.name}">
+            <span class="name">${player.name}</span>
+        `;
+        listEl.appendChild(item);
+    });
+
+    // 绑定按钮事件
+    const confirmBtn = document.getElementById('sts-confirm-share-btn');
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    newConfirmBtn.onclick = () => {
+        const selectedIds = Array.from(document.querySelectorAll('.sts-target-checkbox:checked')).map(cb => cb.value);
+        if (selectedIds.length > 0) {
+            sendStsSummaryToSelectedPlayers(summaryText, selectedIds);
+        } else {
+            alert("请至少选择一个分享对象！");
+        }
+    };
+
+    document.getElementById('sts-cancel-share-btn').onclick = () => modal.classList.remove('visible');
+    document.getElementById('sts-select-all-btn').onclick = () => {
+        document.querySelectorAll('.sts-target-checkbox').forEach(cb => cb.checked = true);
+    };
+    document.getElementById('sts-deselect-all-btn').onclick = () => {
+        document.querySelectorAll('.sts-target-checkbox').forEach(cb => cb.checked = false);
+    };
+
+    modal.classList.add('visible');
+}
+
+/**
+ * 将游戏复盘发送到【选定】的AI角色的聊天中
+ * @param {string} summaryText - 复盘文本
+ * @param {string[]} targetIds - 目标AI角色的ID数组
+ */
+async function sendStsSummaryToSelectedPlayers(summaryText, targetIds) {
+    // 关闭所有可能打开的弹窗
+    document.getElementById('sts-summary-modal').classList.remove('visible');
+    document.getElementById('sts-share-target-modal').classList.remove('visible');
+
+    let sentCount = 0;
+    const aiContext = `[系统指令：刚刚结束了一局海龟汤，这是游戏复盘。请根据这个复盘内容，以你的角色人设，和用户聊聊刚才的游戏。]\n\n${summaryText}`;
+
+    for (const chatId of targetIds) {
+        const chat = state.chats[chatId];
+        if (chat) {
+            // 创建对用户可见的复盘卡片消息
+            const visibleMessage = {
+                role: 'user',
+                type: 'text',
+                timestamp: Date.now(),
+                content: summaryText
+            };
+            
+            // 创建对AI可见的隐藏指令
+            const hiddenInstruction = {
+                role: 'system',
+                content: aiContext,
+                timestamp: Date.now() + 1,
+                isHidden: true
+            };
+            
+            chat.history.push(visibleMessage, hiddenInstruction);
+            await db.chats.put(chat);
+            sentCount++;
+        }
+    }
+    
+    await showCustomAlert("分享成功", `游戏复盘已分享至 ${sentCount} 位AI玩家的聊天中！`);
+    showScreen('game-hall-screen');
+}
+
+// ▲▲▲ 新增函数结束 ▲▲▲
+
+/**
+ * 【辅助函数】计算两个字符串的简单相似度
+ */
+function simpleSimilarity(str1, str2) {
+    const set1 = new Set(str1.split(''));
+    const set2 = new Set(str2.split(''));
+    const intersection = new Set([...set1].filter(x => set2.has(x)));
+    return intersection.size / Math.max(set1.size, set2.size);
+}
+
+// ▲▲▲ 海龟汤功能函数结束 ▲▲▲
 
         async function init() {
 
@@ -41630,20 +42700,23 @@ document.getElementById('reset-forum-filter-btn').addEventListener('click', asyn
     await applyForumFilter();
 });
 // ▲▲▲ 新增事件监听结束 ▲▲▲
-// ▼▼▼ 【全新】游戏大厅事件监听器 ▼▼▼
+// ▼▼▼ 用这块【已修改】的代码，替换旧的 game-hall-grid 事件监听器 ▼▼▼
 document.getElementById('game-hall-grid').addEventListener('click', (e) => {
     const gameCard = e.target.closest('.game-card');
     if (!gameCard) return;
 
     const gameId = gameCard.dataset.game;
     if (gameId === 'werewolf') {
-        // 当点击狼人杀时，打开设置界面
         openWerewolfSetup();
+    } else if (gameId === 'sea-turtle-soup') {
+        // 【核心修改】当点击海龟汤时，打开设置界面
+        openSeaTurtleSoupSetup();
     } else {
-        // 其他游戏暂时给出提示
         alert(`“${gameCard.querySelector('.game-title').textContent}”还在开发中，敬请期待！`);
     }
 });
+// ▲▲▲ 替换结束 ▲▲▲
+
 // ▲▲▲ 新增事件监听结束 ▲▲▲
 // ▼▼▼ 【全新】狼人杀游戏事件监听器 ▼▼▼
 document.getElementById('start-werewolf-game-btn').addEventListener('click', startWerewolfGame);
@@ -41665,6 +42738,53 @@ document.getElementById('werewolf-my-role-btn').addEventListener('click', () => 
     }
 });
 // ▲▲▲ 新增事件监听结束 ▲▲▲
+// ▼▼▼ 【全新】海龟汤游戏事件监听器 ▼▼▼
+
+// 1. 设置弹窗内的交互
+document.getElementById('cancel-sts-setup-btn').addEventListener('click', () => {
+    document.getElementById('sea-turtle-soup-setup-modal').classList.remove('visible');
+});
+document.getElementById('start-sts-game-btn').addEventListener('click', startSeaTurtleSoupGame);
+
+// 监听“出题人”下拉框的变化
+document.getElementById('sts-riddle-provider-select').addEventListener('change', (e) => {
+    const userArea = document.getElementById('sts-user-riddle-input-area');
+    const aiArea = document.getElementById('sts-ai-riddle-input-area');
+    userArea.style.display = 'none';
+    aiArea.style.display = 'none';
+    if (e.target.value === 'user') {
+        userArea.style.display = 'block';
+    } else if (e.target.value === 'random_ai') {
+        aiArea.style.display = 'block';
+    }
+});
+
+// 2. 游戏主界面的按钮
+document.getElementById('exit-sts-game-btn').addEventListener('click', async () => {
+    const confirmed = await showCustomConfirm('退出游戏', '确定要中途退出游戏吗？');
+    if (confirmed) {
+        seaTurtleSoupState.isActive = false;
+        showScreen('game-hall-screen');
+    }
+});
+document.getElementById('reveal-sts-answer-btn').addEventListener('click', async () => {
+    const confirmed = await showCustomConfirm('揭晓答案', '确定要提前揭晓答案并结束游戏吗？');
+    if (confirmed) {
+        revealStsAnswer();
+    }
+});
+document.getElementById('send-sts-question-btn').addEventListener('click', handleStsUserQuestion);
+// ▼▼▼ 在 init() 的事件监听器区域末尾添加 ▼▼▼
+document.getElementById('guess-sts-answer-btn').addEventListener('click', handleStsUserGuess);
+// ▲▲▲ 添加结束 ▲▲▲
+document.getElementById('sts-question-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('send-sts-question-btn').click();
+    }
+});
+
+// ▲▲▲ 新事件监听器结束 ▲▲▲
 
 
 // ===================================================================
