@@ -10897,6 +10897,61 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     font-size: 24px !important;    /* 恢复箭头的大小，你可以微调这个数字 */
     color: var(--accent-color) !important; /* 恢复箭头的颜色，它会跟随你的主题色 */
 }
+/* ▼▼▼ 【V2升级版】游戏发言输入区通用美化样式 ▼▼▼ */
+
+/* 1. 让两个游戏的发言区域容器都变成横向排列的Flex布局 */
+#werewolf-action-area.speaking-mode,
+#script-kill-action-area.speaking-mode {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 0;
+}
+
+/* 2. 美化两个游戏的发言输入框 */
+#werewolf-action-area.speaking-mode #user-speech-input,
+#script-kill-action-area.speaking-mode #user-sk-speech-input {
+    flex-grow: 1;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    background-color: var(--secondary-bg);
+    font-size: 16px;
+    resize: none;
+    max-height: 100px;
+    line-height: 1.5;
+    width: auto !important; 
+    height: auto !important;
+}
+
+/* 3. 美化两个游戏的“结束发言”按钮 */
+#werewolf-action-area.speaking-mode #end-speech-btn,
+#script-kill-action-area.speaking-mode #sk-end-speech-btn {
+    height: 40px;
+    border-radius: 20px;
+    padding: 0 15px;
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 !important; 
+    width: auto !important;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+}
+
+/* 4. 夜间模式适配 */
+#phone-screen.dark-mode #werewolf-action-area.speaking-mode #user-speech-input,
+#phone-screen.dark-mode #script-kill-action-area.speaking-mode #user-sk-speech-input {
+    background-color: #2c2c2e;
+    color: var(--text-primary);
+}
+
+/* ▲▲▲ 升级版样式粘贴结束 ▲▲▲ */
+
+
 
 
     </style>
@@ -11914,6 +11969,15 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     <label for="ringtone-url-input">来电铃声 URL (.mp3, .wav, etc.)</label>
     <input type="text" id="ringtone-url-input" placeholder="输入音频文件的网络链接...">
 </div>
+<!-- ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼ -->
+<div class="form-group" style="width: 100%; margin-top: 15px;">
+    <label for="notification-sound-url-input">消息提示音 URL (.mp3, .wav, etc.)</label>
+    <input type="text" id="notification-sound-url-input" placeholder="输入音频文件的网络链接...">
+</div>
+<!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
+
+
+
 <!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
 <!-- ▼▼▼ 从这里开始，把下面这一整块全新的代码，粘贴到“保存所有外观设置”按钮的【上方】 ▼▼▼ -->
 <hr style="width: 80%; opacity: 0.3; margin: 30px 0;">
@@ -18385,6 +18449,9 @@ if (typeof chat.settings.isCoupleAvatar === 'undefined') {
 
 state.globalSettings = globalSettings || { 
     id: 'main', 
+    ringtoneUrl: 'https://files.catbox.moe/3w7gla.mp3',
+    notificationSoundUrl: 'https://files.catbox.moe/k369mf.mp3', // <-- 在这里新增这一行
+    widgetData: {}, 
     wallpaper: 'linear-gradient(135deg, #89f7fe, #66a6ff)', 
     lockscreenWallpaper: 'linear-gradient(135deg, #764ba2, #667eea)',
     password: '',
@@ -18470,6 +18537,13 @@ if (!state.qzoneSettings.weiboAvatarFrame) state.qzoneSettings.weiboAvatarFrame 
     // ▼▼▼ 【确保这一行在 Promise.all 之后，并使用解构赋值得到的 initialFavorites】 ▼▼▼
     allFavoriteItems = initialFavorites || [];
     // ▲▲▲ 【修改结束】 ▲▲▲
+
+// 在 loadAllDataFromDB 函数末尾，init(); 调用之前添加
+if (typeof state.globalSettings.notificationSoundUrl === 'undefined') {
+    state.globalSettings.notificationSoundUrl = 'https://files.catbox.moe/k369mf.mp3';
+}
+
+
 }
 
         // ▼▼▼ 【全新 | 支持临时歌曲】请用这个新版本替换旧的 saveGlobalPlaylist 函数 ▼▼▼
@@ -19120,6 +19194,8 @@ currentRenderedCount += messagesToPrepend.length; const newScrollHeight = messag
 
 // ▼▼▼ 用这个【新版本】替换旧的 renderWallpaperScreen 函数 ▼▼▼
 function renderWallpaperScreen() { 
+
+
       // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
     // 【核心修复】每次渲染此页面时，都从 localStorage 读取并设置开关的正确状态
     const lockScreenEnabled = localStorage.getItem('lockScreenEnabled') !== 'false';
@@ -28634,6 +28710,32 @@ function stopRingtone() {
         ringtonePlayer.currentTime = 0; // 将播放进度重置到开头
     }
 }
+
+
+/**
+ * 【全新】播放消息提示音
+ */
+function playNotificationSound() {
+    // 优先使用设置中的URL，如果没有，就用一个默认的
+    const soundUrl = state.globalSettings.notificationSoundUrl || 'https://files.catbox.moe/k369mf.mp3';
+    if (soundUrl) {
+        try {
+            const audio = new Audio(soundUrl);
+            // 设置一个合理的音量，避免太刺耳
+            audio.volume = 0.7; 
+            audio.play().catch(error => {
+                // 这个catch很重要，可以防止用户没有与页面交互时，浏览器阻止播放导致的报错
+                console.warn("播放消息提示音失败（可能是因为用户未与页面交互）:", error);
+            });
+        } catch (error) {
+            console.error("创建提示音Audio对象失败:", error);
+        }
+    }
+}
+
+
+
+
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
 
 // ▼▼▼ 【全新】音频上下文解锁函数（修复铃声无法自动播放的问题） ▼▼▼
@@ -37569,45 +37671,65 @@ function checkGameOver() {
 }
 // ▲▲▲ 替换结束 ▲▲▲
 
-// ▼▼▼ 【全新添加】这是您缺失的 waitForUserAction 函数 ▼▼▼
+// ▼▼▼ 【狼人杀输入框美化】请用这个【全新】的函数，完整替换掉你旧的 waitForUserAction 函数 ▼▼▼
 /**
- * 【狼人杀】等待用户行动的通用函数
+ * 【狼人杀 V2 - 输入框美化版】等待用户行动的通用函数
  */
 function waitForUserAction(prompt, actionType, context = {}) {
-      // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
     const me = werewolfGameState.players.find(p => p.isUser);
     if (me && !me.isAlive) {
-        // 如果我已经淘汰了
         const actionArea = document.getElementById('werewolf-action-area');
         actionArea.innerHTML = `<h5>您已淘汰，正在观战...</h5>`;
-        // 自动等待几秒后继续游戏流程
         return new Promise(async (resolve) => {
             await sleep(3000);
-            actionArea.innerHTML = ''; // 清理提示
-            resolve(null); // 返回一个空操作，让游戏继续
+            actionArea.innerHTML = ''; 
+            resolve(null);
         });
     }
-    // ▲▲▲ 新代码粘贴结束 ▲▲▲
+    
     return new Promise(resolve => {
         const actionArea = document.getElementById('werewolf-action-area');
+        actionArea.innerHTML = ''; // 清空，准备新的UI
+        actionArea.className = 'werewolf-action-area'; // 重置class
+
+        if (actionType === 'speak') {
+            // --- 这是我们美化后的发言输入区 ---
+            actionArea.classList.add('speaking-mode'); // 激活新CSS
+
+            const textarea = document.createElement('textarea');
+            textarea.id = 'user-speech-input';
+            textarea.rows = 1;
+            textarea.placeholder = '请输入你的发言...';
+            // 实时调整高度
+            textarea.addEventListener('input', () => {
+                textarea.style.height = 'auto';
+                textarea.style.height = (textarea.scrollHeight) + 'px';
+            });
+
+            const endBtn = document.createElement('button');
+            endBtn.id = 'end-speech-btn';
+            endBtn.className = 'form-button'; // 保留一个基础class
+            endBtn.textContent = '结束发言';
+
+            actionArea.appendChild(textarea);
+            actionArea.appendChild(endBtn);
+            
+            textarea.focus();
+
+            endBtn.onclick = () => {
+                const speech = textarea.value.trim() || "我过麦。";
+                actionArea.innerHTML = '';
+                actionArea.classList.remove('speaking-mode');
+                resolve(speech);
+            };
+            return; // 结束 'speak' 分支
+        }
+
+        // --- 以下是其他非发言动作的UI，保持原样 ---
         actionArea.innerHTML = `<h5>${prompt}</h5>`;
         const grid = document.createElement('div');
         grid.className = 'vote-target-grid';
-
-        if (actionType === 'speak') {
-            actionArea.innerHTML += `<textarea id="user-speech-input" rows="2" style="width: 80%;" placeholder="请输入你的发言..."></textarea>`;
-            const btn = document.createElement('button');
-            btn.className = 'form-button';
-            btn.textContent = '结束发言';
-            btn.onclick = () => {
-                const speech = document.getElementById('user-speech-input').value.trim() || "我过麦。";
-                actionArea.innerHTML = '';
-                resolve(speech);
-            };
-            actionArea.appendChild(btn);
-            return;
-        }
-
+        
         if (actionType === 'witch_action') {
             if (context.killedId && werewolfGameState.witchPotions.save > 0) {
                 const saveBtn = document.createElement('button');
@@ -37639,10 +37761,8 @@ function waitForUserAction(prompt, actionType, context = {}) {
         if (['guard_protect', 'seer_check', 'hunter_shoot', 'witch_poison_target'].includes(actionType)) {
             targets = werewolfGameState.players.filter(p => p.isAlive);
         } else if (actionType === 'wolf_kill') {
-            // 狼人不能自刀或刀队友
             targets = werewolfGameState.players.filter(p => p.isAlive && p.role !== 'wolf');
         } else if (actionType === 'vote') {
-            // 白天可以投票给任何人，包括自己（虽然不常见）
             targets = werewolfGameState.players.filter(p => p.isAlive);
         }
         
@@ -37657,7 +37777,6 @@ function waitForUserAction(prompt, actionType, context = {}) {
             grid.appendChild(btn);
         });
         
-        // 如果是白天投票，可以弃票
         if(actionType === 'vote') {
             const passBtn = document.createElement('button');
             passBtn.className = 'form-button-secondary vote-target-btn';
@@ -37668,7 +37787,7 @@ function waitForUserAction(prompt, actionType, context = {}) {
         actionArea.appendChild(grid);
     });
 }
-// ▲▲▲ 添加结束 ▲▲▲
+// ▲▲▲ 替换结束 ▲▲▲
 
 // ▼▼▼ 用这个【功能完整版】的函数替换旧的 triggerWerewolfAiAction ▼▼▼
 async function triggerWerewolfAiAction(playerId, action, context = {}) {
@@ -39042,26 +39161,51 @@ function updateActionAreaSK() {
 
 
 
+// ▼▼▼ 【剧本杀输入框美化版】请用这个【全新】的函数，完整替换掉你旧的 waitForUserActionSK 函数 ▼▼▼
 /**
- * 【剧本杀】等待用户行动的通用函数
+ * 【剧本杀 V2 - 输入框美化版】等待用户行动的通用函数
  */
 function waitForUserActionSK(promptText, actionType, placeholder = '') {
     return new Promise(resolve => {
         const actionArea = document.getElementById('script-kill-action-area');
-        
+        actionArea.innerHTML = '';
+        actionArea.className = 'script-kill-action-area'; // 重置class
+
         if (actionType === 'speak') {
-            actionArea.innerHTML = `<h5>${promptText}</h5>`;
-            actionArea.innerHTML += `<textarea id="user-sk-speech-input" rows="3" style="width: 80%;" placeholder="${placeholder}"></textarea>`;
-            const btn = document.createElement('button');
-            btn.className = 'form-button';
-            btn.textContent = '结束发言';
-            btn.onclick = () => {
-                const speech = document.getElementById('user-sk-speech-input').value.trim() || "我没什么好说的，过。";
-                updateActionAreaSK();
+            // --- 这是我们美化后的发言输入区 ---
+            actionArea.classList.add('speaking-mode'); // 激活新CSS
+
+            const textarea = document.createElement('textarea');
+            textarea.id = 'user-sk-speech-input'; // 使用剧本杀专用的ID
+            textarea.rows = 1;
+            textarea.placeholder = placeholder || '请输入你的发言...';
+            // 实时调整高度
+            textarea.addEventListener('input', () => {
+                textarea.style.height = 'auto';
+                textarea.style.height = (textarea.scrollHeight) + 'px';
+            });
+
+            const endBtn = document.createElement('button');
+            endBtn.id = 'sk-end-speech-btn'; // 使用剧本杀专用的ID
+            endBtn.className = 'form-button';
+            endBtn.textContent = '结束发言';
+
+            actionArea.appendChild(textarea);
+            actionArea.appendChild(endBtn);
+            
+            textarea.focus();
+
+            endBtn.onclick = () => {
+                const speech = textarea.value.trim() || "我没什么好说的，过。";
+                actionArea.innerHTML = '';
+                actionArea.classList.remove('speaking-mode');
                 resolve(speech);
             };
-            actionArea.appendChild(btn);
-        } else if (actionType === 'vote') {
+            return; // 结束 'speak' 分支
+        } 
+        
+        // --- 以下是投票逻辑，保持原样 ---
+        else if (actionType === 'vote') {
             const modal = document.getElementById('script-kill-vote-modal');
             const optionsEl = document.getElementById('sk-vote-options-list');
             optionsEl.innerHTML = '';
@@ -39089,6 +39233,7 @@ function waitForUserActionSK(promptText, actionType, placeholder = '') {
         }
     });
 }
+// ▲▲▲ 替换结束 ▲▲▲
 /**
  * 【全新】处理单个AI的搜证行动 (每次只搜一个线索)
  * @param {object} player - 正在行动的AI玩家对象
