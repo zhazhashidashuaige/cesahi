@@ -11976,8 +11976,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 </div>
 <!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
 
-
-
 <!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
 <!-- ▼▼▼ 从这里开始，把下面这一整块全新的代码，粘贴到“保存所有外观设置”按钮的【上方】 ▼▼▼ -->
 <hr style="width: 80%; opacity: 0.3; margin: 30px 0;">
@@ -13038,7 +13036,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
     <audio id="audio-player" style="display:none;"></audio>
 <audio id="ringtone-player" loop></audio>
-
+<audio id="notification-sound-player" preload="auto"></audio>
 <!-- ▼▼▼ 用下面这【一整块完整代码】替换掉你旧的 id="create-post-modal" 的整个 div ▼▼▼ -->
 <div id="create-post-modal" class="modal">
     <div class="modal-content" style="height: auto; max-height: 90%;">
@@ -18461,6 +18459,7 @@ state.globalSettings = globalSettings || {
     blockCooldownHours: 1,
     appIcons: { ...DEFAULT_APP_ICONS },
     ringtoneUrl: 'https://files.catbox.moe/3w7gla.mp3',
+    notificationSoundUrl: 'https://files.catbox.moe/k369mf.mp3', 
     widgetData: {}, // 【核心修改】在这里新增一个空对象，用来存放你的自定义内容
 // 在 state.globalSettings 的初始化对象里添加：
 homeAvatarFrame: '', // 为主屏幕头像框添加默认空值
@@ -18559,7 +18558,7 @@ async function saveGlobalPlaylist() {
 
         function formatTimestamp(timestamp) { if (!timestamp) return ''; const date = new Date(timestamp); const hours = String(date.getHours()).padStart(2, '0'); const minutes = String(date.getMinutes()).padStart(2, '0'); return `${hours}:${minutes}`; }
 
-        function showNotification(chatId, messageContent) { clearTimeout(notificationTimeout); const chat = state.chats[chatId]; if (!chat) return; const bar = document.getElementById('notification-bar'); document.getElementById('notification-avatar').src = chat.settings.aiAvatar || chat.settings.groupAvatar || defaultAvatar; document.getElementById('notification-content').querySelector('.name').textContent = chat.name; document.getElementById('notification-content').querySelector('.message').textContent = messageContent; const newBar = bar.cloneNode(true); bar.parentNode.replaceChild(newBar, bar); newBar.addEventListener('click', () => { openChat(chatId); newBar.classList.remove('visible'); }); newBar.classList.add('visible'); notificationTimeout = setTimeout(() => { newBar.classList.remove('visible'); }, 4000); }
+        function showNotification(chatId, messageContent) { playNotificationSound();clearTimeout(notificationTimeout); const chat = state.chats[chatId]; if (!chat) return; const bar = document.getElementById('notification-bar'); document.getElementById('notification-avatar').src = chat.settings.aiAvatar || chat.settings.groupAvatar || defaultAvatar; document.getElementById('notification-content').querySelector('.name').textContent = chat.name; document.getElementById('notification-content').querySelector('.message').textContent = messageContent; const newBar = bar.cloneNode(true); bar.parentNode.replaceChild(newBar, bar); newBar.addEventListener('click', () => { openChat(chatId); newBar.classList.remove('visible'); }); newBar.classList.add('visible'); notificationTimeout = setTimeout(() => { newBar.classList.remove('visible'); }, 4000); }
 
       // ▼▼▼ 步骤 1.1：用下面这【一整块】代码，完整替换掉旧的 updateClock 函数 ▼▼▼
 /* ▼▼▼ 步骤 1：将这一整块全新的功能函数，粘贴到您的JS代码的功能函数定义区 ▼▼▼ */
@@ -19255,6 +19254,10 @@ document.getElementById('ringtone-url-input').value = state.globalSettings.ringt
 loadHomeScreenPresetsToDropdown(); 
 }
 // ▲▲▲ 替换结束 ▲▲▲
+document.getElementById('ringtone-url-input').value = state.globalSettings.ringtoneUrl || '';
+// ▼▼▼ 在这里添加下面这行新代码 ▼▼▼
+document.getElementById('notification-sound-url-input').value = state.globalSettings.notificationSoundUrl || '';
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
         window.renderWallpaperScreenProxy = renderWallpaperScreen;
 
         function applyGlobalWallpaper() { const homeScreen = document.getElementById('home-screen'); const wallpaper = state.globalSettings.wallpaper; if (wallpaper && wallpaper.startsWith('data:image')) homeScreen.style.backgroundImage = `url(${wallpaper})`; else if (wallpaper) homeScreen.style.backgroundImage = wallpaper; }
@@ -28712,29 +28715,34 @@ function stopRingtone() {
 }
 
 
+// ▼▼▼ 请用下面这段【优化后】的代码替换 ▼▼▼
 /**
- * 【全新】播放消息提示音
+ * 【优化版】播放消息提示音，增加健壮性
  */
 function playNotificationSound() {
-    // 优先使用设置中的URL，如果没有，就用一个默认的
-    const soundUrl = state.globalSettings.notificationSoundUrl || 'https://files.catbox.moe/k369mf.mp3';
-    if (soundUrl) {
-        try {
-            const audio = new Audio(soundUrl);
-            // 设置一个合理的音量，避免太刺耳
-            audio.volume = 0.7; 
-            audio.play().catch(error => {
-                // 这个catch很重要，可以防止用户没有与页面交互时，浏览器阻止播放导致的报错
-                console.warn("播放消息提示音失败（可能是因为用户未与页面交互）:", error);
-            });
-        } catch (error) {
-            console.error("创建提示音Audio对象失败:", error);
-        }
+    const soundUrl = state.globalSettings.notificationSoundUrl || 'https://laddy-lulu.github.io/Ephone-stuffs/message.mp3';
+    
+    // 1. 增加安全检查：如果链接为空，直接返回，不执行任何操作
+    if (!soundUrl || !soundUrl.trim()) return;
+
+    try {
+        const audio = new Audio(soundUrl);
+        audio.volume = 0.7; 
+        
+        audio.play().catch(error => {
+            // 2. 优化错误提示，现在能更准确地反映问题
+            if (error.name === 'NotAllowedError') {
+                console.warn("播放消息提示音失败：用户需要先与页面进行一次交互（如点击）才能自动播放音频。");
+            } else {
+                // 对于其他错误（比如我们这次遇到的），直接打印错误详情
+                console.error(`播放消息提示音失败 (${error.name}): ${error.message}`, "URL:", soundUrl);
+            }
+        });
+    } catch (error) {
+        console.error("创建提示音Audio对象时出错:", error);
     }
 }
-
-
-
+// ▲▲▲ 替换结束 ▲▲▲
 
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
 
@@ -40377,9 +40385,47 @@ async function triggerGuessWhatAiAction(actionType, userInput = null) {
     const historyText = guessWhatGameState.gameLog.map(log => log.type === 'system' ? `[系统提示: ${log.message}]` : `${log.message.player.name}: ${log.message.text}`).slice(-10).join('\n');
     let systemPrompt = `# 你的任务\n你正在扮演角色“${opponent.name}”，你的人设是：“${opponent.persona}”。\n你正在和你的朋友“${state.qzoneSettings.nickname || '我'}”玩“你说我猜”游戏。\n你的所有发言都【必须】严格符合你的人设和口吻，让整个过程像一次真实的聊天互动。\n\n# 游戏历史 (最近的对话)\n${historyText}\n`;
     switch (actionType) {
-        case 'generate_word': systemPrompt += `# 你的行动指令\n1. 根据你的人设，想一个随机的、2-5个字的中文词语作为谜底。\n2. 为这个词语，给出你的【第一条】符合人设的、有趣的提示，只需要给出大概方向，不要那种完全直接能猜到的，可以进行适当的吐槽。\n3. 你的回复【必须且只能】是一个严格的JSON对象，包含 "secretWord" 和 "firstHint" 两个字段。\n\n# JSON输出格式示例:\n{"secretWord": "月亮", "firstHint": "【指了指天上】晚上才能看到的东西哦，圆圆的，亮亮的~"}`; break;
-        case 'give_hint': systemPrompt += `# 游戏规则\n你是出题人，你的谜底是【${guessWhatGameState.secretWord}】。\n用户刚刚的猜测是：“${userInput}”。\n\n# 你的行动指令\n1. 首先判断用户的猜测是否正确。\n2. 如果用户猜对了，游戏结束。\n3. 如果用户猜错了，你【必须】根据用户的错误猜测，给出【下一条】新的、更具针对性的提示，引导他们。\n4. 你的所有提示都【必须】符合你的人设和口吻，可以加入动作、表情、语气词。\n5. 你的回复【必须且只能】是一个严格的JSON对象。\n\n# JSON输出格式\n- 如果猜对了: \`{"type": "game_over", "winner": "user", "reason": "恭喜你猜对啦！就是【${guessWhatGameState.secretWord}】！"}\`\n- 如果猜错了: \`{"type": "hint", "text": "不对哦，再想想。提示是：[在这里写你的新提示]"}\``; break;
-        case 'guess_word': systemPrompt += `# 游戏规则\n你是猜题人，用户出的谜底是【${guessWhatGameState.secretWord}】。\n用户刚刚给你的新提示是：“${userInput}”。\n\n# 你的行动指令\n1. 综合分析【游戏历史】中用户给出的【所有提示】。\n2. 根据所有线索，进行【一次】猜测。\n3. 你的猜测【必须】符合你的人设和口吻，可以加入你的思考过程或情绪，可以进行适当的吐槽。\n4. 【【【绝对禁止】】】你【不能】再向用户提问，你的任务是直接猜测。\n5. 你的回复【必须且只能】是一个严格的JSON对象。\n\n# JSON输出格式\n- 如果猜对了: \`{"type": "game_over", "winner": "ai", "reason": "我猜对啦！谜底就是【${guessWhatGameState.secretWord}】！"}\`\n- 如果猜错了: \`{"type": "guess", "text": "我猜是...[你的猜测]"}\``; break;
+case 'generate_word': 
+    systemPrompt += `# 你的行动指令
+1. 根据你的人设，想一个随机的、2-5个字的中文词语作为谜底。
+2. 为这个词语，给出你的【第一条】符合人设的、有趣的提示，只需要给出大概方向，不要那种完全直接能猜到的，可以进行适当的吐槽。
+3. 你的回复【必须且只能】是一个严格的JSON对象，包含 "secretWord" 和 "firstHint" 两个字段。
+
+# JSON输出格式示例:
+{"secretWord": "月亮", "firstHint": "【指了指天上】晚上才能看到的东西哦，圆圆的，亮亮的~"}`; 
+    break;
+case 'give_hint':
+    systemPrompt += `# 游戏规则
+你是出题人，你的谜底是【${guessWhatGameState.secretWord}】。
+用户刚刚的猜测是：“${userInput}”。
+
+# 你的行动指令
+1.  首先判断用户的猜测是否正确。
+2.  如果用户猜对了，游戏结束。
+3.  如果用户猜错了，你【必须】根据用户的错误猜测，给出【下一条】新的、更具针对性的提示，引导他们。
+4.  【【【人设扮演铁律】】】你的所有提示都【必须】符合你的人设和口吻，可以加入动作、表情、语气词，甚至可以对用户【笨笨的猜测进行一些俏皮的吐槽】，让游戏更有趣。
+5.  你的回复【必须且只能】是一个严格的JSON对象。
+
+# JSON输出格式
+- 如果猜对了: \`{"type": "game_over", "winner": "user", "reason": "恭喜你猜对啦！就是【${guessWhatGameState.secretWord}】！"}\`
+- 如果猜错了: \`{"type": "hint", "text": "【叹气】不对哦，再想想。提示是：[在这里写你的新提示]"}\``;
+    break;
+case 'guess_word': 
+    systemPrompt += `# 游戏规则
+你是猜题人。
+用户刚刚给你的新提示是：“${userInput}”。
+
+# 你的行动指令
+1.  综合分析【游戏历史】中用户给出的【所有提示】。
+2.  根据所有线索，进行【一次】猜测。
+3.  你的猜测【必须】符合你的人设和口吻，可以加入你的思考过程或情绪，可以进行适当的吐槽。
+4.  【【【绝对禁止】】】你【不能】再向用户提问，你的任务是直接猜测。
+5.  你的回复【必须且只能】是一个严格的JSON对象。
+
+# JSON输出格式
+- 如果猜对了: \`{"type": "game_over", "winner": "ai", "reason": "我猜对啦！谜底就是【${guessWhatGameState.secretWord}】！"}\`
+- 如果猜错了: \`{"type": "guess", "text": "我猜是...[你的猜测]"}\``; 
+    break;
     }
     
     // --- 【核心改造】带有智能重试的API请求逻辑 ---
@@ -40828,6 +40874,10 @@ async function forwardGuessWhatSummary(summaryText) {
             window.renderWorldBookScreenProxy = renderWorldBookScreen;
 
             await loadAllDataFromDB();
+            // 在 loadAllDataFromDB 函数末尾，init(); 调用之前添加
+if (typeof state.globalSettings.notificationSoundUrl === 'undefined') {
+    state.globalSettings.notificationSoundUrl = 'https://files.catbox.moe/k369mf.mp3';
+}
             // ▼▼▼ 把新代码粘贴到这里 ▼▼▼
             renderHomeScreenProfileFrame(); // 初始化时渲染主页头像框
             // ▲▲▲ 粘贴结束 ▲▲▲
@@ -41368,7 +41418,7 @@ document.getElementById('save-wallpaper-btn').addEventListener('click', async ()
     state.globalSettings.password = newPassword;
 
     state.globalSettings.ringtoneUrl = document.getElementById('ringtone-url-input').value.trim();
-
+state.globalSettings.notificationSoundUrl = document.getElementById('notification-sound-url-input').value.trim();
     const activeThemeSelector = document.getElementById('theme-selector');
     if (activeThemeSelector.value) {
         state.globalSettings.activeThemeId = parseInt(activeThemeSelector.value);
