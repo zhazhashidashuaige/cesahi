@@ -9680,7 +9680,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* 1. 总容器：移除了顶部的内边距 */
 #new-custom-widget {
     position: absolute;
-    bottom: 55px;
+    bottom: 30px;
     right: 20px;
     width: 50%;
     display: flex;
@@ -10488,44 +10488,47 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
 /* ▼▼▼ 【海龟汤输入区终极修复版】 ▼▼▼ */
 
-/* 1. 强制重置整个输入区域的布局为“横向排列” */
+/* 1. 强制重置整个输入区域的布局为“横向排列”并“垂直居中” */
 #sts-action-area {
     display: flex !important;
-    flex-direction: row !important; /* 关键：从纵向改为横向 */
-    align-items: flex-end !important;  /* 关键：让输入框和按钮底部对齐 */
-    gap: 8px !important;            /* 设置元素之间的间距 */
+    flex-direction: row !important;
+    align-items: center !important; /* 核心修正：从 flex-end 改为 center，实现垂直居中 */
+    gap: 8px !important;
 }
 
-/* 2. 强制内部的 main-row 不再需要纵向布局那一套了 */
+/* 2. 强制内部的 main-row 也垂直居中，并让它填满空间 */
 #sts-action-area .chat-input-main-row {
-    align-items: flex-end; /* 保持底部对齐 */
+    flex-grow: 1 !important;
+    display: flex !important;
+    align-items: center !important; /* 核心修正：内部也保持垂直居中 */
+    gap: 8px !important;
 }
 
 /* 3. 美化输入框本身，并让它自动撑满宽度 */
 #sts-action-area #sts-question-input {
-    flex-grow: 1; /* 核心：让输入框自动伸展，占满所有可用宽度 */
+    flex-grow: 1; 
     border: none;
     padding: 10px 15px;
     border-radius: 20px;
     background-color: var(--secondary-bg);
     font-size: 16px;
     resize: none;
-    max-height: 100px; /* 和主输入框保持一致 */
+    max-height: 100px; 
     line-height: 1.5;
 }
 
-/* 4. 【关键】统一所有按钮的高度和样式，让它们和输入框完美适配 */
+/* 4. 统一所有按钮的高度和样式，让它们和输入框完美适配 */
 #sts-action-area #guess-sts-answer-btn,
 #sts-action-area #send-sts-question-btn {
-    height: 40px; /* 和主聊天发送按钮一样高 */
+    height: 40px; 
     border-radius: 20px;
     padding: 0 15px;
-    flex-shrink: 0; /* 防止按钮被压缩 */
+    flex-shrink: 0;
     font-size: 14px;
     font-weight: 600;
 }
 
-/* 夜间模式适配 */
+/* 5. 夜间模式适配 */
 #phone-screen.dark-mode #sts-action-area #sts-question-input {
     background-color: #2c2c2e;
     color: var(--text-primary);
@@ -10749,9 +10752,13 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 #guess-what-action-area {
     display: flex !important;
     flex-direction: row !important;
-    align-items: flex-end !important;
+    align-items: center !important; /* 保持垂直居中 */
     gap: 8px !important;
+    width: 100%; /* 新增：让整个容器撑满宽度 */
+    box-sizing: border-box; /* 新增：确保内边距和边框被正确计算在内 */
 }
+
+
 #guess-what-action-area #guess-what-user-input {
     flex-grow: 1;
     border: none;
@@ -10777,6 +10784,120 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▲▲▲ “你说我猜”游戏样式结束 ▲▲▲ */
+/* ▼▼▼ 【剧本杀AI生成器布局修复】请将这整块全新的CSS粘贴到 <style> 标签的最末尾 ▼▼▼ */
+
+/* 1. 【核心】让整个弹窗的内容区(modal-body)能够正确地撑满剩余空间并滚动 */
+#sk-ai-generator-modal .modal-body {
+    flex-grow: 1;      /* 允许内容区占据 header 和 footer 之间的所有可用垂直空间 */
+    min-height: 0;     /* 解决flex布局中一个常见的滚动条失效问题，非常关键 */
+    /* overflow-y: auto;  <-- 这个属性你的 .modal-body 已经有了，所以不用重复写 */
+}
+
+/* 2. 【核心】指定包含“预览框”的那个 form-group 也需要能够弹性增长 */
+/* 我们用 :last-of-type 精准定位到最后一个 .form-group */
+#sk-ai-generator-modal .modal-body .form-group:last-of-type {
+    flex-grow: 1;       /* 让它吃掉所有剩余的垂直空间 */
+    min-height: 0;      /* 同样是为了兼容性 */
+    display: flex;        /* 把它自己也变成flex容器 */
+    flex-direction: column; /* 让它里面的 label 和 preview 垂直排列 */
+}
+
+/* 3. 【核心】最后，确保预览框本身能够撑满它的父容器，并且在内容过多时自己滚动 */
+#sk-ai-result-preview {
+    flex-grow: 1;      /* 撑满父容器(.form-group)的空间 */
+    overflow-y: auto;  /* 当代码超出时，显示它自己的滚动条，而不是让整个弹窗滚动 */
+    
+    /* (可选美化) 给一个最小高度，防止在没内容时完全塌陷 */
+    min-height: 100px; 
+}
+
+/* ▲▲▲ 粘贴结束 ▲▲▲ */
+
+
+/* ▼▼▼ 【游戏输入区终极修复版】 ▼▼▼ */
+
+/* 1. 强制重置两个游戏输入区域的容器布局 */
+#sts-action-area,
+#guess-what-action-area {
+    display: flex !important;
+    flex-direction: row !important; /* 关键：从纵向改为横向 */
+    align-items: center !important;  /* 关键：让所有子元素垂直居中 */
+    gap: 8px !important;            /* 设置元素之间的间距 */
+    width: 100%;                     /* 新增：让整个容器宽度撑满 */
+    box-sizing: border-box;          /* 新增：确保内边距和边框被正确计算 */
+}
+
+/* 2. 强制内部的 .chat-input-main-row 也能正确伸展和对齐 */
+#sts-action-area .chat-input-main-row,
+#guess-what-action-area .chat-input-main-row {
+    flex-grow: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+/* 3. 美化输入框本身，并让它自动撑满宽度 */
+#sts-action-area #sts-question-input,
+#guess-what-action-area #guess-what-user-input {
+    flex-grow: 1; /* 核心：让输入框自动伸展，占满所有可用宽度 */
+    min-height: 40px; /* 保证最小高度 */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    background-color: var(--secondary-bg);
+    font-size: 16px;
+    resize: none;
+    max-height: 100px;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+/* 4. 统一所有按钮的高度和样式，让它们和输入框完美适配 */
+#sts-action-area button,
+#guess-what-action-area button {
+    height: 40px; 
+    border-radius: 20px;
+    padding: 0 15px;
+    flex-shrink: 0; /* 防止按钮被压缩 */
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* 5. 夜间模式适配 */
+#phone-screen.dark-mode #sts-action-area #sts-question-input,
+#phone-screen.dark-mode #guess-what-action-area #guess-what-user-input {
+    background-color: #2c2c2e;
+    color: var(--text-primary);
+}
+/* ▲▲▲ 修复结束 ▲▲▲ */
+/* === 【独家定制】隐藏游戏大厅返回按钮的 "退出" 文字 === */
+
+/*
+ * 步骤 1: 找到所有游戏界面的返回按钮，
+ * 把它的字号设为0，这样里面的“退出”文字就会因为没有尺寸而消失。
+ * 同时把文字颜色设为透明，作为双重保险。
+*/
+#exit-werewolf-game-btn,
+#exit-sts-game-btn,
+#exit-script-kill-game-btn,
+#exit-guess-what-game-btn {
+    font-size: 0 !important;      /* 隐藏文字的关键 */
+    color: transparent !important; /* 双重保险 */
+}
+
+/*
+ * 步骤 2: 上一步把箭头“<”也一并弄没了，
+ * 所以我们现在需要用 ::before 伪元素把箭头单独“救”回来。
+*/
+#exit-werewolf-game-btn::before,
+#exit-sts-game-btn::before,
+#exit-script-kill-game-btn::before,
+#exit-guess-what-game-btn::before {
+    content: '‹';                  /* 这就是那个左箭头图标 */
+    font-size: 24px !important;    /* 恢复箭头的大小，你可以微调这个数字 */
+    color: var(--accent-color) !important; /* 恢复箭头的颜色，它会跟随你的主题色 */
+}
+
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -14067,15 +14188,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                     <div class="game-desc">考验默契的时候到了</div>
                 </div>
             </div>
-            <!-- ▼▼▼ 在这里粘贴新的飞行棋游戏卡片 ▼▼▼ -->
-<div class="game-card" data-game="flying-chess">
-    <div class="game-icon">✈️</div>
-    <div class="game-info">
-        <div class="game-title">飞行棋</div>
-        <div class="game-desc">运气与策略的比拼</div>
-    </div>
-</div>
-<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
              <p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary); font-size: 14px; margin-top: 20px;">更多游戏正在火速开发中...</p>
         </div>
     </div>
@@ -14577,7 +14689,6 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         <div class="modal-header">
             <span>AI 剧本生成器</span>
         </div>
-<!-- ... -->
 <div class="modal-body" style="display: flex; flex-direction: column; gap: 15px;">
             
     <div class="form-group">
@@ -14585,12 +14696,17 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         <input type="text" id="sk-ai-elements-input" placeholder="例如：现代, 谋杀, 暴风雪山庄, 遗产">
     </div>
 
+    <!-- ▼▼▼ 【这是你要求新增的HTML】请把它粘贴到这里 ▼▼▼ -->
+    <div class="form-group">
+        <label for="sk-ai-player-count-input">玩家人数 (包含凶手, 建议4-8人)</label>
+        <input type="number" id="sk-ai-player-count-input" value="5" min="3" max="12" style="width: 100%; box-sizing: border-box; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+    </div>
+    <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+
     <div class="form-group">
         <label for="sk-ai-summary-input">剧情梗概 (可选)</label>
         <textarea id="sk-ai-summary-input" rows="4" placeholder="可以写一个简单的故事大纲，帮助AI更好地理解你的想法..."></textarea>
     </div>
-    <!-- ▲▲▲ 替换结束 ▲▲▲ -->
-
     <button id="sk-trigger-ai-generation-btn" class="form-button">开始生成</button>
           
             <hr style="opacity: 0.2; margin: 5px 0;">
@@ -14672,6 +14788,22 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 </div>
 
 <!-- ▲▲▲ “你说我猜”HTML代码结束 ▲▲▲ -->
+<!-- ▼▼▼ 【全新】“你说我猜”游戏结算卡片 ▼▼▼ -->
+<div id="guess-what-summary-modal" class="modal">
+    <div class="modal-content" style="height: auto; max-height: 80%;">
+        <div class="modal-header">
+            <span>游戏结算</span>
+        </div>
+        <div class="modal-body" id="guess-what-summary-content" style="white-space: pre-wrap; line-height: 1.7;">
+            <!-- 结算内容将由JS动态生成在这里 -->
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="forward-guess-what-summary-btn">转发给Ta</button>
+            <button class="save" id="close-guess-what-summary-btn">返回大厅</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 
 <!-- ▲▲▲ HTML代码粘贴结束 ▲▲▲ -->
 <!-- ▼▼▼ 【全新】心声功能模态框 ▼▼▼ -->
@@ -20415,8 +20547,19 @@ ${membersList}
 
 现在，请根据以上所有规则和下方的对话历史，继续这场群聊。`;
             
-// ▼▼▼ 请用这【一整块已修复时间戳】的代码，替换旧的【群组聊天】messagesPayload构建逻辑 ▼▼▼
-messagesPayload = historySlice.map((msg, index) => { // <-- 核心修改1：增加 index 参数
+// ▼▼▼ 请用这【一整块已修复红包识别】的代码，替换旧的【群组聊天】messagesPayload构建逻辑 ▼▼▼
+messagesPayload = historySlice.map((msg, index) => {
+    // 【核心新增】在这里优先处理红包消息
+    if (msg.type === 'red_packet') {
+        let contentForAI = `(Timestamp: ${msg.timestamp}) [${msg.senderName} 发送了一个红包。`;
+        if (msg.packetType === 'direct') {
+            contentForAI += ` 这是一个给“${msg.receiverName}”的专属红包。]`;
+        } else { // 'lucky'
+            contentForAI += ` 这是一个拼手气红包。]`;
+        }
+        return { role: msg.role, content: contentForAI };
+    }
+
     // 【核心修复】在这里，我们对 isHidden 消息进行特殊处理
     if (msg.isHidden) {
         return { role: 'system', content: msg.content };
@@ -20451,25 +20594,16 @@ messagesPayload = historySlice.map((msg, index) => { // <-- 核心修改1：增�
         return { role: 'assistant', content: `(Timestamp: ${msg.timestamp}) ${assistantContent}` };
     }
 
-    // --- ▼▼▼ 这是本次修复的核心逻辑 ▼▼▼ ---
-    
     let contentStr = '';
-
-    // 检查：1. 这是不是历史记录的最后一条消息  2. 并且是用户发的
     if (index === historySlice.length - 1 && msg.role === 'user') {
-        // 检查：3. “一起听歌”模式是否开启，并且就是在这个聊天里
         if (musicState.isActive && musicState.activeChatId === chatId) {
             const currentTrack = musicState.currentIndex > -1 ? musicState.playlist[musicState.currentIndex] : null;
             if (currentTrack) {
-                // 如果所有条件都满足，就构建一个“隐形”的音乐上下文前缀
                 const musicPrefix = `[系统环境提示：用户在听歌曲《${currentTrack.name}》 - ${currentTrack.artist} (播放进度: ${formatMusicTime(audioPlayer.currentTime)} / ${formatMusicTime(audioPlayer.duration)}) 时发送了以下消息]\n\n`;
-                // 将这个前缀加到用户的真实消息前面
                 contentStr += musicPrefix;
             }
         }
     }
-    // --- ▲▲▲ 修复结束 ▲▲▲
-
     contentStr += `(Timestamp: ${msg.timestamp}) `;
 
     if (msg.quote) {
@@ -20494,6 +20628,8 @@ messagesPayload = historySlice.map((msg, index) => { // <-- 核心修改1：增�
     return { role: msg.role, content: contentStr };
 
 }).filter(Boolean);
+// ▲▲▲ 替换结束 ▲▲▲
+
 // ▲▲▲ 替换结束 ▲▲▲
          } else { // 单聊的Prompt
             // ▼▼▼ 核心修改：用下面这一整块全新的Prompt替换你原来的单聊Prompt ▼▼▼
@@ -21981,8 +22117,10 @@ if (!pollToVote.votes[msgData.choice].includes(displayName)) { // 【核心修�
             isFullyClaimed: false,
         };
         break;
-case 'open_red_packet':
+// ▼▼▼ 在 triggerAiResponse 的 switch 语句中，用这块新代码替换旧的 case 'open_red_packet' ▼▼▼
+case 'open_red_packet': { // 使用大括号创建独立的块级作用域
     const packetToOpen = chat.history.find(m => m.timestamp === msgData.packet_timestamp);
+    // 检查红包是否存在、是否没被领完、以及这个AI角色是否还没领过
     if (packetToOpen && !packetToOpen.isFullyClaimed && !(packetToOpen.claimedBy && packetToOpen.claimedBy[msgData.name])) {
 
         // 1. 根据AI的本名(msgData.name)去成员列表里找到完整的成员对象
@@ -22004,7 +22142,7 @@ case 'open_red_packet':
             claimedAmountAI = parseFloat(claimedAmountAI.toFixed(2));
             
             if (!packetToOpen.claimedBy) packetToOpen.claimedBy = {};
-            // 【核心修改】使用我们刚刚查找到的 displayName 作为记录的key
+            // 3. 【核心修改】使用我们刚刚查找到的 displayName 作为记录的key
             packetToOpen.claimedBy[displayName] = claimedAmountAI;
             
             const aiClaimedMessage = {
@@ -22016,7 +22154,7 @@ case 'open_red_packet':
             };
             chat.history.push(aiClaimedMessage);
 
-            let hiddenContentForAI = `[系统提示：你 (${displayName}) 成功抢到了 ${claimedAmountAI.toFixed(2)} 元。`; // 【核心修改】
+            let hiddenContentForAI = `[系统提示：你 (${displayName}) 成功抢到了 ${claimedAmountAI.toFixed(2)} 元。`;
 
             if (Object.keys(packetToOpen.claimedBy).length >= packetToOpen.count) {
                 packetToOpen.isFullyClaimed = true;
@@ -22058,7 +22196,10 @@ case 'open_red_packet':
             renderChatInterface(chatId);
         }
     }
-    continue;
+    continue; // 处理完后，继续处理AI返回的其他消息
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
 case 'change_avatar':
     const avatarName = msgData.name;
     // 在该角色的头像库中查找
@@ -34341,14 +34482,7 @@ ${JSON.stringify(publicFigures, null, 2)}
         const cleanedContent = rawContent.replace(/^```json\s*|```$/g, '').trim();
         const newPostsData = JSON.parse(cleanedContent);
 
-        if (Array.isArray(newPostsData) && newPostsData.length > 0) {
-            const postsToDelete = await db.forumPosts.where('groupId').equals(groupId).toArray();
-            const postIds = postsToDelete.map(p => p.id);
-            if (postIds.length > 0) {
-                await db.forumComments.where('postId').anyOf(postIds).delete();
-                await db.forumPosts.bulkDelete(postIds);
-            }
-            
+        if (Array.isArray(newPostsData) && newPostsData.length > 0) {          
             let totalPosts = 0;
             let totalComments = 0;
             for (const postData of newPostsData) {
@@ -38541,6 +38675,7 @@ async function startScriptKillGame() {
         votes: {},
         isFreeChoice: document.getElementById('script-kill-free-choice-toggle').checked,
         discussionRound: 1, // <--- ★★★ 在这里添加这一行 ★★★
+        collectedClueIds: new Set() 
     };
     // 2. 收集玩家信息 (这部分不变)
     let invitedPlayers = [];
@@ -38627,8 +38762,9 @@ async function startScriptKillGame() {
 
 // ▲▲▲ 替换结束 ▲▲▲
 
+// ▼▼▼ 【最终流程版】请用这整块代码，完整替换旧的 processScriptKillTurn 函数 ▼▼▼
 /**
- * 【剧本杀】游戏主循环/引擎
+ * 【剧本杀 V4 - 最终流程引擎】游戏主循环/引擎
  */
 async function processScriptKillTurn() {
     if (!scriptKillGameState.isActive) return;
@@ -38650,102 +38786,104 @@ async function processScriptKillTurn() {
             logToScriptKillGame('现在开始轮流进行自我介绍。', 'system');
             for (const player of scriptKillGameState.players) {
                 renderScriptKillGameScreen({ speakingPlayerId: player.id });
-                let introduction;
-                if (player.isUser) {
-                    introduction = await waitForUserActionSK('轮到你自我介绍了', 'speak', '简单介绍一下你自己和你所扮演的角色...');
-                } else {
-                    introduction = await triggerScriptKillAiAction(player.id, 'introduce');
-                }
+                let introduction = player.isUser
+                    ? await waitForUserActionSK('轮到你自我介绍了', 'speak', '简单介绍一下你自己和你所扮演的角色...')
+                    : await triggerScriptKillAiAction(player.id, 'introduce');
                 logToScriptKillGame({ player: player, speech: introduction }, 'speech');
                 await sleep(1000);
             }
-            // ... (for循环介绍的结尾)
             renderScriptKillGameScreen();
-            // 【核心修改】更改提示语，并进入新的时间线讨论环节
-            logToScriptKillGame('自我介绍结束，现在进入【第一轮讨论环节】，请各位玩家分享自己的时间线。', 'system');
-            scriptKillGameState.gamePhase = 'timeline_discussion'; // <--- 我们把下一阶段指向了新创建的 'timeline_discussion'
-            await sleep(2000); // 稍微停顿一下，让玩家有准备时间
+            logToScriptKillGame('自我介绍结束，现在请各位玩家分享自己的时间线。', 'system');
+            scriptKillGameState.gamePhase = 'timeline_discussion';
+            await sleep(2000);
             await processScriptKillTurn();
             break;
-        // ▼▼▼ 【全新】这是我们为“时间线讨论”新增的完整游戏阶段 ▼▼▼
-        case 'timeline_discussion':
-            logToScriptKillGame('请各位玩家轮流发言，梳理并公开自己的时间线。');
-            await sleep(2000);
 
-            // 轮流让每个玩家陈述时间线
+        case 'timeline_discussion':
+            logToScriptKillGame('请各位玩家轮流发言，梳理并公开自己的时间线。', 'system');
+            await sleep(1500);
             for (const player of scriptKillGameState.players) {
                 renderScriptKillGameScreen({ speakingPlayerId: player.id });
-                let timelineSpeech;
-                if (player.isUser) {
-                    // 轮到你（用户）发言了，会弹出输入框
-                    timelineSpeech = await waitForUserActionSK('轮到你陈述时间线了', 'speak', '请根据你的剧本，详细说明你的行动轨迹...');
-                } else {
-                    // 轮到AI发言，触发AI生成时间线陈述
-                    timelineSpeech = await triggerScriptKillAiAction(player.id, 'discuss_timeline');
-                }
+                let timelineSpeech = player.isUser
+                    ? await waitForUserActionSK('轮到你陈述时间线了', 'speak', '请根据你的剧本，详细说明你的行动轨迹...')
+                    : await triggerScriptKillAiAction(player.id, 'discuss_timeline');
                 logToScriptKillGame({ player: player, speech: timelineSpeech }, 'speech');
                 await sleep(1000);
             }
-
             renderScriptKillGameScreen();
-            logToScriptKillGame('时间线陈述结束，现在可以自由讨论或进入搜证环节。', 'system');
-            
-            // 时间线环节结束后，自然地进入搜证环节
-            scriptKillGameState.gamePhase = 'evidence';
+            logToScriptKillGame('时间线陈述结束，现在进入【第一轮搜证环节】。', 'system');
+            scriptKillGameState.gamePhase = 'evidence_round_1';
             await processScriptKillTurn();
             break;
-        // ▲▲▲ 新增阶段结束 ▲▲▲
 
-// ▼▼▼ 用这块新代码替换旧的 case 'evidence' ▼▼▼
-case 'evidence':
-    updateActionAreaSK(); // 为玩家显示搜证按钮
-    logToScriptKillGame('进入搜证环节，每位玩家有3次搜证机会。玩家可随时点击搜证，AI将按顺序自动进行搜证。', 'system');
-    await sleep(2000);
+        case 'evidence_round_1':
+            updateActionAreaSK();
+            logToScriptKillGame('进入第一轮搜证，每位玩家有【2次】搜证机会。', 'system');
+            await sleep(2000);
+            
+            // 【核心修改】AI 进行第一轮的第1次搜证
+            for (const player of scriptKillGameState.players) {
+                if (player.isUser) continue;
+                logToScriptKillGame(`轮到 ${player.role.name} (${player.name}) 进行第1次搜证...`);
+                await sleep(2000);
+                await handleAiSearch(player);
+            }
+            // 【核心修改】AI 进行第一轮的第2次搜证
+            for (const player of scriptKillGameState.players) {
+                 if (player.isUser) continue;
+                logToScriptKillGame(`轮到 ${player.role.name} (${player.name}) 进行第2次搜证...`);
+                await sleep(2000);
+                await handleAiSearch(player);
+            }
+            logToScriptKillGame('所有AI搜证完毕，玩家可以继续搜证或结束本环节进入讨论。', 'system');
+            break;
 
-    // --- 全新：AI轮流搜证环节 ---
-    for (const player of scriptKillGameState.players) {
-        if (player.isUser) continue; // 跳过真实玩家
+        case 'discussion_round_1':
+            logToScriptKillGame('第一轮搜证结束，现在进入【第一轮讨论环节】。', 'system');
+            updateActionAreaSK();
+            break;
 
-        const searchCount = scriptKillGameState.evidenceCounts[player.id] || 0;
-        if (searchCount >= 3) continue; // 跳过搜证次数已达上限的AI
+        case 'evidence_round_2':
+            updateActionAreaSK();
+            logToScriptKillGame('第一轮讨论结束，现在进入【第二轮搜证环节】。', 'system');
+            logToScriptKillGame('根据刚才的讨论，各位玩家现在还有【1次】搜证机会。', 'system');
+            await sleep(2000);
+            
+            // 【核心修改】AI 进行第二轮的唯一次搜证
+            for (const player of scriptKillGameState.players) {
+                if (player.isUser) continue;
+                const searchCount = scriptKillGameState.evidenceCounts[player.id] || 0;
+                if(searchCount < 3) { // 确保AI也有次数限制
+                    logToScriptKillGame(`轮到 ${player.role.name} (${player.name}) 进行补充搜证...`);
+                    await sleep(2000);
+                    await handleAiSearch(player);
+                }
+            }
+            logToScriptKillGame('所有AI补充搜证完毕，玩家可以继续搜证或结束本环节进入最终讨论。', 'system');
+            break;
 
-        logToScriptKillGame(`轮到 ${player.role.name} (${player.name}) 搜证...`);
-        await sleep(2000); // 模拟思考
-
-        // 调用我们刚刚创建的新函数来处理AI的搜证
-        await handleAiSearch(player);
-    }
-    logToScriptKillGame('所有AI搜证完毕，玩家可以继续搜证或结束本环节。', 'system');
-    break;
-// ▲▲▲ 替换结束 ▲▲▲
-
-          
-        case 'discussion':
-            logToScriptKillGame('搜证结束，现在进入讨论与推理环节。', 'system');
-            // 可以在这里触发一轮AI发言，或者等待用户发言
+        // 【全新阶段】第二轮讨论
+        case 'discussion_round_2':
+            logToScriptKillGame('第二轮搜证结束，现在进入【第二轮讨论环节】。', 'system');
             updateActionAreaSK(); // 显示发言按钮
             break;
 
-// ▼▼▼ 用这块新代码替换旧的 case 'voting' ▼▼▼
-        case 'voting':
-            logToScriptKillGame('讨论结束，现在进入最终投票环节。请投票指认凶手！', 'system');
+        // 【全新阶段】第三轮（最终）讨论
+        case 'discussion_round_3':
+            logToScriptKillGame('第二轮讨论结束，现在进入【最终讨论环节】。', 'system');
+            updateActionAreaSK(); // 再次显示发言按钮
+            break;
             
-            // 【核心修改1】我们不再使用旧的 votes 对象，而是创建一个新的来记录投票细节
+        case 'voting':
+            // 投票和结束逻辑保持不变
+            logToScriptKillGame('最终讨论结束，现在进入投票环节。请投票指认凶手！', 'system');
             const detailedVotes = {}; 
-
-            const alivePlayers = scriptKillGameState.players.filter(p => p.isAlive);
-
+            const alivePlayers = scriptKillGameState.players;
             for (const voter of alivePlayers) {
-                let targetId;
-                if (voter.isUser) {
-                    targetId = await waitForUserActionSK('请投票指认凶手', 'vote');
-                } else {
-                    targetId = await triggerScriptKillAiAction(voter.id, 'vote');
-                }
-                
-                // 【核心修改2】记录下 “谁 投给了 谁”
-                detailedVotes[voter.id] = targetId; // 例如：{ 'user': 'player_123', 'char_456': 'player_123' }
-
+                let targetId = voter.isUser
+                    ? await waitForUserActionSK('请投票指认凶手', 'vote')
+                    : await triggerScriptKillAiAction(voter.id, 'vote');
+                detailedVotes[voter.id] = targetId;
                 if (targetId) {
                     const targetPlayer = scriptKillGameState.players.find(p => p.id === targetId);
                     logToScriptKillGame(`${voter.name} 投票给了 ${targetPlayer.name}。`);
@@ -38753,75 +38891,54 @@ case 'evidence':
                     logToScriptKillGame(`${voter.name} 弃票了。`);
                 }
             }
-
-            // 【核心修改3】将我们新记录的详细投票信息，保存到游戏总状态中
             scriptKillGameState.votes = detailedVotes;
-            
             scriptKillGameState.gamePhase = 'end';
             await sleep(2000);
             await processScriptKillTurn();
             break;
-// ▲▲▲ 替换结束 ▲▲▲
 
-// ▼▼▼ 用这块新代码替换旧的 case 'end' ▼▼▼
-case 'end':
-    logToScriptKillGame('投票结束，正在公布真相...', 'system');
-    await sleep(2000);
-
-    // 【核心修改1】重写计票逻辑，以适应新的投票数据结构
-    const voteCounts = {};
-    for (const voterId in scriptKillGameState.votes) {
-        const targetId = scriptKillGameState.votes[voterId];
-        if (targetId) { // 如果不是弃票
-            voteCounts[targetId] = (voteCounts[targetId] || 0) + 1;
-        }
-    }
-    
-    let maxVotes = 0;
-    let votedPlayerIds = []; // 可能有多个人平票
-    for (const playerId in voteCounts) {
-        if (voteCounts[playerId] > maxVotes) {
-            maxVotes = voteCounts[playerId];
-            votedPlayerIds = [playerId];
-        } else if (voteCounts[playerId] === maxVotes) {
-            votedPlayerIds.push(playerId);
-        }
-    }
-
-    const killer = scriptKillGameState.players.find(p => p.role.isKiller);
-    let resultText = '';
-    let winner = '';
-
-    // 【核心修改2】根据新的计票结果判断胜负
-    if (votedPlayerIds.length === 1 && votedPlayerIds[0] === killer.id) {
-        winner = '好人阵营';
-        resultText = `恭喜！你们成功指认出凶手【${killer.name}】！好人阵营胜利！`;
-    } else if (votedPlayerIds.length > 0) {
-        winner = '凶手阵营';
-        const votedNames = votedPlayerIds.map(id => scriptKillGameState.players.find(p => p.id === id).name).join('、');
-        resultText = `很遗憾，你们指认了【${votedNames}】，但真正的凶手是【${killer.name}】！凶手阵营胜利！`;
-    } else {
-        winner = '凶手阵营';
-        resultText = `投票结果无人被指认，真正的凶手是【${killer.name}】！凶手阵营胜利！`;
-    }
-    
-    logToScriptKillGame(resultText, 'system');
-    await sleep(3000);
-    logToScriptKillGame(`【真相】\n${scriptKillGameState.script.truth}`, 'system');
-    
-    await showCustomAlert("请稍候...", "AI正在生成本局复盘摘要...");
-    const aiSummary = await generateAiSkSummary();
-    const summary = generateSkSummary(winner, aiSummary); // 调用我们即将修改的函数
-    showScriptKillSummaryModal(summary); 
-
-    scriptKillGameState.isActive = false;
-    updateActionAreaSK(); 
-    break;
-// ▲▲▲ 替换结束 ▲▲▲
-
-
+        case 'end':
+            // 结束逻辑保持不变
+            logToScriptKillGame('投票结束，正在公布真相...', 'system');
+            await sleep(2000);
+            const voteCounts = {};
+            for (const voterId in scriptKillGameState.votes) {
+                const targetId = scriptKillGameState.votes[voterId];
+                if (targetId) { voteCounts[targetId] = (voteCounts[targetId] || 0) + 1; }
+            }
+            let maxVotes = 0, votedPlayerIds = [];
+            for (const playerId in voteCounts) {
+                if (voteCounts[playerId] > maxVotes) {
+                    maxVotes = voteCounts[playerId];
+                    votedPlayerIds = [playerId];
+                } else if (voteCounts[playerId] === maxVotes) {
+                    votedPlayerIds.push(playerId);
+                }
+            }
+            const killer = scriptKillGameState.players.find(p => p.role.isKiller);
+            let winner = '', resultText = '';
+            if (votedPlayerIds.length === 1 && votedPlayerIds[0] === killer.id) {
+                winner = '好人阵营';
+                resultText = `恭喜！你们成功指认出凶手【${killer.role.name} (${killer.name})】！好人阵营胜利！`;
+            } else {
+                winner = '凶手阵营';
+                resultText = `很遗憾，真正的凶手是【${killer.role.name} (${killer.name})】！凶手阵营胜利！`;
+            }
+            logToScriptKillGame(resultText, 'system');
+            await sleep(3000);
+            logToScriptKillGame(`【真相】\n${scriptKillGameState.script.truth}`, 'system');
+            await showCustomAlert("请稍候...", "AI正在生成本局复盘摘要...");
+            const aiSummary = await generateAiSkSummary();
+            const summary = generateSkSummary(winner, aiSummary);
+            showScriptKillSummaryModal(summary); 
+            scriptKillGameState.isActive = false;
+            updateActionAreaSK(); 
+            break;
     }
 }
+// ▲▲▲ 替换结束 ▲▲▲
+
+
 
 /**
  * 【剧本杀】渲染游戏主界面
@@ -38875,38 +38992,46 @@ function logToScriptKillGame(message, type = 'system') {
 }
 
 /**
- * 【剧本杀】更新底部操作区域的按钮
+ * 【剧本杀 V4 - 新流程版】更新底部操作区域的按钮
  */
 function updateActionAreaSK() {
     const actionArea = document.getElementById('script-kill-action-area');
     actionArea.innerHTML = '';
     const user = scriptKillGameState.players.find(p => p.isUser);
     
-    if (scriptKillGameState.gamePhase === 'evidence') {
-        const searchCount = scriptKillGameState.evidenceCounts[user.id] || 0;
-        const maxSearches = 3; // 假设每人最多搜3次
-        const searchesLeft = maxSearches - searchCount;
+    const phase = scriptKillGameState.gamePhase;
+    const searchCount = scriptKillGameState.evidenceCounts[user.id] || 0;
+
+    if (phase === 'evidence_round_1' || phase === 'evidence_round_2') {
+        let searchesLeftInRound, totalInRound;
+        if (phase === 'evidence_round_1') {
+            searchesLeftInRound = 2 - searchCount;
+            totalInRound = 2;
+        } else { // evidence_round_2
+            searchesLeftInRound = 3 - searchCount;
+            totalInRound = 1;
+        }
         
         const searchBtn = document.createElement('button');
         searchBtn.id = 'sk-search-evidence-btn';
         searchBtn.className = 'form-button';
-        searchBtn.textContent = `搜证 (${searchesLeft}/${maxSearches})`;
-        searchBtn.disabled = searchesLeft <= 0;
+        searchBtn.textContent = `搜证 (${searchesLeftInRound}/${totalInRound})`;
+        searchBtn.disabled = searchesLeftInRound <= 0;
         actionArea.appendChild(searchBtn);
         
         const endSearchBtn = document.createElement('button');
         endSearchBtn.id = 'sk-end-search-btn';
         endSearchBtn.className = 'form-button-secondary';
-        endSearchBtn.textContent = '结束搜证';
+        endSearchBtn.textContent = (phase === 'evidence_round_1') ? '进入第一轮讨论' : '进入第二轮讨论';
         actionArea.appendChild(endSearchBtn);
 
-    } else if (scriptKillGameState.gamePhase === 'discussion') {
+    } else if (phase === 'discussion_round_1' || phase === 'discussion_round_2' || phase === 'discussion_round_3') {
         const speakBtn = document.createElement('button');
         speakBtn.id = 'sk-speak-btn';
         speakBtn.className = 'form-button';
         speakBtn.textContent = '我要发言';
         actionArea.appendChild(speakBtn);
-    } else if (!scriptKillGameState.isActive && scriptKillGameState.gamePhase === 'end') {
+    } else if (!scriptKillGameState.isActive && phase === 'end') {
         const backBtn = document.createElement('button');
         backBtn.className = 'form-button';
         backBtn.textContent = '返回游戏大厅';
@@ -38914,6 +39039,8 @@ function updateActionAreaSK() {
         actionArea.appendChild(backBtn);
     }
 }
+
+
 
 /**
  * 【剧本杀】等待用户行动的通用函数
@@ -38963,48 +39090,57 @@ function waitForUserActionSK(promptText, actionType, placeholder = '') {
     });
 }
 /**
- * 【全新】处理单个AI的搜证行动
+ * 【全新】处理单个AI的搜证行动 (每次只搜一个线索)
  * @param {object} player - 正在行动的AI玩家对象
  */
 async function handleAiSearch(player) {
     const script = scriptKillGameState.script;
     
-    // 找出所有该AI能搜到的线索（自己的或公共的）
-    const potentialClues = script.clues.filter(c => c.owner === player.role.name || c.owner === '公共');
-    // 过滤掉已经搜过的线索
-    const uncollectedClues = potentialClues.filter(c => !player.evidence.some(ec => ec.description === c.description));
+    // 消耗一次搜证机会
+    scriptKillGameState.evidenceCounts[player.id] = (scriptKillGameState.evidenceCounts[player.id] || 0) + 1;
+    
+    let foundMessage = ''; // 用于记录本轮搜证的结果
 
-    if (uncollectedClues.length > 0) {
-        // 随机找到一条新线索
-        const foundClue = uncollectedClues[Math.floor(Math.random() * uncollectedClues.length)];
-        const clueSource = foundClue.owner === '公共' ? '公共区域' : `角色 ${foundClue.owner} 的私人物品`;
-        
-        // 无论如何，线索都会先加入AI自己的“手牌”
-        player.evidence.push({ description: foundClue.description, source: clueSource });
-        scriptKillGameState.evidenceCounts[player.id] = (scriptKillGameState.evidenceCounts[player.id] || 0) + 1;
-        
-        let revealed = true; // 默认公开线索
-        
-        // 【核心博弈】如果线索是关于自己的，让AI决策是否公开
-        if (foundClue.owner === player.role.name) {
-            const revealDecision = await triggerScriptKillAiAction(player.id, 'reveal_clue', { clue: foundClue.description });
-            if (revealDecision && revealDecision.action === 'hide') {
-                revealed = false; // AI决定隐藏
-            }
-        }
-
-        // 根据AI的决策，在游戏日志中显示不同信息
-// ▼▼▼ 修改后的代码 ▼▼▼
-if (revealed) {
-    logToScriptKillGame(`${player.name} 在【${clueSource}】发现线索：“${foundClue.description}”`);
-} else {
-}
+    // 1. 增加随机性：有30%的几率什么都搜不到
+    if (Math.random() < 0.30) {
+        foundMessage = "什么都没发现。";
     } else {
-        // 如果没有新线索了
-        logToScriptKillGame(`${player.name} 搜了一圈，没有发现新的线索。`);
-        scriptKillGameState.evidenceCounts[player.id] = (scriptKillGameState.evidenceCounts[player.id] || 0) + 1; // 即使没搜到也消耗一次机会
+        // 2. 找出所有【全局还未被发现】的线索
+        const uncollectedClues = script.clues.filter(c => !scriptKillGameState.collectedClueIds.has(c.description));
+
+        if (uncollectedClues.length > 0) {
+            // 3. 随机找到一条新线索
+            const foundClue = uncollectedClues[Math.floor(Math.random() * uncollectedClues.length)];
+            const clueSource = foundClue.owner === '公共' ? '公共区域' : `角色 ${foundClue.owner} 的私人物品`;
+            
+            // 4. 将线索存入AI手牌和全局线索池
+            player.evidence.push({ description: foundClue.description, source: clueSource });
+            scriptKillGameState.collectedClueIds.add(foundClue.description);
+
+            let revealed = true; // 默认公开
+
+            // 5. 如果线索是关于自己的，让AI决策是否公开
+            if (foundClue.owner === player.role.name) {
+                const revealDecision = await triggerScriptKillAiAction(player.id, 'reveal_clue', { clue: foundClue.description });
+                if (revealDecision && revealDecision.action === 'hide') {
+                    revealed = false;
+                }
+            }
+            
+            // 6. 根据AI的决策，记录不同的搜证结果
+            if (revealed) {
+                foundMessage = `在【${clueSource}】发现并公开了线索：“${foundClue.description}”`;
+            } else {
+                foundMessage = `在【${clueSource}】发现了一条关于自己的线索，并选择将其隐藏。`;
+            }
+        } else {
+            foundMessage = "没有发现更多新线索了。";
+        }
     }
-    await sleep(1500); // 增加一点停顿，让游戏节奏更自然
+    
+    // 7. 将搜证结果记录到游戏日志
+    logToScriptKillGame(`${player.name} 完成了一次搜证: ${foundMessage}`);
+    await sleep(1500);
 }
 
 /**
@@ -39717,6 +39853,7 @@ async function generateSkScriptWithAI() {
     // 1. 从新的两个输入框获取数据
     const elements = document.getElementById('sk-ai-elements-input').value.trim();
     const summary = document.getElementById('sk-ai-summary-input').value.trim();
+const playerCount = document.getElementById('sk-ai-player-count-input').value;
 
     if (!elements) { // 核心要素是必填的
         alert("请输入剧本的核心要素！");
@@ -39729,11 +39866,12 @@ async function generateSkScriptWithAI() {
     saveBtn.disabled = true;
 
     // 2. 构建给AI的【全新、更严格】的指令(Prompt)
-    const systemPrompt = `
+const systemPrompt = `
 # 任务
-你是一个专业的剧本杀剧本创作AI。你的任务是根据用户提供的核心要素和剧情梗概，创作一个完整、可玩的剧本杀剧本。
+你是一个专业的剧本杀剧本创作AI。你的任务是根据用户提供的核心要素和剧情梗概，创作一个【${playerCount}人】的、完整、可玩的剧本杀剧本。
 
 # 用户提供的核心要素:
+-   **玩家人数**: ${playerCount}人
 -   **核心元素**: ${elements}
 -   **剧情梗概**: ${summary || '（用户未提供详细梗概，请根据核心元素自由发挥）'}
 
@@ -39748,7 +39886,7 @@ async function generateSkScriptWithAI() {
 # 剧本创作核心要求
 1.  **完整性**: 你必须生成剧本的所有组成部分，包括：剧本名称(name)、故事背景(storyBackground)、角色设定(roles)、线索卡(clues)、以及最终真相(truth)。
 2.  **角色设定 (roles)**:
-    -   必须是一个包含多个角色对象的数组。
+    -   必须是一个包含【${playerCount}个】角色对象的数组。
     -   每个角色对象必须包含以下字段:
         -   name: 角色名称 (字符串)。
         -   description: 角色简介 (字符串, 简短描述)。
@@ -39766,8 +39904,9 @@ async function generateSkScriptWithAI() {
 4.  **最终真相 (truth)**: 必须清晰、有逻辑地揭示整个案件的真相、凶手的动机和作案手法。
 
 # 【格式铁律】
-你的回复【必须且只能】是一个严格的JSON对象，直接以 '{' 开头，以 '}' 结尾。禁止包含任何 "json", "" 或其他解释性文字。
+你的回复【必须且只能】是一个严格的JSON对象，直接以 '{' 开头，以 '}' 结尾。禁止包含任何 "json", "\`\`\`" 或其他解释性文字。
 `;
+
 
     // 3. 调用API (这部分逻辑与之前相同)
     try {
@@ -39842,6 +39981,8 @@ async function saveAiGeneratedScript() {
 // ▲▲▲ 剧本杀功能函数结束 ▲▲▲
 // ▼▼▼ 【全新】这里是“你说我猜”游戏的所有核心功能函数 ▼▼▼
 
+// ▼▼▼ 【全新】这里是“你说我猜”游戏的所有核心功能函数 ▼▼▼
+
 /**
  * 【你说我猜】打开游戏设置界面
  */
@@ -39881,22 +40022,20 @@ async function openGuessWhatSetup() {
     document.getElementById('user-word-input-container').style.display = 'block';
 }
 
+// ▼▼▼ 【全新 | 修复流程版】请用这整块代码，完整替换旧的 startGuessWhatGame 函数 ▼▼▼
 /**
- * 【你说我猜】开始游戏的核心逻辑
+ * 【你说我猜 V3 | 修复流程版】开始游戏的核心逻辑
  */
 async function startGuessWhatGame() {
-    // 1. 获取玩家选择
     const selectedOpponentRadio = document.querySelector('input[name="guess-what-opponent"]:checked');
     if (!selectedOpponentRadio) {
         alert("请选择一位玩伴！");
         return;
     }
     const opponentId = selectedOpponentRadio.value;
-
     const gameMode = document.querySelector('input[name="guess_what_mode"]:checked').value;
     const userWord = document.getElementById('guess-what-user-word').value.trim();
 
-    // 2. 数据验证
     if (gameMode === 'ai_guesses' && !userWord) {
         alert("“我出题”模式下，词语不能为空！");
         return;
@@ -39904,12 +40043,12 @@ async function startGuessWhatGame() {
 
     await showCustomAlert("请稍候...", "正在准备游戏，AI也在摩拳擦掌...");
 
-    // 3. 收集对手信息
+    // 收集对手信息 (这部分不变)
     const chat = Object.values(state.chats).find(c => c.id === opponentId);
     let opponentInfo = null;
-    if (chat) { // 是主要角色
+    if (chat) { 
         opponentInfo = { id: chat.id, name: chat.name, avatar: chat.settings.aiAvatar, persona: chat.settings.aiPersona };
-    } else { // 是NPC
+    } else {
         for (const c of Object.values(state.chats)) {
             const npc = (c.npcLibrary || []).find(n => n.id === opponentId);
             if (npc) {
@@ -39920,38 +40059,60 @@ async function startGuessWhatGame() {
     }
     if (!opponentInfo) { alert("找不到所选的玩伴信息！"); return; }
 
-    // 4. 初始化游戏状态
+    // 初始化游戏状态
     guessWhatGameState.isActive = true;
     guessWhatGameState.mode = gameMode;
     guessWhatGameState.opponent = opponentInfo;
     guessWhatGameState.gameLog = [];
 
-    // 5. 根据模式处理谜底词
-    if (gameMode === 'ai_guesses') {
+    document.getElementById('guess-what-game-title').textContent = `与 ${opponentInfo.name} 的游戏`;
+    const inputEl = document.getElementById('guess-what-user-input');
+
+    // 根据模式处理谜底词和第一回合
+    if (gameMode === 'ai_guesses') { // 【我出题，AI猜】
         guessWhatGameState.secretWord = userWord;
-        guessWhatGameState.currentTurn = 'ai'; // 我出题，AI先猜
-        logToGuessWhatGame(`游戏开始！你出的词是【${userWord}】，现在轮到 ${opponentInfo.name} 提问或猜测。`, 'system');
-        document.getElementById('guess-what-user-input').placeholder = `等待 ${opponentInfo.name} 的问题...`;
-    } else { // AI出题
-        guessWhatGameState.currentTurn = 'user'; // AI出题，我先猜
+        guessWhatGameState.currentTurn = 'user'; // 用户先手，给出第一个提示
+        logToGuessWhatGame(`游戏开始！你出的词是【${userWord}】，请给出你的第一个提示。`, 'system');
+        inputEl.placeholder = "请给出第一个提示...";
+        inputEl.disabled = false;
+        
+    } else { // 【AI出题，我猜】
         const { secretWord, firstHint } = await triggerGuessWhatAiAction('generate_word');
-        if (!secretWord) { alert("AI出题失败，请检查API设置后重试。"); return; }
+        
+        // --- ▼▼▼ 这就是我们本次修复的核心！▼▼▼ ---
+        // 1. 在这里检查AI是否成功出题
+        if (!secretWord) {
+            // 如果 secretWord 是 null，说明出题失败了
+            await showCustomAlert("出题失败", "抱歉，AI今天好像没灵感，想不出题目来。请稍后再试或检查API设置。");
+            // 重置状态，返回游戏大厅
+            guessWhatGameState.isActive = false;
+            showScreen('game-hall-screen'); 
+            return; // 提前结束函数
+        }
+        // --- ▲▲▲ 修复结束 ▲▲▲ ---
+
         guessWhatGameState.secretWord = secretWord;
-        logToGuessWhatGame(`游戏开始！${opponentInfo.name} 已经想好了一个词，现在轮到你提问或猜测。`, 'system');
-        logToGuessWhatGame({ player: opponentInfo, text: `第一个提示：${firstHint}` }, 'ai-turn');
-        document.getElementById('guess-what-user-input').placeholder = "请输入你的问题或猜测...";
+        guessWhatGameState.currentTurn = 'user';
+        logToGuessWhatGame(`游戏开始！${opponentInfo.name} 已经想好了一个词。`, 'system');
+        logToGuessWhatGame({ player: opponentInfo, text: `【${opponentInfo.name}托着下巴想了想】第一个提示是... ${firstHint}` }, 'ai-turn');
+        inputEl.placeholder = "请根据提示进行猜测...";
+        inputEl.disabled = false;
     }
 
-    // 6. 进入游戏界面
-    document.getElementById('guess-what-game-title').textContent = `与 ${opponentInfo.name} 的游戏`;
+    // 进入游戏界面
     showScreen('guess-what-game-screen');
     renderGuessWhatGameScreen();
     
-    // 如果是AI先手，直接触发AI行动
-    if (guessWhatGameState.currentTurn === 'ai') {
-        await processGuessWhatTurn();
-    }
+    // 【重要】我们不再在这里触发AI行动，因为流程改了
+    inputEl.focus();
+    // ▼▼▼ 在 startGuessWhatGame 函数的末尾添加 ▼▼▼
+// 确保操作区域可见，以防上次游戏结束后被隐藏
+const actionArea = document.getElementById('guess-what-action-area');
+if(actionArea) actionArea.style.display = 'flex';
+// ▲▲▲ 添加结束 ▲▲▲
 }
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 /**
  * 【你说我猜】渲染游戏主界面
@@ -39991,9 +40152,10 @@ function logToGuessWhatGame(message, type = 'system') {
 }
 
 /**
- * 【你说我猜】游戏主循环/引擎
+ * 【你说我猜 V3 | 升级错误处理】游戏主循环/引擎
+ * @param {string} userInput - 用户刚刚的输入
  */
-async function processGuessWhatTurn(userInput = null) {
+async function processGuessWhatTurn(userInput) {
     if (!guessWhatGameState.isActive) return;
 
     const inputEl = document.getElementById('guess-what-user-input');
@@ -40001,60 +40163,48 @@ async function processGuessWhatTurn(userInput = null) {
     const aiPlayer = guessWhatGameState.opponent;
     const currentMode = guessWhatGameState.mode;
 
-    // 1. 处理用户输入
-    if (userInput) {
-        if (currentMode === 'ai_guesses') { // 用户提供线索
-            logToGuessWhatGame({ player: userPlayer, text: userInput }, 'user-turn');
-        } else { // 用户提问或猜测
-            logToGuessWhatGame({ player: userPlayer, text: userInput }, 'user-turn');
-        }
-    }
+    // 1. 记录用户行为
+    logToGuessWhatGame({ player: userPlayer, text: userInput }, 'user-turn');
 
-    // 2. 轮到AI行动
+    // 2. 轮到AI行动，禁用输入框
     guessWhatGameState.currentTurn = 'ai';
     inputEl.placeholder = `等待 ${aiPlayer.name} 的回应...`;
     inputEl.disabled = true;
     renderGuessWhatGameScreen();
-    await sleep(1500);
+    await sleep(1500); // 模拟思考
 
+    // 3. 让AI执行动作
     const aiResponse = await triggerGuessWhatAiAction(
-        currentMode === 'ai_guesses' ? 'guess_word' : 'answer_question', 
+        currentMode === 'ai_guesses' ? 'guess_word' : 'give_hint',
         userInput
     );
-
-    // 3. 处理AI的行动结果
+    
+    // 4. 处理AI的行动结果
     if (aiResponse) {
-        if (aiResponse.type === 'game_over') {
+        // --- ▼▼▼ 【核心升级】处理新的 'error' 类型 ▼▼▼ ---
+        if (aiResponse.type === 'error') {
+            logToGuessWhatGame({ player: aiPlayer, text: aiResponse.text }, 'ai-turn');
+        } 
+        // --- ▲▲▲ 升级结束 ▲▲▲ ---
+        else if (aiResponse.type === 'game_over') {
             endGuessWhatGame(aiResponse.winner, aiResponse.reason);
-            return;
+            return; // 游戏结束，退出
+        } else {
+            const aiMessage = aiResponse.type === 'hint' ? aiResponse.text : aiResponse.text;
+            logToGuessWhatGame({ player: aiPlayer, text: aiMessage }, 'ai-turn');
         }
-        
-        let aiMessage = '';
-        if (aiResponse.type === 'question') {
-            aiMessage = aiResponse.text;
-        } else if (aiResponse.type === 'hint') {
-            aiMessage = `提示：${aiResponse.text}`;
-        } else if (aiResponse.type === 'guess') {
-            aiMessage = `我猜是... 【${aiResponse.text}】？`;
-            // AI猜了，现在轮到用户判断
-            const isCorrect = await showCustomConfirm("AI的猜测", `AI 猜是“${aiResponse.text}”，对吗？`);
-            if (isCorrect) {
-                endGuessWhatGame('ai', 'AI猜对了！');
-                return;
-            } else {
-                guessWhatGameState.gameLog.push({ message: '猜错了，游戏继续...', type: 'system' });
-            }
-        }
-        
-        logToGuessWhatGame({ player: aiPlayer, text: aiMessage }, 'ai-turn');
+    } else {
+        // 兜底的极端情况
+        logToGuessWhatGame({ player: aiPlayer, text: '我...好像彻底断线了...' }, 'ai-turn');
     }
 
-    // 4. 轮到用户行动
+    // 5. 轮到用户行动，【在任何情况下都要】恢复输入框
     guessWhatGameState.currentTurn = 'user';
-    inputEl.placeholder = currentMode === 'ai_guesses' ? "请输入你对AI问题的描述/回答..." : "请输入你的问题或猜测...";
+    inputEl.placeholder = currentMode === 'ai_guesses' ? "请继续给出你的提示..." : "请根据提示继续猜测...";
     inputEl.disabled = false;
     inputEl.focus();
 }
+
 
 /**
  * 【你说我猜】游戏结束处理
@@ -40066,86 +40216,433 @@ function endGuessWhatGame(winner, reason) {
     document.getElementById('guess-what-action-area').style.display = 'none';
 }
 
+// ▼▼▼ 【V4 | 铜墙铁壁版】请用这整块代码，完整替换旧的 triggerGuessWhatAiAction 函数 ▼▼▼
 /**
- * 【你说我猜-AI核心】调用AI执行游戏逻辑
+ * 【你说我猜-AI核心 V4 | 铜墙铁壁版】调用AI执行游戏逻辑，内置强大的重试机制
+ * @param {string} actionType - AI需要执行的动作: 'generate_word', 'give_hint', 'guess_word'
+ * @param {string} userInput - 用户刚刚的输入
+ * @returns {Promise<object|null>} - AI的行动结果
  */
 async function triggerGuessWhatAiAction(actionType, userInput = null) {
     const { proxyUrl, apiKey, model } = state.apiConfig;
     if (!proxyUrl || !apiKey || !model) return null;
 
+    // --- 这部分Prompt逻辑保持不变 ---
     const opponent = guessWhatGameState.opponent;
-    const historyText = guessWhatGameState.gameLog
-        .map(log => {
-            if (log.type === 'system') return `[系统提示: ${log.message}]`;
-            return `${log.message.player.name}: ${log.message.text}`;
-        })
-        .slice(-10)
-        .join('\n');
+    const historyText = guessWhatGameState.gameLog.map(log => log.type === 'system' ? `[系统提示: ${log.message}]` : `${log.message.player.name}: ${log.message.text}`).slice(-10).join('\n');
+    let systemPrompt = `# 你的任务\n你正在扮演角色“${opponent.name}”，你的人设是：“${opponent.persona}”。\n你正在和你的朋友“${state.qzoneSettings.nickname || '我'}”玩“你说我猜”游戏。\n你的所有发言都【必须】严格符合你的人设和口吻，让整个过程像一次真实的聊天互动。\n\n# 游戏历史 (最近的对话)\n${historyText}\n`;
+    switch (actionType) {
+        case 'generate_word': systemPrompt += `# 你的行动指令\n1. 根据你的人设，想一个随机的、2-5个字的中文词语作为谜底。\n2. 为这个词语，给出你的【第一条】符合人设的、有趣的提示，只需要给出大概方向，不要那种完全直接能猜到的，可以进行适当的吐槽。\n3. 你的回复【必须且只能】是一个严格的JSON对象，包含 "secretWord" 和 "firstHint" 两个字段。\n\n# JSON输出格式示例:\n{"secretWord": "月亮", "firstHint": "【指了指天上】晚上才能看到的东西哦，圆圆的，亮亮的~"}`; break;
+        case 'give_hint': systemPrompt += `# 游戏规则\n你是出题人，你的谜底是【${guessWhatGameState.secretWord}】。\n用户刚刚的猜测是：“${userInput}”。\n\n# 你的行动指令\n1. 首先判断用户的猜测是否正确。\n2. 如果用户猜对了，游戏结束。\n3. 如果用户猜错了，你【必须】根据用户的错误猜测，给出【下一条】新的、更具针对性的提示，引导他们。\n4. 你的所有提示都【必须】符合你的人设和口吻，可以加入动作、表情、语气词。\n5. 你的回复【必须且只能】是一个严格的JSON对象。\n\n# JSON输出格式\n- 如果猜对了: \`{"type": "game_over", "winner": "user", "reason": "恭喜你猜对啦！就是【${guessWhatGameState.secretWord}】！"}\`\n- 如果猜错了: \`{"type": "hint", "text": "不对哦，再想想。提示是：[在这里写你的新提示]"}\``; break;
+        case 'guess_word': systemPrompt += `# 游戏规则\n你是猜题人，用户出的谜底是【${guessWhatGameState.secretWord}】。\n用户刚刚给你的新提示是：“${userInput}”。\n\n# 你的行动指令\n1. 综合分析【游戏历史】中用户给出的【所有提示】。\n2. 根据所有线索，进行【一次】猜测。\n3. 你的猜测【必须】符合你的人设和口吻，可以加入你的思考过程或情绪，可以进行适当的吐槽。\n4. 【【【绝对禁止】】】你【不能】再向用户提问，你的任务是直接猜测。\n5. 你的回复【必须且只能】是一个严格的JSON对象。\n\n# JSON输出格式\n- 如果猜对了: \`{"type": "game_over", "winner": "ai", "reason": "我猜对啦！谜底就是【${guessWhatGameState.secretWord}】！"}\`\n- 如果猜错了: \`{"type": "guess", "text": "我猜是...[你的猜测]"}\``; break;
+    }
+    
+    // --- 【核心改造】带有智能重试的API请求逻辑 ---
+    const maxRetries = 5; // ★★★ 修改点1：最大重试次数改为5，更稳健 ★★★
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const messagesForApi = [{ role: 'user', content: "请根据你在系统指令中读到的规则，立即开始你的行动。" }];
+            const isGemini = proxyUrl === GEMINI_API_URL;
+            const geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
 
-    let systemPrompt = `
-# 你的任务
-你正在扮演角色“${opponent.name}”，人设是：“${opponent.persona}”。
-你正在和用户“${state.qzoneSettings.nickname || '我'}”玩“你说我猜”游戏。
+            const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+                body: JSON.stringify({ model: model, messages: [{ role: 'system', content: systemPrompt }, ...messagesForApi], temperature: 0.9, response_format: { type: "json_object" } })
+            });
 
-# 游戏规则
-${actionType === 'generate_word' ? 
-    `你出题，让用户猜。你需要想一个常见的、2-5个字的中文词语，并给出第一个提示。` : 
-    (guessWhatGameState.mode === 'ai_guesses' ? 
-        `用户出题【${guessWhatGameState.secretWord}】，你来猜。你可以提问（yes/no问题）或直接猜答案。` : 
-        `你出的题是【${guessWhatGameState.secretWord}】，用户来猜。你需要根据用户的提问给出提示，或者判断用户的猜测是否正确。`)
-}
+            // ★★★ 修改点2：智能判断错误类型 ★★★
+            if (!response.ok) {
+                // 对于 4xx 类的客户端错误 (如 401 Unauthorized)，通常重试无效，直接抛出。
+                if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+                     const errorText = await response.text();
+                     throw new Error(`API客户端错误 (状态码 ${response.status}): ${errorText}`);
+                }
+                // 对于 5xx 服务器错误或 429 速率限制，是可重试的。
+                // 我们把错误信息也抛出去，方便catch块里解析
+                throw new Error(`API服务器临时错误 (状态码 ${response.status}): ${await response.text()}`);
+            }
 
-# 游戏历史 (最近10条)
-${historyText}
-`;
+            const data = await response.json();
+            const content = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(/^```json\s*|```$/g, '');
+            return JSON.parse(content); // **成功，直接返回结果，跳出循环**
 
+        } catch (error) {
+            console.error(`“你说我猜”AI行动[${actionType}]失败 (第 ${attempt}/${maxRetries} 次尝试):`, error.message);
+            
+            if (attempt === maxRetries || error.message.includes('API客户端错误')) {
+                break; // 如果是最后一次尝试，或是一个不可重试的错误，则跳出循环
+            }
+            
+            // ★★★ 修改点3：智能解析API建议的等待时间 ★★★
+            let delay = 2000 * attempt; // 默认的指数退避延迟
+            try {
+                // 错误信息本身可能是一个JSON字符串，我们尝试解析它
+                // 先从error.message中提取出JSON部分
+                const jsonMatch = error.message.match(/{.*}/);
+                if (jsonMatch) {
+                    const errorJson = JSON.parse(jsonMatch[0]);
+                    const errorMessage = errorJson.error.message;
+                    
+                    // 正则表达式匹配 "retry in X.XXXXs"
+                    const retryMatch = errorMessage.match(/retry in (\d+\.?\d*)s/);
+                    if (retryMatch && retryMatch[1]) {
+                        // 找到了建议时间，就用它，并额外加一点点缓冲
+                        delay = parseFloat(retryMatch[1]) * 1000 + 500;
+                        console.log(`API请求过于频繁，将根据建议在 ${Math.round(delay/1000)} 秒后重试...`);
+                    }
+                } else {
+                     console.log(`API请求失败，将在 ${Math.round(delay/1000)} 秒后进行第 ${attempt + 1} 次重试...`);
+                }
+            } catch(e) {
+                // 如果解析失败，说明错误信息格式不符合预期，就使用默认延迟
+                 console.log(`API请求失败（无法解析错误），将在 ${Math.round(delay/1000)} 秒后进行第 ${attempt + 1} 次重试...`);
+            }
+            
+            await sleep(delay); // 等待计算出的延迟时间
+        }
+    }
+    
+    // --- 所有重试都失败后的最终处理 ---
+    console.error(`“你说我猜”AI行动[${actionType}]在所有尝试后均失败。`);
+    // 根据失败的阶段，返回一个特定的错误对象
     if (actionType === 'generate_word') {
-        systemPrompt += `
-# 输出格式
-你的回复【必须且只能】是一个JSON对象，包含 "secretWord" 和 "firstHint" 两个字段。
-例如: {"secretWord": "月亮", "firstHint": "它在晚上会出现。"}`;
-    } else if (guessWhatGameState.mode === 'ai_guesses') { // AI猜词
-        systemPrompt += `
-# 你的行动
-1. 分析历史记录，避免重复提问或猜测。
-2. 决定是继续提问来缩小范围，还是直接猜测。
-3. 你的回复【必须且只能】是一个JSON对象。
-   - 提问格式: {"type": "question", "text": "它是一种水果吗？"}
-   - 猜测格式: {"type": "guess", "text": "苹果"}
-`;
-    } else { // AI给提示
-        systemPrompt += `
-# 你的行动
-1. 用户刚刚的发言是：“${userInput}”。
-2. 首先判断这是提问还是猜测。
-3. 如果是猜测，判断是否猜对。猜对则游戏结束。
-4. 如果是提问，先回答“是”或“否”，然后根据人设给出下一条提示。
-5. 你的回复【必须且只能】是一个JSON对象。
-   - 回答问题格式: {"type": "hint", "text": "是/否，[你的新提示]..."}
-   - 猜对格式: {"type": "game_over", "winner": "user", "reason": "用户猜对了！"}
-`;
+        return { secretWord: null, firstHint: null };
     }
-
-    try {
-        const messagesForApi = [{ role: 'user', content: "请根据你在系统指令中读到的规则，立即开始你的行动。" }];
-        let isGemini = proxyUrl === GEMINI_API_URL;
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
-
-        const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
-            body: JSON.stringify({ model: model, messages: [{ role: 'system', content: systemPrompt }, ...messagesForApi], temperature: 0.8, response_format: { type: "json_object" } })
-        });
-        if (!response.ok) throw new Error(await response.text());
-        const data = await response.json();
-        const content = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(/^```json\s*|```$/g, '');
-        return JSON.parse(content);
-    } catch (error) {
-        console.error("你说我猜AI行动失败:", error);
-        return { type: 'hint', text: '我好像有点卡住了，让我想想...' };
-    }
+    // 返回一个全新的 'error' 类型，让游戏主循环知道如何处理
+    return { type: 'error', text: '【叹了口气】抱歉，我的网络好像出问题了，试了好几次都没连上...' };
 }
-// ▲▲▲ “你说我猜”功能函数结束 ▲▲▲
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+
+/**
+ * 【你说我猜】渲染游戏主界面
+ */
+function renderGuessWhatGameScreen() {
+    const logContainer = document.getElementById('guess-what-game-log');
+    logContainer.innerHTML = '';
+    
+    guessWhatGameState.gameLog.forEach(log => {
+        const logEl = document.createElement('div');
+        logEl.className = `guess-log-entry ${log.type}`;
+
+        if (log.type === 'system') {
+            logEl.textContent = log.message;
+        } else {
+            const avatarUrl = log.message.player.isUser ? (state.qzoneSettings.avatar || defaultAvatar) : log.message.player.avatar;
+            logEl.innerHTML = `
+                <img src="${avatarUrl}" class="avatar">
+                <div class="bubble">
+                    <div class="name">${log.message.player.name}</div>
+                    <div>${log.message.text.replace(/\n/g, '<br>')}</div>
+                </div>
+            `;
+        }
+        logContainer.appendChild(logEl);
+    });
+
+    logContainer.scrollTop = logContainer.scrollHeight;
+}
+
+/**
+ * 【你说我猜】添加一条游戏日志
+ */
+function logToGuessWhatGame(message, type = 'system') {
+    guessWhatGameState.gameLog.push({ message, type });
+    renderGuessWhatGameScreen();
+}
+
+// ▼▼▼ 【全新 | V3版】请用这整块代码，完整替换旧的 processGuessWhatTurn 函数 ▼▼▼
+/**
+ * 【你说我猜 V3 | 升级错误处理】游戏主循环/引擎
+ * @param {string} userInput - 用户刚刚的输入
+ */
+async function processGuessWhatTurn(userInput) {
+    if (!guessWhatGameState.isActive) return;
+
+    const inputEl = document.getElementById('guess-what-user-input');
+    const userPlayer = { id: 'user', name: state.qzoneSettings.nickname || '我', isUser: true };
+    const aiPlayer = guessWhatGameState.opponent;
+    const currentMode = guessWhatGameState.mode;
+
+    // 1. 记录用户行为
+    logToGuessWhatGame({ player: userPlayer, text: userInput }, 'user-turn');
+
+    // 2. 轮到AI行动，禁用输入框
+    guessWhatGameState.currentTurn = 'ai';
+    inputEl.placeholder = `等待 ${aiPlayer.name} 的回应...`;
+    inputEl.disabled = true;
+    renderGuessWhatGameScreen();
+    await sleep(1500); // 模拟思考
+
+    // 3. 让AI执行动作
+    const aiResponse = await triggerGuessWhatAiAction(
+        currentMode === 'ai_guesses' ? 'guess_word' : 'give_hint',
+        userInput
+    );
+    
+    // 4. 处理AI的行动结果
+    if (aiResponse) {
+        // --- ▼▼▼ 【核心升级】处理新的 'error' 类型 ▼▼▼ ---
+        if (aiResponse.type === 'error') {
+            logToGuessWhatGame({ player: aiPlayer, text: aiResponse.text }, 'ai-turn');
+        } 
+        // --- ▲▲▲ 升级结束 ▲▲▲ ---
+        else if (aiResponse.type === 'game_over') {
+            endGuessWhatGame(aiResponse.winner, aiResponse.reason);
+            return; // 游戏结束，退出
+        } else {
+            const aiMessage = aiResponse.type === 'hint' ? aiResponse.text : aiResponse.text;
+            logToGuessWhatGame({ player: aiPlayer, text: aiMessage }, 'ai-turn');
+        }
+    } else {
+        // 兜底的极端情况
+        logToGuessWhatGame({ player: aiPlayer, text: '我...好像彻底断线了...' }, 'ai-turn');
+    }
+
+    // 5. 轮到用户行动，【在任何情况下都要】恢复输入框
+    guessWhatGameState.currentTurn = 'user';
+    inputEl.placeholder = currentMode === 'ai_guesses' ? "请继续给出你的提示..." : "请根据提示继续猜测...";
+    inputEl.disabled = false;
+    inputEl.focus();
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 【你说我猜】游戏结束处理
+ */
+function endGuessWhatGame(winner, reason) {
+    if (!guessWhatGameState.isActive) return; // 防止重复执行
+    guessWhatGameState.isActive = false; // 标记游戏为非激活状态
+    
+    // 立即隐藏游戏中的输入区域
+    const actionArea = document.getElementById('guess-what-action-area');
+    if(actionArea) actionArea.style.display = 'none';
+
+    // 生成复盘文本
+    const summaryText = generateGuessWhatSummary(winner, reason);
+    // 显示结算卡片
+    showGuessWhatSummaryModal(summaryText);
+}
+
+/**
+ * 【你说我猜-AI核心 V4 | 铜墙铁壁版】调用AI执行游戏逻辑，内置强大的重试机制
+ * @param {string} actionType - AI需要执行的动作: 'generate_word', 'give_hint', 'guess_word'
+ * @param {string} userInput - 用户刚刚的输入
+ * @returns {Promise<object|null>} - AI的行动结果
+ */
+async function triggerGuessWhatAiAction(actionType, userInput = null) {
+    const { proxyUrl, apiKey, model } = state.apiConfig;
+    if (!proxyUrl || !apiKey || !model) return null;
+
+    // --- 这部分Prompt逻辑保持不变 ---
+    const opponent = guessWhatGameState.opponent;
+    const historyText = guessWhatGameState.gameLog.map(log => log.type === 'system' ? `[系统提示: ${log.message}]` : `${log.message.player.name}: ${log.message.text}`).slice(-10).join('\n');
+    let systemPrompt = `# 你的任务\n你正在扮演角色“${opponent.name}”，人设是：“${opponent.persona}”。\n你正在和“${state.qzoneSettings.nickname || '我'}”玩“你说我猜”游戏。\n你的所有发言都【必须】严格符合你的人设和口吻，让整个过程像一次真实的聊天互动。\n\n# 游戏历史 (最近的对话)\n${historyText}\n`;
+    switch (actionType) {
+        case 'generate_word': systemPrompt += `# 你的行动指令\n1. 根据你的人设，想一个常见的、2-5个字的中文词语作为谜底。\n2. 为这个词语，给出你的【第一条】符合人设的、有趣的提示。\n3. 你的回复【必须且只能】是一个严格的JSON对象，包含 "secretWord" 和 "firstHint" 两个字段。\n\n# JSON输出格式示例:\n{"secretWord": "月亮", "firstHint": "【指了指天上】晚上才能看到的东西哦，圆圆的，亮亮的~"}`; break;
+      case 'give_hint':
+    systemPrompt += `# 游戏规则
+你是出题人，你的谜底是【${guessWhatGameState.secretWord}】。
+用户刚刚的猜测是：“${userInput}”。
+
+# 你的行动指令
+1.  首先判断用户的猜测是否正确。
+2.  如果用户猜对了，游戏结束。
+3.  如果用户猜错了，你【必须】根据用户的错误猜测，给出【下一条】新的、更具针对性的提示，引导他们。
+4.  【【【人设扮演铁律】】】你的所有提示都【必须】符合你的人设和口吻，可以加入动作、表情、语气词，甚至可以对用户【笨笨的猜测进行一些俏皮的吐槽】，让游戏更有趣。
+5.  你的回复【必须且只能】是一个严格的JSON对象。
+
+# JSON输出格式
+- 如果猜对了: \`{"type": "game_over", "winner": "user", "reason": "恭喜你猜对啦！就是【${guessWhatGameState.secretWord}】！"}\`
+- 如果猜错了: \`{"type": "hint", "text": "【叹气】不对哦，再想想。提示是：[在这里写你的新提示]"}\``;
+    break;
+
+  case 'guess_word':
+    systemPrompt += `# 游戏规则
+你是猜题人，用户出的谜底是【${guessWhatGameState.secretWord}】。
+用户刚刚给你的新提示是：“${userInput}”。
+
+# 你的行动指令
+1.  综合分析【游戏历史】中用户给出的【所有提示】。
+2.  根据所有线索，进行【一次】猜测。
+3.  【【【人设扮演铁律】】】你的猜测【必须】符合你的人设和口吻。你可以加入你的思考过程、情绪，甚至可以【对用户的提示进行吐槽】。
+4.  【【【趣味性指令】】】为了逗弄用户，你可以【故意给出一些有趣的、沾点边但明显错误的答案】，然后再给出你认为最可能的答案。但这只是偶尔的调剂，你的最终目的还是要猜对。
+5.  【【【绝对禁止】】】你【不能】再向用户提问，你的任务是直接猜测。
+6.  你的回复【必须且只能】是一个严格的JSON对象。
+
+# JSON输出格式
+- 如果猜对了: \`{"type": "game_over", "winner": "ai", "reason": "我猜对啦！谜底就是【${guessWhatGameState.secretWord}】！"}\`
+- 如果猜错了: \`{"type": "guess", "text": "【假装恍然大悟】哦~我知道了，是“电饭煲”对不对？...好吧好吧不逗你了，我猜是...[你的真实猜测]"}\``;
+    break;
+
+    }
+    
+    // --- 【核心改造】带有智能重试的API请求逻辑 ---
+    const maxRetries = 3;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const messagesForApi = [{ role: 'user', content: "请根据你在系统指令中读到的规则，立即开始你的行动。" }];
+            const isGemini = proxyUrl === GEMINI_API_URL;
+            const geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+
+            const response = isGemini 
+                ? await fetch(geminiConfig.url, geminiConfig.data)
+                : await fetch(`${proxyUrl}/v1/chat/completions`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+                    body: JSON.stringify({ model: model, messages: [{ role: 'system', content: systemPrompt }, ...messagesForApi], temperature: 0.9, response_format: { type: "json_object" } })
+                });
+
+            // 智能判断错误类型
+            if (!response.ok) {
+                // 对于 4xx 类的客户端错误 (如 401 Unauthorized, 400 Bad Request)，通常重试无效，直接抛出。
+                if (response.status >= 400 && response.status < 500) {
+                     const errorText = await response.text();
+                     throw new Error(`API客户端错误 (状态码 ${response.status}): ${errorText}`);
+                }
+                // 对于 5xx 服务器错误或 429 速率限制，是可重试的。
+                throw new Error(`API服务器临时错误 (状态码 ${response.status})`);
+            }
+
+            const data = await response.json();
+            const content = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(/^```json\s*|```$/g, '');
+            return JSON.parse(content); // **成功，直接返回结果，跳出循环**
+
+        } catch (error) {
+            console.error(`“你说我猜”AI行动[${actionType}]失败 (第 ${attempt}/${maxRetries} 次尝试):`, error.message);
+            
+            // 如果是最后一次尝试，或者是一个不可重试的错误，则跳出循环准备返回最终失败信息
+            if (attempt === maxRetries || error.message.includes('API客户端错误')) {
+                break;
+            }
+            
+            // 等待一段时间再重试（比如 1.5s, 3s, 4.5s）
+            await sleep(1500 * attempt);
+        }
+    }
+
+    // --- 所有重试都失败后的最终处理 ---
+    console.error(`“你说我猜”AI行动[${actionType}]在所有尝试后均失败。`);
+    // 根据失败的阶段，返回一个特定的错误对象
+    if (actionType === 'generate_word') {
+        return { secretWord: null, firstHint: null };
+    }
+    // 返回一个全新的 'error' 类型，让游戏主循环知道如何处理
+    return { type: 'error', text: '【叹了口气】抱歉，我的网络好像出问题了，试了好几次都没连上...' };
+}
+// ▼▼▼ 【全新】“你说我猜”游戏结算与转发功能核心代码 ▼▼▼
+
+/**
+ * 【你说我猜】生成游戏复盘的文本
+ * @param {string} winner - 胜利者 ('user' or 'ai')
+ * @param {string} reason - 游戏结束原因
+ * @returns {string} 格式化后的复盘Markdown文本
+ */
+function generateGuessWhatSummary(winner, reason) {
+    let summaryText = `**你说我猜 - 游戏复盘**\n\n`;
+    summaryText += `**游戏结果:** ${reason}\n`;
+    summaryText += `**谜底:** ${guessWhatGameState.secretWord}\n\n`;
+    summaryText += `**参与玩家:** 我, ${guessWhatGameState.opponent.name}\n\n`;
+    summaryText += `---\n\n**游戏记录:**\n`;
+    
+    const formattedLog = guessWhatGameState.gameLog.map(log => {
+        if (log.type === 'system') {
+            return `[系统提示: ${log.message}]`;
+        } else {
+            return `${log.message.player.name}: ${log.message.text}`;
+        }
+    }).join('\n');
+    
+    summaryText += formattedLog;
+
+    return summaryText;
+}
+
+/**
+ * 【你说我猜】显示游戏结算卡片模态框
+ * @param {string} summaryText - 复盘文本
+ */
+function showGuessWhatSummaryModal(summaryText) {
+    const modal = document.getElementById('guess-what-summary-modal');
+    const contentEl = document.getElementById('guess-what-summary-content');
+    
+    contentEl.innerHTML = renderMarkdown(summaryText);
+    
+    // 使用克隆节点技巧，防止事件重复绑定
+    const forwardBtn = document.getElementById('forward-guess-what-summary-btn');
+    const newForwardBtn = forwardBtn.cloneNode(true);
+    forwardBtn.parentNode.replaceChild(newForwardBtn, forwardBtn);
+    
+    const closeBtn = document.getElementById('close-guess-what-summary-btn');
+    const newCloseBtn = closeBtn.cloneNode(true);
+    closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+
+    // 检查对手是否是主要角色（有独立聊天窗口），而不是NPC
+    const opponentId = guessWhatGameState.opponent.id;
+    const canForward = state.chats[opponentId] !== undefined;
+
+    if (canForward) {
+        newForwardBtn.style.display = 'block';
+        newForwardBtn.onclick = () => forwardGuessWhatSummary(summaryText);
+    } else {
+        // 如果对手是NPC，没有独立聊天窗口，则隐藏转发按钮
+        newForwardBtn.style.display = 'none';
+    }
+
+    newCloseBtn.onclick = () => {
+        modal.classList.remove('visible');
+        showScreen('game-hall-screen');
+    };
+
+    modal.classList.add('visible');
+}
+
+/**
+ * 【你说我猜】将游戏复盘转发到对应的AI角色的聊天中
+ * @param {string} summaryText - 复盘文本
+ */
+async function forwardGuessWhatSummary(summaryText) {
+    const opponentId = guessWhatGameState.opponent.id;
+    const chat = state.chats[opponentId];
+    
+    if (!chat) {
+        await showCustomAlert("转发失败", "找不到该玩家的聊天窗口。");
+        return;
+    }
+
+    document.getElementById('guess-what-summary-modal').classList.remove('visible');
+
+    // 创建对用户可见的复盘消息
+    const visibleMessage = {
+        role: 'user',
+        type: 'text',
+        timestamp: Date.now(),
+        content: summaryText
+    };
+    
+    // 创建给AI看的隐藏指令
+    const aiContext = `[系统指令：刚刚结束了一局“你说我猜”，这是游戏复盘。请根据这个复盘内容，以你的角色人设，和用户聊聊刚才的游戏。]\n\n${summaryText}`;
+    const hiddenInstruction = {
+        role: 'system',
+        content: aiContext,
+        timestamp: Date.now() + 1,
+        isHidden: true
+    };
+    
+    chat.history.push(visibleMessage, hiddenInstruction);
+    await db.chats.put(chat);
+    
+    await showCustomAlert("转发成功", `游戏复盘已发送至与“${chat.name}”的聊天中！`);
+    
+    // 打开聊天并触发AI回应
+    openChat(chat.id);
+    triggerAiResponse();
+}
+
+// ▲▲▲ 新增代码粘贴结束 ▲▲▲
+
 
         async function init() {
 
@@ -45468,53 +45965,59 @@ document.getElementById('close-sk-evidence-modal-btn').addEventListener('click',
     document.getElementById('script-kill-evidence-modal').classList.remove('visible');
 });
 
-// ▼▼▼ 【最终修复版】请用这【一整块完整】的代码，替换掉你 init() 函数中那个不完整的 script-kill-action-area 事件监听器 ▼▼▼
+// ▼▼▼ 【最终流程版】请用这整块代码，完整替换旧的 script-kill-action-area 事件监听器 ▼▼▼
 document.getElementById('script-kill-action-area').addEventListener('click', async (e) => {
-    // --- 1. 处理“搜证”按钮 ---
-    if (e.target.id === 'sk-search-evidence-btn') {
-        const user = scriptKillGameState.players.find(p => p.isUser);
-        const script = scriptKillGameState.script;
-        
-        const potentialClues = script.clues.filter(c => c.owner === user.role.name || c.owner === '公共');
-        const uncollectedClues = potentialClues.filter(c => !user.evidence.some(ec => ec.description === c.description));
+    const phase = scriptKillGameState.gamePhase;
 
-        if (uncollectedClues.length > 0) {
-            const foundClue = uncollectedClues[Math.floor(Math.random() * uncollectedClues.length)];
-            const clueSource = foundClue.owner === '公共' ? '公共区域' : `角色 ${foundClue.owner} 的私人物品`;
-            
-            user.evidence.push({ description: foundClue.description, source: clueSource });
-            scriptKillGameState.evidenceCounts[user.id] = (scriptKillGameState.evidenceCounts[user.id] || 0) + 1;
-            
-            let revealed = true;
-            // 【博弈点】如果搜到的是自己的线索，弹窗让玩家选择
-            if (foundClue.owner === user.role.name) {
-                const userChoice = await showCustomConfirm(
-                    '发现关于你的线索！',
-                    `你在【${clueSource}】中发现：\n\n“${foundClue.description}”\n\n点击“确定”公开线索，点击“取消”则先藏起来。`
-                );
-                revealed = userChoice; // 确定=true, 取消=false
-            }
-// ▼▼▼ 修改后的代码 ▼▼▼
-if (revealed) {
-    logToScriptKillGame(`${user.name} 在【${clueSource}】发现线索：“${foundClue.description}”`);
-    await showCustomAlert("你公开了线索", `你在【${clueSource}】中发现：\n\n“${foundClue.description}”`);
-} else {
-    await showCustomAlert("你藏起了线索", `你已将线索“${foundClue.description}”放入了你的线索板。`);
-}
-// ▲▲▲ 修改结束 ▲▲▲
+if (e.target.id === 'sk-search-evidence-btn') {
+    const user = scriptKillGameState.players.find(p => p.isUser);
+    const script = scriptKillGameState.script;
+    
+    const searchCount = scriptKillGameState.evidenceCounts[user.id] || 0;
+    const phase = scriptKillGameState.gamePhase;
 
-            
-            updateActionAreaSK();
-        } else {
-            alert("你已经搜完了所有相关线索。");
-            e.target.disabled = true;
-        }
+    // 检查当前轮次的搜证次数是否已用完
+    if ((phase === 'evidence_round_1' && searchCount >= 2) || (phase === 'evidence_round_2' && searchCount >= 3)) {
+        alert("本轮搜证次数已用完！");
+        return;
     }
     
-    // --- 2. 【核心修复】处理“结束搜证”按钮 ---
+    // 消耗一次搜证机会
+    scriptKillGameState.evidenceCounts[user.id] = searchCount + 1;
+    updateActionAreaSK(); // 更新按钮状态
+
+    let foundMessage = '';
+
+    const uncollectedClues = script.clues.filter(c => !scriptKillGameState.collectedClueIds.has(c.description));
+
+    if (uncollectedClues.length > 0) {
+        const foundClue = uncollectedClues[Math.floor(Math.random() * uncollectedClues.length)];
+        const clueSource = foundClue.owner === '公共' ? '公共区域' : `角色 ${foundClue.owner} 的私人物品`;
+        
+        user.evidence.push({ description: foundClue.description, source: clueSource });
+        scriptKillGameState.collectedClueIds.add(foundClue.description);
+        
+        foundMessage = `在【${clueSource}】发现线索：“${foundClue.description}”`;
+    } else {
+        foundMessage = "没有发现更多新线索了。";
+    }
+
+    // 记录日志并弹窗提示
+    logToScriptKillGame(`${user.name} 完成了一次搜证: ${foundMessage}`);
+    await showCustomAlert("搜证结果", foundMessage);
+}
+
+
+    // --- 2. 处理“结束搜证”按钮 ---
     if (e.target.id === 'sk-end-search-btn') {
-        scriptKillGameState.gamePhase = 'discussion';
-        await processScriptKillTurn();
+        if (phase === 'evidence_round_1') {
+            scriptKillGameState.gamePhase = 'discussion_round_1';
+            await processScriptKillTurn();
+        } else if (phase === 'evidence_round_2') {
+            // 【核心修改】第二轮搜证后，进入第二轮讨论
+            scriptKillGameState.gamePhase = 'discussion_round_2';
+            await processScriptKillTurn();
+        }
     }
 
     // --- 3. 处理“我要发言”按钮 ---
@@ -45523,7 +46026,6 @@ if (revealed) {
         const userPlayer = scriptKillGameState.players.find(p => p.isUser);
         logToScriptKillGame({ player: userPlayer, speech: speech }, 'speech');
         
-        // 用户发言后，轮到AI们发言
         for (const player of scriptKillGameState.players.filter(p => !p.isUser)) {
              await sleep(2000);
              renderScriptKillGameScreen({ speakingPlayerId: player.id });
@@ -45532,21 +46034,24 @@ if (revealed) {
         }
         renderScriptKillGameScreen();
         
-        // ▼▼▼ 用下面这整块新的 if/else 代码，替换掉你原来的最后两行 ▼▼▼
-
-        if (scriptKillGameState.discussionRound === 1) {
-            // 如果刚刚结束的是第一轮讨论
-            scriptKillGameState.discussionRound = 2; // 将轮次设置为2
-            logToScriptKillGame('第一轮讨论结束，现在进入【第二轮讨论环节】。', 'system');
-            updateActionAreaSK(); // 重新显示“我要发言”按钮，准备开始第二轮
-        } else {
-            // 如果刚刚结束的是第二轮讨论，就进入投票
+        // 【核心修改】根据当前讨论轮次，决定下一个阶段
+        if (phase === 'discussion_round_1') {
+            scriptKillGameState.gamePhase = 'evidence_round_2';
+            await processScriptKillTurn();
+        } else if (phase === 'discussion_round_2') {
+            // 第二轮讨论后，进入第三轮（最终）讨论
+            scriptKillGameState.gamePhase = 'discussion_round_3';
+            await processScriptKillTurn();
+        } else if (phase === 'discussion_round_3') {
+            // 最终讨论后，才进入投票
             scriptKillGameState.gamePhase = 'voting';
             await processScriptKillTurn();
         }
     }
 });
 // ▲▲▲ 替换结束 ▲▲▲
+
+
 
 // ▼▼▼ 【全新 | 已修复】剧本杀管理功能事件监听器 ▼▼▼
 document.getElementById('manage-custom-scripts-btn').addEventListener('click', openScriptManager);
