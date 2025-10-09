@@ -8444,6 +8444,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* 浮动添加按钮 */
+/* ▼▼▼ 请用这块【终极居中修复版】代码，替换旧的 .ls-fab-btn 样式 ▼▼▼ */
 .ls-fab-btn {
     position: fixed;
     bottom: calc(30px + env(safe-area-inset-bottom));
@@ -8455,12 +8456,20 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     color: white;
     border: none;
     font-size: 28px;
-    line-height: 50px;
-    text-align: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     cursor: pointer;
     z-index: 10;
+
+    /* --- 核心修改：使用Flexbox进行完美居中 --- */
+    display: flex;
+    justify-content: center; /* 水平居中 */
+    align-items: center;     /* 垂直居中 */
+
+    /* 移除旧的居中方式，避免冲突 */
+    line-height: normal; 
 }
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
 
 /* 说说卡片 */
 #ls-moments-list {
