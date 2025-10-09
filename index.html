@@ -11564,6 +11564,30 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     left: 15px;
 }
 
+/* ▼▼▼ 【独家定制】情侣空间心动音波图标 ▼▼▼ */
+
+/* 1. 移除旧的爱心字符和发光效果 */
+.ls-header-avatars .heart-icon {
+    font-size: 0; /* 让'❤'字符消失 */
+    text-shadow: none; /* 移除文字阴影 */
+    
+    /* 2. 为新图标设置一个容器大小，您可以根据喜好微调 */
+    width: 80px;
+    height: 28px;
+    
+    /* 3. 【核心】将你图片中的音波心动图设置为背景 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='24' viewBox='0 0 80 24'%3E%3Cg fill='%23ff8fab'%3E%3Crect x='0' y='10' width='3' height='4' rx='1.5'/%3E%3Crect x='5' y='8' width='3' height='8' rx='1.5'/%3E%3Crect x='10' y='11' width='3' height='2' rx='1.5'/%3E%3Crect x='15' y='6' width='3' height='12' rx='1.5'/%3E%3Crect x='20' y='9' width='3' height='6' rx='1.5'/%3E%3Cpath transform='translate(25 0) scale(1.1)' d='M22 8.879c0-5.323-5.326-5.323-7.5-1.121C12.277 2.235 7 3.556 7 8.879 7 14.155 14.5 20 14.5 20S22 14.155 22 8.879z'/%3E%3Crect x='55' y='9' width='3' height='6' rx='1.5'/%3E%3Crect x='60' y='6' width='3' height='12' rx='1.5'/%3E%Crect x='65' y='11' width='3' height='2' rx='1.5'/%3E%3Crect x='70' y='8' width='3' height='8' rx='1.5'/%3E%3Crect x='75' y='10' width='3' height='4' rx='1.5'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: contain; /* 确保图标完整显示 */
+    background-repeat: no-repeat;
+    background-position: center;
+    
+    /* 4. （可选）微调垂直位置，让它和头像更对齐 */
+    position: relative;
+    top: -2px; 
+}
+
+/* ▲▲▲ 定制样式结束 ▲▲▲ */
+
 
 
     </style>
