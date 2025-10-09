@@ -8445,6 +8445,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* 浮动添加按钮 */
 /* ▼▼▼ 请用这块【终极居中修复版】代码，替换旧的 .ls-fab-btn 样式 ▼▼▼ */
+/* ▼▼▼ 这是SVG适配版的最终代码 ▼▼▼ */
 .ls-fab-btn {
     position: fixed;
     bottom: calc(30px + env(safe-area-inset-bottom));
@@ -8455,18 +8456,24 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     background-color: var(--accent-color);
     color: white;
     border: none;
-    font-size: 28px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     cursor: pointer;
     z-index: 10;
-
-    /* --- 核心修改：使用Flexbox进行完美居中 --- */
+    
+    /* 依然使用Flexbox来居中SVG图标 */
     display: flex;
-    justify-content: center; /* 水平居中 */
-    align-items: center;     /* 垂直居中 */
+    justify-content: center;
+    align-items: center;
 
-    /* 移除旧的居中方式，避免冲突 */
-    line-height: normal; 
+    /* 移除所有与字体相关的属性 */
+    /* font-size: 28px; (已移除) */
+    /* line-height: normal; (已移除) */
+}
+
+/* (可选) 如果你觉得SVG有点小或大，可以微调它的大小 */
+.ls-fab-btn svg {
+    width: 24px;
+    height: 24px;
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
