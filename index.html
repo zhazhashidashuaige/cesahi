@@ -7517,13 +7517,16 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▼▼▼ 把这一整块全新的微博帖子样式，粘贴到 <style> 标签的最末尾 ▼▼▼ */
 
 /* === 微博帖子专属样式 (已和动态分离) === */
+/* === 微博帖子专属样式 (圆角卡片版) === */
 .weibo-post-item {
     background-color: var(--secondary-bg);
-    border-radius: 0; /* 微博风格，通常没有圆角 */
+    border-radius: 12px; /* ★ 修改这里，增加圆角，让它变得圆润可爱 */
     padding: 15px;
-    border-bottom: 8px solid #f0f2f5; /* 用厚一点的分割线代替阴影 */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); /* ★ 新增柔和的阴影，营造卡片悬浮感 */
+    /* ★ 旧的 border-bottom 分割线已经被移除了，现在由父容器的 gap 属性负责间距 */
 }
 .weibo-post-item:last-child {
+    /* 这个规则现在也不需要了，但保留着也没关系 */
     border-bottom: none;
 }
 
@@ -11588,6 +11591,23 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* ▲▲▲ 定制样式结束 ▲▲▲ */
 
+/* ▼▼▼ 这是为你新增的日历居中修复代码 ▼▼▼ */
+
+/* 1. 强制让每一天的格子内容都不要溢出，避免互相影响 */
+.ls-calendar-day {
+    overflow: hidden;
+    text-align: center; /* 再次强调文本居中，更稳定 */
+}
+
+/* 2. 【核心修复】将蓝圈本身也变成一个flex居中容器 */
+/* 这能确保里面的数字，无论如何都会在圈圈的正中间 */
+.ls-calendar-day.today .day-number {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ▲▲▲ 修复结束 ▲▲▲ */
 
 
     </style>
