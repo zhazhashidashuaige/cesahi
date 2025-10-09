@@ -8296,33 +8296,31 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▲▲▲ 第1步：复制替换到这里结束 ▲▲▲ */
 
 /* --- 【最终修复版】修复情侣空间顶部按钮无法点击的问题 --- */
+/* --- 【最终修复版】修复遮罩层拦截点击的问题 --- */
+
 .ls-header-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent, rgba(0,0,0,0.2));
     
-    /* ▼▼▼ 核心修复就在这行！▼▼▼ */
-    pointer-events: none; /* 让这个图层不阻挡鼠标点击，让点击可以“穿透”它 */
-    
-    /* (可选但推荐) 同时我们把它层级设为最低，确保万无一失 */
-    z-index: 1;
+    /* ▼▼▼ 核心修复：让这个遮罩层对鼠标事件“透明”！ ▼▼▼ */
+    pointer-events: none; 
+    /* ▲▲▲ 修复结束 ▲▲▲ */
 }
+
 
 /* --- 【已修复】情侣空间顶部栏层级问题 --- */
 
 .ls-header-top-bar {
     position: relative;
-    
-    /* ▼▼▼ 核心修改在这里！▼▼▼ */
-    /* 我们把 z-index 从 2 提升到了 3，让它层级最高 */
-    z-index: 3; 
-
+    z-index: 3; /* ★★★ 核心修改：将层级从 2 提升到 3 ★★★ */
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px;
     padding-top: calc(15px + env(safe-area-inset-top));
 }
+
 #ls-char-name {
     font-size: 18px;
     font-weight: 600;
@@ -11530,7 +11528,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* 1. 为按钮的容器（那三个按钮整体）增加间距 */
 #ls-header .header-actions {
-    gap: 10px; /* 控制按钮之间的【水平间距】，值越大，按钮分得越开 */
+    gap: 2px; /* 控制按钮之间的【水平间距】，值越大，按钮分得越开 */
 }
 
 /* 2. 增大单个按钮的点击区域，并美化为圆形 */
