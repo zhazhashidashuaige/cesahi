@@ -10950,8 +10950,301 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▲▲▲ 升级版样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】宠物功能样式 ▼▼▼ */
+
+#chat-pet {
+    transition: transform 0.2s ease-out; /* 为拖动添加一点平滑过渡 */
+}
+
+#chat-pet:active {
+    cursor: grabbing;
+    transform: scale(1.1); /* 拖动时稍微放大，给用户反馈 */
+    filter: brightness(0.9);
+}
+
+#chat-pet img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* 自定义图片等比缩放 */
+    -webkit-user-drag: none; /* 防止图片被意外拖动 */
+    user-drag: none;
+}
+
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】宠物数值面板样式 ▼▼▼ */
+
+#pet-stats-area {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* 每个数值条之间的间距 */
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+#phone-screen.dark-mode #pet-stats-area {
+    background-color: #2c2c2e;
+}
+
+.stat-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-bar-container .stat-label {
+    width: 60px; /* 固定标签宽度，让进度条对齐 */
+    font-size: 14px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.stat-bar {
+    flex-grow: 1;
+    height: 18px;
+    background-color: #e9ecef;
+    border-radius: 9px;
+    overflow: hidden;
+    position: relative;
+}
+
+#phone-screen.dark-mode .stat-bar {
+    background-color: #3e3e42;
+}
+
+.stat-bar-fill {
+    height: 100%;
+    border-radius: 9px;
+    transition: width 0.5s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    text-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+/* 为不同的数值条设置不同的颜色 */
+#pet-hunger-bar .stat-bar-fill {
+    background: linear-gradient(135deg, #fd7e14, #ffc107);
+}
+#pet-happiness-bar .stat-bar-fill {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】宠物亲密度进度条颜色 ▼▼▼ */
+#pet-intimacy-user-bar .stat-bar-fill {
+    background: linear-gradient(135deg, #ff8fab, #ffc3a0); /* 对你：温暖的粉橙色 */
+}
+#pet-intimacy-char-bar .stat-bar-fill {
+    background: linear-gradient(135deg, #a1c4fd, #c2e9fb); /* 对Ta：柔和的天蓝色 */
+}
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】宠物聊天界面样式 ▼▼▼ */
+#pet-chat-messages .message-wrapper {
+    max-width: 85%;
+}
+
+#pet-chat-messages .message-bubble {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+#pet-chat-messages .message-bubble .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+}
+
+#pet-chat-messages .message-bubble .content {
+    padding: 8px 12px;
+    border-radius: 10px;
+    line-height: 1.5;
+}
+
+#pet-chat-messages .message-wrapper.user {
+    align-self: flex-end;
+}
+#pet-chat-messages .message-wrapper.user .message-bubble {
+    flex-direction: row-reverse;
+}
+#pet-chat-messages .message-wrapper.user .content {
+    background-color: #dcf8c6;
+}
+
+#pet-chat-messages .message-wrapper.pet {
+    align-self: flex-start;
+}
+#pet-chat-messages .message-wrapper.pet .content {
+    background-color: #fff;
+}
+
+#phone-screen.dark-mode #pet-chat-messages {
+    background-color: #000;
+}
+#phone-screen.dark-mode #pet-chat-messages .message-wrapper.user .content {
+    background-color: #26491d;
+}
+#phone-screen.dark-mode #pet-chat-messages .message-wrapper.pet .content {
+    background-color: #2c2c2e;
+}
+
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】宠物聊天界面布局修复 ▼▼▼ */
+
+/* 1. 让整个弹窗内容区变成一个从上到下的flex容器 */
+#pet-chat-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* 防止内容溢出 */
+}
+
+/* 2. 让消息区域占据所有可用空间，并且内容超出时可以滚动 */
+#pet-chat-modal #pet-chat-messages {
+    flex-grow: 1;      /* 核心：占据所有剩余的垂直空间 */
+    min-height: 0;     /* 一个解决flex布局下滚动兼容性的魔法属性 */
+    overflow-y: auto;  /* 内容超出时，允许垂直滚动 */
+    padding-bottom: 20px; /* 给最底下的消息一点留白 */
+}
+
+/* 3. 让输入区域高度固定，并且永远贴在底部 */
+#pet-chat-modal #pet-chat-input-area {
+    flex-shrink: 0; /* 防止被压缩 */
+}
+/* ▲▲▲ 修复结束 ▲▲▲ */
 
 
+
+/* ▼▼▼ 【布局终极修复】用这整块代码替换你上一次添加的宠物聊天输入框样式 ▼▼▼ */
+
+/* 1. 让弹窗内容区适配新布局 (保持不变) */
+#pet-chat-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 2. 消息区域 (保持不变) */
+#pet-chat-modal #pet-chat-messages {
+    flex-grow: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 20px 15px;
+    background-color: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 3. 气泡样式 (保持不变) */
+#pet-chat-modal .message-bubble .content { padding: 0; background: transparent; box-shadow: none; border: none; }
+#pet-chat-modal .message-wrapper.user .content { background-color: #007AFF; color: white; padding: 10px 14px; border-radius: 18px 18px 4px 18px; max-width: 100%; }
+#pet-chat-modal .message-wrapper.pet .content { background-color: #ffffff; color: #1c1c1e; padding: 10px 14px; border-radius: 18px 18px 18px 4px; max-width: 100%; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+/* --- ▼▼▼ 核心修复区域 ▼▼▼ --- */
+
+/* 4. 重置输入区域的背景和边框 (保持不变) */
+#pet-chat-modal #pet-chat-input-area {
+    border-top: 1px solid #e0e0e0;
+    background-color: #f7f7f7;
+    padding: 10px 12px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+}
+
+/* 5. 【核心修复】让输入框和发送按钮的容器变成 Flex 布局 */
+#pet-chat-modal #pet-chat-input-area .chat-input-main-row {
+    display: flex;           /* 关键：让内部元素横向排列 */
+    align-items: center;     /* 关键：让输入框和按钮垂直居中对齐，实现“平行” */
+    gap: 8px;                /* 输入框和按钮之间的间距 */
+}
+
+/* 6. 美化输入框，并【让它撑满宽度】 */
+#pet-chat-modal #pet-chat-input {
+    flex-grow: 1;            /* 关键：让输入框占据所有剩余的宽度 */
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 18px;
+    padding: 8px 15px;
+    line-height: 1.5;
+    min-height: 38px;
+    max-height: 100px;
+    resize: none;            /* 禁止用户手动拖拽大小 */
+    box-sizing: border-box;  /* 确保padding不会撑破布局 */
+}
+
+/* 7. 美化发送按钮，并固定其大小 */
+#pet-chat-modal #send-to-pet-btn {
+    flex-shrink: 0;          /* 防止按钮被压缩 */
+    background-color: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 18px;
+    height: 38px;
+    padding: 0 20px;
+    font-weight: 600;
+    cursor: pointer;         /* 鼠标放上去时显示小手 */
+}
+
+/* 8. 夜间模式适配 (保持不变) */
+#phone-screen.dark-mode #pet-chat-modal #pet-chat-messages { background-color: #000; }
+#phone-screen.dark-mode #pet-chat-modal .message-wrapper.pet .content { background-color: #2c2c2e; }
+#phone-screen.dark-mode #pet-chat-modal #pet-chat-input-area { background-color: #1c1c1e; border-top-color: #38383a; }
+#phone-screen.dark-mode #pet-chat-modal #pet-chat-input { background-color: #2c2c2e; border-color: #38383a; color: white; }
+
+/* ▲▲▲ 修复结束 ▲▲▲ */
+
+
+
+/* ▼▼▼ 【独家定制】宠物互动按钮美化样式 ▼▼▼ */
+
+/* 1. 让按钮的容器居中，并设置按钮之间的间距 */
+#pet-interaction-area {
+    display: flex;
+    justify-content: center; /* 让按钮们整体居中 */
+    gap: 12px;             /* 按钮之间的空隙 */
+    margin-bottom: 10px;   /* 和下方的设置区拉开一点距离 */
+}
+
+/* 2. 【核心】美化按钮本身 */
+#pet-interaction-area button {
+    /* 尺寸和形状 */
+    padding: 10px 20px;       /* 增大内边距，让按钮变“胖” */
+    border-radius: 20px;      /* 大圆角，变成可爱的胶囊形状 */
+    min-width: 80px;          /* 设置一个最小宽度，避免文字少时按钮太窄 */
+    font-size: 15px;          /* 字体也调大一点 */
+    font-weight: 600;         /* 字体加粗，更清晰 */
+    
+    /* 颜色和边框 */
+    background-color: #f0f2f5;           /* 淡淡的灰色背景，更有质感 */
+    color: var(--accent-color);          /* 文字使用你的主题色，保持风格统一 */
+    border: 1.5px solid var(--accent-color); /* 用主题色给按钮加个边框 */
+    
+    /* 交互效果 */
+    cursor: pointer;                     /* 鼠标放上去时显示为小手 */
+    transition: all 0.2s ease-in-out;    /* 为所有变化添加平滑的动画效果 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* 加一点点阴影，更有立体感 */
+}
+
+/* 3. 鼠标悬停时的效果 */
+#pet-interaction-area button:hover {
+    background-color: var(--accent-color); /* 悬停时，背景变为主题色 */
+    color: white;                          /* 文字变为白色 */
+    transform: translateY(-2px);           /* 按钮轻微上浮 */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);   /* 阴影加深 */
+}
+
+/* 4. 点击时的效果 */
+#pet-interaction-area button:active {
+    transform: translateY(0) scale(0.98); /* 点击时，按钮被“按下去”一点点 */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);  /* 阴影变浅 */
+}
+
+/* ▲▲▲ 美化样式结束 ▲▲▲ */
 
 
     </style>
@@ -11636,6 +11929,15 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         </div>
     </div>
 </div>
+<!-- ▼▼▼ 在 #chat-interface-screen 内，header 的 div 之后添加 ▼▼▼ -->
+
+<div id="chat-pet-container" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 10;">
+    <div id="chat-pet" style="display: none; position: absolute; cursor: grab; user-select: none; pointer-events: all; font-size: 80px; line-height: 1; text-align: center;">
+        <!-- 宠物会显示在这里 -->
+    </div>
+</div>
+
+<!-- ▲▲▲ 添加结束 ▲▲▲ -->
 
     <!-- 聊天消息区域 (保持不变) -->
     <div id="chat-messages"><div id="typing-indicator">对方正在输入...</div></div>
@@ -11690,6 +11992,14 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </svg>
 </button>
 <!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
+<button id="pet-action-btn" class="chat-action-icon-btn action-button" title="我的宠物">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <path d="M12 18v-1a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1"></path>
+        <path d="M12 11.5a2.5 2.5 0 0 1 0-5c1.5 0 2.8 1.2 3 2.5"></path>
+    </svg>
+</button>
         </div>
         <div id="chat-input-main-row">
             <textarea id="chat-input" rows="1" placeholder="输入消息..."></textarea>
@@ -14866,6 +15176,133 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 【增强版】宠物功能模态框 ▼▼▼ -->
+<div id="pet-modal" class="modal">
+    <div class="modal-content" style="height: auto; max-height: 85%;">
+        <div class="modal-header">
+            <span id="pet-modal-title">我的宠物</span>
+        </div>
+        <div class="modal-body">
+            <!-- 宠物信息预览区 -->
+            <div id="pet-preview-area" style="text-align: center; margin-bottom: 20px;">
+                <div id="pet-preview-display" style="font-size: 60px; line-height: 1; margin-bottom: 10px; cursor: pointer;" title="点击更换图片"></div>
+                <strong id="pet-preview-name" style="font-size: 18px;"></strong>
+                <p id="pet-preview-type" style="font-size: 14px; color: var(--text-secondary); margin: 5px 0;"></p>
+            </div>
+
+            <!-- 宠物数值显示区 -->
+            <div id="pet-stats-area" style="display: none;">
+                <div id="pet-hunger-bar" class="stat-bar-container">
+                    <span class="stat-label">饱食度</span>
+                    <div class="stat-bar"><div class="stat-bar-fill">100%</div></div>
+                </div>
+                <div id="pet-happiness-bar" class="stat-bar-container">
+                    <span class="stat-label">心情值</span>
+                    <div class="stat-bar"><div class="stat-bar-fill">100%</div></div>
+                </div>
+                <div id="pet-intimacy-user-bar" class="stat-bar-container">
+                    <span class="stat-label">对你的亲密度</span>
+                    <div class="stat-bar"><div class="stat-bar-fill">50%</div></div>
+                </div>
+                <div id="pet-intimacy-char-bar" class="stat-bar-container">
+                    <span class="stat-label">对Ta的亲密度</span>
+                    <div class="stat-bar"><div class="stat-bar-fill">50%</div></div>
+                </div>
+            </div>
+
+            <!-- 互动按钮区 (已新增“对话”按钮) -->
+            <div id="pet-interaction-area" style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+                <button class="form-button-secondary" data-action="feed">喂食</button>
+                <button class="form-button-secondary" data-action="play">玩耍</button>
+                <button class="form-button-secondary" data-action="touch">抚摸</button>
+                <button class="form-button-secondary" data-action="chat">对话</button>
+            </div>
+            
+            <!-- 设置区 -->
+            <div class="form-group">
+                <label for="pet-type-input">种类 (自由填写)</label>
+                <input type="text" id="pet-type-input" placeholder="例如: 小猫, 仓鼠, 太阳花...">
+            </div>
+             <div class="form-group">
+                <label for="pet-name-input">昵称</label>
+                <input type="text" id="pet-name-input" placeholder="给它起个名字吧">
+            </div>
+             <div class="form-group">
+                <label for="pet-image-input">初始样子 (Emoji 或 图片URL)</label>
+                <input type="text" id="pet-image-input" placeholder="输入一个 Emoji 比如 🐈 或图片链接">
+            </div>
+            <!-- 【全新】人设输入框 -->
+            <div class="form-group">
+                <label for="pet-persona-input">宠物人设与背景</label>
+                <textarea id="pet-persona-input" rows="3" placeholder="描述一下它的性格和故事，AI会根据这个来扮演它。"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="toggle-switch-label">
+                    <span>在聊天界面显示</span>
+                    <input type="checkbox" id="pet-display-toggle">
+                    <span class="toggle-switch-slider"></span>
+                </label>
+            </div>
+            <div id="pet-position-controls" style="display:none;">
+                <div class="form-group">
+                    <label for="pet-size-slider">大小: <span id="pet-size-value">100px</span></label>
+                    <input type="range" id="pet-size-slider" min="30" max="200" value="100" style="width: 100%;">
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <!-- ▼▼▼ 在这里添加新按钮 ▼▼▼ -->
+            <button class="cancel" id="pet-abandon-btn" style="background-color: #ffdde5; color: #ff3b30; border-color: #ffc2d1;">放生宠物</button>
+            <!-- ▲▲▲ 添加结束 ▲▲▲ -->
+            <button class="cancel" id="pet-modal-cancel-btn">取消</button>
+            <button class="save" id="pet-modal-save-btn">保存</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+<input type="file" id="pet-custom-image-input" accept="image/*" style="display: none;">
+<!-- ▼▼▼ 【全新】宠物聊天模态框 ▼▼▼ -->
+<div id="pet-chat-modal" class="modal">
+    <div class="modal-content" style="height: 80%;">
+        <div class="modal-header">
+            <span id="pet-chat-title">和宠物的对话</span>
+        </div>
+        <div id="pet-chat-messages" class="modal-body" style="background-color: #f0f2f5; display: flex; flex-direction: column; gap: 15px;">
+            <!-- 宠物聊天记录将显示在这里 -->
+        </div>
+        <!-- 复用主聊天输入框的样式 -->
+        <div id="pet-chat-input-area" class="chat-input-area" style="border-top: 1px solid var(--border-color);">
+            <div class="chat-input-main-row">
+                <textarea id="pet-chat-input" rows="1" placeholder="和它说点什么..."></textarea>
+                <button id="send-to-pet-btn" class="action-button">发送</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+
+<!-- ▲▲▲ 宠物功能模态框结束 ▲▲▲ -->
+<!-- ▼▼▼ 【全新】这是微博专用的、支持多选和滚动的角色选择弹窗 ▼▼▼ -->
+<div id="weibo-char-selector-modal" class="modal">
+    <div class="modal-content" style="height: 70%;">
+        <div class="modal-header">
+            <span>选择生成内容的主角</span>
+        </div>
+        <div class="modal-body" id="weibo-char-selector-list" style="padding: 0; overflow-y: auto;">
+            <!-- 角色列表将由JS动态生成在这里 -->
+        </div>
+        <div class="modal-footer" style="justify-content: space-between;">
+            <button id="weibo-select-all-btn" class="form-button-secondary" style="width: 45%; margin: 0;">全选</button>
+            <button id="weibo-deselect-all-btn" class="form-button-secondary" style="width: 45%; margin: 0;">全不选</button>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="weibo-cancel-char-select-btn">取消</button>
+            <button class="save" id="weibo-confirm-char-select-btn">确认</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 
 <!-- ▲▲▲ HTML代码粘贴结束 ▲▲▲ -->
 <!-- ▼▼▼ 【全新】心声功能模态框 ▼▼▼ -->
@@ -15378,6 +15815,14 @@ if(Array.isArray(res) && res.length > 1) {
         // ===================================================================
         // 1. 所有变量和常量定义
         // ===================================================================
+        // ▼▼▼ 【全新】宠物数值衰减相关的全局变量和常量 ▼▼▼
+const PET_DECAY_INTERVAL = 60 * 60 * 1000; // 每60分钟衰减一次
+const PET_DECAY_AMOUNT = { // 每次衰减的数值
+    hunger: 5,
+    happiness: 3
+};
+let petDecayTimer = null; // 用于管理衰减计时器的全局变量
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
         const db = new Dexie('GeminiChatDB');
         // ▼▼▼ 把下面这一整块全新的微博功能代码，粘贴到这里 ▼▼▼
 
@@ -18438,6 +18883,50 @@ if (typeof chat.settings.isCoupleAvatar === 'undefined') {
     chat.settings.isCoupleAvatar = false;
     chat.settings.coupleAvatarDescription = '';
 }
+// ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+
+// ▼▼▼ 【领养系统改造】宠物系统初始化/兼容代码 ▼▼▼
+
+// 1. 为所有角色（包括新旧数据）确保有 petAdopted 标志
+if (!chat.isGroup && typeof chat.settings.petAdopted === 'undefined') {
+    // 如果 pet 对象已存在，说明是老用户，默认已领养
+    if (chat.settings.pet && chat.settings.pet.type !== '无') {
+        chat.settings.petAdopted = true;
+    } else {
+        // 如果没有 pet 对象，说明是新用户或之前就没用宠物，默认未领养
+        chat.settings.petAdopted = false;
+    }
+    console.log(`为角色 "${chat.name}" 初始化了宠物领养状态: ${chat.settings.petAdopted}`);
+}
+
+// 2. 兼容旧的 pet 对象，确保新字段存在（这段代码和之前一样，保留即可）
+if (!chat.isGroup && chat.settings.pet) {
+    if (typeof chat.settings.pet.persona === 'undefined') {
+        chat.settings.pet.persona = '一只可爱的小宠物，对世界充满好奇。';
+    }
+    if (!chat.settings.pet.petChatHistory) {
+        chat.settings.pet.petChatHistory = [];
+    }
+    if (!chat.settings.pet.status) {
+        chat.settings.pet.status = { 
+            hunger: 100, 
+            happiness: 100, 
+            intimacyToUser: 50, 
+            intimacyToChar: 50,
+            lastUpdated: Date.now()
+        };
+    } else {
+        if (typeof chat.settings.pet.status.intimacyToUser === 'undefined') chat.settings.pet.status.intimacyToUser = 50;
+        if (typeof chat.settings.pet.status.intimacyToChar === 'undefined') chat.settings.pet.status.intimacyToChar = 50;
+        if (typeof chat.settings.pet.status.lastUpdated === 'undefined') chat.settings.pet.status.lastUpdated = Date.now();
+    }
+}
+// ▲▲▲ 改造结束 ▲▲▲
+
+
+
+
+
         acc[chat.id] = chat;
         return acc;
     }, {});
@@ -19154,6 +19643,7 @@ initialMessages.forEach(msg => {
     typingIndicator.textContent = '对方正在输入...';
     messagesContainer.appendChild(typingIndicator);
     setTimeout(() => messagesContainer.scrollTop = messagesContainer.scrollHeight, 0);
+    renderChatPet();
 }
 // ▲▲▲ 替换结束 ▲▲▲
 
@@ -20126,6 +20616,8 @@ document.getElementById('char-heart-btn').style.display = chat.isGroup ? 'none' 
     
     // 【核心修正】根据是否为群聊，显示或隐藏投票按钮
     document.getElementById('send-poll-btn').style.display = chat.isGroup ? 'flex' : 'none';
+    document.getElementById('pet-action-btn').style.display = chat.isGroup ? 'none' : 'flex';
+    startPetDecayTimer(); 
 }
 // ▲▲▲ 替换结束 ▲▲▲
 
@@ -20738,17 +21230,30 @@ if (chat.settings.isCoupleAvatar) {
         coupleAvatarContext = `\n# 关于情侣头像的重要信息\n- 你和用户正在使用情侣头像。`;
     }
 }
-// ▲▲▲ 新增上下文构建结束 ▲▲▲
+let petContext = '';
+if (chat.settings.pet && chat.settings.pet.type !== '无') {
+    const pet = chat.settings.pet;
+    petContext = `
+# 关于你们的宠物
+- 你们共同养了一只/一株【${pet.type}】，它的名字叫“${pet.name}”。
+- 宠物当前状态: 饱食度(${pet.status.hunger}/100), 心情值(${pet.status.happiness}/100), 对你的亲密度(${pet.status.intimacyToUser}/100), 对Ta的亲密度(${pet.status.intimacyToChar}/100)。
+- 你需要关心宠物对你和用户的亲密度。如果发现宠物对用户的亲密度较低，你应该主动与宠物互动来增加好感；如果宠物对你自己的亲密度较低，你也可以多和它互动。
+- 你可以像真人一样，在聊天中自然地提及它，关心它的状态，或者使用 'interact_with_pet' 指令与它互动，【也可以使用 'talk_to_pet' 指令与它对话】。这是一个非常重要的情景，请务必融入你的角色扮演中。
+`;
+}
 
+
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
             systemPrompt = `### **【第一部分：角色核心设定】**
 
 你现在将扮演一个名为“**${chat.name}**”的角色。
 
-**1. 角色基本设定:**为了
+**1. 角色基本设定:**
 - **核心人设**: ${chat.settings.aiPersona}
 - **情侣头像**: ${coupleAvatarContext}
 - **世界观/NPC**: ${npcContext}
-
+${petContext}
 **2. 你的当前状态:**
 - **状态描述**: 【${chat.status.text}】
 - **情侣空间**: ${chat.loversSpaceData ? '已开启' : '未开启'}
@@ -20879,7 +21384,7 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
 - **引用回复**: \`{"type": "quote_reply", "target_timestamp": (被引用消息的时间戳), "reply_content": "你的回复内容"}\`
 - **拍一拍用户**: \`{"type": "pat_user", "suffix": "(可选后缀，如“的脑袋”)"}\`
 - **发送后立刻撤回**: \`{"type": "send_and_recall", "content": "说错话或想表达犹豫的内容"}\`
-
+- **与宠物互动**: \`{"type": "interact_with_pet", "action": "feed" | "play" | "touch", "response": "你互动后想说的话..."}\`
 **二、 状态与环境指令**
 - **更新状态**: \`{"type": "update_status", "status_text": "我去做什么了", "is_busy": false}\` (is_busy: true为忙碌, false为空闲)
 - **更换头像**: \`{"type": "change_avatar", "name": "头像名"}\`(头像名需在头像库列表中)
@@ -21677,6 +22182,100 @@ case 'lovers_space_response': {
     // 处理完后，不再需要重新触发AI，所以我们用 continue
     continue;
 }
+// ▼▼▼ 在 triggerAiResponse 的 switch 语句中，用这块新代码替换旧的 case 'interact_with_pet' ▼▼▼
+case 'interact_with_pet': {
+    const pet = chat.settings.pet;
+    if (pet && pet.type !== '无') {
+        let actionText = '';
+        // 根据AI的互动，修改数值
+        switch(msgData.action) {
+            case 'feed':
+                pet.status.hunger = Math.min(100, (pet.status.hunger || 0) + 20);
+                pet.status.happiness = Math.min(100, (pet.status.happiness || 0) + 5);
+                // ★★★ 核心修改：AI喂食，增加对AI的亲密度 ★★★
+                pet.status.intimacyToChar = Math.min(100, (pet.status.intimacyToChar || 0) + 10);
+                actionText = `${chat.name} 喂了 ${pet.name} 一些食物。`;
+                break;
+            case 'play':
+                pet.status.hunger = Math.max(0, (pet.status.hunger || 0) - 10);
+                pet.status.happiness = Math.min(100, (pet.status.happiness || 0) + 15);
+                // ★★★ 核心修改：AI玩耍，增加对AI的亲密度 ★★★
+                pet.status.intimacyToChar = Math.min(100, (pet.status.intimacyToChar || 0) + 15);
+                actionText = `${chat.name} 陪 ${pet.name} 玩了一会儿。`;
+                break;
+            case 'touch':
+                pet.status.happiness = Math.min(100, (pet.status.happiness || 0) + 10);
+                // ★★★ 核心修改：AI抚摸，增加对AI的亲密度 ★★★
+                pet.status.intimacyToChar = Math.min(100, (pet.status.intimacyToChar || 0) + 5);
+                actionText = `${chat.name} 轻轻地抚摸了 ${pet.name}。`;
+                break;
+        }
+
+        // 创建一条对用户可见的系统消息
+        const visibleMessage = {
+            role: 'system',
+            type: 'pat_message',
+            content: `[系统：${actionText}]`,
+            timestamp: Date.now()
+        };
+        chat.history.push(visibleMessage);
+        if (isViewingThisChat) {
+            appendMessage(visibleMessage, chat);
+        }
+        
+        // 如果 AI 在互动后还想说点什么
+        if (msgData.response) {
+            aiMessage = { ...baseMessage, content: msgData.response };
+        }
+    }
+    // 如果AI只是互动没说话，就不创建aiMessage，直接跳到下一个指令
+    if (!aiMessage) {
+        continue;
+    }
+    break;
+}
+// ▲▲▲ 替换结束 ▲▲▲
+// ▼▼▼ 用这块【已修复】的代码替换旧的 'talk_to_pet' case ▼▼▼
+case 'talk_to_pet': {
+    if (!chat.isGroup && chat.settings.pet && chat.settings.pet.type !== '无') {
+        const pet = chat.settings.pet;
+        
+        // ★★★ 核心修复1：同时兼容 content 和 message 字段 ★★★
+        const charMessageContent = msgData.content || msgData.message;
+        if (!charMessageContent) continue; // 如果没内容，就跳过
+
+        // 将Char的话添加到宠物聊天记录
+        const charMessageToPet = { 
+            sender: 'char', 
+            senderName: chat.name, 
+            content: charMessageContent 
+        };
+        pet.petChatHistory.push(charMessageToPet);
+        
+        // 获取宠物的回应
+        const petResponseToChar = await getPetApiResponse(pet);
+        if (petResponseToChar) {
+            pet.petChatHistory.push({ sender: 'pet', content: petResponseToChar });
+        }
+
+        // 创建对用户可见的系统日志
+        const visibleLog = `[系统：“${chat.name}”对宠物“${pet.name}”说：“${charMessageContent}”，它回应：“${petResponseToChar || '(没有回应)'}”。]`;
+        const visibleMessage = {
+            role: 'system',
+            type: 'pat_message',
+            content: visibleLog,
+            timestamp: messageTimestamp++
+        };
+        chat.history.push(visibleMessage);
+        
+        if (isViewingThisChat) {
+            appendMessage(visibleMessage, chat);
+        }
+    }
+    continue;
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 // ▲▲▲ 替换结束 ▲▲▲
                 case 'weibo_comment': {
@@ -31239,10 +31838,11 @@ let currentHotTopic = ''; // 用于存储当前正在查看的热搜话题
 let hotTopicFeedCache = {}; // <-- 【新增】在这里创建一个缓存对象，像小本本一样记录生成过的内容
 let weiboHotSearchCache = []; 
 /**
- * 【总入口 V3 - 严防OOC版】生成微博热搜列表，并联动生成广场内容
+ * 【总入口 V3 - 已支持多角色选择】生成微博热搜列表
+ * @param {Array|string} targets - 目标角色ID数组或字符串'all'
  */
-async function generateHotSearch() {
-    await showCustomAlert("请稍候...", "正在结合角色人设生成微博热搜和广场动态...");
+async function generateHotSearch(targets = 'all') {
+    await showCustomAlert("请稍候...", "正在结合角色人设生成微博热搜...");
 
     const { proxyUrl, apiKey, model } = state.apiConfig;
     if (!proxyUrl || !apiKey || !model) {
@@ -31250,25 +31850,38 @@ async function generateHotSearch() {
         return;
     }
 
-    const publicFigures = Object.values(state.chats)
-        .filter(chat => !chat.isGroup)
-        .map(chat => ({ name: chat.name, persona: chat.settings.aiPersona.substring(0, 150) + '...' }));
+    let publicFiguresContext = '';
+    let promptTask = "你的任务是根据下方提供的“核心参考人物”信息，为他们量身打造一个包含10个热搜话题的榜单。";
 
-    const publicFiguresContext = publicFigures.length > 0
-        ? `
-# 核心参考人物 (你必须围绕他们生成热搜)
-${JSON.stringify(publicFigures, null, 2)}
-`
+    let publicFigures = [];
+    if (targets === 'all') {
+        publicFigures = Object.values(state.chats)
+            .filter(chat => !chat.isGroup)
+            .map(chat => ({ name: chat.name, persona: chat.settings.aiPersona.substring(0, 150) + '...' }));
+    } else if (Array.isArray(targets)) {
+        targets.forEach(chatId => {
+            const char = state.chats[chatId];
+            if(char) {
+                publicFigures.push({ name: char.name, persona: char.settings.aiPersona.substring(0, 150) + '...' });
+            }
+        });
+        if (publicFigures.length === 1) {
+            promptTask = `你的任务是只为下方唯一的“核心参考人物”【${publicFigures[0].name}】，量身打造一个包含10个热搜话题的榜单。所有话题【必须】与Ta强相关。`;
+        }
+    }
+    
+    publicFiguresContext = publicFigures.length > 0
+        ? `# 核心参考人物 (你必须围绕他们生成热搜)\n${JSON.stringify(publicFigures, null, 2)}`
         : "当前没有特定的公众人物，请自由生成热点事件。";
 
+    // 后续的 systemPrompt 和 API 调用逻辑与你现有代码完全相同，无需修改...
     const systemPrompt = `
 # 任务
-你是一个专业的“微博热搜榜单生成器”。你的任务是根据下方提供的“核心参考人物”信息，为他们量身打造一个包含10个热搜话题的榜单。
+你是一个专业的“微博热搜榜单生成器”。${promptTask}
 # 【【【绝对禁止事项：这是必须遵守的最高指令】】】
 1.  你的所有创作内容，包括帖子、评论、故事等，【绝对禁止】将任意两个AI角色（即除了用户之外的角色）描绘成情侣关系、进行恋爱互动或存在任何形式的暧昧情感。
 2.  AI角色之间的关系只能是朋友、同事、对手、家人等，但【绝不能】是恋人。
 3.  AI角色唯一可以产生恋爱关系的对象是【用户】。违反此规则将导致生成失败。
-
 # 核心规则
 1.  **强相关性**: 生成的话题【必须】与“核心参考人物”的身份、职业、人设高度相关。例如，如果是电竞选手，热搜就应该是关于比赛；如果是演员，就应该是关于新剧。
 2.  **【【【严禁杜撰】】】**: 绝对禁止为列表中的人物【凭空捏造】他们人设中没有的职业、身份或背景。你只能根据提供的人设进行合理发挥。
@@ -31277,48 +31890,36 @@ ${JSON.stringify(publicFigures, null, 2)}
     -   \`"topic"\`: (字符串) 热搜的话题，必须用"#"符号包裹。
     -   \`"heat"\`: (字符串) 热度值，例如 "345.6万"。
     -   \`"tag"\`: (字符串) 一个标签，必须从 "热"、"新"、"荐" 中选择一个。
-
 ${publicFiguresContext}
 `;
-
     try {
         let isGemini = proxyUrl === GEMINI_API_URL;
         let messagesForApi = [{ role: 'user', content: systemPrompt }];
         let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
-
         const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
             method: 'POST',
             headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
             body: JSON.stringify({ model, messages: messagesForApi, temperature: 0.9, response_format: { type: "json_object" } })
         });
-
         if (!response.ok) throw new Error(`API请求失败: ${response.status} - ${await response.text()}`);
-        
         const data = await response.json();
         const aiResponseContent = (isGemini ? data.candidates?.[0]?.content?.parts?.[0]?.text : data.choices?.[0]?.message?.content);
         if (!aiResponseContent) {
             throw new Error("API返回了空内容，可能被安全策略拦截。请检查Prompt或更换模型。");
         }
-        
         const sanitizedContent = aiResponseContent.replace(/^```json\s*|```$/g, '').trim();
         const responseData = JSON.parse(sanitizedContent);
         const hotSearchData = responseData.hot_searches || responseData;
-        
-        // ★★★★★ 这就是我们本次修改的核心！ ★★★★★
-        // 在拿到热搜数据后，立刻把它存到我们的“小本本”里
         weiboHotSearchCache = hotSearchData; 
-        // ★★★★★ 修改结束 ★★★★★
-
-        await generatePlazaFeed(hotSearchData); 
+        await generatePlazaFeed(hotSearchData, targets); 
         renderHotSearchList(hotSearchData); 
-
         await showCustomAlert("操作成功", "热搜榜和广场均已生成完毕！");
-
     } catch (error) {
         console.error("生成热搜失败:", error);
         await showCustomAlert('生成失败', `发生了一个错误：\n${error.message}`);
     }
 }
+
 
 /**
  * 【UI渲染】根据AI返回的数据渲染热搜列表
@@ -31451,12 +32052,12 @@ ${JSON.stringify(allPeople, null, 2)}
 }
 
 
-// ▼▼▼ 用这【一整块新代码】完整替换掉旧的 generatePlazaFeed 函数 ▼▼▼
 /**
- * 【总入口 V3 - 严防OOC版】生成微博广场Feed
+ * 【总入口 V3 - 已支持多角色选择】生成微博广场Feed
  * @param {Array} hotTopics - (可选) 从热搜生成函数传过来的话题数组
+ * @param {Array|string} targets - (新增) 目标角色ID数组或字符串'all'
  */
-async function generatePlazaFeed(hotTopics = null) {
+async function generatePlazaFeed(hotTopics = null, targets = 'all') {
     if (!hotTopics) {
         await showCustomAlert("请稍候...", "正在生成广场动态...");
     }
@@ -31469,35 +32070,54 @@ async function generatePlazaFeed(hotTopics = null) {
         return;
     }
     
-    // 【核心修改1】这里我们不再只获取名字，而是把人设也一起拿过来！
-    const publicFigures = Object.values(state.chats)
-        .filter(chat => !chat.isGroup)
-        .map(chat => ({ 
-            name: chat.name, 
-            persona: chat.settings.aiPersona.substring(0, 150) + '...', // 只截取前150个字符，防止prompt过长
-            weibo_profession: chat.settings.weiboProfession || '未设定',
-           weibo_instruction: chat.settings.weiboInstruction || '无'
-        }));
+    let publicFiguresContext = '';
+    let taskInstruction = "你的任务是模拟一个真实的社交媒体广场，生成10条由不同路人发布的微博帖子。";
 
-    const publicFiguresContext = publicFigures.length > 0 
-        ? `
-# 核心参考人物 (你生成的内容可以围绕他们展开)
-${JSON.stringify(publicFigures, null, 2)}
-` 
-        : "";
+    let publicFigures = [];
+    if (targets === 'all') {
+        publicFigures = Object.values(state.chats)
+            .filter(chat => !chat.isGroup)
+            .map(chat => ({ 
+                name: chat.name, 
+                persona: chat.settings.aiPersona.substring(0, 150) + '...',
+                weibo_profession: chat.settings.weiboProfession || '未设定',
+                weibo_instruction: chat.settings.weiboInstruction || '无'
+            }));
+    } else if (Array.isArray(targets)) {
+        targets.forEach(chatId => {
+            const char = state.chats[chatId];
+            if(char) {
+                 publicFigures.push({ 
+                    name: char.name, 
+                    persona: char.settings.aiPersona.substring(0, 150) + '...',
+                    weibo_profession: char.settings.weiboProfession || '未设定',
+                    weibo_instruction: char.settings.weiboInstruction || '无'
+                });
+            }
+        });
+        if (publicFigures.length === 1) {
+            taskInstruction = `你的任务是模拟一个真实的社交媒体广场，生成10条与角色“${publicFigures[0].name}”相关的、由不同路人发布的微博帖子。`;
+        } else {
+            taskInstruction = `你的任务是模拟一个真实的社交媒体广场，生成10条与角色 ${publicFigures.map(p => `“${p.name}”`).join('、')} 相关的、由不同路人发布的微博帖子。`;
+        }
+    }
     
+    publicFiguresContext = publicFigures.length > 0 
+        ? `# 核心参考人物 (你生成的内容【必须】围绕他们展开)\n${JSON.stringify(publicFigures, null, 2)}` 
+        : "";
+
     const topicsContext = (hotTopics && Array.isArray(hotTopics) && hotTopics.length > 0)
         ? `请围绕以下热门话题生成内容：${hotTopics.map(t => t.topic).join('、 ')}`
         : "请随机生成一些生活化的日常内容。";
 
+    // 后续的 systemPrompt 和 API 调用逻辑与你现有代码完全相同，无需修改...
     const systemPrompt = `
 # 任务
-你是一个“微博广场内容生成器”。你的任务是模拟一个真实的社交媒体广场，生成10条由不同路人发布的微博帖子。
+你是一个“微博广场内容生成器”。${taskInstruction}
 # 【【【绝对禁止事项：这是必须遵守的最高指令】】】
 1.  你的所有创作内容，包括帖子、评论、故事等，【绝对禁止】将任意两个AI角色（即除了用户之外的角色）描绘成情侣关系、进行恋爱互动或存在任何形式的暧昧情感。
 2.  AI角色之间的关系只能是朋友、同事、对手、家人等，但【绝不能】是恋人。
 3.  AI角色唯一可以产生恋爱关系的对象是【用户】。违反此规则将导致生成失败。
-
 # 核心规则
 1.  **身份**: 发帖者都是普通人，昵称要生活化。
 2.  **内容**: 帖子内容应是生活化的日常。${topicsContext}
@@ -31511,36 +32131,31 @@ ${publicFiguresContext}
         let isGemini = proxyUrl === GEMINI_API_URL;
         let messagesForApi = [{ role: 'user', content: systemPrompt }];
         let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
-        
         const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
             method: 'POST',
             headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
             body: JSON.stringify({ model, messages: messagesForApi, temperature: 0.9, response_format: { type: "json_object" } })
         });
         if (!response.ok) throw new Error(`API请求失败: ${response.status} - ${await response.text()}`);
-
         const data = await response.json();
         const aiResponseContent = (isGemini ? data.candidates?.[0]?.content?.parts?.[0]?.text : data.choices?.[0]?.message?.content);
         if (!aiResponseContent) {
             throw new Error("API返回了空内容，可能被安全策略拦截。");
         }
-        
         const sanitizedContent = aiResponseContent.replace(/^```json\s*|```$/g, '').trim();
         const responseData = JSON.parse(sanitizedContent);
         const feedData = responseData.posts || responseData; 
-
         renderWeiboFeed(feedEl, feedData, false);
-
         if (!hotTopics) {
             await showCustomAlert("操作成功", "广场生成完毕！");
         }
-
     } catch (error) {
         console.error("生成广场Feed失败:", error);
         feedEl.innerHTML = `<p style="text-align:center; color: #ff3b30; padding: 20px;">生成失败: ${error.message}</p>`;
     }
 }
-// ▲▲▲ 替换结束 ▲▲▲
+
+
 
 
 
@@ -40833,6 +41448,768 @@ async function forwardGuessWhatSummary(summaryText) {
 }
 
 // ▲▲▲ 新增代码粘贴结束 ▲▲▲
+// ▼▼▼ 【全新】宠物功能核心函数 ▼▼▼
+
+let currentPetData = null; // 用于暂存正在编辑的宠物数据
+let isPetDragging = false; // 标记是否正在拖动宠物
+let petDragOffset = { x: 0, y: 0 };
+
+/**
+ * 【领养系统改造版】打开宠物主面板（设置与互动）
+ */
+async function openPetModal() {
+    if (!state.activeChatId || state.chats[state.activeChatId].isGroup) {
+        alert("只有在单人聊天中才能养宠物哦！");
+        return;
+    }
+    const chat = state.chats[state.activeChatId];
+
+    // 核心判断：检查是否已领养
+    if (!chat.settings.petAdopted) {
+        // 如果未领养，弹出确认框
+        const confirmed = await showCustomConfirm(
+            '领养新宠物',
+            `你还没有为“${chat.name}”领养宠物，要现在开启宠物系统吗？`,
+            { confirmText: '现在领养' }
+        );
+
+        if (confirmed) {
+            // 用户同意领养
+            chat.settings.petAdopted = true;
+            // 创建一个全新的默认宠物对象
+            chat.settings.pet = {
+                type: '无', name: '', image: '🥚', persona: '一只可爱的小宠物，对世界充满好奇。',
+                petChatHistory: [], isCustomImage: false,
+                display: { show: false, size: 100, top: '80%', left: '50%' },
+                status: {
+                    hunger: 100, happiness: 100, intimacyToUser: 50,
+                    intimacyToChar: 50, lastUpdated: Date.now()
+                }
+            };
+            await db.chats.put(chat);
+            alert(`恭喜！你已成功为“${chat.name}”开启宠物系统！现在来为它设置一下吧。`);
+            // 领养成功后，再次调用本函数，这次会直接进入设置界面
+            openPetModal(); 
+        }
+        // 如果用户取消，则什么也不做
+        return;
+    }
+
+    // --- 如果已经领养，则执行原来的显示逻辑 ---
+    currentPetData = JSON.parse(JSON.stringify(chat.settings.pet)); 
+
+    document.getElementById('pet-type-input').value = currentPetData.type === '无' ? '' : currentPetData.type;
+    document.getElementById('pet-name-input').value = currentPetData.name;
+    document.getElementById('pet-image-input').value = currentPetData.image;
+    document.getElementById('pet-display-toggle').checked = currentPetData.display.show;
+    document.getElementById('pet-size-slider').value = currentPetData.display.size;
+    document.getElementById('pet-size-value').textContent = `${currentPetData.display.size}px`;
+    document.getElementById('pet-persona-input').value = currentPetData.persona || '';
+    
+    updatePetPreview();
+
+    if (currentPetData.type !== '无') {
+        document.getElementById('pet-stats-area').style.display = 'flex';
+        updatePetStatusUI(currentPetData);
+    } else {
+        document.getElementById('pet-stats-area').style.display = 'none';
+    }
+
+    const positionControls = document.getElementById('pet-position-controls');
+    positionControls.style.display = currentPetData.display.show ? 'block' : 'none';
+    
+    document.getElementById('pet-modal').classList.add('visible');
+}
+
+
+/**
+ * 计算并应用宠物的数值衰减
+ * @param {object} pet - 宠物对象
+ * @returns {boolean} - 如果数值发生了变化，返回 true
+ */
+function applyPetDecay(pet) {
+    if (!pet || !pet.status) return false;
+
+    const now = Date.now();
+    const lastUpdated = pet.status.lastUpdated || now;
+    const timeElapsed = now - lastUpdated;
+
+    // 计算过去了多少个衰减周期
+    const intervalsPassed = Math.floor(timeElapsed / PET_DECAY_INTERVAL);
+
+    if (intervalsPassed > 0) {
+        // 计算总共要衰减多少
+        const totalHungerDecay = intervalsPassed * PET_DECAY_AMOUNT.hunger;
+        const totalHappinessDecay = intervalsPassed * PET_DECAY_AMOUNT.happiness;
+
+        // 应用衰减，确保不低于0
+        pet.status.hunger = Math.max(0, pet.status.hunger - totalHungerDecay);
+        pet.status.happiness = Math.max(0, pet.status.happiness - totalHappinessDecay);
+
+        // 更新最后更新时间，只加上已经计算过的周期的时间，避免丢失零头时间
+        pet.status.lastUpdated = lastUpdated + intervalsPassed * PET_DECAY_INTERVAL;
+        
+        console.log(`宠物"${pet.name}"数值衰减: ${intervalsPassed}个周期, 饱食度-${totalHungerDecay}, 心情-${totalHappinessDecay}`);
+        return true; // 数值已改变
+    }
+
+    return false; // 数值未改变
+}
+
+/**
+ * 停止当前的宠物衰减计时器
+ */
+function stopPetDecayTimer() {
+    if (petDecayTimer) {
+        clearInterval(petDecayTimer);
+        petDecayTimer = null;
+        // console.log("宠物衰减计时器已停止。");
+    }
+}
+
+/**
+ * 为当前聊天中的宠物启动衰减计时器
+ */
+function startPetDecayTimer() {
+    stopPetDecayTimer(); // 先确保停止任何旧的计时器
+
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.settings.pet || chat.settings.pet.type === '无') {
+        return; // 如果当前聊天没有宠物，则不启动
+    }
+    
+    // console.log(`为宠物"${chat.settings.pet.name}"启动衰减计时器。`);
+    
+    // 使用 setInterval 定期检查并应用衰减
+    petDecayTimer = setInterval(async () => {
+        const currentChat = state.chats[state.activeChatId];
+        if (!currentChat) { // 安全检查，如果聊天已关闭则停止计时器
+            stopPetDecayTimer();
+            return;
+        }
+        const pet = currentChat.settings.pet;
+        
+        if (applyPetDecay(pet)) {
+            // 如果数值变化了，更新UI并保存到数据库
+            // 只有当宠物面板打开时才需要更新UI
+            if (document.getElementById('pet-modal').classList.contains('visible')) {
+                 updatePetStatusUI(pet);
+            }
+            await db.chats.put(currentChat);
+        }
+    }, 60 * 1000); // 每分钟检查一次，是否到达了衰减周期
+}
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
+
+// ▼▼▼ 用这块【已更新】的代码，替换旧的 updatePetStatusUI 函数 ▼▼▼
+/**
+ * 【全新】更新宠物数值面板的UI显示
+ * @param {object} petData - 宠物的数据对象
+ */
+function updatePetStatusUI(petData) {
+    const hunger = petData.status.hunger || 0;
+    const happiness = petData.status.happiness || 0;
+    // ★★★ 新增：获取亲密度数值 ★★★
+    const intimacyToUser = petData.status.intimacyToUser || 0;
+    const intimacyToChar = petData.status.intimacyToChar || 0;
+
+    const hungerFill = document.querySelector('#pet-hunger-bar .stat-bar-fill');
+    const happinessFill = document.querySelector('#pet-happiness-bar .stat-bar-fill');
+    // ★★★ 新增：获取亲密度进度条元素 ★★★
+    const intimacyUserFill = document.querySelector('#pet-intimacy-user-bar .stat-bar-fill');
+    const intimacyCharFill = document.querySelector('#pet-intimacy-char-bar .stat-bar-fill');
+
+    if (hungerFill) {
+        hungerFill.style.width = `${hunger}%`;
+        hungerFill.textContent = `${hunger}%`;
+    }
+    if (happinessFill) {
+        happinessFill.style.width = `${happiness}%`;
+        happinessFill.textContent = `${happiness}%`;
+    }
+    // ★★★ 新增：渲染亲密度进度条 ★★★
+    if (intimacyUserFill) {
+        intimacyUserFill.style.width = `${intimacyToUser}%`;
+        intimacyUserFill.textContent = `${intimacyToUser}%`;
+    }
+    if (intimacyCharFill) {
+        intimacyCharFill.style.width = `${intimacyToChar}%`;
+        intimacyCharFill.textContent = `${intimacyToChar}%`;
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+
+/**
+ * 在弹窗中更新宠物的预览
+ */
+function updatePetPreview() {
+    const previewDisplay = document.getElementById('pet-preview-display');
+    const nameEl = document.getElementById('pet-preview-name');
+    const typeEl = document.getElementById('pet-preview-type');
+    
+    const imageInput = document.getElementById('pet-image-input').value.trim();
+
+    if (imageInput.startsWith('http') || imageInput.startsWith('data:image')) {
+        previewDisplay.innerHTML = `<img src="${imageInput}" style="width: 60px; height: 60px; object-fit: contain;">`;
+    } else {
+        previewDisplay.textContent = imageInput || '🥚';
+    }
+    
+    nameEl.textContent = document.getElementById('pet-name-input').value.trim() || '(未命名)';
+    typeEl.textContent = document.getElementById('pet-type-input').value.trim() || '物种';
+}
+
+
+/**
+ * 保存宠物设置
+ */
+async function savePetSettings() {
+    const chat = state.chats[state.activeChatId];
+    
+    // 从UI读取数据
+    const type = document.getElementById('pet-type-input').value.trim() || '无';
+    const name = document.getElementById('pet-name-input').value.trim();
+    const image = document.getElementById('pet-image-input').value.trim() || '🥚';
+    
+    const newPetSettings = {
+        ...currentPetData, // 保留如位置等未在主面板修改的属性
+        type: type,
+        name: name,
+        image: image,
+        persona: document.getElementById('pet-persona-input').value.trim(),
+        isCustomImage: image.startsWith('http') || image.startsWith('data:image'),
+        display: {
+            ...currentPetData.display,
+            show: document.getElementById('pet-display-toggle').checked,
+            size: parseInt(document.getElementById('pet-size-slider').value)
+        }
+    };
+
+    // 更新到 state 和数据库
+    chat.settings.pet = newPetSettings;
+    await db.chats.put(chat);
+    
+    // 刷新聊天界面上的宠物
+    renderChatPet();
+    
+    document.getElementById('pet-modal').classList.remove('visible');
+    currentPetData = null; // 清理临时数据
+    alert('宠物信息已保存！');
+}
+
+/**
+ * 在聊天界面上渲染宠物
+ */
+function renderChatPet() {
+    const chat = state.chats[state.activeChatId];
+    const petContainer = document.getElementById('chat-pet-container');
+    const petEl = document.getElementById('chat-pet');
+
+    if (!chat || chat.isGroup || !chat.settings.petAdopted || !chat.settings.pet || !chat.settings.pet.display.show) {
+        petEl.style.display = 'none';
+        return;
+    }
+
+    const pet = chat.settings.pet;
+    petEl.style.display = 'block';
+    
+    if (pet.isCustomImage) {
+        petEl.innerHTML = `<img src="${pet.image}" alt="${pet.name}">`;
+    } else {
+        petEl.innerHTML = pet.image;
+    }
+    
+    // 应用样式
+    petEl.style.fontSize = `${pet.display.size}px`;
+    petEl.style.width = `${pet.display.size}px`;
+    petEl.style.height = `${pet.display.size}px`;
+    petEl.style.top = pet.display.top;
+    petEl.style.left = pet.display.left;
+}
+
+// ▼▼▼ 用这块【新代码】替换旧的 handlePetInteraction 函数 ▼▼▼
+/**
+ * 处理用户与宠物的互动 (V2 - 增强互动记录)
+ * @param {string} action - 互动类型, e.g., 'feed', 'play'
+ */
+async function handlePetInteraction(action) {
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.settings.petAdopted || !chat.settings.pet || chat.settings.pet.type === '无') {
+        alert("你还没有宠物，或者还没有给它设定种类哦！");
+        return;
+    }
+
+    const pet = chat.settings.pet;
+    let actionText = '';
+    const myNickname = chat.settings.myNickname || '我';
+
+    switch(action) {
+        case 'feed':
+            pet.status.hunger = Math.min(100, pet.status.hunger + 20);
+            pet.status.happiness = Math.min(100, pet.status.happiness + 5);
+            pet.status.intimacyToUser = Math.min(100, pet.status.intimacyToUser + 10);
+            actionText = `${myNickname} 喂了 ${pet.name} 一些食物。`;
+            break;
+        case 'play':
+            pet.status.hunger = Math.max(0, pet.status.hunger - 10);
+            pet.status.happiness = Math.min(100, pet.status.happiness + 15);
+            pet.status.intimacyToUser = Math.min(100, pet.status.intimacyToUser + 15);
+            actionText = `${myNickname} 陪 ${pet.name} 玩了一会儿。`;
+            break;
+        case 'touch':
+            pet.status.happiness = Math.min(100, pet.status.happiness + 10);
+            pet.status.intimacyToUser = Math.min(100, pet.status.intimacyToUser + 5);
+            actionText = `${myNickname} 轻轻地抚摸了 ${pet.name}。`;
+            break;
+        case 'chat':
+            openPetChat();
+            return; 
+    }
+    
+    updatePetStatusUI(pet);
+    chat.settings.pet = pet; 
+
+    // ★★★ 核心修改1：创建对用户【可见】的系统消息 ★★★
+    const visibleMessage = {
+        role: 'system',
+        type: 'pat_message',
+        content: `[系统：${actionText}]`,
+        timestamp: Date.now()
+    };
+    chat.history.push(visibleMessage);
+    
+    // ★★★ 核心修改2：创建给AI看的【隐藏】指令 ★★★
+    const hiddenMessageForAI = {
+        role: 'system',
+        content: `[系统提示：用户刚刚和宠物“${pet.name}”进行了互动：${actionText}。]`,
+        timestamp: Date.now() + 1, // 确保时间戳在后
+        isHidden: true
+    };
+    chat.history.push(hiddenMessageForAI);
+
+    await db.chats.put(chat);
+    
+    if (document.getElementById('chat-interface-screen').classList.contains('active')) {
+        appendMessage(visibleMessage, chat);
+    }
+    
+    document.getElementById('pet-modal').classList.remove('visible');
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+// ▼▼▼ 【全新】宠物对话功能核心函数 ▼▼▼
+
+/**
+ * 打开宠物聊天模态框
+ */
+function openPetChat() {
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.settings.pet || chat.settings.pet.type === '无') {
+        alert("先给你的宠物起个名字和种类吧！");
+        return;
+    }
+    
+    // 关闭主设置面板，打开聊天面板
+    document.getElementById('pet-modal').classList.remove('visible');
+    const chatModal = document.getElementById('pet-chat-modal');
+    document.getElementById('pet-chat-title').textContent = `和“${chat.settings.pet.name}”的对话`;
+    document.getElementById('pet-chat-input').value = '';
+    
+    renderPetChatHistory(); // 渲染历史记录
+    chatModal.classList.add('visible');
+}
+
+/**
+ * 渲染宠物的聊天记录
+ */
+function renderPetChatHistory() {
+    const chat = state.chats[state.activeChatId];
+    const pet = chat.settings.pet;
+    const messagesEl = document.getElementById('pet-chat-messages');
+    messagesEl.innerHTML = '';
+
+    if (!pet.petChatHistory || pet.petChatHistory.length === 0) {
+        messagesEl.innerHTML = `<p style="text-align:center; color: var(--text-secondary);">试着和它打个招呼吧！</p>`;
+        return;
+    }
+    
+    // 获取用户头像
+    const myAvatar = chat.settings.myAvatar || defaultAvatar;
+
+    pet.petChatHistory.forEach(msg => {
+        const wrapper = document.createElement('div');
+        // 【核心】这里的 msg.sender 会是 'user', 'pet', 或 'char'
+        wrapper.className = `message-wrapper ${msg.sender}`; 
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        
+        let avatarSrc = '';
+        let avatarHtml = '';
+
+        // ▼▼▼ 问题就在下面这段逻辑，我们来修复它 ▼▼▼
+        if (msg.sender === 'user') {
+            // 如果是用户发的，使用用户头像
+            avatarSrc = myAvatar;
+            avatarHtml = `<img src="${avatarSrc}" class="avatar">`;
+        } else if (msg.sender === 'char') {
+            // 【【【这就是新增的修复逻辑！】】】
+            // 如果是角色(char)发的，就使用角色的头像
+            avatarSrc = chat.settings.aiAvatar || defaultAvatar;
+            avatarHtml = `<img src="${avatarSrc}" class="avatar">`;
+        } else { // 剩下的情况就是宠物(pet)自己发的
+            avatarSrc = pet.isCustomImage ? pet.image : null;
+            if (avatarSrc) {
+                // 如果是图片，显示图片
+                avatarHtml = `<img src="${avatarSrc}" class="avatar">`;
+            } else {
+                // 如果是Emoji，直接显示Emoji
+                avatarHtml = `<div class="avatar" style="font-size: 28px; text-align: center;">${pet.image}</div>`;
+            }
+        }
+        // ▲▲▲ 修复结束 ▲▲▲
+        
+        bubble.innerHTML = `
+            ${avatarHtml}
+            <div class="content">${msg.content.replace(/\n/g, '<br>')}</div>
+        `;
+        wrapper.appendChild(bubble);
+        messagesEl.appendChild(wrapper);
+    });
+
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+// ▼▼▼ 用这块【新代码】替换旧的 handleSendToPet 函数 ▼▼▼
+/**
+ * 处理用户在宠物聊天框中发送消息
+ */
+async function handleSendToPet() {
+    const chat = state.chats[state.activeChatId];
+    const pet = chat.settings.pet;
+    const input = document.getElementById('pet-chat-input');
+    const userInput = input.value.trim();
+    if (!userInput) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+
+    pet.petChatHistory.push({ sender: 'user', content: userInput });
+    renderPetChatHistory();
+
+    const petResponse = await getPetApiResponse(pet);
+    if (petResponse) {
+        pet.petChatHistory.push({ sender: 'pet', content: petResponse });
+        renderPetChatHistory();
+    }
+    
+    // ★★★ 核心修改：创建对用户【可见】的系统消息，记录这次对话 ★★★
+    const visibleLog = `[系统：你和宠物“${pet.name}”进行了对话。你说：“${userInput}”，它回应：“${petResponse}”。]`;
+    const visibleMessage = {
+        role: 'system',
+        type: 'pat_message', // 使用这个类型来显示居中灰色气泡
+        content: visibleLog,
+        timestamp: Date.now()
+    };
+    chat.history.push(visibleMessage);
+
+    // 只有当用户正在查看当前聊天时，才实时追加到界面上
+    if (document.getElementById('chat-interface-screen').classList.contains('active') && state.activeChatId === chat.id) {
+        appendMessage(visibleMessage, chat);
+    }
+    
+    // 创建给AI看的【隐藏】指令，这部分保持不变
+    const hiddenMessageForAI = `[系统提示：用户刚刚和宠物“${pet.name}”进行了一次对话。用户说：“${userInput}”，宠物回应：“${petResponse}”。]`;
+    const hiddenMessage = {
+        role: 'system',
+        content: hiddenMessageForAI,
+        timestamp: Date.now() + 1,
+        isHidden: true
+    };
+    chat.history.push(hiddenMessage);
+
+    await db.chats.put(chat);
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+// ▼▼▼ 用这块【已修复】的代码替换旧的 getPetApiResponse 函数 ▼▼▼
+/**
+ * 【AI核心】为宠物获取API回复
+ * @param {object} pet - 宠物对象
+ * @returns {Promise<string|null>} - AI生成的宠物回复文本
+ */
+async function getPetApiResponse(pet) {
+    const { proxyUrl, apiKey, model } = state.apiConfig;
+    if (!proxyUrl || !apiKey || !model) {
+        alert("请先配置API！");
+        return "（我好像断线了...）";
+    }
+
+    // ★★★ 核心修复2：重构对话历史的生成逻辑 ★★★
+    const historyForPet = pet.petChatHistory.slice(-6).map(msg => {
+        let senderName;
+        if (msg.sender === 'user') {
+            senderName = '主人';
+        } else if (msg.sender === 'char') {
+            senderName = msg.senderName; // 正确获取Char的名字
+        } else { // 'pet'
+            senderName = pet.name;
+        }
+        return `${senderName}: ${msg.content}`;
+    }).join('\n');
+
+    const systemPrompt = `你现在正在扮演一只宠物。
+# 你的核心设定
+- 你的种类: ${pet.type}
+- 你的名字: ${pet.name}
+- 你的性格和背景故事: ${pet.persona}
+
+# 核心规则
+1. 你【必须】完全代入你的角色设定进行回复。
+2. 你的回复应该是简短、可爱的，符合一只宠物的说话方式（例如，使用拟声词、简单的词汇）。
+3. 你的回复【只能是纯文本】，不要包含任何JSON或特殊格式。
+
+# 最近的对话
+${historyForPet}
+
+现在，请根据上面的对话，继续你的回应。`;
+
+    try {
+        const messagesForApi = [{ role: 'user', content: "请根据你在系统指令中读到的规则，立即开始你的行动。" }];
+        let isGemini = proxyUrl === GEMINI_API_URL;
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        
+        const response = isGemini ? await fetch(geminiConfig.url, geminiConfig.data) : await fetch(`${proxyUrl}/v1/chat/completions`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+            body: JSON.stringify({
+                model: model,
+                messages: [{ role: 'system', content: systemPrompt }, ...messagesForApi],
+                temperature: 0.9,
+            })
+        });
+
+        if (!response.ok) throw new Error(await response.text());
+        const data = await response.json();
+        return (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).trim();
+    } catch (error) {
+        console.error("获取宠物回复失败:", error);
+        return "（呜...我好像说不出话了...）";
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+/**
+ * 初始化宠物的拖拽功能
+ */
+function initPetDragging() {
+    const petEl = document.getElementById('chat-pet');
+    const container = document.getElementById('chat-pet-container');
+
+    const onDragStart = (e) => {
+        if (!petEl.style.display || petEl.style.display === 'none') return;
+        e.preventDefault();
+        isPetDragging = true;
+        
+        const rect = petEl.getBoundingClientRect();
+        const coords = getEventCoords(e);
+
+        petDragOffset.x = coords.x - rect.left;
+        petDragOffset.y = coords.y - rect.top;
+
+        document.addEventListener('mousemove', onDragMove);
+        document.addEventListener('mouseup', onDragEnd);
+        document.addEventListener('touchmove', onDragMove, { passive: false });
+        document.addEventListener('touchend', onDragEnd);
+    };
+
+    const onDragMove = (e) => {
+        if (!isPetDragging) return;
+        e.preventDefault();
+        
+        const containerRect = container.getBoundingClientRect();
+        const coords = getEventCoords(e);
+
+        let newLeft = coords.x - petDragOffset.x - containerRect.left;
+        let newTop = coords.y - petDragOffset.y - containerRect.top;
+
+        // 边界检测
+        newLeft = Math.max(0, Math.min(newLeft, container.clientWidth - petEl.offsetWidth));
+        newTop = Math.max(0, Math.min(newTop, container.clientHeight - petEl.offsetHeight));
+        
+        // 用百分比存储，以适应不同屏幕尺寸
+        petEl.style.left = `${(newLeft / container.clientWidth) * 100}%`;
+        petEl.style.top = `${(newTop / container.clientHeight) * 100}%`;
+    };
+
+    const onDragEnd = async () => {
+        if (!isPetDragging) return;
+        isPetDragging = false;
+        
+        // 拖动结束后，保存新的位置
+        const chat = state.chats[state.activeChatId];
+        if (chat && chat.settings.pet) {
+            chat.settings.pet.display.top = petEl.style.top;
+            chat.settings.pet.display.left = petEl.style.left;
+            await db.chats.put(chat);
+        }
+
+        document.removeEventListener('mousemove', onDragMove);
+        document.removeEventListener('mouseup', onDragEnd);
+        document.removeEventListener('touchmove', onDragMove);
+        document.removeEventListener('touchend', onDragEnd);
+    };
+
+    petEl.addEventListener('mousedown', onDragStart);
+    petEl.addEventListener('touchstart', onDragStart, { passive: true });
+}
+
+// ▲▲▲ 宠物功能核心函数结束 ▲▲▲
+/**
+ * 【全新】显示微博内容生成的目标角色选择器
+ * @returns {Promise<object|string|null>} - 返回选中的角色对象, 'all', 或 null (如果用户取消)
+ */
+async function showCharacterSelectorForWeibo() {
+    // 1. 找出所有单聊角色
+    const singleChats = Object.values(state.chats).filter(chat => !chat.isGroup);
+
+    if (singleChats.length === 0) {
+        alert("还没有任何角色可以生成内容哦。");
+        return null;
+    }
+
+    // 2. 准备弹窗的选项
+    const options = [
+        // 添加一个“随机”选项，保留原来的功能
+        { text: '✨ 随机 (所有角色)', value: 'all' }, 
+        // 遍历所有角色，为每个角色创建一个选项
+        ...singleChats.map(chat => ({
+            text: `👤 ${chat.name}`, // 选项显示的名字
+            value: chat.id         // 选项的值是角色的唯一ID
+        }))
+    ];
+
+    // 3. 调用你现有的操作菜单弹窗，并等待用户选择
+    const selectedId = await showChoiceModal("请选择本次生成的主角", options);
+
+    // 4. 根据用户的选择，返回不同的结果
+    if (selectedId === null) {
+        return null; // 用户点击了“取消”
+    }
+    if (selectedId === 'all') {
+        return 'all'; // 用户选择了“随机”
+    }
+
+    // 如果用户选择了某个角色，就返回那个角色的完整数据对象
+    return state.chats[selectedId];
+}
+/**
+ * 【全新 | V2多选版】显示微博内容生成的目标角色选择器
+ * @returns {Promise<Array|string|null>} - 返回选中的角色ID数组, 'all', 或 null
+ */
+async function showMultiCharacterSelectorForWeibo() {
+    return new Promise(resolve => {
+        const modal = document.getElementById('weibo-char-selector-modal');
+        const listEl = document.getElementById('weibo-char-selector-list');
+        const confirmBtn = document.getElementById('weibo-confirm-char-select-btn');
+        const cancelBtn = document.getElementById('weibo-cancel-char-select-btn');
+        const selectAllBtn = document.getElementById('weibo-select-all-btn');
+        const deselectAllBtn = document.getElementById('weibo-deselect-all-btn');
+
+        listEl.innerHTML = '';
+        const singleChats = Object.values(state.chats).filter(chat => !chat.isGroup);
+
+        if (singleChats.length === 0) {
+            alert("还没有任何角色可以生成内容哦。");
+            resolve(null);
+            return;
+        }
+
+        // 添加一个“随机”选项
+        const randomOption = document.createElement('div');
+        randomOption.className = 'player-selection-item';
+        randomOption.innerHTML = `
+            <input type="radio" name="weibo-char-choice" value="all" id="weibo-char-random" checked style="margin-right: 15px;">
+            <label for="weibo-char-random" style="display:flex; align-items:center; width:100%; cursor:pointer;">
+                <span class="name">✨ 随机选择 (所有角色)</span>
+            </label>
+        `;
+        listEl.appendChild(randomOption);
+        
+        // 添加一个“指定”选项的标题
+        const specificOptionHeader = document.createElement('div');
+        specificOptionHeader.className = 'player-selection-item';
+        specificOptionHeader.innerHTML = `
+            <input type="radio" name="weibo-char-choice" value="specific" id="weibo-char-specific" style="margin-right: 15px;">
+            <label for="weibo-char-specific" style="display:flex; align-items:center; width:100%; cursor:pointer;">
+                <span class="name">👤 指定以下角色</span>
+            </label>
+        `;
+        listEl.appendChild(specificOptionHeader);
+
+        // 渲染所有可选的角色
+        singleChats.forEach(chat => {
+            const item = document.createElement('div');
+            item.className = 'player-selection-item';
+            item.style.paddingLeft = '50px'; // 向内缩进，表示是“指定”的子选项
+            item.innerHTML = `
+                <input type="checkbox" class="weibo-char-checkbox" value="${chat.id}" id="weibo-char-${chat.id}">
+                <label for="weibo-char-${chat.id}" style="display:flex; align-items:center; width:100%; cursor:pointer;">
+                    <img src="${chat.settings.aiAvatar || defaultAvatar}" alt="${chat.name}">
+                    <span class="name">${chat.name}</span>
+                </label>
+            `;
+            listEl.appendChild(item);
+        });
+
+        const cleanup = () => {
+            modal.classList.remove('visible');
+            // 清除事件监听器，防止内存泄漏
+            newConfirmBtn.removeEventListener('click', onConfirm);
+            cancelBtn.removeEventListener('click', onCancel);
+            selectAllBtn.removeEventListener('click', onSelectAll);
+            deselectAllBtn.removeEventListener('click', onDeselectAll);
+        };
+        
+        const onConfirm = () => {
+            const choice = document.querySelector('input[name="weibo-char-choice"]:checked').value;
+            if (choice === 'all') {
+                cleanup();
+                resolve('all');
+            } else {
+                const selectedIds = Array.from(document.querySelectorAll('.weibo-char-checkbox:checked')).map(cb => cb.value);
+                if (selectedIds.length === 0) {
+                    alert("请至少选择一个指定的角色！");
+                    return;
+                }
+                cleanup();
+                resolve(selectedIds);
+            }
+        };
+
+        const onCancel = () => { cleanup(); resolve(null); };
+        const onSelectAll = () => document.querySelectorAll('.weibo-char-checkbox').forEach(cb => cb.checked = true);
+        const onDeselectAll = () => document.querySelectorAll('.weibo-char-checkbox').forEach(cb => cb.checked = false);
+
+        // 使用克隆节点技巧来确保事件只被绑定一次
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+        newConfirmBtn.addEventListener('click', onConfirm);
+        cancelBtn.addEventListener('click', onCancel);
+        selectAllBtn.addEventListener('click', onSelectAll);
+        deselectAllBtn.addEventListener('click', onDeselectAll);
+
+        modal.classList.add('visible');
+    });
+}
 
 
         async function init() {
@@ -41076,14 +42453,21 @@ document.getElementById('confirm-weibo-action-btn').addEventListener('click', ha
 
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
 
-// --- 微博热搜与广场功能事件绑定 ---
+// 【已修改】为“生成热搜”和“生成广场”按钮绑定新的带角色选择的事件
+document.getElementById('generate-hot-search-btn').addEventListener('click', async () => {
+    const targets = await showMultiCharacterSelectorForWeibo(); // 调用新的多选函数
+    if (targets) { 
+        await generateHotSearch(targets); 
+    }
+});
+document.getElementById('generate-plaza-feed-btn').addEventListener('click', async () => {
+    const targets = await showMultiCharacterSelectorForWeibo();
+    if (targets) {
+        await generatePlazaFeed(null, targets); 
+    }
+});
 
-// 1. 绑定热搜页面的“生成”按钮
-document.getElementById('generate-hot-search-btn').addEventListener('click', generateHotSearch);
 
-// 2. 【核心修改】现在，广场页面的“生成”按钮也调用同一个函数！
-document.getElementById('generate-plaza-feed-btn').addEventListener('click', generateHotSearch);
-// ▲▲▲ 替换结束 ▲▲▲
 // ▼▼▼ 在 init() 的事件监听器区域末尾，粘贴这整块新代码 ▼▼▼
 
 // --- 微博热搜与广场功能事件绑定 ---
@@ -41185,7 +42569,7 @@ document.getElementById('phone-screen').addEventListener('click', unlockAudioCon
             document.getElementById('import-btn').addEventListener('click', () => document.getElementById('import-data-input').click());
             document.getElementById('import-data-input').addEventListener('change', e => importBackup(e.target.files[0]));
             document.getElementById('back-to-list-btn').addEventListener('click', () => { 
-
+ stopPetDecayTimer();
     // ▼▼▼ 修改这两行 ▼▼▼
     applyScopedCss('', '#chat-messages', 'custom-bubble-style'); // 清除真实聊天界面的自定义样式
     applyScopedCss('', '#settings-preview-area', 'preview-bubble-style'); // 清除预览区的自定义样式
@@ -46371,6 +47755,103 @@ document.getElementById('guess-what-user-input').addEventListener('keypress', (e
 });
 
 // ▲▲▲ “你说我猜”事件监听器结束 ▲▲▲
+// ▼▼▼ 【全新】宠物功能事件监听器 ▼▼▼
+
+// 1. 绑定输入框上方的宠物图标按钮
+document.getElementById('pet-action-btn').addEventListener('click', openPetModal);
+
+// 2. 绑定宠物弹窗内的各种按钮
+document.getElementById('pet-modal-cancel-btn').addEventListener('click', () => {
+    document.getElementById('pet-modal').classList.remove('visible');
+    currentPetData = null; // 取消时也要清理
+});
+document.getElementById('pet-modal-save-btn').addEventListener('click', savePetSettings);
+
+// 3. 实时更新预览
+document.getElementById('pet-type-input').addEventListener('input', updatePetPreview);
+document.getElementById('pet-name-input').addEventListener('input', updatePetPreview);
+document.getElementById('pet-image-input').addEventListener('input', updatePetPreview);
+
+// 4. “在聊天界面显示”开关的交互
+document.getElementById('pet-display-toggle').addEventListener('change', (e) => {
+    document.getElementById('pet-position-controls').style.display = e.target.checked ? 'block' : 'none';
+});
+
+// 5. 尺寸滑块的交互
+const sizeSlider = document.getElementById('pet-size-slider');
+sizeSlider.addEventListener('input', () => {
+    document.getElementById('pet-size-value').textContent = `${sizeSlider.value}px`;
+});
+
+// 6. 绑定更换自定义图片的点击事件
+document.getElementById('pet-preview-display').addEventListener('click', () => {
+    document.getElementById('pet-custom-image-input').click();
+});
+document.getElementById('pet-custom-image-input').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            // 将图片的Base64链接直接填入输入框
+            document.getElementById('pet-image-input').value = event.target.result;
+            updatePetPreview(); // 并更新预览
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// 7. 绑定互动按钮 (使用事件委托)
+document.getElementById('pet-interaction-area').addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON' && e.target.dataset.action) {
+        handlePetInteraction(e.target.dataset.action);
+    }
+});
+
+// 8. 初始化宠物的拖动功能
+initPetDragging();
+// ▼▼▼ 【全新】宠物聊天功能事件绑定 ▼▼▼
+document.getElementById('send-to-pet-btn').addEventListener('click', handleSendToPet);
+document.getElementById('pet-chat-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('send-to-pet-btn').click();
+    }
+});
+
+// 为宠物聊天窗口的“外部”点击添加关闭功能
+const petChatModal = document.getElementById('pet-chat-modal');
+petChatModal.addEventListener('click', (e) => {
+    if (e.target === petChatModal) { // 只有点击灰色遮罩层才关闭
+        petChatModal.classList.remove('visible');
+    }
+});
+// ▲▲▲ 新事件绑定结束 ▲▲▲
+// ▼▼▼ 在 init() 的事件监听器区域末尾，粘贴这段新代码 ▼▼▼
+// 【全新】为“放生宠物”按钮绑定事件
+document.getElementById('pet-abandon-btn').addEventListener('click', async () => {
+    if (!state.activeChatId) return;
+
+    const confirmed = await showCustomConfirm(
+        '确认放生',
+        '确定要关闭宠物系统吗？这将会重置所有宠物数据（数值、聊天记录等），但不会删除你的设置。你可以随时重新领养。',
+        { confirmButtonClass: 'btn-danger' }
+    );
+
+    if (confirmed) {
+        const chat = state.chats[state.activeChatId];
+        chat.settings.petAdopted = false; // 关闭领养状态
+        delete chat.settings.pet; // 删除宠物数据对象
+        
+        await db.chats.put(chat);
+        
+        renderChatPet(); // 从聊天界面移除宠物
+        document.getElementById('pet-modal').classList.remove('visible'); // 关闭弹窗
+        alert('宠物已放生，江湖再见！');
+    }
+});
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
+// ▲▲▲ 宠物功能事件监听器结束 ▲▲▲
 
 // ===================================================================
 // 5. 启动！
