@@ -11524,28 +11524,46 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▲▲▲ 美化样式结束 ▲▲▲ */
 
 
-/* --- 【全新 | 完美控制版】情侣空间右上角按钮美化 --- */
+/* --- 【最终版】情侣空间右上角按钮美化与独立微调 --- */
 
-/* 1. 精确控制按钮组的间距 */
+/* 1. 收紧按钮容器的整体间距 */
 #ls-header .header-actions {
-    gap: 0px; /* ★★★ 调整这里，控制按钮间的缝隙，可以设为0让它们紧贴 ★★★ */
+    gap: 0px; /* ★ 修改这里：将按钮间的间距减小到0，让它们紧挨着 */
 }
 
-/* 2. 控制单个按钮的样式 */
+/* 2. 保持按钮的基础样式（这部分不变） */
 #ls-header .action-btn {
-    /* ▼▼▼ 核心修复与调整 ▼▼▼ */
-    margin: 0;          /* ★★★ 最关键一步：清除按钮自带的外边距，让 gap 生效！ ★★★ */
-    padding: 8px;       /* ★★★ 增大内边距，让可点击范围变大（不影响图标大小） ★★★ */
-    /* ▲▲▲ 核心修复与调整 ▲▲▲ */
-    
-    border-radius: 50%; /* 保持圆形背景 */
+    padding: 8px; 
+    border-radius: 50%;
     transition: background-color 0.2s;
 }
-
-/* 3. 鼠标悬停反馈效果保持不变 */
 #ls-header .action-btn:hover {
     background-color: rgba(255, 255, 255, 0.2);
 }
+
+/* 3. 【核心】为每个按钮添加独立的微调功能 */
+
+/* “设置”按钮的独立位置 */
+#ls-settings-btn {
+    position: relative; /* 启用相对定位，这是微调的关键 */
+    top: 0px;           /* 【调上下】: 正数往下移，负数往上移 */
+    left: 15px;          /* 【调左右】: 正数往右移，负数往左移 */
+}
+
+/* “更换背景”按钮的独立位置 */
+#ls-change-bg-btn {
+    position: relative;
+    top: 0px;          
+    left: 10px;          
+}
+
+/* “切换”按钮的独立位置 */
+#ls-switch-char-btn {
+    position: relative;
+    top: -3px;
+    left: 5px;
+}
+
 
 
     </style>
