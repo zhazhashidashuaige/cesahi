@@ -11200,51 +11200,53 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 
 
-/* ▼▼▼ 【独家定制】宠物互动按钮美化样式 ▼▼▼ */
+/* ▼▼▼ 【独家定制】宠物互动按钮 2x2 网格布局 (最终加强版) ▼▼▼ */
 
-/* 1. 让按钮的容器居中，并设置按钮之间的间距 */
+/* 1. 使用 !important 强制开启网格布局，对抗样式冲突 */
 #pet-interaction-area {
-    display: flex;
-    justify-content: center; /* 让按钮们整体居中 */
-    gap: 12px;             /* 按钮之间的空隙 */
-    margin-bottom: 10px;   /* 和下方的设置区拉开一点距离 */
+    display: grid !important;        /* 关键：强制使用 grid 布局 */
+    grid-template-columns: 1fr 1fr;  /* 两列网格 */
+    gap: 10px;                       /* 按钮间距 */
+    max-width: 220px;                /* 适当放宽最大宽度，给按钮更多空间 */
+    margin: 15px auto !important;    /* 强制居中 */
 }
 
-/* 2. 【核心】美化按钮本身 */
+/* 2. 调整按钮尺寸，并强制文字不换行 */
 #pet-interaction-area button {
-    /* 尺寸和形状 */
-    padding: 6px 12px;       /* 增大内边距，让按钮变“胖” */
-    border-radius: 20px;      /* 大圆角，变成可爱的胶囊形状 */
-    min-width: 80px;          /* 设置一个最小宽度，避免文字少时按钮太窄 */
-    font-size: 13px;          /* 字体也调大一点 */
-    font-weight: 600;         /* 字体加粗，更清晰 */
+    /* 尺寸和文字 */
+    padding: 8px 12px;
+    font-size: 14px;
+    white-space: nowrap;             /* 关键：强制文字在同一行显示，防止换行 */
     
-    /* 颜色和边框 */
-    background-color: #f0f2f5;           /* 淡淡的灰色背景，更有质感 */
-    color: var(--accent-color);          /* 文字使用你的主题色，保持风格统一 */
-    border: 1.5px solid var(--accent-color); /* 用主题色给按钮加个边框 */
-    
-    /* 交互效果 */
-    cursor: pointer;                     /* 鼠标放上去时显示为小手 */
-    transition: all 0.2s ease-in-out;    /* 为所有变化添加平滑的动画效果 */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* 加一点点阴影，更有立体感 */
+    /* 形状和美化 */
+    border-radius: 18px;
+    width: 100%;
+    font-weight: 600;
+    background-color: #f0f2f5;
+    color: var(--accent-color);
+    border: 1.5px solid var(--accent-color);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* 3. 鼠标悬停时的效果 */
+/* 3. 交互效果保持不变 */
 #pet-interaction-area button:hover {
-    background-color: var(--accent-color); /* 悬停时，背景变为主题色 */
-    color: white;                          /* 文字变为白色 */
-    transform: translateY(-2px);           /* 按钮轻微上浮 */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);   /* 阴影加深 */
+    background-color: var(--accent-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* 4. 点击时的效果 */
 #pet-interaction-area button:active {
-    transform: translateY(0) scale(0.98); /* 点击时，按钮被“按下去”一点点 */
-    box-shadow: 0 1px 2px rgba(0,0,0,0.08);  /* 阴影变浅 */
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
 }
 
 /* ▲▲▲ 美化样式结束 ▲▲▲ */
+
+
+
 
 
     </style>
