@@ -11650,6 +11650,29 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* ▲▲▲ 修复结束 ▲▲▲ */
 
+/* ▼▼▼ 【独家定制】情侣空间返回按钮美化 ▼▼▼ */
+#ls-header .back-btn {
+    /* 1. 核心修改：将箭头颜色设为您想要的白色 */
+    color: white;
+    
+    /* 2. 统一样式：让它和圈子返回按钮一样，拥有40x40px的圆形点击区域 */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+/* 3. 为它添加与其他按钮统一的、漂亮的悬停效果 */
+#ls-header .back-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+/* ▲▲▲ 新增样式结束 ▲▲▲ */
+
+
 
 
     </style>
@@ -12397,14 +12420,26 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </svg>
 </button>
 <!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
-<!-- ▼▼▼ 请用这块【新代码】替换掉你原来的宠物按钮 <button id="pet-action-btn" ... >...</button> ▼▼▼ -->
+<!-- ▼▼▼ 【歪头杀·满分可爱猫】请用这块代码替换旧的宠物按钮 <button> ▼▼▼ -->
 <button id="pet-action-btn" class="chat-action-icon-btn action-button" title="我的宠物">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18.4,10.5C18.4,8,17,5,15,5c-1.5,0-2.5,1-3,2c-0.5-1-1.5-2-3-2c-2.5,0-3.9,3-3.9,5.5V15c0,3.5,3,5.5,7.4,5.5s7.4-2,7.4-5.5V10.5z"/>
-        <path d="M9.5 14.5h.01M14.5 14.5h.01M6.5 13.5h-1M6.5 15.5h-1M17.5 13.5h1M17.5 15.5h1"/>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- 主体轮廓: 耳朵不对称，营造歪头效果 -->
+        <path d="M3.5 14.5C3.5 20.5 20.5 20.5 20.5 14.5C20.5 9 17.5 5.5 12.5 8.7C6.5 4.5 3.5 9 3.5 14.5Z" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- 眼睛 -->
+        <circle cx="8.5" cy="15" r="1.5" fill="currentColor"/>
+        <circle cx="15.5" cy="15" r="1.5" fill="currentColor"/>
+        <!-- 左边两根小胡须 -->
+        <path d="M4.5 14.3L2.5 13.3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M4.5 15.7L2.5 16.7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+        <!-- 右边两根小胡须 -->
+        <path d="M19.5 14.3L21.5 13.3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M19.5 15.7L21.5 16.7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
     </svg>
 </button>
 <!-- ▲▲▲ 替换结束 ▲▲▲ -->
+
+
+
 
 
         </div>
