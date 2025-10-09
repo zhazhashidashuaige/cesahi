@@ -206,7 +206,32 @@ body {
 }
 
         .header .header-actions { display: flex; align-items: center; gap: 15px; }
-        .header .back-btn, .header .action-btn { font-size: 24px; cursor: pointer; width: 30px; text-align: center; color: var(--accent-color); display: flex; align-items: center; justify-content: center; }
+        /* ▼▼▼ 【触摸区域优化版】替换旧的 .header .back-btn, .header .action-btn 样式 ▼▼▼ */
+.header .back-btn, .header .action-btn {
+    font-size: 24px; /* 保持图标大小不变 */
+    cursor: pointer;
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* --- 核心修改从这里开始 --- */
+    width: 40px;              /* 1. 将按钮宽度从30px增加到40px */
+    height: 40px;             /* 2. 将按钮高度从30px增加到40px */
+    border-radius: 50%;       /* 3. (可选但推荐) 让按钮变成圆形，更美观 */
+    transition: background-color 0.2s; /* 4. 为悬停效果添加平滑动画 */
+}
+
+/* 【新增】为按钮添加悬停/点击时的背景色，给用户明确的反馈 */
+.header .back-btn:hover, .header .action-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* 鼠标放上去时给一个淡淡的背景 */
+}
+#phone-screen.dark-mode .header .back-btn:hover,
+#phone-screen.dark-mode .header .action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* 夜间模式下的悬停颜色 */
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
 
 .header .action-btn {
     font-size: 16px; /* 专门为“上传”、“+”等文字按钮缩小字号 */
@@ -11626,6 +11651,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ▲▲▲ 修复结束 ▲▲▲ */
 
 
+
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
     <style id="custom-theme-style"></style>
@@ -13367,10 +13393,37 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </svg>
 </button>
 </div>
-        <div id="ls-album-view" class="ls-view"><div id="ls-album-list"></div><button id="ls-add-album-btn" class="ls-fab-btn">+</button></div>
-        <div id="ls-letters-view" class="ls-view"><div id="ls-letters-list"></div><button id="ls-add-letter-btn" class="ls-fab-btn">+</button></div>
+        <div id="ls-album-view" class="ls-view">
+    <div id="ls-album-list"></div>
+    <button id="ls-add-album-btn" class="ls-fab-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+    </button>
+</div>
+
+        <div id="ls-letters-view" class="ls-view">
+    <div id="ls-letters-list"></div>
+    <button id="ls-add-letter-btn" class="ls-fab-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+    </button>
+</div>
+
         <div id="ls-shares-view" class="ls-view"><div id="ls-shares-list"></div></div>
-        <div id="ls-questions-view" class="ls-view"><div id="ls-questions-list"></div><button id="ls-add-question-btn" class="ls-fab-btn">+</button></div>
+     <div id="ls-questions-view" class="ls-view">
+    <div id="ls-questions-list"></div>
+    <button id="ls-add-question-btn" class="ls-fab-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+    </button>
+</div>
+
         <!-- ▼▼▼ 在 id="ls-questions-view" 的 div 之后，粘贴下面这整块新代码 ▼▼▼ -->
 <div id="ls-diary-view" class="ls-view">
     <!-- 日历和心情罐子的内容将由JS动态生成在这里 -->
