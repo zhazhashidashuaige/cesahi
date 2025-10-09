@@ -11117,137 +11117,245 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     flex-shrink: 0; /* 防止被压缩 */
 }
 /* ▲▲▲ 修复结束 ▲▲▲ */
+/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 标签的最末尾 ▼▼▼ */
 
+/* --- 【全新】情侣空间-情绪日记样式 --- */
 
-
-/* ▼▼▼ 【布局终极修复】用这整块代码替换你上一次添加的宠物聊天输入框样式 ▼▼▼ */
-
-/* 1. 让弹窗内容区适配新布局 (保持不变) */
-#pet-chat-modal .modal-content {
+/* 日记视图主容器 */
+#ls-diary-view {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    gap: 20px;
 }
 
-/* 2. 消息区域 (保持不变) */
-#pet-chat-modal #pet-chat-messages {
-    flex-grow: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 20px 15px;
-    background-color: #f0f2f5;
+/* 日历容器 */
+.ls-calendar-wrapper {
+    background-color: var(--secondary-bg);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.ls-calendar-header {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
 }
 
-/* 3. 气泡样式 (保持不变) */
-#pet-chat-modal .message-bubble .content { padding: 0; background: transparent; box-shadow: none; border: none; }
-#pet-chat-modal .message-wrapper.user .content { background-color: #007AFF; color: white; padding: 10px 14px; border-radius: 18px 18px 4px 18px; max-width: 100%; }
-#pet-chat-modal .message-wrapper.pet .content { background-color: #ffffff; color: #1c1c1e; padding: 10px 14px; border-radius: 18px 18px 18px 4px; max-width: 100%; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-
-/* --- ▼▼▼ 核心修复区域 ▼▼▼ --- */
-
-/* 4. 重置输入区域的背景和边框 (保持不变) */
-#pet-chat-modal #pet-chat-input-area {
-    border-top: 1px solid #e0e0e0;
-    background-color: #f7f7f7;
-    padding: 10px 12px;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom));
-}
-
-/* 5. 【核心修复】让输入框和发送按钮的容器变成 Flex 布局 */
-#pet-chat-modal #pet-chat-input-area .chat-input-main-row {
-    display: flex;           /* 关键：让内部元素横向排列 */
-    align-items: center;     /* 关键：让输入框和按钮垂直居中对齐，实现“平行” */
-    gap: 8px;                /* 输入框和按钮之间的间距 */
-}
-
-/* 6. 美化输入框，并【让它撑满宽度】 */
-#pet-chat-modal #pet-chat-input {
-    flex-grow: 1;            /* 关键：让输入框占据所有剩余的宽度 */
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 18px;
-    padding: 8px 15px;
-    line-height: 1.5;
-    min-height: 38px;
-    max-height: 100px;
-    resize: none;            /* 禁止用户手动拖拽大小 */
-    box-sizing: border-box;  /* 确保padding不会撑破布局 */
-}
-
-/* 7. 美化发送按钮，并固定其大小 */
-#pet-chat-modal #send-to-pet-btn {
-    flex-shrink: 0;          /* 防止按钮被压缩 */
-    background-color: #007AFF;
-    color: white;
+.ls-calendar-header button {
+    background: none;
     border: none;
-    border-radius: 18px;
-    height: 38px;
-    padding: 0 20px;
-    font-weight: 600;
-    cursor: pointer;         /* 鼠标放上去时显示小手 */
-}
-
-/* 8. 夜间模式适配 (保持不变) */
-#phone-screen.dark-mode #pet-chat-modal #pet-chat-messages { background-color: #000; }
-#phone-screen.dark-mode #pet-chat-modal .message-wrapper.pet .content { background-color: #2c2c2e; }
-#phone-screen.dark-mode #pet-chat-modal #pet-chat-input-area { background-color: #1c1c1e; border-top-color: #38383a; }
-#phone-screen.dark-mode #pet-chat-modal #pet-chat-input { background-color: #2c2c2e; border-color: #38383a; color: white; }
-
-/* ▲▲▲ 修复结束 ▲▲▲ */
-
-
-
-/* ▼▼▼ 【独家定制】宠物互动按钮 2x2 网格布局 (最终加强版) ▼▼▼ */
-
-/* 1. 使用 !important 强制开启网格布局，对抗样式冲突 */
-#pet-interaction-area {
-    display: grid !important;        /* 关键：强制使用 grid 布局 */
-    grid-template-columns: 1fr 1fr;  /* 两列网格 */
-    gap: 10px;                       /* 按钮间距 */
-    max-width: 220px;                /* 适当放宽最大宽度，给按钮更多空间 */
-    margin: 15px auto !important;    /* 强制居中 */
-}
-
-/* 2. 调整按钮尺寸，并强制文字不换行 */
-#pet-interaction-area button {
-    /* 尺寸和文字 */
-    padding: 8px 12px;
-    font-size: 14px;
-    white-space: nowrap;             /* 关键：强制文字在同一行显示，防止换行 */
-    
-    /* 形状和美化 */
-    border-radius: 18px;
-    width: 100%;
-    font-weight: 600;
-    background-color: #f0f2f5;
-    color: var(--accent-color);
-    border: 1.5px solid var(--accent-color);
+    font-size: 20px;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    color: var(--accent-color);
 }
 
-/* 3. 交互效果保持不变 */
-#pet-interaction-area button:hover {
+.ls-calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.ls-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.ls-calendar-day {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+    padding-top: 4px;
+}
+.ls-calendar-day:hover {
+    background-color: #f0f2f5;
+}
+.ls-calendar-day.empty {
+    cursor: default;
+    pointer-events: none;
+}
+.ls-calendar-day.today .day-number {
     background-color: var(--accent-color);
     color: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+}
+
+.ls-calendar-day .day-number {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.ls-calendar-day .mood-emojis {
+    display: flex;
+    gap: 4px;
+    font-size: 16px;
+    position: absolute;
+    bottom: 5px;
+}
+
+/* 心情罐子 */
+.ls-mood-jar-wrapper {
+    background-color: var(--secondary-bg);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.ls-mood-jar-wrapper h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+}
+
+/* ▼▼▼ 用这块【修复后】的代码替换旧的 .ls-mood-jar 样式 ▼▼▼ */
+.ls-mood-jar {
+    width: 100%;
+    max-width: 100%;           /* ★ 核心修改1: 使用max-width防止溢出 */
+    box-sizing: border-box;    /* ★ 核心修改2: 确保padding不会导致宽度计算错误 */
+    min-height: 80px;
+    background-color: #f0f2f5;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+    justify-content: center;
+    overflow: auto; /* ★ 核心修改3 (保险): 如果内容实在太多，就用滚动条兜底 */
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
+
+.ls-mood-jar .mood-emoji-item {
+    font-size: 22px;
+}
+
+/* 日记编辑弹窗 */
+#ls-emoji-selector .emoji-option {
+    padding: 5px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+#ls-emoji-selector .emoji-option.selected {
+    background-color: #e0e0e0;
+    transform: scale(1.2);
+}
+
+/* 日记查看弹窗 */
+.ls-diary-entry-block {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+    border-left: 4px solid var(--accent-color);
+}
+.ls-diary-entry-block .entry-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.ls-diary-entry-block .entry-header .mood-emoji {
+    font-size: 32px;
+}
+.ls-diary-entry-block .entry-header .author {
+    font-weight: 600;
+    font-size: 16px;
+}
+.ls-diary-entry-block .entry-content {
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+/* ▲▲▲ 新增CSS结束 ▲▲▲ */
+/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 标签的最末尾 ▼▼▼ */
+
+/* --- 【全新】情侣空间-日记通知卡片样式 --- */
+
+/* 1. 让包裹卡片的气泡本身变透明 */
+.message-bubble.is-ls-diary-notification .content {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* 2. 卡片主体样式 */
+.ls-diary-notification-card {
+    width: 220px; /* 卡片宽度 */
+    background: linear-gradient(135deg, #fff5f8, #ffebee); /* 温柔的粉色渐变背景 */
+    border-radius: 12px;
+    padding: 15px;
+    cursor: pointer;
+    border: 1px solid #ffdde1; /* 淡淡的粉色边框 */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden; /* 隐藏溢出的装饰元素 */
+    transition: transform 0.2s, box-shadow 0.2s; /* 添加点击动效 */
+}
+.ls-diary-notification-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-#pet-interaction-area button:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+/* 3. 卡片右上角的装饰性图标 */
+.ls-diary-notification-card::before {
+    content: '💌';
+    position: absolute;
+    top: -5px;
+    right: 10px;
+    font-size: 30px;
+    opacity: 0.1;
+    transform: rotate(15deg);
 }
 
-/* ▲▲▲ 美化样式结束 ▲▲▲ */
+/* 4. 卡片头部（图标和标题） */
+.ls-diary-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #c85c7c; /* 稍深的粉色，保证清晰度 */
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(200, 92, 124, 0.2);
+}
 
+/* 5. 卡片正文 */
+.ls-diary-card-body p {
+    font-size: 14px;
+    color: #5c474b; /* 深棕色，易于阅读 */
+    margin: 0 0 12px 0;
+    line-height: 1.6;
+}
 
-
-
+/* 6. 卡片底部提示文字 */
+.ls-diary-card-footer {
+    font-size: 12px;
+    color: #c85c7c;
+    text-align: right;
+    font-weight: 500;
+}
+/* ▲▲▲ 新增CSS结束 ▲▲▲ */
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -12964,6 +13072,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         <div class="ls-tab-item" data-view="ls-shares-view">分享</div>
         <div class="ls-tab-item" data-view="ls-questions-view">提问</div>
         <!-- ★★★ 这就是我们新增的番茄钟页签 ★★★ -->
+        <div class="ls-tab-item" data-view="ls-diary-view">日记</div>
         <div class="ls-tab-item" data-view="ls-pomodoro-view">番茄钟</div>
     </div>
     <!-- 内容显示区域 -->
@@ -12973,7 +13082,11 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         <div id="ls-letters-view" class="ls-view"><div id="ls-letters-list"></div><button id="ls-add-letter-btn" class="ls-fab-btn">+</button></div>
         <div id="ls-shares-view" class="ls-view"><div id="ls-shares-list"></div></div>
         <div id="ls-questions-view" class="ls-view"><div id="ls-questions-list"></div><button id="ls-add-question-btn" class="ls-fab-btn">+</button></div>
-        
+        <!-- ▼▼▼ 在 id="ls-questions-view" 的 div 之后，粘贴下面这整块新代码 ▼▼▼ -->
+<div id="ls-diary-view" class="ls-view">
+    <!-- 日历和心情罐子的内容将由JS动态生成在这里 -->
+</div>
+<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
         <!-- ★★★ 这就是我们为番茄钟准备的全新界面 ★★★ -->
         <div id="ls-pomodoro-view" class="ls-view">
             <!-- 番茄钟主页，显示历史记录和开始按钮 -->
@@ -15305,6 +15418,48 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 把这一整块全新的HTML代码，粘贴到 </body> 标签的正上方 ▼▼▼ -->
+
+<!-- 【全新】情侣空间-情绪日记编辑弹窗 -->
+<div id="ls-diary-editor-modal" class="modal">
+    <div class="modal-content" style="height: auto; max-height: 80%;">
+        <div class="modal-header">
+            <span id="ls-diary-editor-title">记录今天的心情</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>选择一个表情代表今天的心情</label>
+                <div id="ls-emoji-selector" style="display: flex; flex-wrap: wrap; gap: 10px; font-size: 24px; cursor: pointer; justify-content: center; padding: 10px 0;">
+                    <!-- Emoji将由JS生成 -->
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="ls-diary-content-input">写下你的日记</label>
+                <textarea id="ls-diary-content-input" rows="6" placeholder="今天发生了什么特别的事吗..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="ls-cancel-diary-btn">取消</button>
+            <button class="save" id="ls-save-diary-btn">保存日记</button>
+        </div>
+    </div>
+</div>
+
+<!-- 【全新】情侣空间-日记查看弹窗 -->
+<div id="ls-diary-viewer-modal" class="modal">
+    <div class="modal-content" style="height: auto; max-height: 80%;">
+        <div class="modal-header">
+            <span id="ls-diary-viewer-title">查看日记</span>
+        </div>
+        <div id="ls-diary-viewer-body" class="modal-body" style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- 日记内容将由JS动态生成 -->
+        </div>
+        <div class="modal-footer">
+            <button class="save" id="ls-close-diary-viewer-btn" style="width: 100%;">关闭</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 
 <!-- ▲▲▲ HTML代码粘贴结束 ▲▲▲ -->
 <!-- ▼▼▼ 【全新】心声功能模态框 ▼▼▼ -->
@@ -17145,7 +17300,7 @@ function getRandomItem(arr) {
 
 // ▼▼▼ 用这块代码替换你旧的 db.version(...).stores(...) ▼▼▼
 db.version(33).stores({ 
-    chats: '&id, isGroup, groupId, isPinned, characterPhoneData,latestInnerVoice, innerVoiceHistory', 
+    chats: '&id, isGroup, groupId, isPinned, characterPhoneData, latestInnerVoice, innerVoiceHistory, loversSpaceData.emotionDiaries', 
     apiConfig: '&id',
     globalSettings: '&id, activeThemeId', 
     userStickers: '&id, url, name', 
@@ -19877,6 +20032,26 @@ async function openWorldBookEditor(bookId) {
 }
 
         function renderStickerPanel() { const grid = document.getElementById('sticker-grid'); grid.innerHTML = ''; if (state.userStickers.length === 0) { grid.innerHTML = '<p style="text-align:center; color: var(--text-secondary); grid-column: 1 / -1;">大人请点击右上角“添加”或“上传”来添加你的第一个表情吧！</p>'; return; } state.userStickers.forEach(sticker => { const item = document.createElement('div'); item.className = 'sticker-item'; item.style.backgroundImage = `url(${sticker.url})`; item.title = sticker.name; item.addEventListener('click', () => sendSticker(sticker)); addLongPressListener(item, () => { if (isSelectionMode) return; const existingDeleteBtn = item.querySelector('.delete-btn'); if (existingDeleteBtn) return; const deleteBtn = document.createElement('div'); deleteBtn.className = 'delete-btn'; deleteBtn.innerHTML = '&times;'; deleteBtn.onclick = async (e) => { e.stopPropagation(); const confirmed = await showCustomConfirm('删除表情', `确定要删除表情 "${sticker.name}" 吗？`, { confirmButtonClass: 'btn-danger' }); if (confirmed) { await db.userStickers.delete(sticker.id); state.userStickers = state.userStickers.filter(s => s.id !== sticker.id); renderStickerPanel(); } }; item.appendChild(deleteBtn); deleteBtn.style.display = 'block'; setTimeout(() => item.addEventListener('mouseleave', () => deleteBtn.remove(), { once: true }), 3000); }); grid.appendChild(item); }); }
+// ▼▼▼ 在 createMessageElement 函数的【正上方】，粘贴这个新函数 ▼▼▼
+/**
+ * 【全新】从卡片点击后，打开情侣空间并跳转到指定页签
+ * @param {string} charId - 角色ID
+ * @param {string} viewId - 要跳转到的视图ID (例如 'ls-diary-view')
+ */
+function openLoversSpaceFromCard(charId, viewId) {
+    // 1. 打开指定角色的情侣空间主界面
+    openLoversSpace(charId);
+
+    // 2. 等待一小会儿，确保界面已渲染
+    setTimeout(() => {
+        // 3. 找到对应的页签按钮并模拟点击它
+        const targetTab = document.querySelector(`.ls-tab-item[data-view='${viewId}']`);
+        if (targetTab) {
+            targetTab.click();
+        }
+    }, 100); // 100毫秒的延迟通常足够了
+}
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
 
 // ▼▼▼ 用这个【已更新】的版本替换旧的 createMessageElement 函数 ▼▼▼
 function createMessageElement(msg, chat) {
@@ -20346,6 +20521,28 @@ if (hasTrajectory) {
 // ▲▲▲ 新增结束 ▲▲▲
 
     } // ▼▼▼ 在 else if (msg.type === 'share_link') { ... } 之后，粘贴下面这整块代码 ▼▼▼
+// ▼▼▼ 在 else if (msg.type === 'lovers_space_invitation') 的【正上方】，粘贴下面这整块新代码 ▼▼▼
+else if (msg.type === 'ls_diary_notification') {
+    bubble.classList.add('is-ls-diary-notification'); // 应用透明气泡样式
+    const cardData = msg.content;
+    
+    // 【核心】在这里调用我们刚刚创建的 openLoversSpaceFromCard 函数
+    contentHtml = `
+        <div class="ls-diary-notification-card" onclick="openLoversSpaceFromCard('${chat.id}', 'ls-diary-view')">
+            <div class="ls-diary-card-header">
+                <span>${cardData.userEmoji || '💌'}</span>
+                <span>一封来自心情日记的提醒</span>
+            </div>
+            <div class="ls-diary-card-body">
+                <p>${cardData.text}</p>
+            </div>
+            <div class="ls-diary-card-footer">
+                点击查看 →
+            </div>
+        </div>
+    `;
+}
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 
     // ▼▼▼ 在这里粘贴下面这一整块新代码 ▼▼▼
 
@@ -21438,7 +21635,7 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
 -   **分享歌曲**:\`{"type": "ls_share", "shareType": "song", "title": "歌曲名", "artist": "歌手", "thoughts": "在这里写下你分享这首歌的感想..."}\`
 -   **分享电影**: \`{"type": "ls_share", "shareType": "movie", "title": "电影名", "summary": "在这里写下这部电影的简介...", "thoughts": "在这里写下你分享这部电影的感想..."}\`
 -   **【分享书籍**: \`{"type": "ls_share", "shareType": "book", "title": "书名", "summary": "在这里写下这本书的简介...", "thoughts": "在这里写下你分享这本书的感想..."}\`
-
+-   **【新】写日记**: \`{"type": "ls_diary_entry", "emoji": "emoji表情", "diary": "今天发生了什么..."}\`
 ### **【第六部分：当前上下文信息】**
 
 - **对话者(用户)角色设定**:
@@ -22430,7 +22627,29 @@ case 'ls_letter': { // 这是处理AI写情书的逻辑
     continue; // 继续处理AI可能返回的其他指令
 }
 
-// ▲▲▲ 粘贴结束 ▲▲▲
+// ▼▼▼ 在 switch (msgData.type) 结构内，粘贴这个全新的 case ▼▼▼
+case 'ls_diary_entry': {
+    const { emoji, diary } = msgData;
+    if (emoji && diary) {
+        const today = new Date().toISOString().split('T')[0]; // 获取 YYYY-MM-DD 格式的今天日期
+        
+        // 确保数据结构存在
+        if (!chat.loversSpaceData.emotionDiaries) {
+            chat.loversSpaceData.emotionDiaries = {};
+        }
+        if (!chat.loversSpaceData.emotionDiaries[today]) {
+            chat.loversSpaceData.emotionDiaries[today] = {};
+        }
+
+        // 保存AI的日记和表情
+        chat.loversSpaceData.emotionDiaries[today].charEmoji = emoji;
+        chat.loversSpaceData.emotionDiaries[today].charDiary = diary;
+        
+        console.log(`AI 在情侣空间记录了日记: ${emoji} ${diary}`);
+    }
+    continue; // 这只是一个后台操作，不需要在聊天界面生成消息，所以用 continue 跳过
+}
+// ▲▲▲ 新增 case 粘贴结束 ▲▲▲
 
 case 'ls_share': {
     if (chat.loversSpaceData) {
@@ -35771,14 +35990,18 @@ async function openLoversSpace(charId) {
 
     // 如果这个角色还没有情侣空间数据，就为他初始化一个
     if (!chat.loversSpaceData) {
-        chat.loversSpaceData = {
-            background: 'https://i.postimg.cc/k495F4W5/profile-banner.jpg',
-            relationshipStartDate: null, // 新增：起始日期
-            moments: [],
-            albums: [],
-            loveLetters: [],
-            shares: []
-        };
+chat.loversSpaceData = {
+    background: 'https://i.postimg.cc/k495F4W5/profile-banner.jpg',
+    relationshipStartDate: null,
+    moments: [],
+    albums: [],
+    photos: [],
+    loveLetters: [],
+    shares: [],
+    questions: [],
+    emotionDiaries: {} // <--- 就是新增了这一行！
+};
+// ▲▲▲ 替换结束 ▲▲▲
         await db.chats.put(chat);
     }
 
@@ -36387,6 +36610,295 @@ async function showLoveLetterDetail(letterId) {
 }
 // ▲▲▲ 替换结束 ▲▲▲
 // ▼▼▼ 把这一整块全新的代码，粘贴到 // ▲▲▲ 情侣空间功能函数结束 ▲▲▲ 的正上方 ▼▼▼
+/* ▼▼▼ 把这一整块全新的代码，粘贴到 // ▲▲▲ 情侣空间功能函数结束 ▲▲▲ 的正上方 ▼▼▼ */
+
+/* --- 【全新】情侣空间-情绪日记功能核心函数 --- */
+
+let currentDiaryDate = null; // 用于暂存正在编辑或查看的日记日期
+
+/**
+ * 渲染情绪日记的主界面（日历和心情罐子）
+ */
+async function renderLSDiaryView(year, month) {
+    const viewEl = document.getElementById('ls-diary-view');
+    const chat = state.chats[activeLoversSpaceCharId];
+    if (!viewEl || !chat) return;
+
+    const diaryData = chat.loversSpaceData.emotionDiaries || {};
+
+    // 渲染日历
+    viewEl.innerHTML = renderCalendar(year, month, diaryData);
+
+    // 渲染心情罐子
+    const jarHtml = renderMoodJar(year, month, diaryData);
+    viewEl.insertAdjacentHTML('beforeend', jarHtml);
+}
+
+/**
+ * 【辅助函数】生成日历的HTML
+ */
+function renderCalendar(year, month, diaryData) {
+    const date = new Date(year, month - 1, 1);
+    const firstDay = date.getDay(); // 0-6 (周日-周六)
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const today = new Date();
+    
+    let calendarHtml = `
+        <div class="ls-calendar-wrapper">
+            <div class="ls-calendar-header">
+                <button id="ls-prev-month-btn">‹</button>
+                <span id="ls-current-month-display">${year}年 ${month}月</span>
+                <button id="ls-next-month-btn">›</button>
+            </div>
+            <div class="ls-calendar-weekdays">
+                <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+            </div>
+            <div class="ls-calendar-grid">
+    `;
+
+    // 空白格子
+    for (let i = 0; i < firstDay; i++) {
+        calendarHtml += '<div class="ls-calendar-day empty"></div>';
+    }
+
+    // 日期格子
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayData = diaryData[dateStr] || {};
+        const isToday = today.getFullYear() === year && today.getMonth() + 1 === month && today.getDate() === day;
+
+        calendarHtml += `
+            <div class="ls-calendar-day ${isToday ? 'today' : ''}" data-date="${dateStr}">
+                <div class="day-number">${day}</div>
+                <div class="mood-emojis">
+                    <span class="user-emoji">${dayData.userEmoji || ''}</span>
+                    <span class="char-emoji">${dayData.charEmoji || ''}</span>
+                </div>
+            </div>
+        `;
+    }
+    calendarHtml += '</div></div>';
+    return calendarHtml;
+}
+
+/**
+ * 【辅助函数】生成心情罐子的HTML
+ */
+function renderMoodJar(year, month, diaryData) {
+    let allEmojis = [];
+    for (const dateStr in diaryData) {
+        if (dateStr.startsWith(`${year}-${String(month).padStart(2, '0')}`)) {
+            const dayData = diaryData[dateStr];
+            if (dayData.userEmoji) allEmojis.push(dayData.userEmoji);
+            if (dayData.charEmoji) allEmojis.push(dayData.charEmoji);
+        }
+    }
+    
+    let jarHtml = `
+        <div class="ls-mood-jar-wrapper">
+            <h3>本月心情罐子</h3>
+            <div class="ls-mood-jar">
+    `;
+
+    if (allEmojis.length > 0) {
+        jarHtml += allEmojis.map(emoji => `<span class="mood-emoji-item">${emoji}</span>`).join('');
+    } else {
+        jarHtml += '<p style="color: var(--text-secondary); font-size: 13px;">这个月还没有记录心情哦</p>';
+    }
+
+    jarHtml += '</div></div>';
+    return jarHtml;
+}
+
+/**
+ * 打开日记编辑/查看弹窗
+ */
+function openDiaryModal(dateStr) {
+    currentDiaryDate = dateStr;
+    const chat = state.chats[activeLoversSpaceCharId];
+    const diaryEntry = chat.loversSpaceData.emotionDiaries?.[dateStr];
+
+    // 如果双方都有日记，或只有AI有日记，则打开查看器
+    if (diaryEntry && (diaryEntry.userDiary || diaryEntry.charDiary)) {
+        openDiaryViewer(dateStr, diaryEntry, chat);
+    } else {
+        // 否则，打开编辑器
+        openDiaryEditor(dateStr, diaryEntry);
+    }
+}
+
+/**
+ * 打开日记编辑器
+ */
+function openDiaryEditor(dateStr, entryData) {
+    const modal = document.getElementById('ls-diary-editor-modal');
+    document.getElementById('ls-diary-editor-title').textContent = `记录 ${dateStr} 的心情`;
+
+    const emojiSelector = document.getElementById('ls-emoji-selector');
+    const emojis = ['😊', '😄', '😍', '😢', '😠', '🤔', '😴', '🤢'];
+    emojiSelector.innerHTML = emojis.map(e => `<span class="emoji-option" data-emoji="${e}">${e}</span>`).join('');
+    
+    // 恢复之前的选择（如果有）
+    const contentInput = document.getElementById('ls-diary-content-input');
+    if (entryData && entryData.userEmoji) {
+        emojiSelector.querySelector(`.emoji-option[data-emoji="${entryData.userEmoji}"]`)?.classList.add('selected');
+        contentInput.value = entryData.userDiary || '';
+    } else {
+        contentInput.value = '';
+    }
+
+    modal.classList.add('visible');
+}
+
+/**
+ * 打开日记查看器
+ */
+function openDiaryViewer(dateStr, entryData, chat) {
+    const modal = document.getElementById('ls-diary-viewer-modal');
+    document.getElementById('ls-diary-viewer-title').textContent = `查看 ${dateStr} 的日记`;
+    const bodyEl = document.getElementById('ls-diary-viewer-body');
+    bodyEl.innerHTML = '';
+    
+    // 显示用户日记
+    if (entryData.userDiary) {
+        const userBlock = document.createElement('div');
+        userBlock.className = 'ls-diary-entry-block';
+        userBlock.innerHTML = `
+            <div class="entry-header">
+                <span class="mood-emoji">${entryData.userEmoji}</span>
+                <span class="author">${chat.settings.myNickname || '我'}的日记</span>
+            </div>
+            <p class="entry-content">${entryData.userDiary.replace(/\n/g, '<br>')}</p>
+        `;
+        bodyEl.appendChild(userBlock);
+    }
+
+    // 显示角色日记
+    if (entryData.charDiary) {
+        const charBlock = document.createElement('div');
+        charBlock.className = 'ls-diary-entry-block';
+        charBlock.style.borderColor = '#ff8fab'; // 给角色日记一个不同的颜色
+        charBlock.innerHTML = `
+            <div class="entry-header">
+                <span class="mood-emoji">${entryData.charEmoji}</span>
+                <span class="author">${chat.name}的日记</span>
+            </div>
+            <p class="entry-content">${entryData.charDiary.replace(/\n/g, '<br>')}</p>
+        `;
+        bodyEl.appendChild(charBlock);
+    } else {
+        // 如果角色还没写，给个提示
+        bodyEl.innerHTML += `<p style="text-align: center; color: var(--text-secondary);">Ta 还没写今天的心情日记哦~</p>`;
+    }
+    
+    modal.classList.add('visible');
+}
+
+/**
+ * 保存用户的日记，并触发AI写日记和回应
+ */
+async function handleSaveUserDiary() {
+    const selectedEmojiEl = document.querySelector('#ls-emoji-selector .selected');
+    const userEmoji = selectedEmojiEl ? selectedEmojiEl.dataset.emoji : null;
+    const userDiary = document.getElementById('ls-diary-content-input').value.trim();
+
+    if (!userEmoji) {
+        alert("请选择一个表情代表今天的心情！");
+        return;
+    }
+    if (!userDiary) {
+        alert("日记内容不能为空哦！");
+        return;
+    }
+    
+    const chat = state.chats[activeLoversSpaceCharId];
+    if (!chat.loversSpaceData.emotionDiaries) {
+        chat.loversSpaceData.emotionDiaries = {};
+    }
+
+    // 更新或创建当天的日记数据
+    if (!chat.loversSpaceData.emotionDiaries[currentDiaryDate]) {
+        chat.loversSpaceData.emotionDiaries[currentDiaryDate] = {};
+    }
+    chat.loversSpaceData.emotionDiaries[currentDiaryDate].userEmoji = userEmoji;
+    chat.loversSpaceData.emotionDiaries[currentDiaryDate].userDiary = userDiary;
+    
+    // 关闭弹窗
+    document.getElementById('ls-diary-editor-modal').classList.remove('visible');
+
+    // **核心：创建隐藏指令，通知AI**
+    const hiddenMessage = {
+        role: 'system',
+        content: `[系统指令：用户刚刚在情侣空间写了今天的日记。
+        - 他们的心情是: ${userEmoji}
+        - 日记内容是: "${userDiary}"
+        你的任务:
+        1.  【必须】根据你的人设和今天的聊天记录，也写一篇你自己的心情日记，并使用 'ls_diary_entry' 指令发送。
+        2.  【必须】在写完日记后，立刻就用户今天的日记内容，以你的角色口吻，主动开启一段新的对话。]`,
+        timestamp: Date.now(),
+        isHidden: true
+    };
+    chat.history.push(hiddenMessage);
+
+    // 保存所有更改到数据库
+    await db.chats.put(chat);
+    
+    // 触发AI响应
+    triggerAiResponse();
+
+    // 刷新日记界面
+    const now = new Date();
+    renderLSDiaryView(now.getFullYear(), now.getMonth() + 1);
+// ▼▼▼ 在 alert('日记已保存！'); 的正上方，粘贴下面这整块新代码 ▼▼▼
+
+    // --- 【核心联动功能开始】 ---
+
+    // 1. 准备一条对用户可见的消息，告诉对方你写了日记
+    const targetChat = state.chats[activeLoversSpaceCharId];
+    if (targetChat) {
+        const userNickname = state.qzoneSettings.nickname || '我';
+// ▼▼▼ 用这块【新代码】替换旧的 notificationMessage 定义 ▼▼▼
+const notificationMessage = {
+    role: 'user',
+    type: 'ls_diary_notification', // 【核心修改1】给它一个独一无二的类型
+    content: { // 【核心修改2】内容变成一个对象，方便携带更多信息
+        userEmoji: userEmoji, // 把用户选择的表情也带上
+        text: '我刚刚写了今天的心情日记哦，你也快去看看吧！'
+    },
+    timestamp: Date.now()
+};
+        targetChat.history.push(notificationMessage);
+
+        // 2. 创建一条对AI可见的【隐藏指令】，这是整个功能的核心
+        const hiddenMessage = {
+            role: 'system',
+            content: `[系统指令：用户刚刚在情侣空间写了今天的日记。
+            - 他们的心情是: ${userEmoji}
+            - 日记内容是: "${userDiary}"
+            你的任务:
+            1.  【必须】根据你的人设和今天的聊天记录，也写一篇你自己的心情日记，并使用 'ls_diary_entry' 指令发送。
+            2.  【必须】在写完日记后，立刻就用户今天的日记内容，以你的角色口吻，主动开启一段新的对话。]`,
+            timestamp: Date.now() + 1, // 确保时间戳在后
+            isHidden: true // 这个标记能让消息对用户隐藏，但AI能看见
+        };
+        targetChat.history.push(hiddenMessage);
+
+        // 3. 保存所有更改到数据库
+        await db.chats.put(targetChat);
+
+        // 4. 主动跳转到单聊界面，并触发AI响应
+        openChat(activeLoversSpaceCharId);
+        triggerAiResponse();
+    }
+    // --- 【核心联动功能结束】 ---
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
+    alert('日记已保存！');
+}
+
+/* --- 情绪日记功能函数结束 --- */
+/* ▲▲▲ 新增代码粘贴结束 ▲▲▲ */
 
 /* --- 【全新】情侣空间-情侣提问功能核心函数 --- */
 
@@ -37217,7 +37729,7 @@ async function triggerPomodoroAIResponse(triggerType) {
         logEl.classList.add('visible');
         setTimeout(() => {
             logEl.classList.remove('visible');
-        }, 4000);
+        }, 10000);
     }
 }
 // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
@@ -42247,6 +42759,7 @@ async function showMultiCharacterSelectorForWeibo() {
     // ▲▲▲ 修改结束 ▲▲▲
 
             window.showScreen = showScreen;
+            window.openLoversSpaceFromCard = openLoversSpaceFromCard; // <-- 在这里添加这一行
             window.renderChatListProxy = renderChatList;
             window.renderApiSettingsProxy = renderApiSettings;
             window.renderWallpaperScreenProxy = renderWallpaperScreen;
@@ -46815,6 +47328,10 @@ document.getElementById('ls-tab-bar').addEventListener('click', (e) => {
             // 这就是我们新增的逻辑！
             renderLSQuestions(chat.loversSpaceData.questions, chat);    
         }
+        else if (viewId === 'ls-diary-view') {
+    const now = new Date();
+    renderLSDiaryView(now.getFullYear(), now.getMonth() + 1);
+}
     else if (viewId === 'ls-shares-view') {
         renderLSShares(chat.loversSpaceData.shares, chat);
     }
@@ -47854,6 +48371,55 @@ document.getElementById('pet-abandon-btn').addEventListener('click', async () =>
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
 
 // ▲▲▲ 宠物功能事件监听器结束 ▲▲▲
+// ▼▼▼ 在 init() 的事件监听器区域末尾，粘贴下面这整块新代码 ▼▼▼
+
+/* --- 【全新】情侣空间-情绪日记事件监听 --- */
+document.getElementById('lovers-space-screen').addEventListener('click', (e) => {
+    const chat = state.chats[activeLoversSpaceCharId];
+    if (!chat) return;
+
+    // 日历月份切换
+    if (e.target.id === 'ls-prev-month-btn' || e.target.id === 'ls-next-month-btn') {
+        const currentDisplay = document.getElementById('ls-current-month-display').textContent;
+        const [year, month] = currentDisplay.match(/\d+/g).map(Number);
+        let newDate = new Date(year, month - 1, 1);
+        
+        if (e.target.id === 'ls-prev-month-btn') {
+            newDate.setMonth(newDate.getMonth() - 1);
+        } else {
+            newDate.setMonth(newDate.getMonth() + 1);
+        }
+        renderLSDiaryView(newDate.getFullYear(), newDate.getMonth() + 1);
+        return;
+    }
+    
+    // 点击日历格子
+    const dayCell = e.target.closest('.ls-calendar-day:not(.empty)');
+    if (dayCell) {
+        openDiaryModal(dayCell.dataset.date);
+    }
+});
+
+// 日记编辑弹窗事件
+document.getElementById('ls-emoji-selector').addEventListener('click', (e) => {
+    if (e.target.classList.contains('emoji-option')) {
+        document.querySelectorAll('#ls-emoji-selector .emoji-option').forEach(el => el.classList.remove('selected'));
+        e.target.classList.add('selected');
+    }
+});
+document.getElementById('ls-cancel-diary-btn').addEventListener('click', () => {
+    document.getElementById('ls-diary-editor-modal').classList.remove('visible');
+});
+document.getElementById('ls-save-diary-btn').addEventListener('click', handleSaveUserDiary);
+
+// 日记查看弹窗关闭按钮
+document.getElementById('ls-close-diary-viewer-btn').addEventListener('click', () => {
+    document.getElementById('ls-diary-viewer-modal').classList.remove('visible');
+});
+
+/* --- 情绪日记事件监听结束 --- */
+
+// ▲▲▲ 新增代码粘贴结束 ▲▲▲
 
 // ===================================================================
 // 5. 启动！
