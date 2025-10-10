@@ -32827,13 +32827,12 @@ async function deleteCharacterPhoneContact(contactName) {
 /* ▼▼▼ 【全新】心声功能核心函数 ▼▼▼ */
 
 /**
- * 打开心声面板
+ * 【V2-已修复】打开心声面板
  */
 function openInnerVoiceModal() {
     if (!state.activeChatId) return;
     const chat = state.chats[state.activeChatId];
     if (!chat || !chat.latestInnerVoice) {
-        // 如果还没有心声数据，可以给个提示
         alert("还没有捕捉到Ta的心声哦，试着再聊一句吧！");
         return;
     }
@@ -32841,44 +32840,38 @@ function openInnerVoiceModal() {
     const modal = document.getElementById('inner-voice-modal');
     const data = chat.latestInnerVoice;
     
-    // 填充数据
+    // --- 角色信息填充 (这部分保持不变) ---
     document.getElementById('inner-voice-avatar').src = chat.settings.aiAvatar || defaultAvatar;
     document.getElementById('inner-voice-char-name').textContent = chat.name;
-    // 【V6 修正版】检查头像框，并动态控制容器边框
     const frameImg = document.getElementById('inner-voice-avatar-frame');
-    const avatarWrapper = document.getElementById('inner-voice-avatar-wrapper'); // 【修改】获取容器元素
+    const avatarWrapper = document.getElementById('inner-voice-avatar-wrapper');
     const frameUrl = chat.settings.aiAvatarFrame || '';
-
-    // ▼▼▼ 请确保这里填入了“无头像框”选项的图片URL ▼▼▼
     const EMPTY_FRAME_URL = 'https://你的网站.com/path/to/empty_frame.png'; 
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     if (frameUrl && frameUrl !== EMPTY_FRAME_URL) {
-        // --- 情况A: 使用了真正的头像框 ---
         frameImg.src = frameUrl;
         frameImg.style.display = 'block';
-        // 移除容器的边框样式
-        avatarWrapper.classList.remove('has-border'); // 【修改】对容器进行操作
+        avatarWrapper.classList.remove('has-border');
     } else {
-        // --- 情况B: 没有使用头像框，或使用了“空白”头像框 ---
         frameImg.src = '';
         frameImg.style.display = 'none';
-        // 为容器添加边框样式
-        avatarWrapper.classList.add('has-border'); // 【修改】对容器进行操作
+        avatarWrapper.classList.add('has-border');
     }
 
-    document.getElementById('inner-voice-adopter-avatar').src = state.qzoneSettings.avatar || defaultAvatar;
-document.getElementById('inner-voice-adopter-name').textContent = `领养人: ${state.qzoneSettings.nickname || '你'}`;
+    // --- 【核心修改】用户(领养人)信息填充 ---
+    // 1. 头像：从当前聊天设置(chat.settings)中获取用户的头像，而不是从动态(qzoneSettings)获取
+    document.getElementById('inner-voice-adopter-avatar').src = chat.settings.myAvatar || defaultAvatar;
+    // 2. 昵称：从当前聊天设置(chat.settings)中获取用户的昵称，而不是从动态(qzoneSettings)获取
+    document.getElementById('inner-voice-adopter-name').textContent = `领养人: ${chat.settings.myNickname || '你'}`;
 
-    
+    // --- 心声内容填充 (这部分保持不变) ---
     document.getElementById('inner-voice-clothing').textContent = data.clothing || '...';
     document.getElementById('inner-voice-behavior').textContent = data.behavior || '...';
     document.getElementById('inner-voice-thoughts').textContent = data.thoughts || '...';
     document.getElementById('inner-voice-naughty-thoughts').textContent = data.naughtyThoughts || '...';
 
-    // 显示面板
+    // --- 显示面板 (这部分保持不变) ---
     modal.classList.add('visible');
-    // 确保历史面板是隐藏的
     document.getElementById('inner-voice-history-panel').style.display = 'none';
     document.getElementById('inner-voice-main-panel').style.display = 'flex';
     isInnerVoiceHistoryOpen = false;
