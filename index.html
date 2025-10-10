@@ -11780,10 +11780,11 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     transition: box-shadow 0.2s ease-in-out;
 }
 
-/* 3. 当需要显示边框时，改变 box-shadow 的颜色 (保持不变) */
+/* 当需要显示边框时，改变 box-shadow 的颜色 (已修改为粉色) */
 #inner-voice-avatar-wrapper.has-border {
-    box-shadow: 0 0 0 1.5px #ff8a80; 
+    box-shadow: 0 0 0 1.5px #ff8fab; /*  <-- 就是修改这里！*/
 }
+
 
 /* 4. 移除之前制造冲突的 ::after 伪元素 (保持不变) */
 #inner-voice-avatar-wrapper::after {
