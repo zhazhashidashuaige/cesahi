@@ -11671,9 +11671,69 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     background-color: rgba(255, 255, 255, 0.2);
 }
 /* ▲▲▲ 新增样式结束 ▲▲▲ */
+/* ▼▼▼ 【全新】记忆互通选择框美化样式 ▼▼▼ */
 
+/* 1. 让每个选项的标签(label)成为一个flex容器 */
+.memory-link-option {
+    display: flex;
+    align-items: center; /* 垂直居中对齐 */
+    gap: 10px;           /* 元素之间的间距 */
+    padding: 8px 12px !important;  /* 增加内边距，!important确保生效 */
+    cursor: pointer;
+}
 
+/* 2. 单独为复选框设置样式，防止被全局样式影响 */
+.memory-link-option input[type="checkbox"] {
+    width: 18px !important;  /* 固定宽度 */
+    height: 18px !important; /* 固定高度 */
+    margin: 0 !important;    /* 移除外边距 */
+    flex-shrink: 0;          /* 防止被压缩 */
+}
 
+/* 3. 设置头像的样式 */
+.memory-link-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%; /* 圆形头像 */
+    object-fit: cover;  /* 保证图片不变形 */
+    flex-shrink: 0;     /* 防止被压缩 */
+}
+
+/* 4. 设置名字的样式 */
+.memory-link-name {
+    /* 默认样式即可，它会自动填充剩余空间 */
+}
+
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】记忆互通选择框美化样式 ▼▼▼ */
+#memory-link-checkboxes-container label {
+    display: flex;           /* 1. 使用Flex布局，让头像和文字横向排列 */
+    align-items: center;     /* 2. 垂直居中对齐 */
+    gap: 10px;               /* 3. 在头像、复选框和文字之间创建间距 */
+    padding: 10px 12px;      /* 4. 增加内边距，让每一行更高、更易于点击 */
+    cursor: pointer;         /* 5. 鼠标放上去时显示小手图标 */
+    transition: background-color 0.2s; /* 6. 添加悬停效果 */
+}
+
+#memory-link-checkboxes-container label:hover {
+    background-color: #f0f2f5; /* 7. 鼠标悬停时给一个淡淡的背景色 */
+}
+
+#memory-link-checkboxes-container .avatar-preview {
+    width: 30px;             /* 8. 设置头像的尺寸 */
+    height: 30px;
+    border-radius: 50%;      /* 9. 圆形头像 */
+    object-fit: cover;       /* 10. 确保图片不变形 */
+    flex-shrink: 0;          /* 11. 防止头像在空间不足时被压缩 */
+}
+
+#memory-link-checkboxes-container input[type="checkbox"] {
+    /* 12. 调整复选框的大小和位置，使其更协调 */
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+/* ▲▲▲ 新增CSS结束 ▲▲▲ */
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -13520,6 +13580,80 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                     </div>
                 </div>
             </div>
+            <!-- ▼▼▼ 【全新】记忆互通设置 (持久化链接版) ▼▼▼ -->
+<div class="form-group" id="memory-link-group">
+    <label>记忆互通 (选择要链接的聊天)</label>
+    
+    <!-- 复用世界书的多选框样式 -->
+    <div class="custom-multiselect" id="memory-link-multiselect">
+        <div class="select-box">
+            <span class="selected-options-text">-- 点击选择 --</span>
+            <span class="arrow-down">▼</span>
+        </div>
+        <div id="memory-link-checkboxes-container" class="checkboxes-container">
+            <!-- 聊天选项将由JS动态生成在这里 -->
+        </div>
+    </div>
+    
+    <!-- 新增：记忆条数设置 -->
+    <div class="form-group" style="margin-top: 10px;">
+        <label for="link-memory-depth-input" style="font-weight: normal; color: var(--text-secondary); font-size: 13px;">互通记忆条数 (AI会看到对方最近的几条消息)</label>
+        <input type="number" id="link-memory-depth-input" value="5" min="1" max="20" style="padding: 8px;">
+    </div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+ <!-- ▼▼▼ 把这一整块全新的HTML代码，粘贴到 <div id="chat-settings-modal"> 的 <div class="modal-body"> 内部，例如“聊天背景”设置的上方 ▼▼▼ -->
+
+<hr style="opacity: 0.2; margin: 20px 0;">
+
+<!-- 1. 线下模式总开关 -->
+<div class="form-group">
+    <label for="offline-mode-toggle" class="toggle-switch-label">
+        <span class="toggle-switch-text">
+            开启线下模式
+            <p style="font-size: 12px; font-weight: normal; color: #999; margin-top: 5px;">
+                开启后，AI将默认你们在线下见面，并以大段叙事的方式进行回应。
+            </p>
+        </span>
+        <input type="checkbox" id="offline-mode-toggle">
+        <span class="toggle-switch-slider"></span>
+    </label>
+</div>
+
+<!-- 2. 线下模式的详细设置 (默认隐藏) -->
+<div id="offline-mode-details" style="display: none; padding-left: 10px; border-left: 3px solid var(--accent-color); margin-top: 15px;">
+    
+    <!-- 2.1 预设管理 -->
+    <div class="form-group">
+        <label>线下模式预设</label>
+        <div class="bubble-preset-manager">
+            <select id="offline-preset-select" class="form-group select"></select>
+            <button id="manage-offline-presets-btn" class="action-btn">管理</button>
+        </div>
+    </div>
+    
+    <!-- 2.2 提示词输入 -->
+    <div class="form-group">
+        <label for="offline-prompt-input">自定义提示词 (Prompt)</label>
+        <textarea id="offline-prompt-input" rows="4" placeholder="例如：你正在一家安静的咖啡馆里和用户约会..."></textarea>
+    </div>
+    
+    <!-- 2.3 文风输入 -->
+    <div class="form-group">
+        <label for="offline-style-input">自定义文风 (Style)</label>
+        <textarea id="offline-style-input" rows="3" placeholder="例如：请使用第三人称，详细描写角色的动作、神态和心理活动..."></textarea>
+    </div>
+
+    <!-- 2.4 字数设置 -->
+    <div class="form-group">
+        <label for="offline-word-count-input">期望回复字数</label>
+        <input type="number" id="offline-word-count-input" value="300" min="50" step="50">
+    </div>
+
+</div>
+
+<!-- ▲▲▲ 新增HTML代码粘贴结束 ▲▲▲ -->
+
             <div class="form-group" id="ai-persona-group"><label for="ai-persona">对方人设 (AI Persona)</label><textarea id="ai-persona" rows="3"></textarea></div>
               <!-- ▼▼▼ 第2步 第2处修改（新增HTML） ▼▼▼ -->
             <div class="form-group" id="char-sticker-group">
@@ -16441,24 +16575,32 @@ function createWeiboPostElement(post) {
         }
     }
 
-    let commentsHtml = '';
-    if (post.comments && post.comments.length > 0) {
-        commentsHtml += '<div class="weibo-comments-container">';
-        post.comments.forEach(comment => {
-            let replyHtml = '';
-            if (comment.replyToNickname) {
-                replyHtml = `<span class="weibo-comment-reply-tag">回复</span><span class="weibo-commenter-name">${comment.replyToNickname}</span>`;
-            }
-            commentsHtml += `
-                <div class="weibo-comment-item" data-comment-id="${comment.commentId}" data-commenter-name="${comment.authorNickname}">
-                    <span class="weibo-commenter-name">${comment.authorNickname}</span>
-                    ${replyHtml}:
-                    <span class="weibo-comment-text">${comment.commentText}</span>
-                    <button class="comment-delete-btn" title="删除此条评论">×</button>
-                </div>`;
-        });
-        commentsHtml += '</div>';
-    }
+// ▼▼▼ 请用这块【已修复】的代码替换上面的旧代码 ▼▼▼
+let commentsHtml = '';
+// ★★★ 核心修改就在这里 ★★★
+// 我们在原来的判断条件中，增加了一个 Array.isArray(post.comments) 的检查
+if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) {
+    commentsHtml += '<div class="weibo-comments-container">';
+    post.comments.forEach(comment => {
+        // 安全检查：确保 comment 是一个对象，防止后续代码出错
+        if (typeof comment !== 'object' || comment === null) return;
+
+        let replyHtml = '';
+        if (comment.replyToNickname) {
+            replyHtml = `<span class="weibo-comment-reply-tag">回复</span><span class="weibo-commenter-name">${comment.replyToNickname}</span>`;
+        }
+        commentsHtml += `
+            <div class="weibo-comment-item" data-comment-id="${comment.commentId}" data-commenter-name="${comment.authorNickname}">
+                <span class="weibo-commenter-name">${comment.authorNickname}</span>
+                ${replyHtml}:
+                <span class="weibo-comment-text">${comment.commentText}</span>
+                <button class="comment-delete-btn" title="删除此条评论">×</button>
+            </div>`;
+    });
+    commentsHtml += '</div>';
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
 
     const myNickname = state.qzoneSettings.nickname || '我';
     const isLiked = post.likes && post.likes.includes(myNickname);
@@ -17536,7 +17678,7 @@ const DEFAULT_APP_ICONS = {
 // ▲▲▲ 替换结束 ▲▲▲
 
 
-        const STICKER_REGEX = /^(https:\/\/i\.postimg\.cc\/.+|https:\/\/files\.catbox\.moe\/.+|data:image)/;
+        const STICKER_REGEX = /^(https:\/\/i\.postimg\.cc\/.+|https:\/\/i\.ibb\.co\/.+|https:\/\/files\.catbox\.moe\/.+|data:image)/;
         const MESSAGE_RENDER_WINDOW = 50;
         let currentRenderedCount = 0;
         let lastKnownBatteryLevel = 1;
@@ -19458,11 +19600,23 @@ if (!chat.isGroup && chat.settings.pet) {
     }
 }
 // ▲▲▲ 改造结束 ▲▲▲
-
-
-
-
-
+        // 兼容旧数据：为没有记忆互通设置的聊天添加一个空的数组
+        if (!chat.settings.linkedMemories) {
+            chat.settings.linkedMemories = [];
+        }
+              // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+        // 兼容线下模式设置
+        if (!chat.settings.offlineMode) {
+            chat.settings.offlineMode = {
+                enabled: false,
+                prompt: '',
+                style: '',
+                wordCount: 300,
+                presets: []
+            };
+        }
+        // ▲▲▲ 新代码粘贴结束 ▲▲▲  
+        // ▲▲▲ 新代码粘贴结束 ▲▲▲
         acc[chat.id] = chat;
         return acc;
     }, {});
@@ -21198,6 +21352,35 @@ document.getElementById('char-heart-btn').style.display = chat.isGroup ? 'none' 
     startPetDecayTimer(); 
 }
 // ▲▲▲ 替换结束 ▲▲▲
+/**
+ * 【全新辅助函数】格式化单条消息，用于记忆互通的上下文
+ * @param {object} msg - 消息对象
+ * @param {object} chat - 该消息所属的聊天对象
+ * @returns {string} - 格式化后的文本，例如 "张三: 你好"
+ */
+function formatMessageForContext(msg, chat) {
+    let senderName = '';
+    if (msg.role === 'user') {
+        senderName = chat.isGroup ? (chat.settings.myNickname || '我') : '我';
+    } else { // assistant
+        senderName = msg.senderName || chat.name;
+    }
+
+    let contentText = '';
+    if (msg.type === 'sticker' || (typeof msg.content === 'string' && STICKER_REGEX.test(msg.content))) {
+        contentText = msg.meaning ? `[表情: ${msg.meaning}]` : '[表情]';
+    } else if (msg.type === 'ai_image' || msg.type === 'user_photo' || Array.isArray(msg.content)) {
+        contentText = '[图片]';
+    } else if (msg.type === 'voice_message') {
+        contentText = `[语音]: ${msg.content}`;
+    } else if (msg.type === 'transfer') {
+        contentText = `[转账] 金额: ${msg.amount}, 备注: ${msg.note || '无'}`;
+    } else {
+        contentText = String(msg.content || '');
+    }
+    
+    return `${senderName}: ${contentText}`;
+}
 
 async function triggerAiResponse() {
       if (!state.activeChatId) return;
@@ -21205,7 +21388,233 @@ async function triggerAiResponse() {
     const chat = state.chats[state.activeChatId];
 
 // ▼▼▼ 第3步 第1处修改 ▼▼▼
+    // --- 【线下模式核心拦截逻辑】 ---
+    if (!chat.isGroup && chat.settings.offlineMode && chat.settings.offlineMode.enabled) {
+        console.log(`角色 "${chat.name}" 已开启线下模式，正在构建专属指令...`);
+        
+        // 1. 获取线下模式的设置
+        const offlineSettings = chat.settings.offlineMode;
+        const wordCount = offlineSettings.wordCount || 300;
+        
+        // 2. 准备默认的提示词和文风，如果用户没填就用这个
+        const defaultPrompt = `你正在和用户进行一次私密的线下约会，场景可以是一个安静的咖啡馆、温馨的家中、或是浪漫的海边。请根据你的人设和最近的对话内容，自然地延续互动。`;
+        const defaultStyle = `请以【${chat.name}】的第一人称视角进行回复。你的回复【必须】是一个完整的、连贯的叙事段落，其中要包含丰富的【动作】、【神态】、【心理活动】和【对话】。请使用【】包裹所有的动作、神态和心理活动。`;
 
+        // 3. 决定最终使用的提示词和文风
+        const finalPrompt = offlineSettings.prompt || defaultPrompt;
+        const finalStyle = offlineSettings.style || defaultStyle;
+
+        // 4. 构建专为线下模式设计的 systemPrompt
+// ▼▼▼ 用这块【支持心声功能】的代码，完整替换旧的 offlineSystemPrompt ▼▼▼
+        const offlineSystemPrompt = `
+# 核心任务：线下场景角色扮演（包含心声）
+
+你现在【就是】角色“${chat.name}”，正在和用户进行一次【线下约会】。你们此刻正【物理上】待在一起。
+
+# 你的角色设定
+${chat.settings.aiPersona}
+
+# 当前情景
+${finalPrompt}
+
+# 你的输出要求 (这是最高指令，必须严格遵守)
+1.  **【【【格式铁律】】】**: 你的回复【必须】是一个**单一且完整**的JSON对象，包含 "chatResponse" 和 "innerVoice" 两个顶级键。
+2.  **"chatResponse" 键**:
+    -   **类型**: JSON数组 \`[]\`。
+    -   **内容**: 【必须】包含**一个**消息对象，格式为 \`{"type": "text", "content": "你的叙事内容..."}\`。
+    -   **叙事内容**: 你的叙事内容【必须】是一个完整的、连贯的长篇段落，融合角色的【动作】、【语言】、【神态】，营造出强烈的沉浸感和画面感。所有非语言部分都必须用【】符号包裹起来。
+3.  **"innerVoice" 键**:
+    -   **类型**: JSON对象 \`{}\`。
+    -   **内容**: 描绘你此刻未曾说出口的内心活动。
+    -   **必含字段**:
+        -   "clothing": (字符串) 详细描述你当前从头到脚的**全身服装**。
+        -   "behavior": (字符串) 描述你当前符合聊天情景的**细微动作或表情**。
+        -   "thoughts": (字符串) 描述你此刻**丰富、细腻的内心真实想法**（50字左右）。
+        -   "naughtyThoughts": (字符串) 描述你此刻与情境相关的**腹黑或色色的坏心思**，必须符合人设。
+4.  **【【【字数铁律】】】**: "content" 字段的总字数应在【${wordCount}】字左右。
+5.  **【禁止出戏】**: 绝对不能提及你是AI、模型或程序。
+
+# JSON输出格式示例:
+{
+  "chatResponse": [
+    {
+      "type": "text",
+      "content": "【我看着窗外的雨滴，轻轻搅动着杯中的咖啡，然后抬起头对你笑了笑】今天天气不太好呢，不过和你待在一起，好像就没那么糟了。"
+    }
+  ],
+  "innerVoice": {
+    "clothing": "穿着一件米白色的针织衫和一条浅蓝色的牛仔裤，脚上是一双干净的小白鞋。",
+    "behavior": "手指无意识地在咖啡杯的边缘摩挲，眼神不时飘向你。",
+    "thoughts": "今天的约会好开心，不知道Ta是不是也这么想的。雨下得好大，希望待会儿能一起撑伞走回去。",
+    "naughtyThoughts": "Ta的侧脸真好看，好想偷偷亲一下..."
+  }
+}
+
+# 对话历史 (供你参考)
+${chat.history.slice(-chat.settings.maxMemory).map(m => `${m.role === 'user' ? '用户' : chat.name}: ${m.content}`).join('\n')}
+
+现在，请根据用户的最后一句话，开始你的表演。`;
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+        // 5. 准备发送给API的数据
+        const messagesForOfflineMode = chat.history.slice(-chat.settings.maxMemory);
+
+        // 6. 执行与正常流程类似的API调用和后续处理
+        const chatHeaderTitle = document.getElementById('chat-header-title');
+        if (chatHeaderTitle) {
+            chatHeaderTitle.style.opacity = 0;
+            setTimeout(() => {
+                chatHeaderTitle.textContent = '对方正在赴约中...';
+                chatHeaderTitle.classList.add('typing-status');
+                chatHeaderTitle.style.opacity = 1;
+            }, 200);
+        }
+
+        try {
+            const { proxyUrl, apiKey, model } = state.apiConfig;
+            let isGemini = proxyUrl === GEMINI_API_URL;
+            
+            let requestBody;
+            let requestUrl = `${proxyUrl}/v1/chat/completions`;
+            let requestHeaders = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            };
+
+            if (isGemini) {
+                // Gemini API 的特殊处理
+                requestUrl = `${GEMINI_API_URL}/${model}:generateContent?key=${getRandomValue(apiKey)}`;
+                requestHeaders = {'Content-Type': 'application/json'};
+                requestBody = {
+                    contents: messagesForOfflineMode.map(item => ({
+                        role: item.role === 'assistant' ? 'model' : 'user',
+                        parts: [{ text: item.content }]
+                    })),
+                    generationConfig: { temperature: 0.8 },
+                    "systemInstruction": {
+                        "parts": [{"text": offlineSystemPrompt}]
+                    }
+                };
+            } else {
+                // OpenAI 兼容 API 的处理
+                requestBody = {
+                    model: model,
+                    messages: [
+                        { role: 'system', content: offlineSystemPrompt },
+                        ...messagesForOfflineMode
+                    ],
+                    temperature: 0.8,
+                    stream: false
+                };
+            }
+
+            const response = await fetch(requestUrl, {
+                method: 'POST',
+                headers: requestHeaders,
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API 错误: ${await response.text()}`);
+            }
+
+            const data = await response.json();
+            const aiContent = isGemini 
+                ? data.candidates[0].content.parts[0].text 
+                : data.choices[0].message.content;
+
+// ▼▼▼ 在这里粘贴新代码 ▼▼▼
+            // 7. 【全新】智能解析包含心声的JSON回复
+            let messagesArray = [];
+            let innerVoiceData = null;
+
+            try {
+                // 净化AI可能返回的不规范JSON
+                let sanitizedContent = aiContent
+                    .replace(/^```json\s*/, '')
+                    .replace(/```$/, '')
+                    .trim();
+                const firstBrace = sanitizedContent.indexOf('{');
+                const lastBrace = sanitizedContent.lastIndexOf('}');
+                if (firstBrace !== -1 && lastBrace > firstBrace) {
+                    sanitizedContent = sanitizedContent.substring(firstBrace, lastBrace + 1);
+                }
+
+                const fullResponse = JSON.parse(sanitizedContent);
+                
+                if (fullResponse.chatResponse && Array.isArray(fullResponse.chatResponse)) {
+                    messagesArray = fullResponse.chatResponse;
+                }
+                if (fullResponse.innerVoice && typeof fullResponse.innerVoice === 'object') {
+                    innerVoiceData = fullResponse.innerVoice;
+                }
+            } catch (e) {
+                console.warn("线下模式AI回复不是JSON，退回到纯文本模式。", e);
+                // 如果解析失败，就当作纯文本处理，保证程序不崩溃
+                messagesArray = [{ type: 'text', content: aiContent }];
+            }
+
+            // 8. 处理并保存心声数据
+            if (innerVoiceData) {
+                console.log("线下模式已成功捕获到心声数据。", innerVoiceData);
+                const newInnerVoice = { ...innerVoiceData, timestamp: Date.now() };
+                chat.latestInnerVoice = newInnerVoice;
+                if (!chat.innerVoiceHistory) chat.innerVoiceHistory = [];
+                chat.innerVoiceHistory.push(newInnerVoice);
+            } else {
+                console.warn("本次线下模式回复中未检测到心声数据。");
+            }
+            
+            // 9. 处理并显示聊天回复
+            const isViewingThisChat = document.getElementById('chat-interface-screen').classList.contains('active') && state.activeChatId === chatId;
+            let messageTimestamp = Date.now();
+
+            for (const msgData of messagesArray) {
+                // 因为线下模式很简单，我们直接创建一个text消息
+                const aiMessage = {
+                    role: 'assistant',
+                    senderName: chat.name,
+                    timestamp: messageTimestamp++,
+                    content: msgData.content || ''
+                };
+                
+                chat.history.push(aiMessage);
+
+                if (isViewingThisChat) {
+                    appendMessage(aiMessage, chat);
+                    // 模拟AI思考，增加沉浸感
+                    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
+                }
+            }
+            
+            // 10. 统一保存并刷新列表
+            await db.chats.put(chat);
+            renderChatList();
+// ▲▲▲ 粘贴结束 ▲▲▲
+
+
+        } catch (error) {
+            console.error("线下模式AI响应失败:", error);
+            const errorMessage = { role: 'assistant', content: `[出错了: ${error.message}]`, timestamp: Date.now() };
+            chat.history.push(errorMessage);
+            await db.chats.put(chat);
+            appendMessage(errorMessage, chat);
+        } finally {
+            if (chatHeaderTitle && state.chats[chatId]) {
+                chatHeaderTitle.style.opacity = 0;
+                setTimeout(() => {
+                    chatHeaderTitle.textContent = state.chats[chatId].name;
+                    chatHeaderTitle.classList.remove('typing-status');
+                    chatHeaderTitle.style.opacity = 1;
+                }, 200);
+            }
+        }
+
+        // 8. 【最重要】执行完线下模式的逻辑后，必须 return，不再执行后面的线上模式逻辑！
+        return; 
+    }
+    // --- 【线下模式核心拦截逻辑结束】 ---
     // ▼▼▼ 将剪切的代码粘贴到这里 ▼▼▼
     // 1. 准备专属表情包列表 (现在对单聊和群聊都生效)
     const exclusiveStickers = chat.settings.stickerLibrary || [];
@@ -21347,24 +21756,36 @@ const chatHeaderTitle = document.getElementById('chat-header-title');
     // ★★★★★【核心修改1：获取群聊的输入提示元素】★★★★★
     const typingIndicator = document.getElementById('typing-indicator');
 
-    // ★★★★★【核心修改2：根据聊天类型，决定显示哪种“正在输入”】★★★★★
-    if (chat.isGroup) {
-        // 如果是群聊，显示输入框上方的提示条
-        if (typingIndicator) {
-            typingIndicator.textContent = '成员们正在输入...';
-            typingIndicator.style.display = 'block';
+        // ★★★★★【核心修改2：根据聊天类型，决定显示哪种“正在输入”】★★★★★
+        if (chat.isGroup) {
+            // 1. 如果是群聊，显示底部的提示条
+            if (typingIndicator) {
+                typingIndicator.textContent = '成员们正在输入...';
+                typingIndicator.style.display = 'block';
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        } else if (chat.settings.offlineMode?.enabled) {
+            // 2. 如果是线下模式的单聊，在顶部标题显示“正在赴约中”
+            if (chatHeaderTitle) {
+                chatHeaderTitle.style.opacity = 0;
+                setTimeout(() => {
+                    chatHeaderTitle.textContent = '对方正在赴约中...'; // <-- 你想要的文字在这里！
+                    chatHeaderTitle.classList.add('typing-status');
+                    chatHeaderTitle.style.opacity = 1;
+                }, 200);
+            }
+        } else {
+            // 3. 如果是普通的单聊，还是在顶部标题显示“正在输入”
+            if (chatHeaderTitle) {
+                chatHeaderTitle.style.opacity = 0;
+                setTimeout(() => {
+                    chatHeaderTitle.textContent = '对方正在输入...';
+                    chatHeaderTitle.classList.add('typing-status');
+                    chatHeaderTitle.style.opacity = 1;
+                }, 200);
+            }
         }
-    } else {
-        // 如果是单聊，保持原来的标题动画
-        if (chatHeaderTitle) {
-            chatHeaderTitle.style.opacity = 0;
-            setTimeout(() => {
-                chatHeaderTitle.textContent = '对方正在输入...';
-                chatHeaderTitle.classList.add('typing-status');
-                chatHeaderTitle.style.opacity = 1;
-            }, 200);
-        }
-    }
+
     
     try {
         const { proxyUrl, apiKey, model } = state.apiConfig;
@@ -21562,6 +21983,38 @@ ${lyricsContext}`; // <--- 核心修复：在这里加上这一行！
         }
         
         let systemPrompt, messagesPayload;
+// ▼▼▼ 【全新】记忆互通核心逻辑 - 构建附加上下文 ▼▼▼
+let linkedMemoryContext = '';
+if (chat.settings.linkedMemories && chat.settings.linkedMemories.length > 0) {
+    
+    // 使用 Promise.all 并行处理所有链接，提高效率
+    const contextPromises = chat.settings.linkedMemories.map(async (link) => {
+        const linkedChat = state.chats[link.chatId];
+        if (!linkedChat) return ''; // 如果找不到链接的聊天，则跳过
+
+        // 从数据库获取最新的聊天记录，确保数据同步
+        const freshLinkedChat = await db.chats.get(link.chatId);
+        if (!freshLinkedChat) return '';
+
+        // 截取最近的 `depth` 条消息
+        const recentHistory = freshLinkedChat.history
+            .filter(msg => !msg.isHidden) // 过滤掉隐藏消息
+            .slice(-link.depth); 
+
+        if (recentHistory.length === 0) return '';
+
+        // 格式化这些消息
+        const formattedMessages = recentHistory.map(msg => `  - ${formatMessageForContext(msg, freshLinkedChat)}`).join('\n');
+
+        return `\n## 附加上下文：来自与“${linkedChat.name}”的最近对话内容 (仅你可见)\n${formattedMessages}`;
+    });
+
+    // 等待所有链接都处理完毕
+    const allContexts = await Promise.all(contextPromises);
+    // 将所有上下文拼接起来
+    linkedMemoryContext = allContexts.filter(Boolean).join('\n');
+}
+// ▲▲▲ 记忆互通核心逻辑结束 ▲▲▲
 
     // 【核心修改】
 let sharedContext = '';
@@ -21688,6 +22141,7 @@ ${musicContext}
 ${countdownContext} // <--- 把备忘录加在这里
 ${sharedContext} 
 ${stickerContext}
+${linkedMemoryContext}
 # 群成员列表及人设
 ${membersList}
 
@@ -22034,7 +22488,7 @@ ${weiboContextForActiveChat}
 
 - **世界观设定集**:
 ${worldBookContent}
-
+${linkedMemoryContext}
 - **可用表情包**:
 ${exclusiveStickerContext}
 ${commonStickerContext}
@@ -26151,13 +26605,7 @@ async function handleInitiateCall() {
         if (!proxyUrl || !apiKey || !model) {
             throw new Error('API未配置，无法发起通话。');
         }
-
-        // 提取通话前的最后20条消息作为上下文
-        videoCallState.preCallContext = chat.history
-            .slice(-20)
-            .map(msg => `${msg.role === 'user' ? (chat.settings.myNickname || '我') : (msg.senderName || chat.name)}: ${String(msg.content).substring(0, 50)}...`)
-            .join('\n');
-        
+    
         // 构建一个强大且明确的系统指令(System Prompt)
         let systemPromptForCall;
         if (chat.isGroup) {
@@ -26262,6 +26710,13 @@ ${videoCallState.preCallContext}
 function startVideoCall() {
     const chat = state.chats[videoCallState.activeChatId];
     if (!chat) return;
+// ▼▼▼ 把下面这整块代码从 handleInitiateCall 函数里【剪切】掉 ▼▼▼
+
+// 提取通话前的最后20条消息作为上下文
+videoCallState.preCallContext = chat.history
+    .slice(-20)
+    .map(msg => `${msg.role === 'user' ? (chat.settings.myNickname || '我') : (msg.senderName || chat.name)}: ${String(msg.content).substring(0, 50)}...`)
+    .join('\n');
 
     // 1. 【核心判断】检查是否启用了可视化界面
     if (chat.settings.visualVideoCallEnabled) {
@@ -43103,6 +43558,131 @@ async function showMultiCharacterSelectorForWeibo() {
         modal.classList.add('visible');
     });
 }
+// ▼▼▼ 把这一整块全新的功能函数，粘贴到 <script> 内的功能函数定义区 ▼▼▼
+
+/**
+ * 【线下模式】渲染预设下拉框
+ */
+function renderOfflinePresetsSelector() {
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.settings.offlineMode) return;
+
+    const select = document.getElementById('offline-preset-select');
+    const presets = chat.settings.offlineMode.presets || [];
+    select.innerHTML = '<option value="">-- 使用自定义输入 --</option>'; // 默认选项
+    presets.forEach((preset, index) => {
+        const option = document.createElement('option');
+        option.value = index; // 使用数组索引作为值
+        option.textContent = preset.name;
+        select.appendChild(option);
+    });
+}
+
+/**
+ * 【线下模式】当用户选择一个预设时，自动填充输入框
+ */
+function handleOfflinePresetSelection() {
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.settings.offlineMode) return;
+    
+    const select = document.getElementById('offline-preset-select');
+    const selectedIndex = select.value;
+
+    if (selectedIndex !== "") {
+        const preset = chat.settings.offlineMode.presets[parseInt(selectedIndex)];
+        if (preset) {
+            document.getElementById('offline-prompt-input').value = preset.prompt;
+            document.getElementById('offline-style-input').value = preset.style;
+        }
+    }
+}
+
+/**
+ * 【线下模式】打开预设管理的操作菜单
+ */
+async function openOfflinePresetManager() {
+    const select = document.getElementById('offline-preset-select');
+    const selectedIndex = select.value;
+
+    // 弹出一个包含多个选项的菜单
+    const choice = await showChoiceModal("管理线下模式预设", [
+        { text: '💾 保存当前为新预设', value: 'save_new' },
+        { text: '✏️ 更新选中预设', value: 'update_selected', disabled: selectedIndex === "" },
+        { text: '🗑️ 删除选中预设', value: 'delete_selected', disabled: selectedIndex === "" }
+    ]);
+    
+    // 根据用户的选择执行操作
+    switch (choice) {
+        case 'save_new':
+            await saveCurrentAsOfflinePreset();
+            break;
+        case 'update_selected':
+            if (selectedIndex !== "") await updateSelectedOfflinePreset(parseInt(selectedIndex));
+            break;
+        case 'delete_selected':
+            if (selectedIndex !== "") await deleteSelectedOfflinePreset(parseInt(selectedIndex));
+            break;
+    }
+}
+
+/**
+ * 【线下模式】将当前输入框的内容保存为一个新预设
+ */
+async function saveCurrentAsOfflinePreset() {
+    const chat = state.chats[state.activeChatId];
+    const name = await showCustomPrompt("保存新预设", "请输入预设名称：");
+    
+    if (name && name.trim()) {
+        const newPreset = {
+            name: name.trim(),
+            prompt: document.getElementById('offline-prompt-input').value.trim(),
+            style: document.getElementById('offline-style-input').value.trim()
+        };
+        chat.settings.offlineMode.presets.push(newPreset);
+        await db.chats.put(chat); // 保存回数据库
+        renderOfflinePresetsSelector(); // 刷新下拉框
+        alert(`预设 "${name.trim()}" 已保存！`);
+    }
+}
+
+/**
+ * 【线下模式】用当前输入框的内容更新选中的预设
+ */
+async function updateSelectedOfflinePreset(index) {
+    const chat = state.chats[state.activeChatId];
+    const preset = chat.settings.offlineMode.presets[index];
+    if (!preset) return;
+
+    const confirmed = await showCustomConfirm("确认更新", `确定要用当前内容覆盖预设 "${preset.name}" 吗？`);
+    if (confirmed) {
+        preset.prompt = document.getElementById('offline-prompt-input').value.trim();
+        preset.style = document.getElementById('offline-style-input').value.trim();
+        await db.chats.put(chat);
+        alert("预设已更新！");
+    }
+}
+
+/**
+ * 【线下模式】删除选中的预设
+ */
+async function deleteSelectedOfflinePreset(index) {
+    const chat = state.chats[state.activeChatId];
+    const preset = chat.settings.offlineMode.presets[index];
+    if (!preset) return;
+
+    const confirmed = await showCustomConfirm("确认删除", `确定要删除预设 "${preset.name}" 吗？`, { confirmButtonClass: 'btn-danger' });
+    if (confirmed) {
+        chat.settings.offlineMode.presets.splice(index, 1);
+        await db.chats.put(chat);
+        renderOfflinePresetsSelector(); // 刷新下拉框
+        // 删除后清空输入框
+        document.getElementById('offline-prompt-input').value = '';
+        document.getElementById('offline-style-input').value = '';
+        alert("预设已删除。");
+    }
+}
+
+// ▲▲▲ 新功能函数粘贴结束 ▲▲▲
 
 
         async function init() {
@@ -43883,22 +44463,28 @@ if (isGroup) {
     };
 }
 // ▲▲▲ 粘贴结束 ▲▲▲
-// --- ▼▼▼ 请将这段全新的代码粘贴到 init() 函数的末尾 ---
+    
+    // --- 线下模式UI渲染 ---
+    const offlineModeSettings = chat.settings.offlineMode || { enabled: false, presets: [] }; // 安全获取
+    const offlineToggle = document.getElementById('offline-mode-toggle');
+    const offlineDetails = document.getElementById('offline-mode-details');
 
-// 启用锁屏开关的事件
-document.getElementById('enable-lock-screen-toggle').addEventListener('change', (e) => {
-    localStorage.setItem('lockScreenEnabled', e.target.checked);
-    alert(e.target.checked ? '锁屏已启用，下次刷新生效' : '锁屏已禁用，下次刷新生效');
-});
+    // 1. 设置开关状态并绑定事件
+    offlineToggle.checked = offlineModeSettings.enabled;
+    offlineDetails.style.display = offlineToggle.checked ? 'block' : 'none';
+    offlineToggle.onchange = () => {
+        offlineDetails.style.display = offlineToggle.checked ? 'block' : 'none';
+    };
 
-// 显示状态栏开关的事件
-document.getElementById('show-status-bar-toggle').addEventListener('change', (e) => {
-    const isEnabled = e.target.checked;
-    localStorage.setItem('showStatusBar', isEnabled);
-    document.getElementById('status-bar').style.display = isEnabled ? 'flex' : 'none';
-});
+    // 2. 填充输入框
+    document.getElementById('offline-prompt-input').value = offlineModeSettings.prompt || '';
+    document.getElementById('offline-style-input').value = offlineModeSettings.style || '';
+    document.getElementById('offline-word-count-input').value = offlineModeSettings.wordCount || 300;
 
-// --- ▲▲▲ 粘贴结束 ▲▲▲ ---
+    // 3. 渲染预设下拉框
+    renderOfflinePresetsSelector();
+
+    // ▲▲▲ 新代码粘贴结束 ▲▲▲
 
 // ▼▼▼ 【全新】为气泡导入/导出按钮绑定事件 ▼▼▼
 document.getElementById('export-bubble-preset-btn').addEventListener('click', exportSelectedBubblePreset);
@@ -43971,6 +44557,64 @@ document.getElementById('weibo-instruction-group').style.display = isGroup ? 'no
     document.getElementById('my-persona').value = chat.settings.myPersona;
     document.getElementById('my-avatar-preview').src = chat.settings.myAvatar || (isGroup ? defaultMyGroupAvatar : defaultAvatar);
     document.getElementById('max-memory').value = chat.settings.maxMemory;
+// ▼▼▼ 【全新】记忆互通功能 - UI渲染逻辑 (V2 - 带头像版) ▼▼▼
+const memoryLinkSelectBox = document.querySelector('#memory-link-multiselect .select-box');
+const memoryLinkCheckboxesContainer = document.getElementById('memory-link-checkboxes-container');
+memoryLinkCheckboxesContainer.innerHTML = ''; // 清空旧选项
+
+// 1. 获取除了当前聊天以外的所有聊天
+const otherChats = Object.values(state.chats).filter(c => c.id !== chat.id);
+
+// 2. 动态创建带头像的复选框
+otherChats.forEach(otherChat => {
+    const existingLink = chat.settings.linkedMemories.find(link => link.chatId === otherChat.id);
+    const isChecked = existingLink ? 'checked' : '';
+    
+    // 【核心修改1】根据是群聊还是单聊，获取正确的头像URL
+    const avatarUrl = otherChat.isGroup 
+        ? (otherChat.settings.groupAvatar || defaultGroupAvatar) 
+        : (otherChat.settings.aiAvatar || defaultAvatar);
+
+    const label = document.createElement('label');
+    
+    // 【核心修改2】构建包含 <img> 标签的新HTML结构
+    label.innerHTML = `
+        <input type="checkbox" value="${otherChat.id}" ${isChecked}>
+        <img src="${avatarUrl}" class="avatar-preview">
+        <span>${otherChat.name} ${otherChat.isGroup ? '(群聊)' : ''}</span>
+    `;
+    memoryLinkCheckboxesContainer.appendChild(label);
+});
+
+
+// 3. 更新已选数量的显示和记忆条数
+function updateMemoryLinkDisplay() {
+    const checkedBoxes = memoryLinkCheckboxesContainer.querySelectorAll('input:checked');
+    const displayText = memoryLinkSelectBox.querySelector('.selected-options-text');
+    if (checkedBoxes.length === 0) {
+        displayText.textContent = '-- 点击选择 --';
+    } else {
+        displayText.textContent = `已链接 ${checkedBoxes.length} 个聊天`;
+    }
+}
+
+// 4. 加载第一个链接的记忆条数，或默认值
+const firstLink = chat.settings.linkedMemories[0];
+document.getElementById('link-memory-depth-input').value = firstLink ? firstLink.depth : 5;
+
+// 5. 绑定事件
+updateMemoryLinkDisplay(); // 初始化显示
+memoryLinkCheckboxesContainer.addEventListener('change', updateMemoryLinkDisplay);
+// 使用克隆节点技巧来防止事件重复绑定
+const newSelectBox = memoryLinkSelectBox.cloneNode(true);
+memoryLinkSelectBox.parentNode.replaceChild(newSelectBox, memoryLinkSelectBox);
+newSelectBox.addEventListener('click', (e) => {
+    e.stopPropagation();
+    memoryLinkCheckboxesContainer.classList.toggle('visible');
+    newSelectBox.classList.toggle('expanded');
+});
+// ▲▲▲ 记忆互通UI逻辑结束 ▲▲▲
+
     // ▼▼▼ 在 max-memory 赋值的下一行，粘贴这一整块代码 ▼▼▼
 const timeToggle = document.getElementById('time-perception-toggle');
 const customTimeContainer = document.getElementById('custom-time-container');
@@ -44191,6 +44835,16 @@ document.getElementById('save-chat-settings-btn').addEventListener('click', asyn
     const newName = document.getElementById('chat-name-input').value.trim();
     if (!newName) return alert('备注名/群名不能为空！');
     chat.name = newName;
+    // ▼▼▼ 【全新】记忆互通功能 - 保存逻辑 ▼▼▼
+const linkedMemoryCheckboxes = document.querySelectorAll('#memory-link-checkboxes-container input:checked');
+const memoryDepth = parseInt(document.getElementById('link-memory-depth-input').value) || 5;
+
+chat.settings.linkedMemories = Array.from(linkedMemoryCheckboxes).map(checkbox => ({
+    chatId: checkbox.value,
+    depth: memoryDepth // 对所有选中的链接应用相同的深度
+}));
+// ▲▲▲ 保存逻辑结束 ▲▲▲
+
     const selectedThemeRadio = document.querySelector('input[name="theme-select"]:checked');
     chat.settings.theme = selectedThemeRadio ? selectedThemeRadio.value : 'default';
 
@@ -44243,6 +44897,14 @@ chat.settings.userVideoImage = document.getElementById('user-video-image-preview
 chat.settings.timePerceptionEnabled = document.getElementById('time-perception-toggle').checked;
 chat.settings.customTime = document.getElementById('custom-time-input').value;
 // ▲▲▲ 添加结束 ▲▲▲
+    // --- 保存线下模式设置 ---
+    if (!chat.settings.offlineMode) chat.settings.offlineMode = {}; // 初始化
+    chat.settings.offlineMode.enabled = document.getElementById('offline-mode-toggle').checked;
+    chat.settings.offlineMode.prompt = document.getElementById('offline-prompt-input').value.trim();
+    chat.settings.offlineMode.style = document.getElementById('offline-style-input').value.trim();
+    chat.settings.offlineMode.wordCount = parseInt(document.getElementById('offline-word-count-input').value) || 300;
+    // presets 的数据在管理函数中直接操作，这里无需保存
+
     await db.chats.put(chat);
 
     applyScopedCss(chat.settings.customCss, '#chat-messages', 'custom-bubble-style');
@@ -48446,6 +49108,7 @@ document.getElementById('close-sk-evidence-modal-btn').addEventListener('click',
 document.getElementById('script-kill-action-area').addEventListener('click', async (e) => {
     const phase = scriptKillGameState.gamePhase;
 
+// ▼▼▼ 从这里开始复制，替换掉你旧的 'sk-search-evidence-btn' 的 if 代码块 ▼▼▼
 if (e.target.id === 'sk-search-evidence-btn') {
     const user = scriptKillGameState.players.find(p => p.isUser);
     const script = scriptKillGameState.script;
@@ -48453,36 +49116,73 @@ if (e.target.id === 'sk-search-evidence-btn') {
     const searchCount = scriptKillGameState.evidenceCounts[user.id] || 0;
     const phase = scriptKillGameState.gamePhase;
 
-    // 检查当前轮次的搜证次数是否已用完
+    // 检查搜证次数限制
     if ((phase === 'evidence_round_1' && searchCount >= 2) || (phase === 'evidence_round_2' && searchCount >= 3)) {
         alert("本轮搜证次数已用完！");
         return;
     }
     
-    // 消耗一次搜证机会
+    // 消耗一次搜证机会并更新UI
     scriptKillGameState.evidenceCounts[user.id] = searchCount + 1;
-    updateActionAreaSK(); // 更新按钮状态
+    updateActionAreaSK();
 
     let foundMessage = '';
 
+    // 找出所有还未被发现的线索
     const uncollectedClues = script.clues.filter(c => !scriptKillGameState.collectedClueIds.has(c.description));
 
     if (uncollectedClues.length > 0) {
+        // 随机找到一条新线索
         const foundClue = uncollectedClues[Math.floor(Math.random() * uncollectedClues.length)];
         const clueSource = foundClue.owner === '公共' ? '公共区域' : `角色 ${foundClue.owner} 的私人物品`;
         
+        // 无论如何，线索都会先加入玩家手牌，并标记为已发现
         user.evidence.push({ description: foundClue.description, source: clueSource });
         scriptKillGameState.collectedClueIds.add(foundClue.description);
-        
-        foundMessage = `在【${clueSource}】发现线索：“${foundClue.description}”`;
-    } else {
-        foundMessage = "没有发现更多新线索了。";
-    }
 
-    // 记录日志并弹窗提示
-    logToScriptKillGame(`${user.name} 完成了一次搜证: ${foundMessage}`);
-    await showCustomAlert("搜证结果", foundMessage);
+        // --- ★★★ 核心修改逻辑开始 ★★★ ---
+
+        // 判断这条线索是不是关于玩家自己的
+        if (foundClue.owner === user.role.name) {
+            // 如果是，弹出一个选择框让玩家决定
+            const choice = await showChoiceModal(
+                '发现个人线索',
+                [
+                    { text: '公开这条线索', value: 'public' },
+                    { text: '隐藏这条线索', value: 'private' }
+                ]
+            );
+
+            if (choice === 'public') {
+                // 玩家选择【公开】
+                foundMessage = `在【${clueSource}】发现并公开了线索：“${foundClue.description}”`;
+                logToScriptKillGame(`${user.name} 完成了一次搜证: ${foundMessage}`);
+                await showCustomAlert("搜证结果", foundMessage);
+            } else {
+                // 玩家选择【隐藏】或关闭了弹窗
+                foundMessage = `你在【${clueSource}】发现了一条关于自己的线索，并选择将其隐藏。`;
+                // 只给玩家自己一个弹窗提示，告诉他已经拿到了线索
+                await showCustomAlert("搜证结果", `你已将线索“${foundClue.description}”收入囊中。`);
+                // 在公共日志里只显示一个模糊的信息，告诉大家你搜过证了
+                logToScriptKillGame(`${user.name} 完成了一次搜证。`);
+            }
+        } else {
+            // 如果线索是公共的，或者关于其他人的，就按原来的逻辑直接公开
+            foundMessage = `在【${clueSource}】发现线索：“${foundClue.description}”`;
+            logToScriptKillGame(`${user.name} 完成了一次搜证: ${foundMessage}`);
+            await showCustomAlert("搜证结果", foundMessage);
+        }
+        
+        // --- ★★★ 核心修改逻辑结束 ★★★ ---
+
+    } else {
+        // 如果已经没有新线索了
+        foundMessage = "没有发现更多新线索了。";
+        logToScriptKillGame(`${user.name} 完成了一次搜证: ${foundMessage}`);
+        await showCustomAlert("搜证结果", foundMessage);
+    }
 }
+// ▲▲▲ 复制到这里结束 ▲▲▲
 
 
     // --- 2. 处理“结束搜证”按钮 ---
@@ -48799,6 +49499,15 @@ document.getElementById('ls-close-diary-viewer-btn').addEventListener('click', (
 /* --- 情绪日记事件监听结束 --- */
 
 // ▲▲▲ 新增代码粘贴结束 ▲▲▲
+// 在 init() 函数的事件监听器区域末尾...
+
+// ▼▼▼ 在这里粘贴下面这几行新代码 ▼▼▼
+
+// 绑定线下模式预设的下拉框和管理按钮
+document.getElementById('offline-preset-select').addEventListener('change', handleOfflinePresetSelection);
+document.getElementById('manage-offline-presets-btn').addEventListener('click', openOfflinePresetManager);
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 
 // ===================================================================
 // 5. 启动！
