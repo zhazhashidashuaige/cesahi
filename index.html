@@ -4035,14 +4035,27 @@ body {
 .delete-track-btn:hover { color: #c00; }
 .lyrics-btn { font-weight: 500; }
 
-/* --- 【核心修正】确保头像尺寸 --- */
+/* ▼▼▼ 【最终头像放大版】请用这块代码替换所有相关的头像尺寸规则 ▼▼▼ */
+
+/* 1. 普通头像样式（无框） */
 .message-bubble .avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 20%;
+    width: 34px;  /* ★ 修改点：将尺寸从 34px 放大到 42px */
+    height: 34px; /* ★ 修改点：高度也同步放大 */
+    border-radius: 12px; /* 推荐：使用一个固定的圆角值，让头像更圆润可爱 */
     object-fit: cover;
-    flex-shrink: 0; /* 防止被压缩 */
+    flex-shrink: 0; 
 }
+
+/* 2. 带框头像的容器样式 */
+.avatar-with-frame {
+    position: relative;
+    width: 34px;  /* ★ 修改点：尺寸与普通头像保持一致 */
+    height: 34px; /* ★ 修改点：高度也同步放大 */
+    flex-shrink: 0;
+}
+
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
 
 /* ▼▼▼ 【全新】撤回消息样式 ▼▼▼ */
 
@@ -4314,12 +4327,7 @@ body {
 }
 
 /* ▼▼▼ 把这些CSS加回去 ▼▼▼ */
-.avatar-with-frame {
-    position: relative;
-    width: 34px; /* 和普通头像一样大 */
-    height: 34px;
-    flex-shrink: 0;
-}
+
 .avatar-with-frame .avatar-img {
     position: absolute;
     top: 0;
@@ -4330,27 +4338,28 @@ body {
     object-fit: cover;
     z-index: 1;
 }
-/* ▼▼▼ 【最终微调版】请用这整块代码，替换掉旧的聊天和心声头像框规则 ▼▼▼ */
+/* ▼▼▼ 【最终修复版】请用这整块代码，替换掉旧的聊天和心声头像框规则 ▼▼▼ */
 
 .avatar-with-frame .avatar-frame,
 #inner-voice-avatar-frame {
     position: absolute;
-    /* 核心修改1：将尺寸从 135% 缩小到 120%，让它更贴合 */
-    width: 120%; 
-    height: 120%;
+    /* 核心修改1：将宽高统一设置为125%，确保能完全包裹34px的头像，并留出漂亮的边距 */
+    width: 125%; 
+    height: 125%;
 
-    /* 核心修改2：精确定位，让它整体向上移动 */
-    /* 我们将 Y 轴的偏移从 -50% 改为 -57%，数值越小，向上移动得越多 */
-    transform: translate(-50%, -57%); 
+    /* 核心修改2：使用标准的-50%来精确定位，确保头像框完美居中 */
+    transform: translate(-50%, -50%); 
     
-    /* 其他属性保持不变，以确保居中 */
+    /* 核心修改3：将定位基点也改为标准的50%，与transform配合使用 */
     top: 50%;
     left: 50%;
+
     z-index: 2;
     pointer-events: none;
 }
 
 /* ▲▲▲ 替换结束 ▲▲▲ */
+
 /* ▲▲▲ 添加结束 ▲▲▲ */
 
 /* ▼▼▼ 【最终美化版】聊天列表左滑置顶功能样式 (已修复Bug) ▼▼▼ */
@@ -11806,9 +11815,9 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 .avatar-with-frame .avatar-frame,
 #inner-voice-avatar-frame {
     position: absolute;
-    width: 105%;  /*  <-- 缩小：我把宽度从 120% 缩小到了 115% */
-    height: 110%; /*  <-- 缩小：高度也同步缩小 */
-    transform: translate(-50%, -56%); /*  <-- 位置微调：将上下位置从 -57% 改为 -56%，让它在缩小后依然居中 */
+    width: 105%;
+    height: 110%;
+    transform: translate(-50%, -56%);
     top: 50%;
     left: 50%;
     z-index: 2;
