@@ -11882,9 +11882,119 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     z-index: 2;
     pointer-events: none;
 }
+/* ▼▼▼ 【全新】这是微博私信功能的所有新样式，请粘贴到 <style> 的末尾 ▼▼▼ */
 
+/* --- 私信列表页面 --- */
+#weibo-dm-list .dm-list-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+}
+#weibo-dm-list .dm-list-item:hover {
+    background-color: #f5f5f5;
+}
+#phone-screen.dark-mode #weibo-dm-list .dm-list-item:hover {
+    background-color: #2c2c2e;
+}
+#weibo-dm-list .dm-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+}
+#weibo-dm-list .dm-info {
+    flex-grow: 1;
+    overflow: hidden;
+}
+#weibo-dm-list .dm-name {
+    font-weight: 500;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+#weibo-dm-list .dm-last-msg {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
+/* --- 私信详情页面 --- */
+#weibo-dm-messages {
+    background-color: #f0f2f5 !important;
+}
+#phone-screen.dark-mode #weibo-dm-messages {
+    background-color: #000000 !important;
+}
 
+/* 复用主聊天界面的气泡样式，但为粉丝和角色定义特定对齐方式 */
+#weibo-dm-messages .message-wrapper.fan {
+    align-self: flex-start;
+}
+#weibo-dm-messages .message-wrapper.fan .message-bubble {
+    flex-direction: row;
+}
+#weibo-dm-messages .message-wrapper.fan .content {
+    background-color: #ffffff;
+    border-radius: 2px 18px 18px 18px;
+}
+
+#weibo-dm-messages .message-wrapper.char {
+    align-self: flex-end;
+}
+#weibo-dm-messages .message-wrapper.char .message-bubble {
+    flex-direction: row-reverse;
+}
+#weibo-dm-messages .message-wrapper.char .content {
+    background-color: #ff8200; /* 微博橙色 */
+    color: white;
+    border-radius: 18px 2px 18px 18px;
+}
+
+#phone-screen.dark-mode #weibo-dm-messages .message-wrapper.fan .content {
+    background-color: #2c2c2e;
+}
+#phone-screen.dark-mode #weibo-dm-messages .message-wrapper.char .content {
+    background-color: #e67300;
+}
+
+/* ★★★ 这是你需要的【删除按钮】的样式 ★★★ */
+.dm-message-delete-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #555;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 22px;
+    text-align: center;
+    opacity: 0; /* 默认隐藏 */
+    transition: all 0.2s ease;
+}
+/* 鼠标悬停在消息上时显示按钮 */
+#weibo-dm-messages .message-wrapper:hover .dm-message-delete-btn {
+    opacity: 1;
+}
+.dm-message-delete-btn:hover {
+    background-color: #ff3b30;
+    color: white;
+}
+/* 调整按钮位置，让它出现在气泡旁边 */
+#weibo-dm-messages .message-wrapper.fan .dm-message-delete-btn {
+    right: -28px; /* 修改：从 left 改为 right，把它放到右边 */
+    left: auto;   /* 新增：取消左侧定位，确保 right 生效 */
+}
+#weibo-dm-messages .message-wrapper.char .dm-message-delete-btn {
+    right: -28px;
+}
 
 
 
@@ -15963,6 +16073,46 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 在这里找到你的微博私信列表页面 ▼▼▼ -->
+<div id="weibo-dm-list-screen" class="screen">
+    <div class="header">
+        <span class="back-btn" id="back-from-dm-list">‹</span>
+        <span id="weibo-dm-list-title">粉丝私信</span>
+        <!-- 这是你要求的“继续生成”按钮 -->
+        <div class="header-actions">
+            <span class="action-btn" id="generate-more-dms-btn" title="继续生成私信">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+            </span>
+            
+            <!-- ▼▼▼ 在这里粘贴下面这个全新的“清空全部”按钮 ▼▼▼ -->
+            <span class="action-btn" id="clear-all-dms-btn" title="清空全部私信">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                </svg>
+            </span>
+            <!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
+            
+        </div>
+    </div>
+    <div id="weibo-dm-list" class="list-container" style="padding: 0;">
+        <!-- 私信列表将由JS动态生成 -->
+    </div>
+</div>
+
+
+<!-- ▼▼▼ 【全新】这是微博私信详情页面，请粘贴到 #phone-screen 的末尾 ▼▼▼ -->
+<div id="weibo-dm-detail-screen" class="screen">
+    <div class="header">
+        <span class="back-btn" id="back-from-dm-detail">‹</span>
+        <span id="weibo-dm-detail-title"></span>
+        <span style="width: 30px;"></span> <!-- 占位符 -->
+    </div>
+    <div id="weibo-dm-messages" class="list-container" style="display: flex; flex-direction: column; gap: 15px; padding: 15px; background-color: #f0f2f5;">
+        <!-- 聊天气泡将由JS动态生成 -->
+    </div>
+</div>
+
+
 <!-- ▼▼▼ 【增强版】宠物功能模态框 ▼▼▼ -->
 <div id="pet-modal" class="modal">
     <div class="modal-content" style="height: auto; max-height: 85%;">
@@ -17054,7 +17204,7 @@ const BLOCKED_API_SITES = [
         // --- 已修正 ---
         let state = { chats: {}, activeChatId: null, globalSettings: {}, apiConfig: {}, userStickers: [], worldBooks: [], personaPresets: [], qzoneSettings: {}, activeAlbumId: null };
         // --- 修正结束 ---
-
+let currentViewingDmsFor = null; // 用于追踪正在查看哪个角色的私信
         let isLocked = false; // <-- 在这里添加这行新代码
         let newLockscreenWallpaperBase64 = null; // <-- 在这里添加这行新代码
 let newGlobalBgBase64 = null; // 用于暂存新的全局聊天背景
@@ -22793,10 +22943,13 @@ const charLatestPosts = await db.weiboPosts
 let userCommentsOnMyPosts = '';
 const myNickname = state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我';
 
-// ✅ 这是修复后的新代码
 charLatestPosts.forEach(post => {
-    if (post.comments && post.comments.length > 0) {
-        // 筛选出是“我”发的评论
+    // ▼▼▼ 核心修改在这里 ▼▼▼
+    // 我们增加了 Array.isArray(post.comments) 这个判断条件
+    if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) { 
+    // ▲▲▲ 修改结束 ▲▲▲
+        
+        // 筛选出是“我”发的评论 (现在这行代码是安全的了)
         const userComments = post.comments.filter(c => c.authorNickname === myNickname).slice(-3);
         if (userComments.length > 0) {
             const postContentPreview = (post.content || '(图片微博)').substring(0, 20);
@@ -37853,32 +38006,6 @@ async function handleSaveUserDiary() {
     
     // 关闭弹窗
     document.getElementById('ls-diary-editor-modal').classList.remove('visible');
-
-    // **核心：创建隐藏指令，通知AI**
-    const hiddenMessage = {
-        role: 'system',
-        content: `[系统指令：用户刚刚在情侣空间写了今天的日记。
-        - 他们的心情是: ${userEmoji}
-        - 日记内容是: "${userDiary}"
-        你的任务:
-        1.  【必须】根据你的人设和今天的聊天记录，也写一篇你自己的心情日记，并使用 'ls_diary_entry' 指令发送。
-        2.  【必须】在写完日记后，立刻就用户今天的日记内容，以你的角色口吻，主动开启一段新的对话。]`,
-        timestamp: Date.now(),
-        isHidden: true
-    };
-    chat.history.push(hiddenMessage);
-
-    // 保存所有更改到数据库
-    await db.chats.put(chat);
-    
-    // 触发AI响应
-    triggerAiResponse();
-
-    // 刷新日记界面
-    const now = new Date();
-    renderLSDiaryView(now.getFullYear(), now.getMonth() + 1);
-// ▼▼▼ 在 alert('日记已保存！'); 的正上方，粘贴下面这整块新代码 ▼▼▼
-
     // --- 【核心联动功能开始】 ---
 
     // 1. 准备一条对用户可见的消息，告诉对方你写了日记
@@ -43877,6 +44004,306 @@ async function deleteSelectedOfflinePreset(index) {
 }
 
 // ▲▲▲ 新功能函数粘贴结束 ▲▲▲
+// ▼▼▼ 【全新】微博私信功能核心函数 ▼▼▼
+
+// ▼▼▼ 【全新】微博私信功能核心函数 ▼▼▼
+
+/**
+ * 【总入口】当用户点击关注列表时，打开私信界面
+ * @param {object} targetInfo - 包含被点击角色/NPC信息的对象
+ */
+async function openWeiboDms(targetInfo) {
+    currentViewingDmsFor = targetInfo;
+    const charId = targetInfo.isNpc ? targetInfo.ownerId : targetInfo.id;
+    const chat = state.chats[charId];
+    if (!chat) return;
+
+    // 检查并生成粉丝私信数据
+    const dmsData = await generateAndCacheFanDms(chat);
+    
+    // 渲染私信列表
+    renderDmList(dmsData, targetInfo.name);
+
+    // 显示私信列表屏幕
+    showScreen('weibo-dm-list-screen');
+}
+
+/**
+ * 【AI核心】检查或生成角色的粉丝私信数据
+ * @param {object} characterChat - 角色/NPC的 "主人" 的聊天对象
+ * @returns {Promise<Array>} - 粉丝私信对话数组
+ */
+async function generateAndCacheFanDms(characterChat, addMore = false) {
+    // 如果不是“继续生成”，且缓存已存在，则直接返回
+    if (!addMore && characterChat.weiboDms && characterChat.weiboDms.length > 0) {
+        console.log(`从缓存加载 "${characterChat.name}" 的粉丝私信。`);
+        return characterChat.weiboDms;
+    }
+
+    const alertMessage = addMore ? "正在生成更多私信内容..." : `正在为“${characterChat.name}”生成粉丝私信内容...`;
+    await showCustomAlert("请稍候...", alertMessage);
+    
+    const { proxyUrl, apiKey, model } = state.apiConfig;
+    if (!proxyUrl || !apiKey || !model) {
+        alert('请先配置API！');
+        return [];
+    }
+
+    const truncatedMainPersona = (characterChat.settings.aiPersona || '一个普通的角色').substring(0, 500);
+    const truncatedWeiboInstruction = (characterChat.settings.weiboInstruction || '无特殊指令').substring(0, 400);
+    
+    // 如果是继续生成，把现有对话作为上下文
+    const existingDmsContext = addMore ? `
+# 已有私信记录 (供你参考，你可以选择延续对话或开启新对话):
+${JSON.stringify(characterChat.weiboDms, null, 2)}
+` : '';
+
+    const systemPrompt = `
+# 任务
+你现在是角色“${characterChat.name}”的社交媒体运营助理。
+你的任务是根据该角色的【所有信息】，虚构一个包含${addMore ? '2-3' : '3-5'}位不同粉丝的私信列表，并为每位粉丝创作一段简短的对话历史。
+${existingDmsContext}
+
+# 角色信息 (你必须综合参考以下所有信息)
+- 角色名: ${characterChat.name}
+- 公开职业: ${characterChat.settings.weiboProfession || '未设定'}
+- 核心人设 (最高优先级): ${truncatedMainPersona}
+- 微博互动准则 (处理私信时需遵守): ${truncatedWeiboInstruction}
+
+# 核心规则
+1.  **粉丝多样性**: 创作${addMore ? '2-3' : '3-5'}位不同类型的粉丝（例如：狂热粉、事业粉、CP粉、黑粉、路人粉、广告商等）。
+2.  **对话真实性**: 每段对话包含2-4条消息，内容必须与角色的【公开职业】和【核心人设】强相关。
+3.  **角色回应**: 根据角色的【微博互动准则】和【核心人设】，决定角色是否会回复私信以及如何回复。
+4.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，直接以 '[' 开头，以 ']' 结尾。
+
+# JSON对象结构
+{
+  "fanName": "粉丝的微博昵称",
+  "fanPersona": "对这位粉丝的简单描述 (例如: '一个担心哥哥事业的妈妈粉')",
+  "fanAvatarUrl": "一个符合粉丝身份的头像图片URL (必须是有效的网络图片链接)",
+  "messages": [
+    { "sender": "fan", "text": "粉丝发的第一条消息..." },
+    { "sender": "char", "text": "角色回复的消息..." }
+  ]
+}
+
+# 头像URL示例 (你可以使用这些或类似的)
+- https://i.postimg.cc/FsT3bWp1/avatar-fan-1.jpg
+- https://i.postimg.cc/8zG250z6/avatar-fan-2.jpg
+- https://i.postimg.cc/Y9xL6r86/avatar-fan-3.jpg
+- https://i.postimg.cc/T3q0T9p1/avatar-fan-4.jpg
+
+现在，请开始生成私信列表。`;
+
+    try {
+        const messagesForApi = [{ role: 'user', content: systemPrompt }];
+        let isGemini = proxyUrl === GEMINI_API_URL;
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        
+        const response = isGemini 
+            ? await fetch(geminiConfig.url, geminiConfig.data) 
+            : await fetch(`${proxyUrl}/v1/chat/completions`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+                body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 1.0, response_format: { type: "json_object" } })
+            });
+        
+        if (!response.ok) {
+            throw new Error(`API请求失败: ${response.status} - ${await response.text()}`);
+        }
+        
+        const data = await response.json();
+        const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content);
+        const cleanedContent = rawContent.replace(/^```json\s*|```$/g, '').trim();
+        const newDmsData = JSON.parse(cleanedContent);
+
+        if (Array.isArray(newDmsData)) {
+            if (addMore) {
+                // 合并新旧数据
+                characterChat.weiboDms.push(...newDmsData);
+            } else {
+                characterChat.weiboDms = newDmsData;
+            }
+            await db.chats.put(characterChat);
+            return characterChat.weiboDms;
+        }
+        throw new Error("AI返回的数据不是一个有效的数组。");
+    } catch (error) {
+        console.error("生成粉丝私信失败:", error);
+        await showCustomAlert('生成失败', `抱歉，生成私信时发生了一个错误。\n\n详细信息:\n${error.message}`);
+        return characterChat.weiboDms || []; // 失败时返回旧数据或空数组
+    }
+}
+
+/**
+ * 渲染粉丝私信列表
+ * @param {Array} dmsData - 私信对话数组
+ * @param {string} charName - 角色名
+ */
+function renderDmList(dmsData, charName) {
+    const listEl = document.getElementById('weibo-dm-list');
+    const titleEl = document.getElementById('weibo-dm-list-title');
+    listEl.innerHTML = '';
+    titleEl.textContent = `${charName}的私信`;
+
+    if (!dmsData || dmsData.length === 0) {
+        listEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary); padding: 50px 0;">还没有收到任何私信哦</p>';
+        return;
+    }
+
+    dmsData.forEach((convo, index) => {
+        const lastMsg = convo.messages[convo.messages.length - 1];
+        const item = document.createElement('div');
+        item.className = 'dm-list-item';
+        item.dataset.fanIndex = index; // 用索引来标识
+        item.innerHTML = `
+            <img src="${convo.fanAvatarUrl}" class="dm-avatar">
+            <div class="dm-info">
+                <div class="dm-name">${convo.fanName}</div>
+                <div class="dm-last-msg">${lastMsg.text}</div>
+            </div>
+        `;
+        listEl.appendChild(item);
+    });
+}
+
+/**
+ * 打开私信详情页
+ * @param {number} fanIndex - 粉丝在私信数组中的索引
+ */
+function openDmDetail(fanIndex) {
+    const charId = currentViewingDmsFor.isNpc ? currentViewingDmsFor.ownerId : currentViewingDmsFor.id;
+    const chat = state.chats[charId];
+    const conversation = chat.weiboDms[fanIndex];
+    
+    if (conversation) {
+        renderDmDetail(conversation, chat);
+        showScreen('weibo-dm-detail-screen');
+    }
+}
+
+/**
+ * 渲染私信详情页的聊天气泡
+ * @param {object} conversation - 单个粉丝的对话对象
+ * @param {object} characterChat - 角色的聊天对象
+ */
+function renderDmDetail(conversation, characterChat) {
+    const messagesEl = document.getElementById('weibo-dm-messages');
+    const titleEl = document.getElementById('weibo-dm-detail-title');
+    messagesEl.innerHTML = '';
+    titleEl.textContent = conversation.fanName;
+    
+    const charAvatar = characterChat.settings.aiAvatar || defaultAvatar;
+
+    conversation.messages.forEach((msg, index) => {
+        const isFan = msg.sender === 'fan';
+        const wrapper = document.createElement('div');
+        wrapper.className = `message-wrapper ${isFan ? 'fan' : 'char'}`;
+
+        const bubble = document.createElement('div');
+        bubble.className = `message-bubble`;
+
+        const avatarHtml = `<img src="${isFan ? conversation.fanAvatarUrl : charAvatar}" class="avatar">`;
+        const contentHtml = `<div class="content">${msg.text.replace(/\n/g, '<br>')}</div>`;
+        
+        // ★★★ 只有粉丝的消息才添加删除按钮 ★★★
+        const deleteBtnHtml = isFan 
+            ? `<button class="dm-message-delete-btn" data-message-index="${index}">×</button>` 
+            : '';
+
+        bubble.innerHTML = `${avatarHtml}${contentHtml}`;
+        // 将删除按钮添加到wrapper，而不是bubble内部，以方便定位
+        wrapper.innerHTML = deleteBtnHtml; 
+        wrapper.appendChild(bubble);
+
+        messagesEl.appendChild(wrapper);
+    });
+    
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+/**
+ * 【全新】清空当前角色的所有粉丝私信
+ */
+async function handleClearAllDms() {
+    if (!currentViewingDmsFor) return;
+
+    const charId = currentViewingDmsFor.isNpc ? currentViewingDmsFor.ownerId : currentViewingDmsFor.id;
+    const chat = state.chats[charId];
+    if (!chat || !chat.weiboDms || chat.weiboDms.length === 0) {
+        alert("没有可以清空的私信。");
+        return;
+    }
+
+    const confirmed = await showCustomConfirm(
+        '确认清空',
+        `确定要清空“${currentViewingDmsFor.name}”收到的所有粉丝私信吗？此操作不可恢复。`,
+        { confirmButtonClass: 'btn-danger' }
+    );
+
+    if (confirmed) {
+        chat.weiboDms = []; // 清空数组
+        await db.chats.put(chat); // 保存到数据库
+        renderDmList(chat.weiboDms, currentViewingDmsFor.name); // 重新渲染列表
+        alert('所有私信已清空。');
+    }
+}
+
+/**
+ * ★★★ 处理删除单条私信的逻辑 ★★★
+ * @param {number} fanIndex - 粉丝对话的索引
+ * @param {number} messageIndex - 要删除的消息的索引
+ */
+async function handleDeleteWeiboDm(fanIndex, messageIndex) {
+    const charId = currentViewingDmsFor.isNpc ? currentViewingDmsFor.ownerId : currentViewingDmsFor.id;
+    const chat = state.chats[charId];
+    if (!chat || !chat.weiboDms[fanIndex]) return;
+
+    const conversation = chat.weiboDms[fanIndex];
+    const messageText = conversation.messages[messageIndex].text.substring(0, 30);
+    
+    const confirmed = await showCustomConfirm(
+        '删除私信',
+        `确定要删除这条私信吗？\n\n“${messageText}...”`,
+        { confirmButtonClass: 'btn-danger' }
+    );
+
+    if (confirmed) {
+        // 从消息数组中移除
+        conversation.messages.splice(messageIndex, 1);
+        
+        // 如果一个对话的所有消息都被删除了，可以选择是否删除整个对话
+        if (conversation.messages.length === 0) {
+            chat.weiboDms.splice(fanIndex, 1);
+            await db.chats.put(chat);
+            // 返回私信列表
+            renderDmList(chat.weiboDms, currentViewingDmsFor.name);
+            showScreen('weibo-dm-list-screen');
+        } else {
+            await db.chats.put(chat);
+            // 重新渲染当前对话
+            renderDmDetail(conversation, chat);
+        }
+        alert('私信已删除。');
+    }
+}
+
+/**
+ * ★★★ 处理点击“继续生成”按钮的逻辑 ★★★
+ */
+async function handleGenerateMoreDms() {
+    const charId = currentViewingDmsFor.isNpc ? currentViewingDmsFor.ownerId : currentViewingDmsFor.id;
+    const chat = state.chats[charId];
+    if (!chat) return;
+
+    // 调用核心AI函数，并传入 addMore=true 参数
+    const newDmsData = await generateAndCacheFanDms(chat, true);
+    
+    // 渲染更新后的私信列表
+    renderDmList(newDmsData, currentViewingDmsFor.name);
+}
+
+// ▲▲▲ 核心功能函数粘贴结束 ▲▲▲
+
 
 
         async function init() {
@@ -44098,11 +44525,14 @@ document.getElementById('create-weibo-post-btn').addEventListener('click', openW
 
 // ▼▼▼ 在 init() 函数的事件监听器区域末尾，粘贴下面这行新代码 ▼▼▼
 document.getElementById('delete-expired-songs-btn').addEventListener('click', deleteExpiredSearchedSongs);
-// ▼▼▼ 用这块【新版】代码替换旧的 weibo-following-list-container 事件监听器 ▼▼▼
+// ▼▼▼ 【修改】用这块【功能增强版】的代码，完整替换掉你旧的 weibo-following-list-container 事件监听器 ▼▼▼
 document.getElementById('weibo-following-list-container').addEventListener('click', (e) => {
+    const item = e.target.closest('.weibo-following-item');
+    if (!item) return;
+
+    // 1. 检查点击的是否是“操作”按钮
     const triggerBtn = e.target.closest('.weibo-action-trigger-btn');
     if (triggerBtn) {
-        // 从按钮的 data-* 属性中获取被操作角色的信息
         const targetInfo = {
             id: triggerBtn.dataset.targetId,
             name: triggerBtn.dataset.targetName,
@@ -44110,8 +44540,28 @@ document.getElementById('weibo-following-list-container').addEventListener('clic
             ownerId: triggerBtn.dataset.ownerId || null
         };
         openWeiboActionModal(targetInfo);
+    } 
+    // 2. 如果点击的不是操作按钮，就视为点击了整行，触发“查看私信”
+    else {
+        // 先隐藏当前的关注列表弹窗
+        document.getElementById('weibo-following-modal').classList.remove('visible');
+        
+        // 从整行item上获取角色信息
+        const actionBtn = item.querySelector('.weibo-action-trigger-btn'); // 找到这一行的按钮以获取数据
+        if (actionBtn) {
+            const targetInfo = {
+                id: actionBtn.dataset.targetId,
+                name: actionBtn.dataset.targetName,
+                isNpc: actionBtn.dataset.isNpc === 'true',
+                ownerId: actionBtn.dataset.ownerId || null
+            };
+            // ★★★ 核心修改：调用我们新写的总入口函数 ★★★
+            openWeiboDms(targetInfo);
+        }
     }
 });
+// ▲▲▲ 替换结束 ▲▲▲
+
 // ▲▲▲ 替换结束 ▲▲▲
 document.getElementById('cancel-weibo-action-btn').addEventListener('click', () => {
     document.getElementById('weibo-action-modal').classList.remove('visible');
@@ -44262,54 +44712,46 @@ document.getElementById('char-heart-btn').style.display = 'none';
                     const newChatId = 'chat_' + Date.now(); 
                     
                     // ▼▼▼ 从这里开始替换 ▼▼▼
-                    const newChat = { 
-                        id: newChatId, 
-                        name: name.trim(), 
-                        isGroup: false,
-                        isPinned: false,
-                        // 新增：为角色对象添加 npcLibrary 数组，用于存放专属NPC
-                        npcLibrary: [], 
-                        relationship: {
-                            status: 'friend',
-                            blockedTimestamp: null,
-                            applicationReason: ''
-                        },
-                        status: {
-                            text: '在线',
-                            lastUpdate: Date.now(),
-                            isBusy: false 
-                        },
-                        settings: { 
-                            aiPersona: '你是谁呀。', 
-                            myPersona: '我是谁呀。', 
-                            maxMemory: 10, 
-                            aiAvatar: defaultAvatar, 
-                            myAvatar: defaultAvatar, 
-                            background: '', 
-                            theme: 'default', 
-                            fontSize: 13, 
-                            customCss: '',
-                            linkedWorldBookIds: [], 
-                            isCoupleAvatar: false,
-coupleAvatarDescription: '',
-// ▲▲▲ 添加结束 ▲▲▲
-                            aiAvatarLibrary: [],
-                        }, 
-                        history: [], 
-                        musicData: { totalTime: 0 },
-                        characterPhoneData: {
-                            lastGenerated: null,
-                            chats: {},
-                            shoppingCart: [],
-                            memos: [],
-                            browserHistory: [],
-                            photoAlbum: [],
-                            bank: { balance: 0, transactions: [] },
-                            trajectory: [],
-                            appUsage: [],
-                            diary: []
-                        }
-                    };
+                const newChat = {
+                    id: newChatId,
+                    name: name.trim(),
+                    isGroup: false,
+                    isPinned: false,
+                    npcLibrary: [], // 角色专属NPC库
+                    relationship: { status: 'friend', blockedTimestamp: null, applicationReason: '' },
+                    status: { text: '在线', lastUpdate: Date.now(), isBusy: false },
+                    settings: {
+                        aiPersona: '你是谁呀。',
+                        myPersona: '我是谁呀。',
+                        maxMemory: 10,
+                        aiAvatar: defaultAvatar,
+                        myAvatar: defaultAvatar,
+                        background: '',
+                        theme: 'default',
+                        fontSize: 13,
+                        customCss: '',
+                        linkedWorldBookIds: [],
+                        aiAvatarLibrary: [],
+                        stickerLibrary: [], // 专属表情库
+                        // === 以下是本次修复新增的初始化属性 ===
+                        linkedMemories: [], // 【修复核心】初始化记忆互通数组
+                        offlineMode: { enabled: false, prompt: '', style: '', wordCount: 300, presets: [] }, // 初始化线下模式
+                        timePerceptionEnabled: true, // 初始化时间感知
+                        customTime: '', // 初始化自定义时间
+                        isCoupleAvatar: false, // 初始化情侣头像开关
+                        coupleAvatarDescription: '', // 初始化情侣头像描述
+                        weiboProfession: '', // 初始化微博职业
+                        weiboInstruction: '' // 初始化微博指令
+                    },
+                    history: [],
+                    musicData: { totalTime: 0 },
+                    // 手机数据也保持完整
+                    characterPhoneData: {
+                        lastGenerated: null, chats: {}, shoppingCart: [], memos: [],
+                        browserHistory: [], photoAlbum: [], bank: { balance: 0, transactions: [] },
+                        trajectory: [], appUsage: [], diary: []
+                    }
+                };
 // ▲▲▲ 替换到这里结束 ▲▲▲
 
 
@@ -49702,7 +50144,49 @@ document.getElementById('offline-preset-select').addEventListener('change', hand
 document.getElementById('manage-offline-presets-btn').addEventListener('click', openOfflinePresetManager);
 
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
+// ▼▼▼ 【已修复】用这段新代码替换旧的 ▼▼▼
+document.getElementById('back-from-dm-list').addEventListener('click', () => {
+    // 从私信列表返回时，直接显示微博主屏幕
+    showScreen('weibo-screen');
+    // 并且确保默认显示的是“我的微博”那个页签
+    switchToWeiboView('weibo-my-profile-view');
+});
+// ▲▲▲ 替换结束 ▲▲▲
 
+
+document.getElementById('back-from-dm-detail').addEventListener('click', () => {
+    // 从私信详情返回私信列表
+    showScreen('weibo-dm-list-screen');
+});
+
+// 绑定“继续生成”按钮
+document.getElementById('generate-more-dms-btn').addEventListener('click', handleGenerateMoreDms);
+
+// 使用事件委托处理私信列表的点击
+document.getElementById('weibo-dm-list').addEventListener('click', (e) => {
+    const item = e.target.closest('.dm-list-item');
+    if (item && item.dataset.fanIndex) {
+        openDmDetail(parseInt(item.dataset.fanIndex));
+    }
+});
+
+// 使用事件委托处理私信详情页的删除按钮点击
+document.getElementById('weibo-dm-messages').addEventListener('click', (e) => {
+    const deleteBtn = e.target.closest('.dm-message-delete-btn');
+    if (deleteBtn) {
+        const fanIndex = parseInt(document.querySelector('.dm-list-item.active')?.dataset.fanIndex ?? document.getElementById('weibo-dm-detail-screen').dataset.currentFanIndex);
+        const messageIndex = parseInt(deleteBtn.dataset.messageIndex);
+        
+        const conversation = state.chats[currentViewingDmsFor.isNpc ? currentViewingDmsFor.ownerId : currentViewingDmsFor.id].weiboDms.find(convo => convo.fanName === document.getElementById('weibo-dm-detail-title').textContent);
+        const fanIdx = state.chats[currentViewingDmsFor.isNpc ? currentViewingDmsFor.ownerId : currentViewingDmsFor.id].weiboDms.indexOf(conversation);
+
+        if (!isNaN(fanIdx) && !isNaN(messageIndex)) {
+            handleDeleteWeiboDm(fanIdx, messageIndex);
+        }
+    }
+});
+// ▲▲▲ 新事件监听器粘贴结束 ▲▲▲
+document.getElementById('clear-all-dms-btn').addEventListener('click', handleClearAllDms);
 // ===================================================================
 // 5. 启动！
 
