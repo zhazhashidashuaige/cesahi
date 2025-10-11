@@ -4203,7 +4203,7 @@ body {
 /* 4. 存放书籍条目的容器 */
 .wb-book-container {
     padding-left: 20px; /* 核心：让书籍条目向内缩进，看起来像在文件夹里 */
-    max-height: 1000px; /* 一个足够大的值，用于动画 */
+    max-height: 100000px; /* 一个足够大的值，用于动画 */
     overflow: hidden;
     transition: max-height 0.3s ease-in-out;
 }
@@ -11995,8 +11995,74 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 #weibo-dm-messages .message-wrapper.char .dm-message-delete-btn {
     right: -28px;
 }
+/* ▼▼▼ 【全新】聊天总结功能样式 ▼▼▼ */
 
+/* 总结管理弹窗内的列表 */
+#summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
 
+/* 单条总结卡片 */
+.summary-item-card {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+
+#phone-screen.dark-mode .summary-item-card {
+    background-color: #2c2c2e;
+}
+
+.summary-item-card .summary-content {
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.summary-item-card .summary-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+}
+
+.summary-item-card .summary-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+}
+
+.summary-item-card .summary-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--text-secondary);
+    padding: 5px;
+}
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 把这段新样式粘贴到 <style> 的末尾 ▼▼▼ */
+
+/* 聊天总结弹窗底部按钮的美化 */
+#summary-viewer-modal .modal-footer button {
+    width: auto; /* 让宽度自适应 */
+    margin-top: 0; /* 移除顶部外边距 */
+}
+
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -13920,6 +13986,44 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 
 </div>
+<!-- ▼▼▼ 【全新】聊天总结设置区域 ▼▼▼ -->
+<hr style="opacity: 0.2; margin: 20px 0;">
+
+<div class="form-group">
+    <label for="summary-toggle" class="toggle-switch-label">
+        <span class="toggle-switch-text">
+            开启聊天总结
+            <p style="font-size: 12px; font-weight: normal; color: #999; margin-top: 5px;">
+                开启后，AI会在对话达到一定长度时自动或手动进行总结，作为长期记忆。
+            </p>
+        </span>
+        <input type="checkbox" id="summary-toggle">
+        <span class="toggle-switch-slider"></span>
+    </label>
+</div>
+
+<div id="summary-details-container" style="display: none; padding-left: 10px; border-left: 3px solid var(--accent-color); margin-top: 15px;">
+    <div class="form-group">
+        <label>总结模式</label>
+        <div style="display: flex; gap: 20px;">
+            <label><input type="radio" name="summary-mode" value="auto" checked> 自动总结</label>
+            <label><input type="radio" name="summary-mode" value="manual"> 手动总结</label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="summary-count-input">触发消息条数</label>
+        <input type="number" id="summary-count-input" value="20" min="5">
+    </div>
+    <div class="form-group">
+        <label for="summary-prompt-input">总结提示词 (Prompt)</label>
+        <textarea id="summary-prompt-input" rows="4"></textarea>
+    </div>
+    <button id="view-summaries-btn" class="form-button form-button-secondary" style="margin-top: 10px;">查看和管理总结</button>
+        <!-- ▼▼▼ 在这里粘贴下面的新按钮 ▼▼▼ -->
+    <button id="manual-summary-btn" class="form-button form-button-secondary" style="margin-top: 10px;">立即手动总结</button>
+    <!-- ▲▲▲ 新按钮粘贴结束 ▲▲▲ -->
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 
 <!-- ▲▲▲ 新增HTML代码粘贴结束 ▲▲▲ -->
 
@@ -16282,6 +16386,23 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 用这整块代码替换旧的 summary-viewer-modal ▼▼▼ -->
+<div id="summary-viewer-modal" class="modal">
+    <div class="modal-content" style="height: 80%;">
+        <div class="modal-header">
+            <span id="summary-viewer-title">聊天总结</span>
+        </div>
+        <div class="modal-body" id="summary-list" style="padding: 15px;">
+            <!-- 总结列表将由JS动态生成在这里 -->
+        </div>
+        <div class="modal-footer" style="display: flex; gap: 10px;">
+            <!-- 【核心修改】我们在这里新增了“全部精简”按钮 -->
+            <button class="form-button-secondary" id="concise-all-summaries-btn" style="flex: 1; margin: 0;">全部精简</button>
+            <button class="save" id="close-summary-viewer-btn" style="flex: 1; margin: 0;">关闭</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
 
 <!-- ▲▲▲ HTML代码粘贴结束 ▲▲▲ -->
 <!-- ▼▼▼ 用这整块代码替换旧的 inner-voice-modal ▼▼▼ -->
@@ -16745,14 +16866,14 @@ const BUILT_IN_SCRIPTS = [
                 }
             }
 
-if(Array.isArray(res) && res.length > 1) {
-	res = `${res[0]}${res[1].content}`
-}
-
-        return [{text:res}]
+    // (例如，它是一个数组，或者一个AI返回的、我们不认识的JSON对象)
+    if (typeof res !== 'string') {
+        // 我们就强制使用最原始、最安全的 item.content 字符串
+        res = item.content;
     }
-// ... const GEMINI_API_URL = '...' 这行代码之后 ...
 
+    return [{text: res}];
+}
 
     function toGeminiRequestData(model, apiKey, systemInstruction, messagesForDecision,isGemini) {
 
@@ -18138,9 +18259,9 @@ function getRandomItem(arr) {
         // 2. 数据库结构定义
         // ===================================================================
 
-// ▼▼▼ 用这块代码替换你旧的 db.version(...).stores(...) ▼▼▼
-db.version(33).stores({ 
-    chats: '&id, isGroup, groupId, isPinned, characterPhoneData, latestInnerVoice, innerVoiceHistory, loversSpaceData.emotionDiaries', 
+// ▼▼▼ 用这块新代码替换你旧的 db.version(...).stores(...) ▼▼▼
+db.version(34).stores({ // 版本号 +1
+    chats: '&id, isGroup, groupId, isPinned, characterPhoneData, latestInnerVoice, innerVoiceHistory, loversSpaceData.emotionDiaries, settings.summary', // <-- 在这里新增了 , settings.summary
     apiConfig: '&id',
     globalSettings: '&id, activeThemeId', 
     userStickers: '&id, url, name', 
@@ -18164,14 +18285,10 @@ db.version(33).stores({
     fontPresets: '&id, name, url',
     homeScreenPresets: '++id, name',
     weiboPosts: '++id, authorId, timestamp',
-    
-    // --- ▼▼▼ 以下是本次的核心修改 ▼▼▼ ---
-    forumGroups: '++id, name, worldview, *categories', // 为小组增加世界观和分类
-    forumPosts: '++id, groupId, timestamp, *categories', // 为帖子增加分类
+    forumGroups: '++id, name, worldview, *categories',
+    forumPosts: '++id, groupId, timestamp, *categories',
     forumComments: '++id, postId, timestamp',
-    forumCategories: '++id, name', // 【全新】用于管理所有圈子分类的表
-    // --- ▲▲▲ 修改结束 ▲▲▲ ---
-
+    forumCategories: '++id, name',
     tarotReadings: '++id, timestamp',
     pomodoroSessions: '++id, chatId, startTime',
     scriptKillScripts: '++id, name, isBuiltIn'
@@ -19816,7 +19933,17 @@ bubbleStylePresets
     }
     // ▲▲▲ 添加结束 ▲▲▲
     // ▼▼▼ 在这里粘贴新代码 ▼▼▼
-
+// 兼容旧数据：为没有总结设置的聊天添加默认值
+if (!chat.settings.summary) {
+    chat.settings.summary = {
+        enabled: false,
+        mode: 'auto',
+        count: 20,
+        prompt: '请你以第三人称的视角，客观、冷静、不带任何感情色彩地总结以下对话的核心事件和信息。禁止进行任何角色扮演或添加主观评论。',
+        lastSummaryIndex: -1 // -1表示从未总结过
+    };
+}
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 
     // 兼容旧数据：为没有NPC库的单聊角色添加空的NPC库
     if (!chat.isGroup && !chat.npcLibrary) {
@@ -21705,7 +21832,17 @@ async function triggerAiResponse() {
       if (!state.activeChatId) return;
     const chatId = state.activeChatId;
     const chat = state.chats[state.activeChatId];
-
+const messagesContainer = document.getElementById('chat-messages');
+// ▼▼▼ 【全新】这是让AI记住总结的核心代码 ▼▼▼
+let summaryContext = '';
+const summaries = chat.history.filter(msg => msg.type === 'summary');
+if (summaries.length > 0) {
+    summaryContext = `
+# 对话记忆总结 (这是你和用户的长期记忆，必须严格遵守)
+${summaries.map((summary, index) => `- 总结${index + 1}: ${summary.content}`).join('\n')}
+`;
+}
+// ▲▲▲ 代码添加结束 ▲▲▲
 // ▼▼▼ 第3步 第1处修改 ▼▼▼
     // --- 【线下模式核心拦截逻辑】 ---
     if (!chat.isGroup && chat.settings.offlineMode && chat.settings.offlineMode.enabled) {
@@ -21732,7 +21869,7 @@ async function triggerAiResponse() {
 
 # 你的角色设定
 ${chat.settings.aiPersona}
-
+${summaryContext}
 # 当前情景
 ${finalPrompt}
 
@@ -22413,6 +22550,7 @@ const membersList = chat.members.map(m => `- **${m.originalName}**: ${m.persona}
             const myNickname = chat.settings.myNickname || '我';
             
             systemPrompt = `你是一个群聊AI，负责扮演【除了用户以外】的所有角色。
+            ${summaryContext}
 # 核心规则
 1.  **【【【身份铁律】】】**: 用户的身份是【${myNickname}】。你【绝对、永远、在任何情况下都不能】生成 \`name\` 字段为 **"${myNickname}"** 或 **"${chat.name}"(群聊名称本身)** 的消息。你的唯一任务是扮演且仅能扮演下方“群成员列表”中明确列出的角色。任何不属于该列表的名字都不允许出现。
 2.  **【【【输出格式】】】**: 你的回复【必须】是一个JSON数组格式的字符串。数组中的【每一个元素都必须是一个带有 "type" 和 "name" 字段的JSON对象】。
@@ -22602,6 +22740,7 @@ if (chat.settings.pet && chat.settings.pet.type !== '无') {
 
 **1. 角色基本设定:**
 - **核心人设**: ${chat.settings.aiPersona}
+- **总结**:${summaryContext}
 - **情侣头像**: ${coupleAvatarContext}
 - **世界观/NPC**: ${npcContext}
 ${petContext}
@@ -22943,19 +23082,16 @@ const charLatestPosts = await db.weiboPosts
 let userCommentsOnMyPosts = '';
 const myNickname = state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我';
 
+// ▼▼▼ 用这块【已修复】的新代码替换上面的旧代码 ▼▼▼
 charLatestPosts.forEach(post => {
-    // ▼▼▼ 核心修改在这里 ▼▼▼
-    // 我们增加了 Array.isArray(post.comments) 这个判断条件
+    // 核心修改：增加了 Array.isArray(post.comments) 的安全检查
     if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) { 
-    // ▲▲▲ 修改结束 ▲▲▲
-        
-        // 筛选出是“我”发的评论 (现在这行代码是安全的了)
+        // 筛选出是“我”发的评论
         const userComments = post.comments.filter(c => c.authorNickname === myNickname).slice(-3);
         if (userComments.length > 0) {
             const postContentPreview = (post.content || '(图片微博)').substring(0, 20);
             userCommentsOnMyPosts += `- 在你的微博 (ID: ${post.id}) "${postContentPreview}..." 下:\n`;
 
-            // ★★★★★ 核心修复逻辑开始 ★★★★★
             userComments.forEach(comment => {
                 // 1. 检查AI是否已经回复过这条评论
                 //    逻辑：在帖子的所有评论中，查找是否存在一条评论，
@@ -22971,10 +23107,11 @@ charLatestPosts.forEach(post => {
                 // 3. 将带有状态标签的提示信息添加到上下文中
                 userCommentsOnMyPosts += `  └ (评论ID: ${comment.commentId}) 用户: "${comment.commentText}" ${replyStatus}\n`;
             });
-            // ★★★★★ 核心修复逻辑结束 ★★★★★
         }
     }
 });
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 
 if (userCommentsOnMyPosts) {
@@ -24170,6 +24307,11 @@ if (!pollToVote.votes[msgData.choice].includes(displayName)) { // 【核心修�
             claimedBy: {},
             isFullyClaimed: false,
         };
+                // ▼▼▼ 在这里添加新代码 ▼▼▼
+        // 【全新】同步到角色钱包（支出）
+        const rpDescription = `发出红包 - ${msgData.greeting || '恭喜发财'}`;
+        await updateCharacterBankBalance(chatId, -msgData.amount, rpDescription);
+        // ▲▲▲ 新代码粘贴结束 ▲▲▲
         break;
 // ▼▼▼ 在 triggerAiResponse 的 switch 语句中，用这块新代码替换旧的 case 'open_red_packet' ▼▼▼
 case 'open_red_packet': { // 使用大括号创建独立的块级作用域
@@ -24198,6 +24340,13 @@ case 'open_red_packet': { // 使用大括号创建独立的块级作用域
             if (!packetToOpen.claimedBy) packetToOpen.claimedBy = {};
             // 3. 【核心修改】使用我们刚刚查找到的 displayName 作为记录的key
             packetToOpen.claimedBy[displayName] = claimedAmountAI;
+                        // 【全新】同步到角色钱包（收入）
+            const openRpDescription = `领取了 ${packetToOpen.senderName} 的红包`;
+            // 这里的 AI 角色可能不是当前聊天的 `chatId`（因为是在群里抢红包），所以要精确找到是谁抢的
+            const openerChar = Object.values(state.chats).find(c => c.name === displayName);
+            if (openerChar) {
+                 await updateCharacterBankBalance(openerChar.id, claimedAmountAI, openRpDescription);
+            }
             
             const aiClaimedMessage = {
                 role: 'system',
@@ -24289,6 +24438,12 @@ case 'change_avatar':
                     if (originalTransferMsgIndex > -1) {
                         const originalMsg = chat.history[originalTransferMsgIndex];
                         originalMsg.status = 'accepted';
+                        
+                        // ▼▼▼ 在这里添加新代码 ▼▼▼
+                        // 【全新】同步到角色钱包（收入）
+                        const acceptDescription = `收到来自 ${originalMsg.senderName} 的转账`;
+                        await updateCharacterBankBalance(chatId, originalMsg.amount, acceptDescription);
+                        // ▲▲▲ 新代码粘贴结束 ▲▲▲
                     }
                     continue; // 接受指令只修改状态，不产生新消息
                 }
@@ -24510,6 +24665,11 @@ case 'sticker': {
                     break;
                 case 'transfer':
                     aiMessage = { ...baseMessage, type: 'transfer', amount: msgData.amount, note: msgData.note, receiverName: msgData.receiver || '我' };
+                                        // ▼▼▼ 在这里添加新代码 ▼▼▼
+                    // 【全新】同步到角色钱包（支出）
+                    const transferDescription = `转账给 ${msgData.receiver || '我'}`;
+                    await updateCharacterBankBalance(chatId, -msgData.amount, transferDescription);
+                    // ▲▲▲ 新代码粘贴结束 ▲▲▲
                     break;
                 
                 case 'waimai_request':
@@ -24585,7 +24745,7 @@ case 'sticker': {
         }
         
         await db.chats.put(chat);
-
+checkAndTriggerSummary(chatId);
     } catch (error) {
         chat.history = chat.history.filter(msg => !msg.isTemporary);
         if (!chat.isGroup && chat.relationship?.status === 'pending_ai_approval') {
@@ -24623,7 +24783,7 @@ case 'sticker': {
     }
 }
 
-        async function sendSticker(sticker) { if (!state.activeChatId) return; const chat = state.chats[state.activeChatId]; const msg = { role: 'user', content: sticker.url, meaning: sticker.name, timestamp: Date.now() }; chat.history.push(msg); await db.chats.put(chat); appendMessage(msg, chat); renderChatList(); document.getElementById('sticker-panel').classList.remove('visible'); }
+        async function sendSticker(sticker) { if (!state.activeChatId) return; const chat = state.chats[state.activeChatId]; const msg = { role: 'user', content: sticker.url, meaning: sticker.name, timestamp: Date.now() }; chat.history.push(msg); await db.chats.put(chat);checkAndTriggerSummary(state.activeChatId);  appendMessage(msg, chat); renderChatList(); document.getElementById('sticker-panel').classList.remove('visible'); }
         async function sendUserTransfer() { if (!state.activeChatId) return; const amountInput = document.getElementById('transfer-amount'); const noteInput = document.getElementById('transfer-note'); const amount = parseFloat(amountInput.value); const note = noteInput.value.trim(); if (isNaN(amount) || amount < 0 || amount > 9999999999999) { alert('请输入有效的金额 (0 到 9999999999999 之间)！'); return; } const chat = state.chats[state.activeChatId]; const senderName = chat.isGroup ? (chat.settings.myNickname || '我') : '我'; const receiverName = chat.isGroup ? '群聊' : chat.name; const msg = { role: 'user', type: 'transfer', amount: amount, note: note, senderName, receiverName, timestamp: Date.now() }; chat.history.push(msg);
 async function sendUserTransfer() { 
     if (!state.activeChatId) return; 
@@ -31592,7 +31752,7 @@ async function generateCharacterPhoneDataSegment(dataType) {
 
 # 【【【情景一致性铁律】】】
 你生成的所有数据（尤其是"trajectory"行动轨迹）**必须**与“最近聊天记录摘要”中提到的最新情景保持绝对一致。
-
+当生成 "bank" 数据时，你的交易记录【绝对不能】包含与用户("${userNickname}")的转账或收款。所有交易都应是你与其他NPC或商家的。
 # 【【【绝对禁止事项】】】
 在生成 "chats" 数据时，**绝对不允许**让用户（${userNickname}）出现在你与其他NPC的对话中。
 
@@ -31870,8 +32030,9 @@ async function generateCharacterPhoneData() {
 
 # 【【【绝对禁止事项：这是必须遵守的安全红线】】】
 1.  在生成JSON数据，特别是chats字段时，**绝对不允许**创建另一个用户（${userNickname}）的虚拟形象或让他/她出现在你与其他NPC的对话中。
-2.  chats字段中，与NPC或朋友的聊天记录，其sender或content**绝对不能**包含${userNickname}的名字或代称。
-3.  所有你生成的聊天对话，都必须严格限制在【你(${chat.name})】和【另一位NPC/朋友】这**两个人之间**。**严禁**出现任何形式的第三者，尤其是${userNickname}。
+2.  "bank" 字段中的交易记录【绝对不能】涉及用户("${userNickname}")。所有交易都必须是你与其他NPC、商家或因某些事件（如购物、收到工资）产生的。
+3.  chats字段中，与NPC或朋友的聊天记录，其sender或content**绝对不能**包含${userNickname}的名字或代称。
+4.  所有你生成的聊天对话，都必须严格限制在【你(${chat.name})】和【另一位NPC/朋友】这**两个人之间**。**严禁**出现任何形式的第三者，尤其是${userNickname}。
 
 # 你的信息
 - 你的名字: ${chat.name}
@@ -31924,7 +32085,7 @@ ${npcChatHistoryContext}
     {"appName": "应用名", "duration": "使用时长"}
   ],
   "diary": [
-    {"timestamp": ${Date.now()}, "content": "【用Markdown语法写一篇符合人设和情景的日记】"}
+    {"timestamp": ${Date.now()}, "content": "【今天是${new Date().toLocaleString('zh-CN', { dateStyle: 'full' })}，用Markdown语法写一篇符合人设和今天情景的日记】"}
   ]
 }
 
@@ -32398,23 +32559,32 @@ const items = state.chats[activeCharacterPhoneId]?.characterPhoneData?.photoAlbu
  */
 function renderCharacterBank() {
     const detailsEl = document.getElementById('character-bank-details');
-    // ▼▼▼ 核心修改在这里 ▼▼▼
-const bankData = state.chats[activeCharacterPhoneId]?.characterPhoneData?.bank;
-// ▲▲▲ 修改结束 ▲▲▲
+    // 【新增】获取当前角色对象，为后面找备注名做准备
+    const characterChat = state.chats[activeCharacterPhoneId];
+    if (!characterChat) return;
+
+    const bankData = characterChat.characterPhoneData?.bank;
     detailsEl.innerHTML = '';
+
+    // 【新增】获取角色给用户的备注名
+    const userContactInData = characterChat.characterPhoneData.chats
+        ? Object.values(characterChat.characterPhoneData.chats).find(c => !c.history || c.history.length === 0)
+        : null;
+    const remarkNameForMe = userContactInData ? userContactInData.remarkName : '我';
     
     const balanceCard = document.createElement('div');
     balanceCard.className = 'character-bank-balance-card';
     balanceCard.innerHTML = `
         <div class="label">账户余额</div>
-        <div class="amount">¥ ${(bankData.balance || 0).toFixed(2)}</div>
+        <div class="amount">¥ ${(bankData?.balance || 0).toFixed(2)}</div>
     `;
     detailsEl.appendChild(balanceCard);
     
-    if (!bankData.transactions || bankData.transactions.length === 0) {
+    if (!bankData?.transactions || bankData.transactions.length === 0) {
         detailsEl.innerHTML += '<p style="text-align:center; color: #8a8a8a; margin-top: 30px;">暂无交易明细</p>';
         return;
     }
+
     [...bankData.transactions].reverse().forEach((item, index) => {
         const originalIndex = bankData.transactions.length - 1 - index;
         const isIncome = item.type === '收入';
@@ -32425,11 +32595,14 @@ const bankData = state.chats[activeCharacterPhoneId]?.characterPhoneData?.bank;
             ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M7 10h10v4H7z" opacity=".3"/><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>`
             : `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1 14H5c-.55 0-1-.45-1-1v-5h16v5c0 .55-.45 1-1 1zm1-10H4V7c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v2z"/></svg>`;
 
+        // 【核心修改】在这里，我们用正则表达式 /我/g 全局替换所有“我”字
+        const displayDescription = item.description.replace(/我/g, remarkNameForMe);
+
         itemEl.innerHTML = `
             <div class="transaction-details">
                 <div class="transaction-icon" style="background-color: ${iconBg};">${iconSvg}</div>
                 <div>
-                    <div class="title">${item.description}</div>
+                    <div class="title">${displayDescription}</div>
                     <div class="meta" style="border:none; padding:0; margin-top:4px;"><span>${item.type}</span></div>
                 </div>
             </div>
@@ -32443,6 +32616,7 @@ const bankData = state.chats[activeCharacterPhoneId]?.characterPhoneData?.bank;
         detailsEl.appendChild(itemEl);
     });
 }
+
 
 /**
  * 【V2美化版】渲染角色手机 - 行动轨迹
@@ -32573,7 +32747,7 @@ async function generateNewDiaryEntry() {
         
         const diaryPrompt = `
 # 任务
-你现在是角色 "${chat.name}"。请你回顾一下最近和我的聊天，以及你的人设，然后用你的口吻写一篇日记。
+你现在是角色 "${chat.name}"。今天是 ${new Date().toLocaleString('zh-CN', { dateStyle: 'full' })}。请你回顾一下最近和我的聊天，以及你的人设，然后用你的口吻写一篇关于【今天或近期发生事情】的日记。
 这篇日记是你内心的独白，可以记录你的感受、思考、计划或者秘密。
 内容要丰富、有深度，长度在100到300字之间。
 
@@ -32827,12 +33001,13 @@ async function deleteCharacterPhoneContact(contactName) {
 /* ▼▼▼ 【全新】心声功能核心函数 ▼▼▼ */
 
 /**
- * 【V2-已修复】打开心声面板
+ * 打开心声面板
  */
 function openInnerVoiceModal() {
     if (!state.activeChatId) return;
     const chat = state.chats[state.activeChatId];
     if (!chat || !chat.latestInnerVoice) {
+        // 如果还没有心声数据，可以给个提示
         alert("还没有捕捉到Ta的心声哦，试着再聊一句吧！");
         return;
     }
@@ -32840,38 +33015,44 @@ function openInnerVoiceModal() {
     const modal = document.getElementById('inner-voice-modal');
     const data = chat.latestInnerVoice;
     
-    // --- 角色信息填充 (这部分保持不变) ---
+    // 填充数据
     document.getElementById('inner-voice-avatar').src = chat.settings.aiAvatar || defaultAvatar;
     document.getElementById('inner-voice-char-name').textContent = chat.name;
+    // 【V6 修正版】检查头像框，并动态控制容器边框
     const frameImg = document.getElementById('inner-voice-avatar-frame');
-    const avatarWrapper = document.getElementById('inner-voice-avatar-wrapper');
+    const avatarWrapper = document.getElementById('inner-voice-avatar-wrapper'); // 【修改】获取容器元素
     const frameUrl = chat.settings.aiAvatarFrame || '';
+
+    // ▼▼▼ 请确保这里填入了“无头像框”选项的图片URL ▼▼▼
     const EMPTY_FRAME_URL = 'https://你的网站.com/path/to/empty_frame.png'; 
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     if (frameUrl && frameUrl !== EMPTY_FRAME_URL) {
+        // --- 情况A: 使用了真正的头像框 ---
         frameImg.src = frameUrl;
         frameImg.style.display = 'block';
-        avatarWrapper.classList.remove('has-border');
+        // 移除容器的边框样式
+        avatarWrapper.classList.remove('has-border'); // 【修改】对容器进行操作
     } else {
+        // --- 情况B: 没有使用头像框，或使用了“空白”头像框 ---
         frameImg.src = '';
         frameImg.style.display = 'none';
-        avatarWrapper.classList.add('has-border');
+        // 为容器添加边框样式
+        avatarWrapper.classList.add('has-border'); // 【修改】对容器进行操作
     }
 
-    // --- 【核心修改】用户(领养人)信息填充 ---
-    // 1. 头像：从当前聊天设置(chat.settings)中获取用户的头像，而不是从动态(qzoneSettings)获取
-    document.getElementById('inner-voice-adopter-avatar').src = chat.settings.myAvatar || defaultAvatar;
-    // 2. 昵称：从当前聊天设置(chat.settings)中获取用户的昵称，而不是从动态(qzoneSettings)获取
-    document.getElementById('inner-voice-adopter-name').textContent = `领养人: ${chat.settings.myNickname || '你'}`;
+    document.getElementById('inner-voice-adopter-avatar').src = state.qzoneSettings.avatar || defaultAvatar;
+document.getElementById('inner-voice-adopter-name').textContent = `领养人: ${state.qzoneSettings.nickname || '你'}`;
 
-    // --- 心声内容填充 (这部分保持不变) ---
+    
     document.getElementById('inner-voice-clothing').textContent = data.clothing || '...';
     document.getElementById('inner-voice-behavior').textContent = data.behavior || '...';
     document.getElementById('inner-voice-thoughts').textContent = data.thoughts || '...';
     document.getElementById('inner-voice-naughty-thoughts').textContent = data.naughtyThoughts || '...';
 
-    // --- 显示面板 (这部分保持不变) ---
+    // 显示面板
     modal.classList.add('visible');
+    // 确保历史面板是隐藏的
     document.getElementById('inner-voice-history-panel').style.display = 'none';
     document.getElementById('inner-voice-main-panel').style.display = 'flex';
     isInnerVoiceHistoryOpen = false;
@@ -44051,10 +44232,11 @@ async function generateAndCacheFanDms(characterChat, addMore = false) {
 ${JSON.stringify(characterChat.weiboDms, null, 2)}
 ` : '';
 
-    const systemPrompt = `
+        // 【优化后】的AI指令
+        const systemPrompt = `
 # 任务
 你现在是角色“${characterChat.name}”的社交媒体运营助理。
-你的任务是根据该角色的【所有信息】，虚构一个包含${addMore ? '2-3' : '3-5'}位不同粉丝的私信列表，并为每位粉丝创作一段简短的对话历史。
+你的任务是根据该角色的【所有信息】，虚构一个包含${addMore ? '2-3' : '3-5'}位不同粉丝的私信列表，并为每位粉丝创作一段生动、真实的对话历史。
 ${existingDmsContext}
 
 # 角色信息 (你必须综合参考以下所有信息)
@@ -44065,28 +44247,26 @@ ${existingDmsContext}
 
 # 核心规则
 1.  **粉丝多样性**: 创作${addMore ? '2-3' : '3-5'}位不同类型的粉丝（例如：狂热粉、事业粉、CP粉、黑粉、路人粉、广告商等）。
-2.  **对话真实性**: 每段对话包含2-4条消息，内容必须与角色的【公开职业】和【核心人设】强相关。
-3.  **角色回应**: 根据角色的【微博互动准则】和【核心人设】，决定角色是否会回复私信以及如何回复。
+2.  **【【【对话鲜活度铁律】】】**: 为了让对话更真实，你必须：
+    -   **避免机械问答**：不要生成“你好”-“你好”之类的无意义对话。让对话像一个正在进行的真实互动片段。
+    -   **注入情绪和语气**：粉丝的语气可以是兴奋的、担忧的、质疑的、开玩笑的。角色的回应也要符合人设，可能是冷淡的、温柔的、官方的，或者干脆已读不回。
+    -   **使用网络语言**: 适当加入符合粉丝圈文化的网络用语、emoji或颜文字，让对话更接地气。
+    -   **内容多样化**: 私信内容不应只局限于工作，也可以是粉丝分享自己的日常、表达关心、提出一些私人问题等。
+3.  **角色回应**: 根据角色的【微博互动准则】和【核心人设】，决定角色是否会回复私信以及如何回复。例如，一个高冷的角色可能只会回复重要信息，或者干脆不回复。
 4.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，直接以 '[' 开头，以 ']' 结尾。
 
-# JSON对象结构
+# JSON对象结构 (注意：你不再需要提供头像URL)
 {
   "fanName": "粉丝的微博昵称",
   "fanPersona": "对这位粉丝的简单描述 (例如: '一个担心哥哥事业的妈妈粉')",
-  "fanAvatarUrl": "一个符合粉丝身份的头像图片URL (必须是有效的网络图片链接)",
   "messages": [
     { "sender": "fan", "text": "粉丝发的第一条消息..." },
     { "sender": "char", "text": "角色回复的消息..." }
   ]
 }
 
-# 头像URL示例 (你可以使用这些或类似的)
-- https://i.postimg.cc/FsT3bWp1/avatar-fan-1.jpg
-- https://i.postimg.cc/8zG250z6/avatar-fan-2.jpg
-- https://i.postimg.cc/Y9xL6r86/avatar-fan-3.jpg
-- https://i.postimg.cc/T3q0T9p1/avatar-fan-4.jpg
-
 现在，请开始生成私信列表。`;
+
 
     try {
         const messagesForApi = [{ role: 'user', content: systemPrompt }];
@@ -44109,6 +44289,21 @@ ${existingDmsContext}
         const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content);
         const cleanedContent = rawContent.replace(/^```json\s*|```$/g, '').trim();
         const newDmsData = JSON.parse(cleanedContent);
+        // 【已修复】在这里为AI生成的数据手动添加随机头像
+        if (Array.isArray(newDmsData)) {
+            // 这是你提供的两个头像URL
+            const fanAvatars = [
+                'https://i.postimg.cc/PxZrFFFL/o-o-1.jpg',
+                'https://i.postimg.cc/Qd0Y537F/com-xingin-xhs-20251011153800.png'
+            ];
+
+            // 遍历AI生成的每一段对话，这次我们加入了 index 参数
+            newDmsData.forEach((convo, index) => {
+                // 【核心修改】使用索引和取余运算符(%)来交替分配头像
+                convo.fanAvatarUrl = fanAvatars[index % fanAvatars.length];
+            });
+        }
+
 
         if (Array.isArray(newDmsData)) {
             if (addMore) {
@@ -44296,8 +44491,463 @@ async function handleGenerateMoreDms() {
 }
 
 // ▲▲▲ 核心功能函数粘贴结束 ▲▲▲
+// ▼▼▼ 【全新】粘贴这一整块聊天总结功能的核心函数 ▼▼▼
+
+let isSummarizing = false; // 全局锁，防止重复触发总结
+
+// ▼▼▼ 【V2 - 流程分离版】用这整块代码替换旧的 checkAndTriggerSummary 函数 ▼▼▼
+/**
+ * 【总入口 V2】检查是否需要触发总结或提醒
+ * @param {string} chatId - 当前聊天的ID
+ */
+async function checkAndTriggerSummary(chatId) {
+    if (isSummarizing) return; 
+
+    const chat = state.chats[chatId];
+    if (!chat || !chat.settings.summary || !chat.settings.summary.enabled) return;
+
+    const summarySettings = chat.settings.summary;
+    // 核心修改：我们不再从0开始，而是从上次总结的位置开始计算
+    const lastSummaryIndex = summarySettings.lastSummaryIndex;
+    const messagesSinceLastSummary = chat.history.slice(lastSummaryIndex + 1);
+
+    if (messagesSinceLastSummary.length >= summarySettings.count) {
+        isSummarizing = true; 
+        if (summarySettings.mode === 'auto') {
+            await performAutomaticSummary(chatId);
+        } else {
+            // 对于手动模式，现在只弹提醒
+            await notifyForManualSummary(chatId);
+        }
+        isSummarizing = false;
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▼▼▼ 【V2 - 范围精确版】用这整块代码替换旧的 performAutomaticSummary 函数 ▼▼▼
+/**
+ * 自动在后台执行总结，只总结触发条件的N条消息
+ */
+async function performAutomaticSummary(chatId) {
+    console.log(`自动总结触发 for chat: ${chatId}`);
+    const chat = state.chats[chatId];
+    const summarySettings = chat.settings.summary;
+
+    // 【核心修改】精确截取最后N条消息作为总结范围
+    const messagesToSummarize = chat.history.slice(-summarySettings.count);
+    
+    try {
+        const summaryText = await generateSummary(chatId, messagesToSummarize);
+        if (summaryText) {
+            await saveSummaryAsMemory(chatId, summaryText);
+        }
+    } catch (e) {
+        // generateSummary 内部已经处理了错误弹窗，这里我们只需要记录日志即可
+        console.error("自动总结过程中发生未捕获的错误:", e);
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
 
 
+// ▼▼▼ 【V2 - 仅提醒版】用这整块新代码替换旧的 promptForManualSummary 函数 ▼▼▼
+/**
+ * 弹出提示框，【提醒】用户可以进行手动总结了
+ */
+async function notifyForManualSummary(chatId) {
+    console.log(`手动总结提醒触发 for chat: ${chatId}`);
+    
+    // 只弹出一个简单的通知
+    await showCustomAlert(
+        '总结提醒',
+        '对话已达到设定长度，你可以随时在“聊天设置”中点击“立即手动总结”来生成对话记忆。'
+    );
+
+    // 【重要】提醒过后，更新“上次总结位置”，以防止每条新消息都弹窗。
+    // 这意味着计时器会从现在重新开始计算。
+    const chat = state.chats[chatId];
+    chat.settings.summary.lastSummaryIndex = chat.history.length - 1;
+    await db.chats.put(chat);
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+// ▼▼▼ 【V2 - 范围控制版】用这整块代码替换旧的 generateSummary 函数 ▼▼▼
+/**
+ * 【AI核心 V2】调用API生成总结内容
+ * @param {string} chatId - 聊天的ID
+ * @param {Array | null} specificMessages - 如果提供，则只总结这个数组里的消息；如果为null，则总结自上次以来的所有消息。
+ * @returns {Promise<string|null>} - AI生成的总结文本
+ */
+async function generateSummary(chatId, specificMessages = null) {
+    const chat = state.chats[chatId];
+    const { proxyUrl, apiKey, model } = state.apiConfig;
+
+    if (!proxyUrl || !apiKey || !model) {
+        throw new Error('API未配置，无法生成总结。');
+    }
+
+    const summarySettings = chat.settings.summary;
+    let messagesToSummarize;
+
+    // 【核心修改】根据 specificMessages 参数决定总结范围
+    if (specificMessages && specificMessages.length > 0) {
+        // 如果指定了消息范围（用于自动总结），就用它
+        messagesToSummarize = specificMessages;
+    } else {
+        // 否则（用于手动总结），沿用旧逻辑，总结自上次以来的所有消息
+        const lastSummaryIndex = summarySettings.lastSummaryIndex > -1 ? summarySettings.lastSummaryIndex : 0;
+        messagesToSummarize = chat.history.slice(lastSummaryIndex + 1);
+    }
+    
+    if (messagesToSummarize.length === 0) {
+        // 如果是手动点击，但没有新消息，给个提示
+        if (!specificMessages) {
+             await showCustomAlert("无需总结", "自上次总结以来没有新的对话内容。");
+        }
+        return null;
+    }
+
+    // 将消息格式化为纯文本对话 (这部分逻辑不变)
+    const conversationText = messagesToSummarize.map(msg => {
+        const sender = msg.role === 'user' ? (chat.isGroup ? (chat.settings.myNickname || '我') : '我') : (msg.senderName || chat.name);
+        let content = '';
+        if (typeof msg.content === 'string') {
+            content = msg.content;
+        } else if (Array.isArray(msg.content)) {
+            content = '[图片]';
+        } else if (msg.type) {
+            content = `[${msg.type}]`;
+        }
+        return `${sender}: ${content}`;
+    }).join('\n');
+
+    const systemPrompt = summarySettings.prompt + `\n\n--- 对话开始 ---\n${conversationText}\n--- 对话结束 ---`;
+    
+    // API调用部分保持不变，但加入了try...catch
+    try {
+        if (!specificMessages) { // 只有手动总结时才显示这个弹窗
+             await showCustomAlert("正在生成...", "AI正在努力总结你们的对话，请稍候...");
+        }
+
+        const response = await fetch(`${proxyUrl}/v1/chat/completions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+            body: JSON.stringify({
+                model: model,
+                messages: [{ role: 'user', content: systemPrompt }],
+                temperature: 0.3,
+            })
+        });
+
+        if (!response.ok) throw new Error(await response.text());
+        const data = await response.json();
+        return data.choices[0].message.content;
+
+    } catch (error) {
+        // 无论自动还是手动，只要出错就弹窗
+        console.error("生成总结失败:", error);
+        await showCustomAlert('总结失败', `发生错误: ${error.message}`);
+        return null;
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 将生成的总结作为一条特殊的记忆消息保存起来
+ */
+async function saveSummaryAsMemory(chatId, summaryText) {
+    const chat = state.chats[chatId];
+    
+    // 记录下总结操作发生时的最后一条消息的索引
+    const newLastSummaryIndex = chat.history.length - 1;
+
+    const summaryMessage = {
+        role: 'system',
+        type: 'summary', // 特殊类型
+        content: summaryText,
+        timestamp: Date.now(),
+        isHidden: true // 这条消息对AI可见，但对用户隐藏
+    };
+
+    chat.history.push(summaryMessage);
+    chat.settings.summary.lastSummaryIndex = newLastSummaryIndex; // 更新索引
+    
+    await db.chats.put(chat);
+    console.log(`新的总结已作为记忆保存 for chat: ${chatId}`);
+}
+
+// --- 以下是总结管理界面的函数 ---
+
+let editingSummaryTimestamp = null;
+
+// ▼▼▼ 用这块【修改后】的代码替换旧的 openSummaryViewer 函数 ▼▼▼
+async function openSummaryViewer() {
+    const chat = state.chats[state.activeChatId];
+    document.getElementById('summary-viewer-title').textContent = `“${chat.name}”的对话记忆`;
+    
+    const listEl = document.getElementById('summary-list');
+    listEl.innerHTML = '';
+    
+    const summaries = chat.history.filter(msg => msg.type === 'summary');
+
+    if (summaries.length === 0) {
+        listEl.innerHTML = '<p style="text-align:center; color: #8a8a8a;">还没有生成过任何总结。</p>';
+    } else {
+        [...summaries].reverse().forEach(summary => {
+            const card = document.createElement('div');
+            card.className = 'summary-item-card';
+            card.innerHTML = `
+                <div class="summary-actions">
+                    <!-- 【核心新增】这就是单条精简总结按钮 -->
+                    <button class="concise-summary-btn" data-timestamp="${summary.timestamp}" title="精简总结">✨</button>
+                    <button class="edit-summary-btn" data-timestamp="${summary.timestamp}" title="编辑">✏️</button>
+                    <button class="delete-summary-btn" data-timestamp="${summary.timestamp}" title="删除">🗑️</button>
+                </div>
+                <div class="summary-content">${summary.content.replace(/\n/g, '<br>')}</div>
+                <div class="summary-meta">
+                    <span>生成于: ${new Date(summary.timestamp).toLocaleString()}</span>
+                </div>
+            `;
+            listEl.appendChild(card);
+        });
+    }
+    
+    document.getElementById('chat-settings-modal').classList.remove('visible');
+    document.getElementById('summary-viewer-modal').classList.add('visible');
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+/**
+ * 编辑一条总结
+ */
+async function editSummary(timestamp) {
+    const chat = state.chats[state.activeChatId];
+    const summary = chat.history.find(msg => msg.timestamp === timestamp);
+    if (!summary) return;
+
+    const newContent = await showCustomPrompt(
+        '编辑总结',
+        '修改总结内容:',
+        summary.content,
+        'textarea'
+    );
+
+    if (newContent !== null) {
+        summary.content = newContent.trim();
+        await db.chats.put(chat);
+        openSummaryViewer(); // 重新渲染列表
+    }
+}
+
+/**
+ * 删除一条总结
+ */
+async function deleteSummary(timestamp) {
+    const confirmed = await showCustomConfirm('确认删除', '确定要删除这条总结记忆吗？这可能会影响AI的长期记忆。', { confirmButtonClass: 'btn-danger' });
+    if (confirmed) {
+        const chat = state.chats[state.activeChatId];
+        chat.history = chat.history.filter(msg => msg.timestamp !== timestamp);
+        await db.chats.put(chat);
+        openSummaryViewer(); // 重新渲染列表
+    }
+}
+// ▼▼▼ 把这一整块全新的功能函数，粘贴到你的JS代码中 ▼▼▼
+
+/**
+ * 【AI核心】调用API将指定文本精简为摘要
+ * @param {string} originalText - 原始的、较长的总结文本
+ * @returns {Promise<string|null>} - AI生成的精简摘要，如果失败则返回null
+ */
+async function generateConciseSummary(originalText) {
+    const { proxyUrl, apiKey, model } = state.apiConfig;
+    if (!proxyUrl || !apiKey || !model) {
+        throw new Error('API未配置，无法生成精简摘要。');
+    }
+
+    // 核心Prompt：指示AI将内容精简为一句话
+    const systemPrompt = `请你将以下内容精简为一句话的核心摘要，保留最关键的人物、事件和结论，字数控制在20字以内：\n\n--- 内容开始 ---\n${originalText}\n--- 内容结束 ---`;
+
+    try {
+        const response = await fetch(`${proxyUrl}/v1/chat/completions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+            body: JSON.stringify({
+                model: model,
+                messages: [{ role: 'user', content: systemPrompt }],
+                temperature: 0.5, // 使用较低的温度，让总结更精确
+            })
+        });
+
+        if (!response.ok) throw new Error(await response.text());
+        const data = await response.json();
+        return data.choices[0].message.content;
+
+    } catch (error) {
+        console.error("生成精简摘要失败:", error);
+        await showCustomAlert('精简失败', `发生错误: ${error.message}`);
+        return null;
+    }
+}
+
+/**
+ * 处理单条总结的精简
+ * @param {number} timestamp - 要精简的总结消息的时间戳
+ */
+async function handleConciseSummary(timestamp) {
+    const chat = state.chats[state.activeChatId];
+    const summary = chat.history.find(msg => msg.timestamp === timestamp);
+    if (!summary) return;
+
+    await showCustomAlert("请稍候...", "AI正在努力为您精简内容...");
+
+    const conciseText = await generateConciseSummary(summary.content);
+
+    if (conciseText) {
+        summary.content = conciseText.trim(); // 用精简后的文本替换原文
+        await db.chats.put(chat); // 保存到数据库
+        await openSummaryViewer(); // 重新渲染列表
+        await showCustomAlert('成功', '本条总结已精简！');
+    }
+}
+
+/**
+ * 处理全部总结的精简
+ */
+async function handleConciseAllSummaries() {
+    const chat = state.chats[state.activeChatId];
+    const summaries = chat.history.filter(msg => msg.type === 'summary');
+
+    if (summaries.length === 0) {
+        alert("没有可以精简的总结。");
+        return;
+    }
+
+    const confirmed = await showCustomConfirm(
+        '确认全部精简',
+        `确定要精简全部 ${summaries.length} 条总结吗？此操作会覆盖原始内容且不可恢复。`,
+        { confirmButtonClass: 'btn-danger' }
+    );
+    if (!confirmed) return;
+
+    await showCustomAlert("请稍候...", `正在批量精简 ${summaries.length} 条总结，这可能需要一些时间...`);
+
+    try {
+        // 使用 for...of 循环来逐条处理，避免同时发送太多API请求导致被限制
+        for (const summary of summaries) {
+            const conciseText = await generateConciseSummary(summary.content);
+            if (conciseText) {
+                summary.content = conciseText.trim();
+            }
+            // 每处理完一条，稍微等待一下，给API一点喘息时间
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        await db.chats.put(chat);
+        await openSummaryViewer();
+        await showCustomAlert('成功', '所有总结都已精简完毕！');
+    } catch (error) {
+        // generateConciseSummary 内部已经处理了错误弹窗，这里我们只需要确保流程正常结束
+        console.error("批量精简时出错:", error);
+    }
+}
+
+// ▲▲▲ 新功能函数粘贴结束 ▲▲▲
+
+// ▲▲▲ 聊天总结功能核心函数粘贴结束 ▲▲▲
+// ▼▼▼ 【全新】粘贴这个新函数到你的JS功能函数定义区 ▼▼▼
+/**
+ * 用户点击“立即手动总结”按钮时触发的函数
+ */
+async function triggerManualSummaryNow() {
+    if (isSummarizing) {
+        alert("正在处理上一个总结任务，请稍候...");
+        return;
+    }
+
+    isSummarizing = true; // 上锁
+
+    try {
+        // 调用 generateSummary，但不传递第二个参数，这样它就会总结自上次以来的所有新消息
+        const summaryText = await generateSummary(state.activeChatId, null);
+        
+        if (summaryText) {
+            await saveSummaryAsMemory(state.activeChatId, summaryText);
+            await showCustomAlert('总结完成', '新的对话记忆已生成！');
+            // 成功后，刷新总结管理列表
+            if (document.getElementById('summary-viewer-modal').classList.contains('visible')) {
+                openSummaryViewer();
+            }
+        }
+    } catch (e) {
+        // generateSummary 内部已经处理了错误弹窗
+        console.error("手动总结过程中发生未捕获的错误:", e);
+    } finally {
+        isSummarizing = false; // 解锁
+    }
+}
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
+// ▼▼▼ 在这里粘贴下面这一整块新代码 ▼▼▼
+
+/**
+ * 【全新】更新角色手机钱包的余额和交易记录
+ * @param {string} charId - 要更新钱包的角色ID
+ * @param {number} amount - 交易金额 (正数为收入, 负数为支出)
+ * @param {string} description - 交易描述 (例如: "转账给 XX", "收到 XX 的红包")
+ */
+async function updateCharacterBankBalance(charId, amount, description) {
+    // 安全检查：如果缺少关键信息，则直接返回
+    if (!charId || !amount || isNaN(amount)) {
+        console.warn("updateCharacterBankBalance 调用失败：缺少charId或有效的amount。");
+        return;
+    }
+
+    // 从全局状态中获取角色对象
+    const chat = state.chats[charId];
+    // 安全检查：确保角色存在且不是群聊
+    if (!chat || chat.isGroup) {
+        console.warn(`updateCharacterBankBalance 跳过：找不到ID为 ${charId} 的角色或该ID为群聊。`);
+        return;
+    }
+
+    // --- 确保数据结构完整，兼容旧数据 ---
+    if (!chat.characterPhoneData) {
+        chat.characterPhoneData = {};
+    }
+    if (!chat.characterPhoneData.bank) {
+        chat.characterPhoneData.bank = { balance: 0, transactions: [] };
+    }
+    // 如果旧数据的余额不是数字，则强制设为0
+    if (typeof chat.characterPhoneData.bank.balance !== 'number') {
+        chat.characterPhoneData.bank.balance = 0;
+    }
+    // 如果旧数据的交易记录不是数组，则创建一个空数组
+    if (!Array.isArray(chat.characterPhoneData.bank.transactions)) {
+        chat.characterPhoneData.bank.transactions = [];
+    }
+
+    // --- 核心逻辑 ---
+    // 1. 创建一条新的交易记录
+    const newTransaction = {
+        type: amount > 0 ? '收入' : '支出',
+        amount: Math.abs(amount), // 交易记录里的金额总是正数
+        description: description,
+        timestamp: Date.now() // 记录交易发生的时间
+    };
+
+    // 2. 更新余额
+    chat.characterPhoneData.bank.balance += amount;
+
+    // 3. 将新交易记录添加到列表的开头（让最新的显示在最前面）
+    chat.characterPhoneData.bank.transactions.unshift(newTransaction);
+
+    // 4. 将更新后的角色数据保存回数据库
+    await db.chats.put(chat);
+    
+    console.log(`✅ 钱包同步成功: 角色[${chat.name}], 交易[${description}], 金额[${amount.toFixed(2)}], 新余额[${chat.characterPhoneData.bank.balance.toFixed(2)}]`);
+}
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 
         async function init() {
 
@@ -45074,7 +45724,23 @@ document.getElementById('chat-settings-btn').addEventListener('click', async () 
 const videoCallSettingsGroup = document.getElementById('video-call-settings-group');
 const visualCallSwitch = document.getElementById('visual-video-call-switch');
 const imageUploadsDiv = document.getElementById('video-call-image-uploads');
+// --- 加载聊天总结设置 ---
+const summarySettings = chat.settings.summary || {};
+const summaryToggle = document.getElementById('summary-toggle');
+const summaryDetails = document.getElementById('summary-details-container');
 
+summaryToggle.checked = summarySettings.enabled || false;
+summaryDetails.style.display = summaryToggle.checked ? 'block' : 'none';
+
+document.querySelector(`input[name="summary-mode"][value="${summarySettings.mode || 'auto'}"]`).checked = true;
+document.getElementById('summary-count-input').value = summarySettings.count || 20;
+document.getElementById('summary-prompt-input').value = summarySettings.prompt || '请你以第三人称的视角，客观、冷静、不带任何感情色彩地总结以下对话的核心事件和信息。禁止进行任何角色扮演或添加主观评论。';
+
+// 为开关添加实时交互
+summaryToggle.onchange = () => {
+    summaryDetails.style.display = summaryToggle.checked ? 'block' : 'none';
+};
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 if (isGroup) {
     videoCallSettingsGroup.style.display = 'none'; // 群聊不支持，隐藏整个设置区
 } else {
@@ -45533,7 +46199,14 @@ chat.settings.customTime = document.getElementById('custom-time-input').value;
     chat.settings.offlineMode.style = document.getElementById('offline-style-input').value.trim();
     chat.settings.offlineMode.wordCount = parseInt(document.getElementById('offline-word-count-input').value) || 300;
     // presets 的数据在管理函数中直接操作，这里无需保存
-
+// ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+// --- 保存聊天总结设置 ---
+if (!chat.settings.summary) chat.settings.summary = {}; // 初始化
+chat.settings.summary.enabled = document.getElementById('summary-toggle').checked;
+chat.settings.summary.mode = document.querySelector('input[name="summary-mode"]:checked').value;
+chat.settings.summary.count = parseInt(document.getElementById('summary-count-input').value) || 20;
+chat.settings.summary.prompt = document.getElementById('summary-prompt-input').value.trim();
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
     await db.chats.put(chat);
 
     applyScopedCss(chat.settings.customCss, '#chat-messages', 'custom-bubble-style');
@@ -50180,6 +50853,56 @@ document.getElementById('weibo-dm-messages').addEventListener('click', (e) => {
 });
 // ▲▲▲ 新事件监听器粘贴结束 ▲▲▲
 document.getElementById('clear-all-dms-btn').addEventListener('click', handleClearAllDms);
+// 在 init() 的事件监听器区域
+// ▼▼▼ 【全新】聊天总结功能事件绑定 ▼▼▼
+document.getElementById('view-summaries-btn').addEventListener('click', openSummaryViewer);
+document.getElementById('close-summary-viewer-btn').addEventListener('click', () => {
+    document.getElementById('summary-viewer-modal').classList.remove('visible');
+    // 关闭后重新打开设置弹窗，回到上一级
+    document.getElementById('chat-settings-btn').click();
+});
+
+// ▼▼▼ 用这块【功能更全】的代码，替换旧的 summary-list 事件监听器 ▼▼▼
+// 使用事件委托处理总结列表中的所有按钮
+document.getElementById('summary-list').addEventListener('click', (e) => {
+    const editBtn = e.target.closest('.edit-summary-btn');
+    if (editBtn) {
+        const timestamp = parseInt(editBtn.dataset.timestamp);
+        editSummary(timestamp);
+        return;
+    }
+    
+    const deleteBtn = e.target.closest('.delete-summary-btn');
+    if (deleteBtn) {
+        const timestamp = parseInt(deleteBtn.dataset.timestamp);
+        deleteSummary(timestamp);
+        return;
+    }
+
+    // 【核心新增】处理单条精简按钮的点击
+    const conciseBtn = e.target.closest('.concise-summary-btn');
+    if (conciseBtn) {
+        const timestamp = parseInt(conciseBtn.dataset.timestamp);
+        handleConciseSummary(timestamp);
+        return;
+    }
+});
+
+// 【全新】为“全部精简”按钮绑定事件
+document.getElementById('concise-all-summaries-btn').addEventListener('click', handleConciseAllSummaries);
+// ▲▲▲ 替换结束 ▲▲▲
+
+// 在 init() 函数的事件监听器区域
+// ▼▼▼ 【全新】为“立即手动总结”按钮绑定事件 ▼▼▼
+document.getElementById('chat-settings-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'manual-summary-btn') {
+        // 点击后先关闭设置弹窗，避免遮挡后续的提示
+        document.getElementById('chat-settings-modal').classList.remove('visible');
+        triggerManualSummaryNow();
+    }
+});
+// ▲▲▲ 新事件绑定结束 ▲▲▲
+
 // ===================================================================
 // 5. 启动！
 
