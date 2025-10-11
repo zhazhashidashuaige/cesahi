@@ -12409,10 +12409,12 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* --- 购物车结算栏 --- */
 #cart-checkout-bar {
-    position: absolute;
+    position: fixed; /* ★★★ 核心修改：从 absolute 改为 fixed ★★★ */
     bottom: 0;
     left: 0;
-    width: 100%;
+    right: 0; /* (推荐) 配合 left:0 自动撑满宽度，更稳妥 */
+    /* width: 100%; (可以保留或删除) */
+    z-index: 10; /* (推荐) 确保它始终在最上层 */
     padding: 10px 15px;
     padding-bottom: calc(10px + env(safe-area-inset-bottom));
     background-color: var(--secondary-bg);
@@ -12422,6 +12424,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     align-items: center;
     box-sizing: border-box;
 }
+
 #cart-checkout-bar .total-price {
     font-weight: bold;
 }
@@ -19202,6 +19205,21 @@ function showCustomPrompt(title, placeholder, initialValue = '', type = 'text', 
 }
 // ▲▲▲ 替换结束 ▲▲▲
 // ▼▼▼ 把这一整块全新的函数，粘贴到你的JS功能函数定义区 ▼▼▼
+// ▼▼▼ 把这一整块全新的函数，粘贴到你的JS功能函数定义区 ▼▼▼
+
+/**
+ * 【全新】从一个数组中随机获取一个元素
+ * @param {Array} arr - 目标数组
+ * @returns {*} - 数组中的一个随机元素
+ */
+function getRandomItem(arr) {
+    // 安全检查，如果数组为空或不存在，返回空字符串
+    if (!arr || arr.length === 0) return '';
+    // 返回一个随机索引对应的元素
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// ▲▲▲ 粘贴结束 ▲▲▲
 
 /**
  * 【全新】从一个数组中随机获取一个元素
@@ -20177,40 +20195,31 @@ posts.forEach(post => {
         likesHtml = `<div class="post-likes-section"><svg class="like-icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span>${post.likes.join('、')} 觉得很赞</span></div>`;
     }
     
-    let commentsHtml = '';
-    if (post.comments && post.comments.length > 0) {
-        // ★★★★★ 这就是我们这次修复的核心 ★★★★★
-        // 2. 修改这里的过滤逻辑
-        const commentsToShow = post.areCommentsVisible === false 
-            ? post.comments.filter(comment => 
-                // 条件1: 评论者是你自己
-                comment.commenterName === userSettings.nickname || 
-                // 条件2: 评论者的名字在我们刚才创建的AI角色名字列表里
-                allAiCharacterNames.has(comment.commenterName)
-              )
-            : post.comments; // 如果开关是开的，就显示所有评论
-        // ★★★★★ 修复结束 ★★★★★
+// ▼▼▼ 请用这块【已修复】的代码替换上面的旧代码 ▼▼▼
+let commentsHtml = '';
+// ★★★ 核心修改就在这里 ★★★
+// 我们在原来的判断条件中，增加了一个 Array.isArray(post.comments) 的检查
+if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) {
+    commentsHtml += '<div class="weibo-comments-container">';
+    post.comments.forEach(comment => {
+        // 安全检查：确保 comment 是一个对象，防止后续代码出错
+        if (typeof comment !== 'object' || comment === null) return;
 
-        if (commentsToShow.length > 0) {
-// ▲▲▲ 替换到这里结束 ▲▲▲
-
-                commentsHtml = '<div class="post-comments-container">';
-                commentsToShow.forEach(comment => {
-                    const originalIndex = post.comments.indexOf(comment);
-                    let replyHtml = '';
-                    if (comment.replyTo) {
-                        replyHtml = `<span class="reply-text">回复</span> <span class="reply-target-name">${comment.replyTo}</span>`;
-                    }
-                    commentsHtml += `
-                        <div class="comment-item" data-commenter-name="${comment.commenterName}">
-                            <span class="commenter-name">${comment.commenterName}</span>${replyHtml}:
-                            <span class="comment-text"> ${comment.text}</span>
-                            <span class="comment-delete-btn" data-comment-index="${originalIndex}">×</span>
-                        </div>`;
-                });
-                commentsHtml += '</div>';
-            }
+        let replyHtml = '';
+        if (comment.replyToNickname) {
+            replyHtml = `<span class="weibo-comment-reply-tag">回复</span><span class="weibo-commenter-name">${comment.replyToNickname}</span>`;
         }
+        commentsHtml += `
+            <div class="weibo-comment-item" data-comment-id="${comment.commentId}" data-commenter-name="${comment.authorNickname}">
+                <span class="weibo-commenter-name">${comment.authorNickname}</span>
+                ${replyHtml}:
+                <span class="weibo-comment-text">${comment.commentText}</span>
+                <button class="comment-delete-btn" title="删除此条评论">×</button>
+            </div>`;
+    });
+    commentsHtml += '</div>';
+}
+// ▲▲▲ 替换结束 ▲▲▲
 
         const commentsAndFooterHtml = `
             ${commentsHtml}
@@ -23954,6 +23963,7 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
 - **回应外卖-同意**: \`{"type": "waimai_response", "status": "paid", "for_timestamp": 1688888888888}\`
 - **回应外卖-拒绝**: \`{"type": "waimai_response", "status": "rejected", "for_timestamp": 1688888888888}\`
 - **回应购物车代付**: \`{"type": "cart_payment_response", "decision": "accept" 或 "reject", "response_text": "你想说的话..."}\`
+-   **为用户买礼物**: \`{"type": "buy_gift_for_user", "greeting": "你想说的话，例如：这个超可爱，买给你！"}\`(系统会自动从商品库随机挑选礼物并扣款，请在合适的时机，比如开心、过节、想给用户惊喜时使用)
 【重要提示】: 当用户发送的最新消息中包含 "[购物车代付请求]" 字样时，这代表用户正在向你请求付款。你【必须】仔细阅读请求中的【总金额】和你自己的【当前余额】，然后使用此指令做出回应。
 **五、 视频通话指令**
 - **发起视频通话**: \`{"type": "video_call_request"}\`
@@ -24873,6 +24883,71 @@ case 'cart_payment_response': {
     continue;
 }
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
+// ▼▼▼ 把这一整块全新的 case 代码，粘贴到 switch 语句块的【内部】 ▼▼▼
+// 例如，可以放在 case 'transfer': 的后面
+
+case 'buy_gift_for_user': {
+    // 1. 从商品数据库中获取所有已添加的商品
+    const allProducts = await db.taobaoProducts.toArray();
+    
+    // 如果桃宝里一件商品都没有，AI就发条消息吐槽一下
+    if (allProducts.length === 0) {
+        aiMessage = { ...baseMessage, content: msgData.greeting ? `${msgData.greeting} ...啊，想给你买点什么，但是桃宝里空空如也呢...` : "想给你买个礼物，但是桃宝现在没东西卖了。" };
+        break; // 跳出 case，让这条文本消息被正常处理和显示
+    }
+
+    // 2. 从所有商品中随机挑选一件作为礼物
+    const productToBuy = getRandomItem(allProducts);
+
+    // 3. 检查角色的钱包余额是否足够
+    const charBalance = chat.characterPhoneData?.bank?.balance || 0;
+    if (charBalance < productToBuy.price) {
+        // 余额不足，AI也会发消息告诉你
+        aiMessage = { ...baseMessage, content: msgData.greeting ? `${msgData.greeting} ...哎呀，我的钱包好像不够了。` : "我想给你买个礼物，但是钱包空了..." };
+        break;
+    }
+
+    // 4. 余额充足！执行购买流程
+    // 4a. 从角色的钱包扣款，并生成一条交易记录
+    await updateCharacterPhoneBankBalance(chat.id, -productToBuy.price, `为“我”购买礼物: ${productToBuy.name}`);
+
+    // 4b. 在你的“我的订单”中创建一条新订单
+    const newOrder = {
+        productId: productToBuy.id,
+        quantity: 1,
+        timestamp: Date.now(),
+        status: '已付款，等待发货'
+    };
+    await db.taobaoOrders.add(newOrder);
+    
+    // 4c. 创建一个漂亮的“礼物通知”卡片消息，发送给你
+    aiMessage = {
+        ...baseMessage, // 复用基础消息属性（发送者、时间戳等）
+        type: 'gift_notification',
+        // 这是卡片渲染需要的数据
+        payload: {
+            senderName: chat.name,
+            itemSummary: `${productToBuy.name} x1`,
+            totalPrice: productToBuy.price,
+            itemCount: 1,
+        },
+        // 这是给AI自己看的、用于形成记忆的文本内容
+        content: `我给你买了礼物“${productToBuy.name}”。${msgData.greeting || ''}`
+    };
+    
+    // 4d. 模拟一个10秒后的“已发货”物流更新
+    setTimeout(async () => {
+        const orderToUpdate = await db.taobaoOrders.where({ timestamp: newOrder.timestamp }).first();
+        if (orderToUpdate) {
+            await db.taobaoOrders.update(orderToUpdate.id, { status: '已发货，运输中' });
+        }
+    }, 1000 * 10);
+    
+    break; // 完成礼物购买逻辑，跳出 case
+}
+
+// ▲▲▲ 新增 case 代码粘贴结束 ▲▲▲
+
 // ▲▲▲ 替换结束 ▲▲▲
                 case 'weibo_comment': {
                     const postToComment = await db.weiboPosts.get(msgData.postId);
@@ -26888,7 +26963,7 @@ let messagesPayload = [];
 # 任务
 你现在【就是】角色 "${chat.name}"。这是一个秘密的、后台的独立行动。你的所有思考和决策都必须以 "${chat.name}" 的第一人称视角进行。
 你和用户（${userNickname}）已经有一段时间没有互动了。你的任务是回顾你们最近的对话，并根据你的人设，【自然地延续对话】或【开启一个新的、相关的话题】来主动联系用户。
-
+请不要发送一整段！
 # 【【【输出铁律：这是最高指令】】】
 你的回复【必须且只能】是一个严格的JSON数组格式的字符串，例如 \`[{"type": "text", "content": "你好呀"}]\`。
 【绝对禁止】返回任何JSON以外的文本、解释、分析或你自己的思考过程。你不是分析师，你就是角色本人。
@@ -45875,7 +45950,7 @@ async function editSummary(timestamp) {
         openSummaryViewer(); // 重新渲染列表
     }
 }
-
+https://i.postimg.cc/kG7C0gGP/11.jpg
 /**
  * 删除一条总结
  */
@@ -46468,7 +46543,6 @@ async function renderTaobaoProducts(category = null) {
                 <div class="product-name">${product.name}</div>
                 <div class="product-price">${product.price.toFixed(2)}</div>
             </div>
-            <button class="add-cart-btn" data-product-id="${product.id}">+</button>
         `;
         addLongPressListener(card, () => showProductActions(product.id));
         gridEl.appendChild(card);
@@ -46557,34 +46631,42 @@ function openProductEditor(productId = null) {
     modal.classList.add('visible');
 }
 
-/**
- * 保存手动添加或编辑的商品
- */
-async function saveProduct() {
-    const name = document.getElementById('product-name-input').value.trim();
-    const price = parseFloat(document.getElementById('product-price-input').value);
-    const imageUrl = document.getElementById('product-image-input').value.trim();
-    const category = document.getElementById('product-category-input').value.trim();
+        async function saveProduct() {
+            const name = document.getElementById('product-name-input').value.trim();
+            const price = parseFloat(document.getElementById('product-price-input').value);
+            let imageUrl = document.getElementById('product-image-input').value.trim(); // 重点1：将 const 改为 let
+            const category = document.getElementById('product-category-input').value.trim();
 
-    if (!name || isNaN(price) || price <= 0 || !imageUrl) {
-        alert("请填写所有必填项（名称、有效价格、图片URL）！");
-        return;
-    }
+            // 重点2：移除了对 imageUrl 的强制要求
+            if (!name || isNaN(price) || price <= 0) {
+                alert("请填写所有必填项（名称、有效价格）！");
+                return;
+            }
 
-    const productData = { name, price, imageUrl, category };
+            // 重点3：如果用户没有填写图片链接，我们就随机给一个占位图
+            if (!imageUrl) {
+                const defaultImages = [
+                    'https://i.postimg.cc/kG7C0gGP/11.jpg',
+                    'https://i.postimg.cc/L6CSWRp9/22.jpg'
+                ];
+                imageUrl = defaultImages[Math.floor(Math.random() * defaultImages.length)];
+            }
 
-    if (currentEditingProductId) {
-        await db.taobaoProducts.update(currentEditingProductId, productData);
-        alert('商品已更新！');
-    } else {
-        await db.taobaoProducts.add(productData);
-        alert('新商品已添加！');
-    }
+            const productData = { name, price, imageUrl, category };
 
-    document.getElementById('product-editor-modal').classList.remove('visible');
-    await renderTaobaoProducts(); // 刷新商品列表
-    currentEditingProductId = null;
-}
+            if (currentEditingProductId) {
+                await db.taobaoProducts.update(currentEditingProductId, productData);
+                alert('商品已更新！');
+            } else {
+                await db.taobaoProducts.add(productData);
+                alert('新商品已添加！');
+            }
+
+            document.getElementById('product-editor-modal').classList.remove('visible');
+            await renderTaobaoProducts();
+            currentEditingProductId = null;
+        }
+
 
 /**
  * 打开识别链接的弹窗
@@ -46621,8 +46703,22 @@ async function handleAddFromLink() {
     }
 
     // 弹出图片链接输入框
-    const imageUrl = await showCustomPrompt(`商品: ${name}`, "请输入图片链接 (URL):");
-    if (!imageUrl || !imageUrl.trim()) return;
+    let imageUrl = await showCustomPrompt(`商品: ${name}`, "请输入图片链接 (URL，可留空):"); // 重点1：将 const 改为 let, 并修改提示语
+
+    // 重点2：如果用户点击了取消，imageUrl会是null，此时才返回
+    if (imageUrl === null) return; 
+
+    imageUrl = imageUrl.trim(); // 去除前后空格
+
+    // 重点3：如果用户没输入任何内容（或只输入了空格），则随机分配占位图
+    if (!imageUrl) {
+        const defaultImages = [
+            'https://i.postimg.cc/kG7C0gGP/11.jpg',
+            'https://i.postimg.cc/L6CSWRp9/22.jpg'
+        ];
+        imageUrl = defaultImages[Math.floor(Math.random() * defaultImages.length)];
+    }
+
 
     // 弹出分类输入框
     const category = await showCustomPrompt(`商品: ${name}`, "请输入分类 (可选):");
@@ -53779,32 +53875,41 @@ document.getElementById('close-ai-products-modal-btn').addEventListener('click',
     await renderTaobaoProducts(); 
 });
 
-// 3. 使用事件委托，处理结果弹窗内所有“添加”按钮的点击
-document.getElementById('ai-product-results-grid').addEventListener('click', async (e) => {
-    if (e.target.classList.contains('add-to-my-page-btn')) {
-        const button = e.target;
-        const productData = JSON.parse(button.dataset.product);
+        // 3. 使用事件委托，处理结果弹窗内所有“添加”按钮的点击
+        document.getElementById('ai-product-results-grid').addEventListener('click', async (e) => {
+            if (e.target.classList.contains('add-to-my-page-btn')) {
+                const button = e.target;
+                const productData = JSON.parse(button.dataset.product);
 
-        // 检查商品是否已存在
-        const existingProduct = await db.taobaoProducts.where('name').equals(productData.name).first();
-        if (existingProduct) {
-            alert('这个商品已经存在于你的桃宝主页啦！');
-            button.textContent = '已添加';
-            button.disabled = true;
-            return;
-        }
+                // 检查商品是否已存在
+                const existingProduct = await db.taobaoProducts.where('name').equals(productData.name).first();
+                if (existingProduct) {
+                    alert('这个商品已经存在于你的桃宝主页啦！');
+                    button.textContent = '已添加';
+                    button.disabled = true;
+                    return;
+                }
 
-        // 添加到数据库
-        await db.taobaoProducts.add(productData);
-        
-        // 禁用按钮并更新文本，给用户反馈
-        button.textContent = '✓ 已添加';
-        button.disabled = true;
-        
-        // （可选）给个小提示
-        // await showCustomAlert('添加成功', `“${productData.name}”已添加到你的桃宝！`);
-    }
-});
+                // --- ▼▼▼ 核心修改在这里 ▼▼▼ ---
+                // 1. 定义你的两张默认图片
+                const defaultImages = [
+                    'https://i.postimg.cc/kG7C0gGP/11.jpg',
+                    'https://i.postimg.cc/L6CSWRp9/22.jpg'
+                ];
+                // 2. 强制覆盖AI生成的图片链接，从你的默认图片中随机选一张
+                productData.imageUrl = defaultImages[Math.floor(Math.random() * defaultImages.length)];
+                // --- ▲▲▲ 修改结束 ▲▲▲
+
+                // 添加到数据库
+                await db.taobaoProducts.add(productData);
+                
+                // 禁用按钮并更新文本，给用户反馈
+                button.textContent = '✓ 已添加';
+                button.disabled = true;
+            }
+        });
+
+
 
 // ▼▼▼ 在 init() 的事件监听器区域末尾，粘贴下面这整块新代码 ▼▼▼
 
