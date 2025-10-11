@@ -21975,10 +21975,23 @@ ${chat.history.slice(-chat.settings.maxMemory).map(m => `${m.role === 'user' ? '
                 throw new Error(`API 错误: ${await response.text()}`);
             }
 
+// 这是你要替换成的新代码（已添加注释说明）
             const data = await response.json();
-            const aiContent = isGemini 
-                ? data.candidates[0].content.parts[0].text 
-                : data.choices[0].message.content;
+
+            // 【核心修正】使用可选链操作符(?.)安全地访问嵌套属性，避免因路径不存在而报错
+            const aiResponseContent = isGemini
+                ? data?.candidates?.[0]?.content?.parts?.[0]?.text
+                : data?.choices?.[0]?.message?.content;
+            
+            // 【重要】在获取内容后，增加一个判断，如果内容为空，则主动抛出错误
+            if (!aiResponseContent) {
+                console.warn(`API返回了空内容或格式不正确（可能因安全设置被拦截）。返回数据:`, data);
+                throw new Error("API返回了空内容或格式不正确（可能因安全设置被拦截）。");
+            }
+
+            // 使用我们新获取的、更安全的变量 aiResponseContent
+            const aiContent = aiResponseContent; 
+
 
 // ▼▼▼ 在这里粘贴新代码 ▼▼▼
             // 7. 【全新】智能解析包含心声的JSON回复
