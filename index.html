@@ -20224,29 +20224,32 @@ posts.forEach(post => {
     
 // ▼▼▼ 请用这块【已修复】的代码替换上面的旧代码 ▼▼▼
 let commentsHtml = '';
-// ★★★ 核心修改就在这里 ★★★
-// 我们在原来的判断条件中，增加了一个 Array.isArray(post.comments) 的检查
+// 检查 post.comments 是否存在且是一个数组
 if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) {
-    commentsHtml += '<div class="weibo-comments-container">';
-    post.comments.forEach(comment => {
+    // 修复点1：使用动态专用的容器类名 post-comments-container
+    commentsHtml += '<div class="post-comments-container">';
+    post.comments.forEach((comment, index) => { // 添加了index用于删除
         // 安全检查：确保 comment 是一个对象，防止后续代码出错
         if (typeof comment !== 'object' || comment === null) return;
 
         let replyHtml = '';
-        if (comment.replyToNickname) {
-            replyHtml = `<span class="weibo-comment-reply-tag">回复</span><span class="weibo-commenter-name">${comment.replyToNickname}</span>`;
+        if (comment.replyTo) { // 修复点2：回复对象字段应为 replyTo
+            replyHtml = `<span class="reply-text">回复</span> <span class="commenter-name">${comment.replyTo}</span>:`;
         }
+        
+        // 修复点3：使用动态专用的评论项类名 comment-item
+        // 修复点4：把 data-comment-index 加上，方便删除
         commentsHtml += `
-            <div class="weibo-comment-item" data-comment-id="${comment.commentId}" data-commenter-name="${comment.authorNickname}">
-                <span class="weibo-commenter-name">${comment.authorNickname}</span>
-                ${replyHtml}:
-                <span class="weibo-comment-text">${comment.commentText}</span>
-                <button class="comment-delete-btn" title="删除此条评论">×</button>
+            <div class="comment-item" data-comment-index="${index}">
+                <span class="commenter-name">${comment.commenterName}</span>${replyHtml} <!-- 修复点5：使用 commenterName -->
+                <span class="comment-text">${comment.text}</span> <!-- 修复点6：使用 text -->
+                <button class="comment-delete-btn" data-comment-index="${index}">×</button>
             </div>`;
     });
     commentsHtml += '</div>';
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
 
         const commentsAndFooterHtml = `
             ${commentsHtml}
