@@ -26830,11 +26830,12 @@ function filterVisiblePostsForAI(allPosts, viewerChat) {
  * @returns {{contextString: string, visibilityFlag: string}} - 返回包含上下文文本和可见性标志的对象
  */
 function buildCommentsContextForAI(post, viewerChat, userNickname) {
-    if (!post.comments || post.comments.length === 0) {
-        // ★★★ 关键在这里：确保 "[评论区可见]" 是一个带引号的字符串 ★★★
+    // ▼▼▼ 核心修复：在这里增加了 !Array.isArray(post.comments) 的检查 ▼▼▼
+    if (!post.comments || !Array.isArray(post.comments) || post.comments.length === 0) {
+        // 如果 post.comments 不存在，或者它根本不是一个数组，或者它是一个空数组，就直接返回，不再执行后面的代码
         return { contextString: "", visibilityFlag: "[评论区可见]" };
     }
-
+    // ▲▲▲ 修复结束 ▲▲▲
     const viewerName = viewerChat.name;
     let commentsForAI;
     let visibilityFlag;
@@ -38689,18 +38690,20 @@ function renderLSMoments(moments, chat) {
         const authorName = isUser ? (chat.settings.myNickname || '我') : chat.name;
         const authorAvatar = isUser ? chat.settings.myAvatar : chat.settings.aiAvatar;
 
-        // --- 核心修改：在这里构建评论区的HTML ---
+       // 2. 构造评论区域的HTML
         let commentsHtml = '';
-        if (moment.comments && moment.comments.length > 0) {
-            moment.comments.forEach((comment, commentIndex) => {
+        // ★★★ 核心修改：在这里也加上 Array.isArray(post.comments) 的检查 ★★★
+        if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) {
+            // 如果存在，就创建评论容器，并遍历每一条评论
+            commentsHtml = '<div class="post-comments-container">';
+            post.comments.forEach(comment => { // 现在这里就安全了
                 commentsHtml += `
-                    <div class="ls-comment-item">
-                        <span class="commenter-name">${comment.author}:</span>
+                    <div class="comment-item">
+                        <span class="commenter-name">${comment.commenterName}:</span>
                         <span class="comment-text">${comment.text}</span>
-                        <button class="ls-comment-delete-btn" data-moment-index="${originalIndex}" data-comment-index="${commentIndex}">×</button>
-                    </div>
-                `;
+                    </div>`;
             });
+            commentsHtml += '</div>';
         }
         
         const card = document.createElement('div');
