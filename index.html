@@ -14789,7 +14789,12 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     <!-- ▲▲▲ 新按钮粘贴结束 ▲▲▲ -->
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
-
+<!-- ▼▼▼ 在 id="summary-details-container" 的 </div> 之后粘贴 ▼▼▼ -->
+<div class="form-group" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+    <label style="margin-bottom: 0;">当前总聊天条数</label>
+    <span id="total-message-count-display" style="color: var(--text-secondary); font-weight: 500;">--</span>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 <!-- ▲▲▲ 新增HTML代码粘贴结束 ▲▲▲ -->
 
             <div class="form-group" id="ai-persona-group"><label for="ai-persona">对方人设 (AI Persona)</label><textarea id="ai-persona" rows="3"></textarea></div>
@@ -23213,10 +23218,6 @@ if (isApiBlocked) {
 }
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
     // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
-
-    // 【全新】为AI准备微博互动的上下文(用于主动聊天)
-    let weiboContextForActiveChat = '';
-    try {
       // ▼▼▼ 在 triggerAiResponse 函数的 try { 之后，粘贴这一整块新代码 ▼▼▼
 
 // ▼▼▼ 用这整块【已修复无限循环】的代码，替换旧的塔罗牌解读逻辑 ▼▼▼
@@ -23266,12 +23267,9 @@ if (lastUserMessage && lastUserMessage.type === 'tarot_reading' && !lastUserMess
     return triggerAiResponse(); // 再次调用自己，让Char进行回应
 }
 // --- 塔罗牌解读逻辑结束 ---
-
-// ▲▲▲ 粘贴结束 ▲▲▲
-
-
-// ▲▲▲ 替换结束 ▲▲▲
-// ▲▲▲ 粘贴结束 ▲▲▲
+// ▼▼▼ 用这块【已修复】的代码，完整替换你旧的 weiboContextForActiveChat 代码块 ▼▼▼
+    let weiboContextForActiveChat = '';
+    try {
         // 1. 从数据库里找出最新的5条微博
         const recentWeiboPosts = await db.weiboPosts.orderBy('timestamp').reverse().limit(5).toArray();
 
@@ -23282,8 +23280,9 @@ if (lastUserMessage && lastUserMessage.type === 'tarot_reading' && !lastUserMess
                 const authorName = post.authorId === 'user' ? (state.qzoneSettings.weiboNickname || '我') : post.authorNickname;
                 const contentPreview = (post.content || post.hiddenContent || "(图片微博)").substring(0, 30);
                 
-                // 2. 检查你（AI角色）是否已经评论过
-                const hasCommented = (post.comments || []).some(c => c.authorNickname === chat.name);
+                // 2. ★★★【核心修复】在这里加入 Array.isArray() 检查！ ★★★
+                // 只有当 post.comments 确实是一个数组时，我们才去调用 .some() 方法
+                const hasCommented = post.comments && Array.isArray(post.comments) && post.comments.some(c => c.authorNickname === chat.name);
                 const interactionStatus = hasCommented ? "[你已评论]" : "[你未互动]";
                 
                 weiboContextForActiveChat += `- (ID: ${post.id}) 作者: ${authorName}, 内容: "${contentPreview}..." ${interactionStatus}\n`;
@@ -23293,8 +23292,7 @@ if (lastUserMessage && lastUserMessage.type === 'tarot_reading' && !lastUserMess
     } catch (e) {
         console.error("生成微博主动聊天上下文时出错:", e);
     }
-    
-    // ▲▲▲ 新代码粘贴结束 ▲▲▲
+// ▲▲▲ 替换结束 ▲▲▲
 
 const chatHeaderTitle = document.getElementById('chat-header-title');
 
@@ -48511,6 +48509,14 @@ document.getElementById('chat-settings-btn').addEventListener('click', async () 
     if (!state.activeChatId) return;
     const chat = state.chats[state.activeChatId];
     const isGroup = chat.isGroup;
+// ▼▼▼ 在 const chat = ... 的下一行，粘贴这段新代码 ▼▼▼
+// 计算总消息条数并更新显示
+const totalMessages = chat.history.length;
+const countDisplay = document.getElementById('total-message-count-display');
+if (countDisplay) {
+    countDisplay.textContent = `${totalMessages} 条`;
+}
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 
     // --- 统一显示/隐藏控件 ---
     // ▼▼▼ 在 chat-settings-btn 的 click 事件中，粘贴这段代码 ▼▼▼
