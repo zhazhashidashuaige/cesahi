@@ -19874,15 +19874,21 @@ async function createCharacterFromData(data, avatarBase64) {
     
     // 步骤 2: 创建新的聊天对象 (不变)
     const newChatId = 'chat_' + Date.now();
-// 这是修改后的新代码块
+// ▼▼▼ 请用这块【终极完整版】代码，替换你旧的 const newChat = { ... }; 代码块 ▼▼▼
+
 const newChat = {
     id: newChatId,
     name: characterName,
     isGroup: false,
     isPinned: false,
+    history: [],
+    unreadCount: 0,
+    musicData: { totalTime: 0 },
     npcLibrary: [],
     relationship: { status: 'friend', blockedTimestamp: null, applicationReason: '' },
     status: { text: '在线', lastUpdate: Date.now(), isBusy: false },
+    weiboDms: [],
+    loversSpaceData: null,
     settings: {
         aiPersona: charData.description || '该角色没有描述。',
         myPersona: '我是谁呀。',
@@ -19895,10 +19901,34 @@ const newChat = {
         customCss: '',
         linkedWorldBookIds: [],
         aiAvatarLibrary: [],
+        stickerLibrary: [],
+        summary: { 
+            enabled: false, 
+            mode: 'auto', 
+            count: 20, 
+            prompt: '请你以第三人称的视角，客观、冷静、不带任何感情色彩地总结以下对话的核心事件和信息。禁止进行任何角色扮演或添加主观评论。', 
+            lastSummaryIndex: -1 
+        },
+        linkedMemories: [],
+        offlineMode: { 
+            enabled: false, 
+            prompt: '', 
+            style: '', 
+            wordCount: 300, 
+            presets: [] 
+        },
+        timePerceptionEnabled: true,
+        customTime: '',
+        isCoupleAvatar: false,
+        coupleAvatarDescription: '',
+        weiboProfession: '',
+        weiboInstruction: '',
+        visualVideoCallEnabled: false,
+        charVideoImage: '',
+        userVideoImage: '',
+        petAdopted: false,
+        pet: null,
     },
-    history: [],
-    musicData: { totalTime: 0 },
-    // ▼▼▼ 把原来的那一行替换成下面这整块 ▼▼▼
     characterPhoneData: {
         lastGenerated: null,
         chats: {},
@@ -19911,8 +19941,10 @@ const newChat = {
         appUsage: [],
         diary: []
     }
-    // ▲▲▲ 替换结束 ▲▲▲
 };
+
+// ▲▲▲ 替换结束 ▲▲▲
+
     await db.chats.put(newChat);
     state.chats[newChatId] = newChat;
     
