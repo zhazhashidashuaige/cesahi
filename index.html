@@ -38618,18 +38618,10 @@ async function renderLoversSpace(chat) {
     // 默认显示第一个页签
     switchLoversSpaceTab('ls-moments-view');
 // ▼▼▼ 用下面这块【已修复】的代码替换 ▼▼▼
-// 先安全地移除可能存在的旧高亮
-const currentActiveTab = document.querySelector('#ls-tab-bar .ls-tab-item.active');
-if (currentActiveTab) {
-    currentActiveTab.classList.remove('active');
-}
+// 这是你的旧代码
+document.querySelector('.ls-tab-item.active').classList.remove('active');
+document.querySelector('.ls-tab-item[data-view="ls-moments-view"]').classList.add('active');
 
-// 再为默认的“说说”页签添加高亮
-const defaultTab = document.querySelector('.ls-tab-item[data-view="ls-moments-view"]');
-if (defaultTab) {
-    defaultTab.classList.add('active');
-}
-// ▲▲▲ 替换结束 ▲▲▲
 
 
     // 渲染各个页签的内容
@@ -38714,76 +38706,69 @@ async function handleChangeLoversSpaceBackground() {
 
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
 
-/**
- * 渲染“说说”列表 (V2 - 已添加评论和删除功能)
- */
-function renderLSMoments(moments, chat) {
-    const listEl = document.getElementById('ls-moments-list');
-    listEl.innerHTML = '';
-    if (!moments || moments.length === 0) {
-        listEl.innerHTML = '<p class="ls-empty-placeholder">还没有任何悄悄话，快来发布第一条吧！</p>';
-        return;
-    }
-    
-    // 我们需要原始的数组索引来做删除，所以这里不用 [...moments].reverse()
-    for (let i = moments.length - 1; i >= 0; i--) {
-        const moment = moments[i];
-        const originalIndex = i; // 保存原始索引
+        /**
+         * 渲染“说说”列表 (V2 - 已添加评论和删除功能)
+         */
+        function renderLSMoments(moments, chat) {
+            const listEl = document.getElementById('ls-moments-list');
+            listEl.innerHTML = '';
+            if (!moments || moments.length === 0) {
+                listEl.innerHTML = '<p class="ls-empty-placeholder">还没有任何悄悄话，快来发布第一条吧！</p>';
+                return;
+            }
+            
+            // 我们需要原始的数组索引来做删除，所以这里不用 [...moments].reverse()
+            for (let i = moments.length - 1; i >= 0; i--) {
+                const moment = moments[i];
+                const originalIndex = i; // 保存原始索引
 
-        const isUser = moment.author === 'user';
-        const authorName = isUser ? (chat.settings.myNickname || '我') : chat.name;
-        const authorAvatar = isUser ? chat.settings.myAvatar : chat.settings.aiAvatar;
+                const isUser = moment.author === 'user';
+                const authorName = isUser ? (chat.settings.myNickname || '我') : chat.name;
+                const authorAvatar = isUser ? chat.settings.myAvatar : chat.settings.aiAvatar;
 
-       // 2. 构造评论区域的HTML
-        let commentsHtml = '';
-        // ★★★ 核心修改：在这里也加上 Array.isArray(post.comments) 的检查 ★★★
-        if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) {
-            // 如果存在，就创建评论容器，并遍历每一条评论
-            commentsHtml = '<div class="post-comments-container">';
-            post.comments.forEach(comment => { // 现在这里就安全了
-                commentsHtml += `
-                    <div class="comment-item">
-                        <span class="commenter-name">${comment.commenterName}:</span>
-                        <span class="comment-text">${comment.text}</span>
-                    </div>`;
-            });
-            commentsHtml += '</div>';
-        }
-        
-        const card = document.createElement('div');
-        card.className = 'ls-moment-card';
-        // 【重要】把说说的原始索引存起来，方便后面操作
-        card.dataset.momentIndex = originalIndex; 
-        
-        // --- 核心修改：加入新的HTML结构 ---
-        card.innerHTML = `
-            <img src="${authorAvatar}" class="avatar">
-            <div class="moment-main">
-                <span class="author">${authorName}</span>
-                <p class="content">${moment.content.replace(/\n/g, '<br>')}</p>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span class="timestamp">${formatPostTimestamp(moment.timestamp)}</span>
-                </div>
+               // 2. 构造评论区域的HTML
+                let commentsHtml = '';
+                // ★★★ 核心修复：将变量 'post' 修正为 'moment' ★★★
+                if (moment.comments && Array.isArray(moment.comments) && moment.comments.length > 0) {
+                    // 这里原本是 post.comments，导致了错误
+                    commentsHtml = '<div class="ls-moment-comments-container">'; // 使用情侣空间专用的class
+                    moment.comments.forEach((comment, commentIndex) => { // ★★★ 核心修复：将变量 'post' 修正为 'moment' ★★★
+                        commentsHtml += `
+                            <div class="ls-comment-item">
+                                <span class="commenter-name">${comment.author}:</span>
+                                <span class="comment-text">${comment.text}</span>
+                                <button class="ls-comment-delete-btn" data-comment-index="${commentIndex}">×</button>
+                            </div>`;
+                    });
+                    commentsHtml += '</div>';
+                }
                 
-                <!-- ▼▼▼ 这是新增的整个底部区域 ▼▼▼ -->
-                <div class="ls-moment-footer">
-                    <div class="ls-moment-comments-container">
-                        ${commentsHtml}
+                const card = document.createElement('div');
+                card.className = 'ls-moment-card';
+                card.dataset.momentIndex = originalIndex; 
+                
+                card.innerHTML = `
+                    <img src="${authorAvatar}" class="avatar">
+                    <div class="moment-main">
+                        <span class="author">${authorName}</span>
+                        <p class="content">${moment.content.replace(/\n/g, '<br>')}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="timestamp">${formatPostTimestamp(moment.timestamp)}</span>
+                        </div>
+                        
+                        <div class="ls-moment-footer">
+                            ${commentsHtml}
+                            <div class="ls-comment-input-area">
+                                <input type="text" placeholder="添加评论...">
+                                <button class="ls-comment-send-btn">发送</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="ls-comment-input-area">
-                        <input type="text" placeholder="添加评论...">
-                        <button class="ls-comment-send-btn">发送</button>
-                    </div>
-                </div>
-                <!-- ▲▲▲ 新增区域结束 ▲▲▲ -->
-
-            </div>
-            <!-- ▼▼▼ 这是新增的说说删除按钮 ▼▼▼ -->
-            <button class="ls-moment-delete-btn" title="删除这条说说">×</button>
-        `;
-        listEl.appendChild(card);
-    }
-}
+                    <button class="ls-moment-delete-btn" title="删除这条说说">×</button>
+                `;
+                listEl.appendChild(card);
+            }
+        }
 
 // ▼▼▼ 用这块【新代码】替换旧的 renderLSPhotos 函数 ▼▼▼
 /**
