@@ -14192,7 +14192,41 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                 </div>
                 <div id="character-diary-list" class="list-container"></div>
             </div>
-            
+            <!-- ▼▼▼ 【全新】这是角色手机外观设置的HTML界面，请粘贴到指定位置 ▼▼▼ -->
+<div id="character-phone-appearance-screen" class="character-phone-page">
+    <div class="header character-phone-header">
+        <span class="back-btn" data-target-page="character-phone-screen">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </span>
+        <span>外观设置</span>
+        <span style="width: 30px;"></span>
+    </div>
+    <!-- 复用你已有的.form-container样式，方便滚动和布局 -->
+    <div class="form-container" style="padding: 15px; gap: 25px;">
+        <!-- 壁纸设置区 -->
+        <div>
+            <label style="font-weight: 500; color: var(--text-secondary);">手机壁纸</label>
+            <div id="char-phone-wallpaper-preview" class="wallpaper-preview" style="height: 240px; width: 135px; margin: 10px auto; border-radius: 12px;">点击下方上传</div>
+            <button id="upload-char-phone-wallpaper-btn" class="form-button">上传壁纸</button>
+            <button id="remove-char-phone-wallpaper-btn" class="form-button form-button-secondary" style="margin-top: 10px;">移除壁纸</button>
+        </div>
+        
+        <hr style="width: 100%; opacity: 0.2;">
+
+        <!-- App图标设置区 -->
+        <div>
+            <label style="font-weight: 500; color: var(--text-secondary);">App 图标</label>
+            <div id="char-phone-icon-settings-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 15px; text-align: center;">
+                <!-- App图标设置将由JS动态生成在这里 -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 隐藏的文件选择器，用于处理上传 -->
+<input type="file" id="char-phone-wallpaper-upload-input" accept="image/*" hidden>
+<input type="file" id="char-phone-icon-upload-input" accept="image/*" hidden>
+<!-- ▲▲▲ HTML粘贴结束 ▲▲▲ -->
+
         </div>
     </div>
 </div>
@@ -17906,7 +17940,22 @@ const PET_DECAY_AMOUNT = { // 每次衰减的数值
 };
 let petDecayTimer = null; // 用于管理衰减计时器的全局变量
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
-        const db = new Dexie('GeminiChatDB');
+// ▼▼▼ 【全新】这是角色手机的App列表，请粘贴到JS顶部 ▼▼▼
+const CHAR_PHONE_APPS = [
+    { id: 'chat', name: '微信', screen: 'character-chat-list-screen', svg: `<svg viewBox="0 0 24 24" fill="#4CAF50"><path d="M12 2C6.48 2 2 6.48 2 12c0 2.94 1.28 5.58 3.34 7.42c-.22 1.4-.89 3.1-1.25 3.82c-.36.72.48 1.39 1.05.94c.82-.67 2.43-1.88 3.3-2.58C9.44 21.78 10.68 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm3.5 10.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5s1.5.67 1.5 1.5s-.67 1.5-1.5 1.5zm-7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5s1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"/></svg>` },
+    { id: 'cart', name: '购物车', screen: 'character-shopping-cart-screen', svg: `<svg viewBox="0 0 24 24" fill="#F44336"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2s-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2s2-.9 2-2s-.9-2-2-2zm-15-14h3.27l.94 2H20c.69 0 1.25.56 1.25 1.25c0 .09-.02.18-.04.27l-3.58 6.49c-.25.44-.73.74-1.26.74H8.52l-.94-2H4.27V4H2V2h3.27z"/></svg>` },
+    { id: 'memos', name: '备忘录', screen: 'character-memos-screen', svg: `<svg viewBox="0 0 24 24" fill="#FFC107"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>` },
+    { id: 'browser', name: '浏览器', screen: 'character-browser-screen', svg: `<svg viewBox="0 0 24 24" fill="#2196F3"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1.5-12.5l3 7.5 7.5-3-7.5-3z"/></svg>` },
+    { id: 'album', name: '相册', screen: 'character-album-screen', svg: `<svg viewBox="0 0 24 24" fill="#8BC34A"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/></svg>` },
+    { id: 'bank', name: '钱包', screen: 'character-bank-screen', svg: `<svg viewBox="0 0 24 24" fill="#E91E63"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>` },
+    { id: 'trajectory', name: '足迹', screen: 'character-trajectory-screen', svg: `<svg viewBox="0 0 24 24" fill="#795548"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>` },
+    { id: 'app_usage', name: '使用记录', screen: 'character-app-usage-screen', svg: `<svg viewBox="0 0 24 24" fill="#607D8B"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8zm.5-13H11v6l5.25 3.15l.75-1.23l-4.5-2.67z"/></svg>` },
+    { id: 'diary', name: '日记', screen: 'character-diary-screen', svg: `<svg viewBox="0 0 24 24" fill="#009688"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83l3.75 3.75 1.83-1.83z"/></svg>` },
+    // 这就是我们新加的App
+    { id: 'appearance', name: '外观设置', screen: 'character-phone-appearance-screen', svg: `<svg viewBox="0 0 24 24" fill="#9C27B0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.17 14.34c-.21.21-.46.32-.71.32s-.5-.11-.71-.32l-1.41-1.41c-.2-.2-.31-.45-.31-.71 0-.26.11-.51.31-.71l1.41-1.41c.2-.2.45-.31.71-.31s.51.11.71.31l1.41 1.41c.4.4.4 1.04 0 1.41l-1.41 1.41zm3.34-5.34c-.21.21-.46.32-.71.32s-.5-.11-.71-.32L11.41 8.5c-.2-.2-.31-.45-.31-.71 0-.26.11-.51.31-.71l1.41-1.41c.2-.2.45-.31.71-.31s.51.11.71.31l1.41 1.41c.4.4.4 1.04 0 1.41l-1.41 1.41zm3.34 5.34c-.21.21-.46.32-.71.32s-.5-.11-.71-.32l-1.41-1.41c-.4-.4-.4-1.04 0-1.41l1.41-1.41c.2-.2.45-.31.71-.31s.51.11.71.31l1.41 1.41c.2.2.31.45.31.71 0 .26-.11.51-.31.71l-1.41 1.41z"/></svg>` }
+];
+// ▲▲▲ 代码粘贴结束 ▲▲▲
+const db = new Dexie('GeminiChatDB');
         // ▼▼▼ 把下面这一整块全新的微博功能代码，粘贴到这里 ▼▼▼
 
 /**
@@ -17964,16 +18013,10 @@ async function renderFollowingWeiboFeed() {
 }
 
 
-// ▼▼▼ 用这块【功能增强版】的代码，完整替换掉你旧的 createWeiboPostElement 函数 ▼▼▼
-/**
- * 【微博 V5 - 功能增强版】创建单个微博帖子的HTML元素
- * @param {object} post - 微博帖子对象
- * @returns {HTMLElement} - 创建好的DOM元素
- */
+// ▼▼▼ 用这块【最终修复版】的代码，完整替换掉你旧的 createWeiboPostElement 函数 ▼▼▼
 function createWeiboPostElement(post) {
     const postEl = document.createElement('div');
     postEl.className = 'weibo-post-item'; 
-    postEl.dataset.postId = post.id;
 
     let contentHtml = '';
     if (post.content) {
@@ -17988,77 +18031,59 @@ function createWeiboPostElement(post) {
         }
     }
 
-// ▼▼▼ 请用这块【已修复】的代码替换上面的旧代码 ▼▼▼
-let commentsHtml = '';
-// ★★★ 核心修改就在这里 ★★★
-// 我们在原来的判断条件中，增加了一个 Array.isArray(post.comments) 的检查
-if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) {
-    commentsHtml += '<div class="weibo-comments-container">';
-    post.comments.forEach(comment => {
-        // 安全检查：确保 comment 是一个对象，防止后续代码出错
-        if (typeof comment !== 'object' || comment === null) return;
-
-        let replyHtml = '';
-        if (comment.replyToNickname) {
-            replyHtml = `<span class="weibo-comment-reply-tag">回复</span><span class="weibo-commenter-name">${comment.replyToNickname}</span>`;
-        }
-        commentsHtml += `
-            <div class="weibo-comment-item" data-comment-id="${comment.commentId}" data-commenter-name="${comment.authorNickname}">
-                <span class="weibo-commenter-name">${comment.authorNickname}</span>
-                ${replyHtml}:
-                <span class="weibo-comment-text">${comment.commentText}</span>
-                <button class="comment-delete-btn" title="删除此条评论">×</button>
-            </div>`;
-    });
-    commentsHtml += '</div>';
-}
-// ▲▲▲ 替换结束 ▲▲▲
-
+    let commentsHtml = '';
+    if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) {
+        commentsHtml += '<div class="weibo-comments-container">';
+        post.comments.forEach(comment => {
+            if (typeof comment !== 'object' || comment === null) return;
+            let replyHtml = '';
+            if (comment.replyToNickname) {
+                replyHtml = `<span class="weibo-comment-reply-tag">回复</span><span class="weibo-commenter-name">${comment.replyToNickname}</span>`;
+            }
+            commentsHtml += `
+                <div class="weibo-comment-item" data-comment-id="${comment.commentId}" data-commenter-name="${comment.authorNickname}">
+                    <span class="weibo-commenter-name">${comment.authorNickname}</span>
+                    ${replyHtml}:
+                    <span class="weibo-comment-text">${comment.commentText}</span>
+                    <button class="comment-delete-btn" title="删除此条评论">×</button>
+                </div>`;
+        });
+        commentsHtml += '</div>';
+    }
 
     const myNickname = state.qzoneSettings.nickname || '我';
     const isLiked = post.likes && post.likes.includes(myNickname);
     
     let finalAuthorAvatar = post.authorAvatar;
     let finalAuthorNickname = post.authorNickname;
-
-    // --- ▼▼▼ 以下是本次修改的核心代码 ▼▼▼ ---
-
-    // 1. 获取作者的头像和头像框URL
     let finalAuthorAvatarFrame = '';
+
     if (post.authorId === 'user') {
         finalAuthorAvatar = state.qzoneSettings.weiboAvatar || state.qzoneSettings.avatar || defaultAvatar;
         finalAuthorNickname = state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我';
-        finalAuthorAvatarFrame = state.qzoneSettings.weiboAvatarFrame || ''; // 获取用户的微博头像框
+        finalAuthorAvatarFrame = state.qzoneSettings.weiboAvatarFrame || '';
     } else if (state.chats[post.authorId]) {
         const authorChat = state.chats[post.authorId];
         finalAuthorAvatar = authorChat.settings.aiAvatar || defaultAvatar;
         finalAuthorNickname = authorChat.name;
-        finalAuthorAvatarFrame = authorChat.settings.aiAvatarFrame || ''; // 获取AI的头像框
-    } else {
-        finalAuthorAvatar = defaultAvatar;
-        finalAuthorNickname = '{{char}}';
+        finalAuthorAvatarFrame = authorChat.settings.aiAvatarFrame || '';
     }
 
-    // 2. 根据是否有头像框，准备不同的HTML代码
     let avatarHtml = '';
     if (finalAuthorAvatarFrame) {
-        // 如果有框，就使用我们新的、带框的HTML结构
         avatarHtml = `
             <div class="avatar-with-frame">
-                <img src="${finalAuthorAvatar}" class="avatar-img">
+                <img src="${finalAuthorAvatar}" class="avatar-img weibo-post-avatar">
                 <img src="${finalAuthorAvatarFrame}" class="avatar-frame">
             </div>
         `;
     } else {
-        // 如果没框，就还用原来的简单头像
         avatarHtml = `<img src="${finalAuthorAvatar}" class="weibo-post-avatar">`;
     }
 
-    // --- ▲▲▲ 核心代码修改结束 ▲▲▲ ---
-
     postEl.innerHTML = `
         <div class="weibo-post-header">
-            ${avatarHtml} <!-- 3. 在这里使用我们准备好的 avatarHtml -->
+            ${avatarHtml}
             <div class="weibo-post-info">
                 <span class="weibo-post-nickname">${finalAuthorNickname}</span>
                 <span class="weibo-post-timestamp">${formatPostTimestamp(post.timestamp)}</span>
@@ -18074,7 +18099,7 @@ if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) {
                 </span>
                 <span class="weibo-action-btn comment-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>           
-                    <span>${(post.baseCommentsCount || 0) + (post.comments || []).length}</span>
+                    <span>${(post.comments || []).length}</span>
                 </span>
                 <span class="weibo-action-btn generate-comments-btn" title="AI生成评论">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -18090,9 +18115,91 @@ if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) {
             </div>
         </div>
     `;
+
+    // --- ★★★ 核心修复：在这里为所有按钮直接绑定事件 ★★★ ---
+
+    // 1. 绑定“发送评论”按钮
+    const sendBtn = postEl.querySelector('.weibo-comment-send-btn');
+    if (sendBtn) {
+        sendBtn.addEventListener('click', () => {
+            const input = postEl.querySelector('.weibo-comment-input');
+            handleWeiboComment(post.id, input); // 直接调用，传入post.id
+        });
+    }
+
+    // 2. 绑定“生成评论”按钮
+    const generateBtn = postEl.querySelector('.generate-comments-btn');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', () => {
+            generateWeiboComments(post.id); // 直接调用，传入post.id
+        });
+    }
+
+    // 3. 绑定“点赞”按钮
+    const likeBtn = postEl.querySelector('.like-btn');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', () => {
+            handleWeiboLike(post.id); // 直接调用，传入post.id
+        });
+    }
+
+    // 4. 绑定“删除评论”按钮 (使用事件委托)
+    const commentsContainer = postEl.querySelector('.weibo-comments-container');
+    if (commentsContainer) {
+        commentsContainer.addEventListener('click', (e) => {
+            const deleteBtn = e.target.closest('.comment-delete-btn');
+            if (deleteBtn) {
+                const commentItem = deleteBtn.closest('.weibo-comment-item');
+                if (commentItem && commentItem.dataset.commentId) {
+                    deleteWeiboComment(post.id, commentItem.dataset.commentId);
+                }
+            }
+        });
+    }
+    
+    // 5. 绑定“...”操作按钮
+    const actionsBtn = postEl.querySelector('.post-actions-btn');
+    if(actionsBtn){
+        actionsBtn.addEventListener('click', async () => {
+            const confirmed = await showCustomConfirm('删除微博', '确定要永久删除这条微博吗？此操作不可恢复。', { confirmButtonClass: 'btn-danger' });
+            if (confirmed) {
+                await db.weiboPosts.delete(post.id);
+                await renderMyWeiboFeed();
+                await renderFollowingWeiboFeed();
+                await renderWeiboProfile();
+                alert('微博已删除。');
+            }
+        });
+    }
+
+    // 6. 绑定评论区，实现点击回复功能
+    const commentSection = postEl.querySelector('.weibo-comments-container');
+    if (commentSection) {
+        commentSection.addEventListener('click', (e) => {
+            const commentItem = e.target.closest('.weibo-comment-item');
+            if (commentItem && !e.target.closest('.comment-delete-btn')) { // 确保不是点的删除按钮
+                const commenterName = commentItem.dataset.commenterName;
+                const commentId = commentItem.dataset.commentId;
+                const input = postEl.querySelector('.weibo-comment-input');
+                
+                if (input.dataset.replyToId === commentId) {
+                    // 如果再次点击同一个人，则取消回复
+                    input.placeholder = '留下你的精彩评论吧...';
+                    delete input.dataset.replyToId;
+                    delete input.dataset.replyToNickname;
+                } else {
+                    input.placeholder = `回复 @${commenterName}:`;
+                    input.dataset.replyToId = commentId;
+                    input.dataset.replyToNickname = commenterName;
+                    input.focus();
+                }
+            }
+        });
+    }
+
     return postEl;
 }
-// ▲▲▲ 替换结束 ▲▲▲
+
 
 /**
  * 【微博】打开微博发布/编辑模态框
@@ -20259,33 +20366,40 @@ posts.forEach(post => {
         likesHtml = `<div class="post-likes-section"><svg class="like-icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span>${post.likes.join('、')} 觉得很赞</span></div>`;
     }
     
-// ▼▼▼ 请用这块【已修复】的代码替换上面的旧代码 ▼▼▼
-let commentsHtml = '';
-// 检查 post.comments 是否存在且是一个数组
-if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) {
-    // 修复点1：使用动态专用的容器类名 post-comments-container
-    commentsHtml += '<div class="post-comments-container">';
-    post.comments.forEach((comment, index) => { // 添加了index用于删除
-        // 安全检查：确保 comment 是一个对象，防止后续代码出错
-        if (typeof comment !== 'object' || comment === null) return;
+    let commentsHtml = '';
+    if (post.comments && post.comments.length > 0) {
+        // ★★★★★ 这就是我们这次修复的核心 ★★★★★
+        // 2. 修改这里的过滤逻辑
+        const commentsToShow = post.areCommentsVisible === false 
+            ? post.comments.filter(comment => 
+                // 条件1: 评论者是你自己
+                comment.commenterName === userSettings.nickname || 
+                // 条件2: 评论者的名字在我们刚才创建的AI角色名字列表里
+                allAiCharacterNames.has(comment.commenterName)
+              )
+            : post.comments; // 如果开关是开的，就显示所有评论
+        // ★★★★★ 修复结束 ★★★★★
 
-        let replyHtml = '';
-        if (comment.replyTo) { // 修复点2：回复对象字段应为 replyTo
-            replyHtml = `<span class="reply-text">回复</span> <span class="commenter-name">${comment.replyTo}</span>:`;
+        if (commentsToShow.length > 0) {
+// ▲▲▲ 替换到这里结束 ▲▲▲
+
+                commentsHtml = '<div class="post-comments-container">';
+                commentsToShow.forEach(comment => {
+                    const originalIndex = post.comments.indexOf(comment);
+                    let replyHtml = '';
+                    if (comment.replyTo) {
+                        replyHtml = `<span class="reply-text">回复</span> <span class="reply-target-name">${comment.replyTo}</span>`;
+                    }
+                    commentsHtml += `
+                        <div class="comment-item" data-commenter-name="${comment.commenterName}">
+                            <span class="commenter-name">${comment.commenterName}</span>${replyHtml}:
+                            <span class="comment-text"> ${comment.text}</span>
+                            <span class="comment-delete-btn" data-comment-index="${originalIndex}">×</span>
+                        </div>`;
+                });
+                commentsHtml += '</div>';
+            }
         }
-        
-        // 修复点3：使用动态专用的评论项类名 comment-item
-        // 修复点4：把 data-comment-index 加上，方便删除
-        commentsHtml += `
-            <div class="comment-item" data-comment-index="${index}">
-                <span class="commenter-name">${comment.commenterName}</span>${replyHtml} <!-- 修复点5：使用 commenterName -->
-                <span class="comment-text">${comment.text}</span> <!-- 修复点6：使用 text -->
-                <button class="comment-delete-btn" data-comment-index="${index}">×</button>
-            </div>`;
-    });
-    commentsHtml += '</div>';
-}
-// ▲▲▲ 替换结束 ▲▲▲
 
 
         const commentsAndFooterHtml = `
@@ -21114,6 +21228,21 @@ if (!chat.isGroup && chat.settings.pet) {
             };
         }
         // ▲▲▲ 新代码粘贴结束 ▲▲▲  
+        
+        // ▼▼▼ 【全新】在这里添加对角色手机外观设置的兼容代码 ▼▼▼
+        if (!chat.isGroup) { // 只为单聊角色添加
+            if (!chat.characterPhoneData) {
+                chat.characterPhoneData = {}; // 以防万一连 characterPhoneData 都没有
+            }
+            if (!chat.characterPhoneData.wallpaper) {
+                chat.characterPhoneData.wallpaper = ''; // 初始化壁纸为空
+            }
+            if (!chat.characterPhoneData.appIcons) {
+                chat.characterPhoneData.appIcons = {}; // 初始化App图标为空对象
+            }
+        }
+        // ▲▲▲ 兼容代码添加结束 ▲▲▲
+        
         // ▲▲▲ 新代码粘贴结束 ▲▲▲
         acc[chat.id] = chat;
         return acc;
@@ -32749,97 +32878,103 @@ async function renderCharacterSelectionScreen() {
     });
 }
 
-/**
- * 【V2重构版】打开指定角色的手机界面
- */
+// ▼▼▼ 用这块【已更新】的代码，完整替换你旧的 openCharacterPhone 函数 ▼▼▼
 function openCharacterPhone(chatId) {
     activeCharacterPhoneId = chatId;
     const chat = state.chats[chatId];
     if (!chat) return;
 
     document.getElementById('character-phone-owner-name').textContent = `${chat.name}的手机`;
-    renderCharacterAppGrid(); // 渲染APP图标
+    
+    // --- ▼▼▼ 核心修改：在这里应用壁纸 ▼▼▼ ---
+    const phoneHomeScreen = document.getElementById('character-phone-screen');
+    const wallpaperUrl = chat.characterPhoneData.wallpaper;
+    const isDarkMode = document.getElementById('phone-screen').classList.contains('dark-mode');
 
-    // 核心修改：我们现在显示的是“手机外壳”这个总容器
+    if (wallpaperUrl) {
+        phoneHomeScreen.style.backgroundImage = `url(${wallpaperUrl})`;
+        phoneHomeScreen.style.backgroundColor = 'transparent';
+        phoneHomeScreen.style.backgroundSize = 'cover';
+        phoneHomeScreen.style.backgroundPosition = 'center';
+    } else {
+        phoneHomeScreen.style.backgroundImage = 'none';
+        // 如果没有壁纸，就使用一个默认的背景色
+        phoneHomeScreen.style.backgroundColor = isDarkMode ? '#000000' : '#f0f2f5';
+    }
+    // --- ▲▲▲ 修改结束 ▲▲▲
+
+    renderCharacterAppGrid(); 
+
     showScreen('character-phone-container'); 
-    // 同时，确保默认显示的是它的主屏幕
     showCharacterPhonePage('character-phone-screen');
 }
+// ▲▲▲ 替换结束 ▲▲▲
 
-/**
- * 【V4美化版】渲染角色手机主界面的APP图标
- */
+// ▼▼▼ 请用这整块【修复版】代码，替换你旧的 renderCharacterAppGrid 函数 ▼▼▼
 function renderCharacterAppGrid() {
     const gridEl = document.getElementById('character-app-grid');
     gridEl.innerHTML = '';
+    if (!activeCharacterPhoneId) return;
 
-    const apps = [
-        { 
-            id: 'chat', name: '微信', screen: 'character-chat-list-screen',
-            svg: `<svg viewBox="0 0 24 24" fill="#4CAF50"><path d="M12 2C6.48 2 2 6.48 2 12c0 2.94 1.28 5.58 3.34 7.42c-.22 1.4-.89 3.1-1.25 3.82c-.36.72.48 1.39 1.05.94c.82-.67 2.43-1.88 3.3-2.58C9.44 21.78 10.68 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm3.5 10.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5s1.5.67 1.5 1.5s-.67 1.5-1.5 1.5zm-7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5s1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"/></svg>`
-        },
-        { 
-            id: 'cart', name: '购物车', screen: 'character-shopping-cart-screen',
-            svg: `<svg viewBox="0 0 24 24" fill="#F44336"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2s-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2s2-.9 2-2s-.9-2-2-2zm-15-14h3.27l.94 2H20c.69 0 1.25.56 1.25 1.25c0 .09-.02.18-.04.27l-3.58 6.49c-.25.44-.73.74-1.26.74H8.52l-.94-2H4.27V4H2V2h3.27z"/></svg>`
-        },
-        { 
-            id: 'memos', name: '备忘录', screen: 'character-memos-screen',
-            svg: `<svg viewBox="0 0 24 24" fill="#FFC107"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`
-        },
-        {
-            id: 'browser', name: '浏览器', screen: 'character-browser-screen',
-            // 【核心修改】替换为新的指南针SVG
-            svg: `<svg viewBox="0 0 24 24" fill="#2196F3"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1.5-12.5l3 7.5 7.5-3-7.5-3z"/></svg>`
-        },
-        {
-            id: 'album', name: '相册', screen: 'character-album-screen',
-            svg: `<svg viewBox="0 0 24 24" fill="#8BC34A"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/></svg>`
-        },
-        {
-            id: 'bank', name: '钱包', screen: 'character-bank-screen',
-            // 【核心修改】替换为新的钱包SVG
-            svg: `<svg viewBox="0 0 24 24" fill="#E91E63"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>`
-        },
-        {
-            id: 'trajectory', name: '足迹', screen: 'character-trajectory-screen',
-            svg: `<svg viewBox="0 0 24 24" fill="#795548"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5z"/></svg>`
-        },
-        {
-            id: 'app_usage', name: '使用记录', screen: 'character-app-usage-screen',
-            svg: `<svg viewBox="0 0 24 24" fill="#607D8B"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8zm.5-13H11v6l5.25 3.15l.75-1.23l-4.5-2.67z"/></svg>`
-        },
-        {
-            id: 'diary', name: '日记', screen: 'character-diary-screen',
-            svg: `<svg viewBox="0 0 24 24" fill="#009688"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83l3.75 3.75 1.83-1.83z"/></svg>`
-        },
-    ];
+    const chat = state.chats[activeCharacterPhoneId];
+    const customIcons = chat.characterPhoneData.appIcons || {};
 
-    apps.forEach(app => {
+    CHAR_PHONE_APPS.forEach(app => {
         const iconEl = document.createElement('div');
         iconEl.className = 'app-icon';
+
+        const customIconUrl = customIcons[app.id];
+        
+        // --- 核心修改从这里开始 ---
+        
+        let iconBgStyle = 'display: flex; justify-content: center; align-items: center; padding: 12px;';
+        let iconHtml;
+
+        if (customIconUrl) {
+            // 如果有自定义图标URL...
+            // 1. 覆盖掉 .icon-bg 的样式，移除内边距和背景色
+            iconBgStyle = 'padding: 0; background-color: transparent;';
+            // 2. iconHtml 直接变成一个带有圆角的图片
+            iconHtml = `<img src="${customIconUrl}" style="width:100%; height:100%; object-fit:cover; border-radius: 18px;">`;
+        } else {
+            // 否则，使用默认的SVG
+            iconHtml = app.svg;
+        }
+
+        // --- 修改结束 ---
+
         iconEl.innerHTML = `
-            <div class="icon-bg" style="display: flex; justify-content: center; align-items: center; padding: 12px;">
-                ${app.svg}
+            <div class="icon-bg" style="${iconBgStyle}">
+                ${iconHtml}
             </div>
             <span class="label">${app.name}</span>
         `;
+        
+        // 后续的事件监听代码保持不变
         iconEl.addEventListener('click', () => {
-            switch(app.id) {
-                case 'chat': renderCharacterChatList(); break;
-                case 'cart': renderCharacterShoppingCart(); break;
-                case 'memos': renderCharacterMemos(); break;
-                case 'browser': renderCharacterBrowser(); break;
-                case 'album': renderCharacterPhotoAlbum(); break;
-                case 'bank': renderCharacterBank(); break;
-                case 'trajectory': renderCharacterTrajectory(); break;
-                case 'app_usage': renderCharacterAppUsage(); break;
+            if (app.id === 'appearance') {
+                openCharPhoneAppearanceSettings();
+            } else {
+                switch(app.id) {
+                    case 'chat': renderCharacterChatList(); break;
+                    case 'cart': renderCharacterShoppingCart(); break;
+                    case 'memos': renderCharacterMemos(); break;
+                    case 'browser': renderCharacterBrowser(); break;
+                    case 'album': renderCharacterPhotoAlbum(); break;
+                    case 'bank': renderCharacterBank(); break;
+                    case 'trajectory': renderCharacterTrajectory(); break;
+                    case 'app_usage': renderCharacterAppUsage(); break;
+                    case 'diary': renderCharacterDiary(); break;
+                }
+                showCharacterPhonePage(app.screen); 
             }
-            showCharacterPhonePage(app.screen); 
         });
         gridEl.appendChild(iconEl);
     });
 }
-// ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▲▲▲ 替换结束 ▲▲▲
 
 // ▼▼▼ 用下面这整块【数量增强版】代码，替换你旧的 generateCharacterPhoneDataSegment 函数 ▼▼▼
 
@@ -47784,6 +47919,134 @@ async function createOrdersFromCart(cartItems) {
 // ▲▲▲ 新功能函数结束 ▲▲▲
 
 /* --- “桃宝”App 功能函数结束 --- */
+// ▼▼▼ 【全新】这是角色手机外观设置的所有核心函数，请粘贴到JS功能区 ▼▼▼
+
+/**
+ * 【总入口】打开角色手机的外观设置页面
+ */
+function openCharPhoneAppearanceSettings() {
+    renderCharPhoneAppearanceScreen(); // 渲染页面内容
+    showCharacterPhonePage('character-phone-appearance-screen'); // 显示页面
+}
+
+/**
+ * 渲染角色手机外观设置页面的所有内容（壁纸预览+图标列表）
+ */
+function renderCharPhoneAppearanceScreen() {
+    if (!activeCharacterPhoneId) return;
+    const chat = state.chats[activeCharacterPhoneId];
+    if (!chat) return;
+
+    // --- 渲染壁纸预览 ---
+    const wallpaperPreview = document.getElementById('char-phone-wallpaper-preview');
+    const wallpaperUrl = chat.characterPhoneData.wallpaper || '';
+    if (wallpaperUrl) {
+        wallpaperPreview.style.backgroundImage = `url(${wallpaperUrl})`;
+        wallpaperPreview.textContent = '';
+    } else {
+        wallpaperPreview.style.backgroundImage = 'none';
+        wallpaperPreview.textContent = '暂无壁纸';
+    }
+
+    // --- 渲染App图标设置列表 ---
+    const iconGrid = document.getElementById('char-phone-icon-settings-grid');
+    iconGrid.innerHTML = '';
+    const customIcons = chat.characterPhoneData.appIcons || {};
+
+    // 我们使用刚刚定义的 CHAR_PHONE_APPS 数组来确保所有App都被渲染
+    CHAR_PHONE_APPS.forEach(app => {
+        // “外观设置”这个App本身不需要被设置
+        if (app.id === 'appearance') return;
+
+        const customIconUrl = customIcons[app.id];
+        const currentIconHtml = customIconUrl ? `<img src="${customIconUrl}" style="width:100%; height:100%; object-fit:cover;">` : app.svg;
+        
+        const itemEl = document.createElement('div');
+        itemEl.className = 'icon-setting-item'; // 复用主屏幕的样式
+        itemEl.innerHTML = `
+            <div class="icon-preview" style="width: 50px; height: 50px; border-radius: 12px; display: flex; justify-content: center; align-items: center; padding: 8px; background: #f0f2f5;">
+                ${currentIconHtml}
+            </div>
+            <span style="font-size: 13px;">${app.name}</span>
+            <button class="change-icon-btn" data-icon-id="${app.id}" style="padding: 4px 10px; font-size: 12px; border: 1px solid #ccc; background-color: #f0f0f0; border-radius: 5px; cursor: pointer;">更换</button>
+        `;
+        iconGrid.appendChild(itemEl);
+    });
+}
+
+/**
+ * 处理角色手机壁纸的更换和移除
+ * @param {string} newUrl - 新的壁纸URL，如果为空字符串则表示移除
+ */
+async function handleCharPhoneWallpaperChange(newUrl) {
+    if (!activeCharacterPhoneId) return;
+    const chat = state.chats[activeCharacterPhoneId];
+    
+    chat.characterPhoneData.wallpaper = newUrl;
+    await db.chats.put(chat);
+    
+    // 立即应用壁纸到角色手机主屏幕
+    const phoneScreen = document.getElementById('character-phone-screen');
+    if (newUrl) {
+        phoneScreen.style.backgroundImage = `url(${newUrl})`;
+        phoneScreen.style.backgroundColor = 'transparent';
+    } else {
+        phoneScreen.style.backgroundImage = 'none';
+        const isDarkMode = document.getElementById('phone-screen').classList.contains('dark-mode');
+        phoneScreen.style.backgroundColor = isDarkMode ? '#000' : '#f0f2f5';
+    }
+    
+    // 刷新设置页面的预览
+    renderCharPhoneAppearanceScreen();
+    alert(newUrl ? '壁纸已更新！' : '壁纸已移除！');
+}
+
+/**
+ * 处理角色手机App图标的更换
+ * @param {string} iconId - 要更换的App的ID
+ */
+async function handleChangeCharPhoneIcon(iconId) {
+    if (!activeCharacterPhoneId) return;
+    
+    const choice = await showChoiceModal("更换图标", [
+        { text: '📁 从本地上传', value: 'local' },
+        { text: '🌐 使用网络URL', value: 'url' },
+        { text: '🔄 恢复默认', value: 'reset' }
+    ]);
+
+    let newIconUrl = null;
+
+    if (choice === 'local') {
+        newIconUrl = await uploadImageLocally();
+    } else if (choice === 'url') {
+        newIconUrl = await showCustomPrompt("图标URL", "请输入图片链接");
+    } else if (choice === 'reset') {
+        const chat = state.chats[activeCharacterPhoneId];
+        if (chat.characterPhoneData.appIcons && chat.characterPhoneData.appIcons[iconId]) {
+            delete chat.characterPhoneData.appIcons[iconId];
+            await db.chats.put(chat);
+            renderCharPhoneAppearanceScreen();
+            renderCharacterAppGrid();
+            alert('图标已恢复默认。');
+        }
+        return;
+    }
+
+    if (newIconUrl && newIconUrl.trim()) {
+        const chat = state.chats[activeCharacterPhoneId];
+        if (!chat.characterPhoneData.appIcons) {
+            chat.characterPhoneData.appIcons = {};
+        }
+        chat.characterPhoneData.appIcons[iconId] = newIconUrl.trim();
+        await db.chats.put(chat);
+        
+        renderCharPhoneAppearanceScreen(); // 刷新设置页面
+        renderCharacterAppGrid(); // 刷新主屏幕
+        alert('图标已更新！');
+    }
+}
+
+// ▲▲▲ 新增函数粘贴结束 ▲▲▲
 
 // ▲▲▲ 新功能函数粘贴结束 ▲▲▲
 
@@ -54012,6 +54275,38 @@ document.getElementById('share-cart-to-char-btn').addEventListener('click', hand
 document.getElementById('buy-for-char-btn').addEventListener('click', handleBuyForChar);
 // ▲▲▲ 粘贴结束 ▲▲▲
 /* --- “桃宝”App 事件监听器结束 --- */
+// ▼▼▼ 【全新】这是角色手机外观设置的事件监听器 ▼▼▼
+document.getElementById('character-phone-container').addEventListener('click', (e) => {
+    // 使用事件委托，判断点击的是哪个按钮
+    if (e.target.id === 'upload-char-phone-wallpaper-btn') {
+        document.getElementById('char-phone-wallpaper-upload-input').click();
+    } 
+    else if (e.target.id === 'remove-char-phone-wallpaper-btn') {
+        handleCharPhoneWallpaperChange(''); // 传入空字符串来移除壁纸
+    }
+    else {
+        const changeIconButton = e.target.closest('.change-icon-btn');
+        if (changeIconButton) {
+            const iconId = changeIconButton.dataset.iconId;
+            handleChangeCharPhoneIcon(iconId);
+        }
+    }
+});
+
+// 监听壁纸文件选择
+document.getElementById('char-phone-wallpaper-upload-input').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if(file) {
+        const dataUrl = await new Promise(res => {
+            const reader = new FileReader();
+            reader.onload = () => res(reader.result);
+            reader.readAsDataURL(file);
+        });
+        handleCharPhoneWallpaperChange(dataUrl);
+    }
+    event.target.value = null; // 清空，以便下次能选择同一个文件
+});
+// ▲▲▲ 事件监听结束 ▲▲▲
 
 // ▲▲▲ 新增事件监听结束 ▲▲▲
 
