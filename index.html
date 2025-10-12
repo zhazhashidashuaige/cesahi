@@ -38617,8 +38617,20 @@ async function renderLoversSpace(chat) {
     
     // 默认显示第一个页签
     switchLoversSpaceTab('ls-moments-view');
-    document.querySelector('.ls-tab-item.active').classList.remove('active');
-    document.querySelector('.ls-tab-item[data-view="ls-moments-view"]').classList.add('active');
+// ▼▼▼ 用下面这块【已修复】的代码替换 ▼▼▼
+// 先安全地移除可能存在的旧高亮
+const currentActiveTab = document.querySelector('#ls-tab-bar .ls-tab-item.active');
+if (currentActiveTab) {
+    currentActiveTab.classList.remove('active');
+}
+
+// 再为默认的“说说”页签添加高亮
+const defaultTab = document.querySelector('.ls-tab-item[data-view="ls-moments-view"]');
+if (defaultTab) {
+    defaultTab.classList.add('active');
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
 
     // 渲染各个页签的内容
     renderLSMoments(chat.loversSpaceData.moments, chat);
