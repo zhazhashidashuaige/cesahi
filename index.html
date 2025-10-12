@@ -12996,15 +12996,16 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     <div id="new-widget-text-3" class="new-widget-text editable-text" contenteditable="true">可编辑文字</div>
 </div>
 <!-- ▲▲▲ 替换结束 ▲▲▲ -->
- <!-- ▼▼▼ 把下面这整块【全新的代码】，粘贴到第二个 <div class="home-page"> 的【内部】最底部 ▼▼▼ -->
+<!-- ▼▼▼ 把下面这一整块【全新的代码】，粘贴到第二个 <div class="home-page"> 的【内部】最底部 ▼▼▼ -->
 <!-- 这是我们新增的“桃宝”App图标 -->
-<div style="position: absolute; bottom: 120px; left: 20px;">
+<div style="position: absolute; bottom: 75px; left: 35px;">
     <div class="desktop-app-icon" id="taobao-app-icon">
         <div class="icon-bg-desktop"><img id="icon-img-taobao" src="https://i.postimg.cc/k47tXg1j/taologo.png" alt="桃宝"></div>
         <span class="label" style="color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">桃宝</span>
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 </div>
     </div>
@@ -16981,15 +16982,19 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 </div>
 <!-- ▼▼▼ 把下面这一整块全新的HTML代码，粘贴到 </body> 标签的正上方 ▼▼▼ -->
 
-<!-- ▼▼▼ 用这整块代码替换你旧的 id="taobao-screen" 的 div ▼▼▼ -->
+<!-- ▼▼▼ 用这整块代码替换旧的 id="taobao-screen" 的 div ▼▼▼ -->
 <div id="taobao-screen" class="screen">
     <div class="header">
         <span class="back-btn" onclick="showScreen('home-screen')">‹</span>
         <span>桃宝</span>
         <div class="header-actions">
+            <!-- ▼▼▼ 在这里添加新按钮 ▼▼▼ -->
+            <span class="action-btn" id="clear-taobao-products-btn" style="font-size: 16px; font-weight: 500;">清空</span>
+            <!-- ▲▲▲ 添加结束 ▲▲▲ -->
             <span class="action-btn" id="add-product-btn" title="添加商品">+</span>
         </div>
     </div>
+
     
     <!-- 1. 顶部页签导航 -->
     <div class="taobao-tabs">
@@ -19071,7 +19076,8 @@ const DEFAULT_APP_ICONS = {
     'forum': 'https://i.postimg.cc/pr0T3WfC/douban-icon.png',
     'lovers-space': 'https://i.postimg.cc/d1wZ39xW/lovers-space-icon.png',
     'game-hall': 'https://i.postimg.cc/P5gL5z2g/game-controller-icon.png',
-    'x-social': 'https://i.postimg.cc/8P1H0vQ8/x-logo.png'
+    'x-social': 'https://i.postimg.cc/8P1H0vQ8/x-logo.png',
+    'taobao': 'https://i.postimg.cc/k47tXg1j/taologo.png'
 };
 
 // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
@@ -19220,6 +19226,22 @@ function getRandomItem(arr) {
 }
 
 // ▲▲▲ 粘贴结束 ▲▲▲
+// ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+
+/**
+ * 【全新】获取一张随机的淘宝宝贝默认图片
+ * @returns {string} - 返回一张随机图片的URL
+ */
+function getRandomDefaultProductImage() {
+    const defaultImages = [
+        'https://i.postimg.cc/W4svy4Hm/Image-1760206134285.jpg',
+        'https://i.postimg.cc/jjRb1jF7/Image-1760206125678.jpg'
+    ];
+    // 从数组中随机选择一个并返回
+    return defaultImages[Math.floor(Math.random() * defaultImages.length)];
+}
+
+// ▲▲▲ 新增代码粘贴结束 ▲▲▲
 
 /**
  * 【全新】从一个数组中随机获取一个元素
@@ -26890,56 +26912,45 @@ function getVisibleAudienceForPost(post, allChats, userNickname) {
     return Array.from(audience);
 }
 
+// ▼▼▼ 用这整块【最终修复版】代码，完整替换你旧的 triggerInactiveAiAction 函数 ▼▼▼
 async function triggerInactiveAiAction(chatId) {
-    // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
-
-    // 【全新】为AI准备微博互动的上下文
-    let weiboContextForAction = '';
-    try {
-        // 1. 从数据库里找出最新的5条微博
-        const recentWeiboPosts = await db.weiboPosts.orderBy('timestamp').reverse().limit(5).toArray();
-
-        if (recentWeiboPosts.length > 0) {
-            weiboContextForAction = '\n\n# 最近的微博广场动态 (供你参考和评论)\n';
-            
-            recentWeiboPosts.forEach(post => {
-                const authorName = post.authorId === 'user' ? (state.qzoneSettings.weiboNickname || '我') : post.authorNickname;
-                const contentPreview = (post.content || post.hiddenContent || "(图片微博)").substring(0, 30);
-                
-                // 2. 检查你（AI角色）是否已经评论过
-                const hasCommented = (post.comments || []).some(c => c.authorNickname === chat.name);
-                const interactionStatus = hasCommented ? "[你已评论]" : "[你未互动]";
-                
-                weiboContextForAction += `- (ID: ${post.id}) 作者: ${authorName}, 内容: "${contentPreview}..." ${interactionStatus}\n`;
-            });
-            weiboContextForAction += ' - 【重要提示】请优先与你【未互动】的微博进行评论。如果都互动过了，可以考虑自己发一条新微博。';
-        }
-    } catch (e) {
-        console.error("生成微博后台活动上下文时出错:", e);
-    }
-    
-    // ▲▲▲ 新代码粘贴结束 ▲▲▲
-
     const chat = state.chats[chatId];
     if (!chat) return;
 
     const { proxyUrl, apiKey, model } = state.apiConfig;
     if (!proxyUrl || !apiKey || !model) return;
 
+    // --- ▼▼▼ 核心修改从这里开始 ▼▼▼ ---
+
+    // 1. 获取最近的10条聊天记录作为思考的上下文
+    const historySlice = chat.history.filter(msg => !msg.isHidden).slice(-10);
+
+    // 2. 格式化这些记录，让AI能看懂
+    const recentContextSummary = historySlice.map(msg => {
+        // 判断是谁说的话
+        const sender = msg.role === 'user' ? (chat.isGroup ? (chat.settings.myNickname || '我') : '我') : (msg.senderName || chat.name);
+        
+        // 处理不同类型的消息内容
+        let contentText = '';
+        if (typeof msg.content === 'string' && STICKER_REGEX.test(msg.content)) {
+            contentText = `[发送了一个表情: ${msg.meaning || '无描述'}]`;
+        } else if (Array.isArray(msg.content)) {
+            contentText = '[发送了一张图片]';
+        } else if (typeof msg.content === 'object' && msg.content !== null) {
+            contentText = `[发送了一条特殊消息: ${msg.type || '未知类型'}]`;
+        } else {
+            contentText = String(msg.content);
+        }
+        
+        return `${sender}: ${contentText}`;
+    }).join('\n');
+
+    // --- ▲▲▲ 核心修改到这里结束 ▲▲▲ ---
+
     const now = new Date();
     const currentTime = now.toLocaleTimeString('zh-CN', { hour: 'numeric', minute: 'numeric', hour12: true });
     const userNickname = state.qzoneSettings.nickname;
     const countdownContext = await getCountdownContext();
-
-    const lastUserMessage = chat.history.filter(m => m.role === 'user' && !m.isHidden).slice(-1)[0];
-    const lastAiMessage = chat.history.filter(m => m.role === 'assistant' && !m.isHidden).slice(-1)[0];
-    let recentContextSummary = "你们最近没有聊过天。";
-    if (lastUserMessage) {
-        recentContextSummary = `用户 (${userNickname}) 最后对你说：“${String(lastUserMessage.content).substring(0, 50)}...”。`;
-    }
-    if (lastAiMessage) {
-        recentContextSummary += `\n你最后对用户说：“${String(lastAiMessage.content).substring(0, 50)}...”。`;
-    }
 
     let worldBookContext = '';
     if (chat.settings.linkedWorldBookIds && chat.settings.linkedWorldBookIds.length > 0) {
@@ -26957,9 +26968,46 @@ async function triggerInactiveAiAction(chatId) {
     if (npcLibrary.length > 0) {
         npcContextForAction = '\n- **你的NPC朋友**: ' + npcLibrary.map(npc => npc.name).join('、 ');
     }
-let messagesPayload = [];
-// ▼▼▼ 从这里开始替换 ▼▼▼
-        const systemPrompt = `
+    
+    const allRecentPosts = await db.qzonePosts.orderBy('timestamp').reverse().limit(5).toArray();
+    let postsContext = '';
+    const visiblePosts = filterVisiblePostsForAI(allRecentPosts, chat);
+    if (visiblePosts.length > 0 && !chat.isGroup) {
+        postsContext = "\n\n# 最近的动态列表 (供你参考和评论):\n";
+        const aiName = chat.name;
+        for (const post of visiblePosts) {
+            let authorName = post.authorId === 'user' ? userNickname : (state.chats[post.authorId]?.name || '一位朋友');
+            let interactionStatus = '';
+            if (post.likes && post.likes.includes(aiName)) interactionStatus += " [你已点赞]";
+            if (post.comments && post.comments.some(c => c.commenterName === aiName)) interactionStatus += " [你已评论]";
+            const timeAgo = formatPostTimestamp(post.timestamp);
+            postsContext += `- (ID: ${post.id}) [${timeAgo}] 作者: ${authorName}, 内容: "${(post.publicText || post.content || "图片动态").substring(0, 30)}..."${interactionStatus}`;
+            const { contextString: commentsContext, visibilityFlag } = buildCommentsContextForAI(post, chat, userNickname);
+            const audience = getVisibleAudienceForPost(post, state.chats, userNickname);
+            postsContext += ` ${visibilityFlag} [当前观众: ${audience.join(', ')}]\n`;
+            postsContext += commentsContext;
+        }
+    }
+
+    let weiboContextForAction = '';
+    try {
+        const recentWeiboPosts = await db.weiboPosts.orderBy('timestamp').reverse().limit(5).toArray();
+        if (recentWeiboPosts.length > 0) {
+            weiboContextForAction = '\n\n# 最近的微博广场动态 (供你参考和评论)\n';
+            recentWeiboPosts.forEach(post => {
+                const authorName = post.authorId === 'user' ? (state.qzoneSettings.weiboNickname || '我') : post.authorNickname;
+                const contentPreview = (post.content || post.hiddenContent || "(图片微博)").substring(0, 30);
+                const hasCommented = (post.comments || []).some(c => c.authorNickname === chat.name);
+                const interactionStatus = hasCommented ? "[你已评论]" : "[你未互动]";
+                weiboContextForAction += `- (ID: ${post.id}) 作者: ${authorName}, 内容: "${contentPreview}..." ${interactionStatus}\n`;
+            });
+            weiboContextForAction += ' - 【重要提示】请优先与你【未互动】的微博进行评论。如果都互动过了，可以考虑自己发一条新微博。';
+        }
+    } catch (e) {
+        console.error("生成微博后台活动上下文时出错:", e);
+    }
+
+    const systemPrompt = `
 # 任务
 你现在【就是】角色 "${chat.name}"。这是一个秘密的、后台的独立行动。你的所有思考和决策都必须以 "${chat.name}" 的第一人称视角进行。
 你和用户（${userNickname}）已经有一段时间没有互动了。你的任务是回顾你们最近的对话，并根据你的人设，【自然地延续对话】或【开启一个新的、相关的话题】来主动联系用户。
@@ -27009,51 +27057,21 @@ ${weiboContextForAction}
 ${countdownContext}
 ${worldBookContext}
 -   **当前时间**: ${currentTime}
--   **你们最后的对话摘要**: ${recentContextSummary}
+-   **你们最近的对话摘要**: 
+${recentContextSummary}
 -   **【【【微博专属设定(必须严格遵守)】】】**
     - 你的微博职业: ${chat.settings.weiboProfession || '无'}
     - 你的微博指令: ${chat.settings.weiboInstruction || '无特殊指令'}
-// ▲▲▲ 替换到这里结束 ▲▲▲
--     **【重要】最近的动态列表**: 这个列表会标注 **[你已点赞]** 或 **[你已评论]**。如果一条动态被标记为 **[你已评论]**，你【绝对不能】再对这条动态的主体发表新的评论。但是，你仍然可以回复动态下的【其他人的】评论。请优先与你【尚未互动过】的动态进行交流。`;
-// ▼▼▼ 从这里开始替换 ▼▼▼
+${postsContext}
+`;
+    let messagesPayload = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: "请严格按照system prompt中的所有规则，特别是输出格式铁律，立即开始你的行动。" }
+    ];
+
     try {
-        let finalPrompt = systemPrompt; // 先把基础剧本准备好
-
-        const allRecentPosts = await db.qzonePosts.orderBy('timestamp').reverse().limit(3).toArray();
-        const visiblePosts = filterVisiblePostsForAI(allRecentPosts, chat);
-        
-        // 如果有动态，就把动态信息补充到剧本里
-        if (visiblePosts.length > 0) {
-            let postsContext = "\n\n# 最近的动态列表 (供你参考和评论):\n";
-            const aiName = chat.name;
-            for (const post of visiblePosts) {
-                let authorName = post.authorId === 'user' ? userNickname : (state.chats[post.authorId]?.name || '一位朋友');
-                let interactionStatus = '';
-                if (post.likes && post.likes.includes(aiName)) interactionStatus += " [你已点赞]";
-                if (post.comments && post.comments.some(c => c.commenterName === aiName)) interactionStatus += " [你已评论]";
-                
-                const timeAgo = formatPostTimestamp(post.timestamp);
-                postsContext += `- (ID: ${post.id}) [${timeAgo}] 作者: ${authorName}, 内容: "${(post.publicText || post.content || "图片动态").substring(0, 30)}..."${interactionStatus}`;
-                
-                const { contextString: commentsContext, visibilityFlag } = buildCommentsContextForAI(post, chat, userNickname);
-                const audience = getVisibleAudienceForPost(post, state.chats, userNickname);
-                postsContext += ` ${visibilityFlag} [当前观众: ${audience.join(', ')}]\n`;
-                postsContext += commentsContext;
-            }
-            finalPrompt += postsContext; // 把动态信息追加到总剧本末尾
-        }
-        
-        // 现在，我们用这个包含了所有信息的、完整的剧本去创建 messagesPayload
-        let messagesPayload = [
-            { role: 'system', content: finalPrompt },
-            { role: 'user', content: "请严格按照system prompt中的所有规则，特别是输出格式铁律，立即开始你的行动。" }
-        ];
-// ▲▲▲ 替换到这里结束 ▲▲▲
-        console.log("正在为后台活动发送API请求，Payload:", JSON.stringify(messagesPayload, null, 2));
-
         let isGemini = proxyUrl === GEMINI_API_URL;
         let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesPayload, isGemini);
-
         const response = isGemini 
             ? await fetch(geminiConfig.url, geminiConfig.data) 
             : await fetch(`${proxyUrl}/v1/chat/completions`, {
@@ -27065,27 +27083,21 @@ ${worldBookContext}
                     temperature: 0.9,
                 })
             });
-
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(`API请求失败: ${response.status} - ${JSON.stringify(errorData)}`);
         }
-
         const data = await response.json();
         const aiResponseContent = isGemini
             ? data?.candidates?.[0]?.content?.parts?.[0]?.text
             : data?.choices?.[0]?.message?.content;
-            
         if (!aiResponseContent) {
             console.warn(`API为空回或格式不正确（可能因安全设置被拦截），角色 "${chat.name}" 的本次后台活动跳过。返回数据:`, data);
             return;
         }
-
         const responseArray = parseAiResponse(aiResponseContent);
-
         for (const action of responseArray) {
             if (!action) continue;
-
             if (action.type === 'update_status' && action.status_text) {
                 chat.status.text = action.status_text;
                 chat.status.isBusy = action.is_busy || false;
@@ -27102,7 +27114,6 @@ ${worldBookContext}
                 renderChatList();
                 console.log(`后台活动: 角色 "${chat.name}" 主动发送了消息: ${aiMessage.content}`);
             }
-                        // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
             if (action.type === 'weibo_post') {
                 const newPost = { 
                     authorId: chatId, 
@@ -27133,7 +27144,6 @@ ${worldBookContext}
                     };
                     postToComment.comments.push(newComment);
                     await db.weiboPosts.put(postToComment);
-                    // 这里不需要刷新UI，因为用户不在界面上
                 }
             } else if (action.type === 'weibo_reply') {
                  const postToReply = await db.weiboPosts.get(parseInt(action.postId));
@@ -27154,7 +27164,6 @@ ${worldBookContext}
                      }
                  }
             }
-            // ▲▲▲ 粘贴结束 ▲▲▲
             if (action.type === 'qzone_post') {
                 const newPost = { 
                     type: action.postType, 
@@ -27169,28 +27178,24 @@ ${worldBookContext}
                 await db.qzonePosts.add(newPost);
                 updateUnreadIndicator(unreadPostsCount + 1);
                 console.log(`后台活动: 角色 "${chat.name}" 发布了动态`);
-} else if (action.type === 'qzone_comment') {
-    const post = await db.qzonePosts.get(parseInt(action.postId));
-    if (post) {
-        if (!post.comments) post.comments = [];
-        
-        const newAiComment = { 
-            commenterName: action.commenterName || chat.name,
-            text: action.commentText, 
-            timestamp: Date.now() 
-        };
-        
-        if (action.replyTo) {
-            newAiComment.replyTo = action.replyTo;
-        }
-
-        post.comments.push(newAiComment);
-        await db.qzonePosts.update(post.id, { comments: post.comments });
-        updateUnreadIndicator(unreadPostsCount + 1);
-        console.log(`后台活动: 角色 "${chat.name}" 评论了动态 #${post.id}`);
-    }
-}
-             else if (action.type === 'qzone_like') {
+            } else if (action.type === 'qzone_comment') {
+                const post = await db.qzonePosts.get(parseInt(action.postId));
+                if (post) {
+                    if (!post.comments) post.comments = [];
+                    const newAiComment = { 
+                        commenterName: action.commenterName || chat.name,
+                        text: action.commentText, 
+                        timestamp: Date.now() 
+                    };
+                    if (action.replyTo) {
+                        newAiComment.replyTo = action.replyTo;
+                    }
+                    post.comments.push(newAiComment);
+                    await db.qzonePosts.update(post.id, { comments: post.comments });
+                    updateUnreadIndicator(unreadPostsCount + 1);
+                    console.log(`后台活动: 角色 "${chat.name}" 评论了动态 #${post.id}`);
+                }
+            } else if (action.type === 'qzone_like') {
                 const post = await db.qzonePosts.get(parseInt(action.postId));
                 if (post) {
                     if (!post.likes) post.likes = [];
@@ -27208,33 +27213,13 @@ ${worldBookContext}
                     showIncomingCallModal(chatId);
                     console.log(`后台活动: 角色 "${chat.name}" 发起了视频通话请求`);
                 }
-            // ▼▼▼ 在 for (const action of responseArray) 循环内粘贴 ▼▼▼
-            if (action.type === 'weibo_post') {
-                const newPost = { 
-                    authorId: chatId, 
-                    authorType: 'char',
-                    authorNickname: chat.name, 
-                    authorAvatar: chat.settings.aiAvatar || defaultAvatar, 
-                    content: action.content || '', 
-                    imageUrl: action.imageUrl || '',
-                    timestamp: Date.now(), 
-                    likes: [], 
-                    comments: action.comments || [] // 接收路人评论
-                };
-                await db.weiboPosts.add(newPost);
-                updateUnreadIndicator(unreadPostsCount + 1);
-                console.log(`后台活动: 角色 "${chat.name}" 发布了微博`);
-            }
-// ▲▲▲ 粘贴结束 ▲▲▲
             }
         }
     } catch (error) {
         console.error(`角色 "${chat.name}" 的独立行动失败:`, error);
     }
 }
-
-
-
+// ▲▲▲ 修复版函数结束 ▲▲▲
 // ▼▼▼ 请用这个【终极修正版】函数，完整替换掉你旧的 applyScopedCss 函数 ▼▼▼
 
 /**
@@ -30212,7 +30197,8 @@ const appLabels = {
     'forum': '圈子',
     'lovers-space': '情侣空间',
     'game-hall': '游戏大厅',
-    'x-social': 'X社交'
+    'x-social': 'X社交',
+    'taobao': '桃宝'
 };
 // ▲▲▲ 替换结束 ▲▲▲
 
@@ -45950,7 +45936,7 @@ async function editSummary(timestamp) {
         openSummaryViewer(); // 重新渲染列表
     }
 }
-https://i.postimg.cc/kG7C0gGP/11.jpg
+
 /**
  * 删除一条总结
  */
@@ -46164,6 +46150,44 @@ async function updateCharacterBankBalance(charId, amount, description) {
 /* --- 【全新】“桃宝”App 核心功能函数 --- */
 
 let currentEditingProductId = null; // 用于追踪正在编辑的商品ID
+/**
+ * 【全新 | 已修复】清空桃宝首页的所有商品及购物车
+ */
+async function clearTaobaoProducts() {
+    // 1. 修改提示语，告知用户购物车也会被清空
+    const confirmed = await showCustomConfirm(
+        '确认清空',
+        '确定要清空桃宝首页的所有商品吗？此操作将【一并清空购物车】，且无法恢复。',
+        { confirmButtonClass: 'btn-danger' }
+    );
+
+    if (confirmed) {
+        try {
+            // 使用数据库事务，确保两步操作要么都成功，要么都失败，更安全
+            await db.transaction('rw', db.taobaoProducts, db.taobaoCart, async () => {
+                // 清空商品库
+                await db.taobaoProducts.clear();
+                // ▼▼▼ 核心新增代码1：清空购物车数据库 ▼▼▼
+                await db.taobaoCart.clear();
+            });
+            
+            // 重新渲染UI
+            await renderTaobaoProducts(); 
+            // ▼▼▼ 核心新增代码2：刷新购物车UI（让页面变空） ▼▼▼
+            await renderTaobaoCart();
+            // ▼▼▼ 核心新增代码3：更新购物车角标（让红点消失） ▼▼▼
+            updateCartBadge();
+
+            // 2. 修改成功提示
+            await showCustomAlert('操作成功', '所有商品及购物车已被清空！');
+
+        } catch (error) {
+            console.error("清空桃宝商品时出错:", error);
+            await showCustomAlert('操作失败', `发生错误: ${error.message}`);
+        }
+    }
+}
+
 
 /**
  * 【总入口】打开“桃宝”App，并渲染默认视图
@@ -46631,41 +46655,42 @@ function openProductEditor(productId = null) {
     modal.classList.add('visible');
 }
 
-        async function saveProduct() {
-            const name = document.getElementById('product-name-input').value.trim();
-            const price = parseFloat(document.getElementById('product-price-input').value);
-            let imageUrl = document.getElementById('product-image-input').value.trim(); // 重点1：将 const 改为 let
-            const category = document.getElementById('product-category-input').value.trim();
+// ▼▼▼ 用这块【新代码】替换旧的 saveProduct 函数 ▼▼▼
+/**
+ * 保存手动添加或编辑的商品
+ */
+async function saveProduct() {
+    const name = document.getElementById('product-name-input').value.trim();
+    const price = parseFloat(document.getElementById('product-price-input').value);
+    let imageUrl = document.getElementById('product-image-input').value.trim(); // 核心修改1：使用let
+    const category = document.getElementById('product-category-input').value.trim();
 
-            // 重点2：移除了对 imageUrl 的强制要求
-            if (!name || isNaN(price) || price <= 0) {
-                alert("请填写所有必填项（名称、有效价格）！");
-                return;
-            }
+    // 核心修改2：现在图片URL不是必填项了
+    if (!name || isNaN(price) || price <= 0) {
+        alert("请填写所有必填项（名称、有效价格）！");
+        return;
+    }
 
-            // 重点3：如果用户没有填写图片链接，我们就随机给一个占位图
-            if (!imageUrl) {
-                const defaultImages = [
-                    'https://i.postimg.cc/kG7C0gGP/11.jpg',
-                    'https://i.postimg.cc/L6CSWRp9/22.jpg'
-                ];
-                imageUrl = defaultImages[Math.floor(Math.random() * defaultImages.length)];
-            }
+    // 核心修改3：如果图片URL为空，就调用我们的新函数获取一个随机默认图
+    if (!imageUrl) {
+        imageUrl = getRandomDefaultProductImage();
+    }
 
-            const productData = { name, price, imageUrl, category };
+    const productData = { name, price, imageUrl, category };
 
-            if (currentEditingProductId) {
-                await db.taobaoProducts.update(currentEditingProductId, productData);
-                alert('商品已更新！');
-            } else {
-                await db.taobaoProducts.add(productData);
-                alert('新商品已添加！');
-            }
+    if (currentEditingProductId) {
+        await db.taobaoProducts.update(currentEditingProductId, productData);
+        alert('商品已更新！');
+    } else {
+        await db.taobaoProducts.add(productData);
+        alert('新商品已添加！');
+    }
 
-            document.getElementById('product-editor-modal').classList.remove('visible');
-            await renderTaobaoProducts();
-            currentEditingProductId = null;
-        }
+    document.getElementById('product-editor-modal').classList.remove('visible');
+    await renderTaobaoProducts(); // 刷新商品列表
+    currentEditingProductId = null;
+}
+// ▲▲▲ 替换结束 ▲▲▲
 
 
 /**
@@ -46676,6 +46701,7 @@ function openAddFromLinkModal() {
     document.getElementById('add-from-link-modal').classList.add('visible');
 }
 
+// ▼▼▼ 用这块【新代码】替换旧的 handleAddFromLink 函数 ▼▼▼
 /**
  * 核心功能：处理粘贴的分享文案
  */
@@ -46690,44 +46716,33 @@ async function handleAddFromLink() {
 
     const name = nameMatch[1];
     
-    // 关闭粘贴弹窗
     document.getElementById('add-from-link-modal').classList.remove('visible');
     
-    // 弹出价格输入框
     const priceStr = await showCustomPrompt(`商品: ${name}`, "请输入价格 (元):", "", "number");
-    if (priceStr === null) return; // 用户取消
+    if (priceStr === null) return;
     const price = parseFloat(priceStr);
     if (isNaN(price) || price <= 0) {
         alert("请输入有效的价格！");
         return;
     }
 
-    // 弹出图片链接输入框
-    let imageUrl = await showCustomPrompt(`商品: ${name}`, "请输入图片链接 (URL，可留空):"); // 重点1：将 const 改为 let, 并修改提示语
+    // 核心修改1：让图片URL变成可选
+    let imageUrl = await showCustomPrompt(`商品: ${name}`, "请输入图片链接 (URL, 可选):");
+    if (imageUrl === null) return; // 如果用户点取消，则中断操作
 
-    // 重点2：如果用户点击了取消，imageUrl会是null，此时才返回
-    if (imageUrl === null) return; 
-
-    imageUrl = imageUrl.trim(); // 去除前后空格
-
-    // 重点3：如果用户没输入任何内容（或只输入了空格），则随机分配占位图
-    if (!imageUrl) {
-        const defaultImages = [
-            'https://i.postimg.cc/kG7C0gGP/11.jpg',
-            'https://i.postimg.cc/L6CSWRp9/22.jpg'
-        ];
-        imageUrl = defaultImages[Math.floor(Math.random() * defaultImages.length)];
+    // 核心修改2：如果用户没填图片链接，就使用随机默认图
+    if (!imageUrl || !imageUrl.trim()) {
+        imageUrl = getRandomDefaultProductImage();
     }
 
-
-    // 弹出分类输入框
     const category = await showCustomPrompt(`商品: ${name}`, "请输入分类 (可选):");
 
-    // 保存商品
     await db.taobaoProducts.add({ name, price, imageUrl, category: category || '' });
     await renderTaobaoProducts();
     alert('商品已通过链接添加成功！');
 }
+// ▲▲▲ 替换结束 ▲▲▲
+
 // ▼▼▼ 把这一整块全新的功能函数，粘贴到 handleGenerateProductsAI 函数的正上方 ▼▼▼
 
 /**
@@ -46761,7 +46776,7 @@ async function handleSearchProductsAI() {
 3.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，每个对象代表一件商品，并包含以下字段:
     -   \`"name"\`: 商品名称
     -   \`"price"\`: 价格
-    -   \`"imageUrl"\`: 图片链接
+    -   \`"imageUrl"\`: 从'https://i.postimg.cc/kG7C0gGP/11.jpg'和'https://i.postimg.cc/W4svy4Hm/Image-1760206134285.jpg'中随机挑选一张，禁止自己生成。
     -   \`"category"\`: 商品分类
 
 # JSON输出格式示例:
@@ -46769,7 +46784,7 @@ async function handleSearchProductsAI() {
   {
     "name": "赛博朋克风发光数据线",
     "price": 69.9,
-    "imageUrl": "https://i.postimg.cc/k47tXg1j/taologo.png",
+    "imageUrl": "https://i.postimg.cc/kG7C0gGP/11.jpg",
     "category": "数码配件"
   }
 ]`;
@@ -46862,7 +46877,7 @@ async function handleGenerateProductsAI() {
 3.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，直接以 '[' 开头，以 ']' 结尾。每个对象代表一件商品，【必须】包含以下字段:
     -   \`"name"\`: 商品名称 (字符串)
     -   \`"price"\`: 价格 (数字)
-    -   \`"imageUrl"\`: 商品图片的网络链接 (字符串)
+    -   \`"imageUrl"\`: 从'https://i.postimg.cc/kG7C0gGP/11.jpg'和'https://i.postimg.cc/W4svy4Hm/Image-1760206134285.jpg'中随机挑选一张，禁止自己生成。
     -   \`"category"\`: 商品分类 (字符串)
 
 # JSON输出格式示例:
@@ -46870,7 +46885,7 @@ async function handleGenerateProductsAI() {
   {
     "name": "会发光的蘑菇小夜灯",
     "price": 49.9,
-    "imageUrl": "https://i.postimg.cc/k47tXg1j/taologo.png",
+    "imageUrl": "https://i.postimg.cc/W4svy4Hm/Image-1760206134285.jpg",
     "category": "家居"
   }
 ]`;
@@ -53686,7 +53701,8 @@ document.getElementById('chat-settings-modal').addEventListener('click', (e) => 
 
 // 1. 绑定主屏幕的App图标
 document.getElementById('taobao-app-icon').addEventListener('click', openTaobaoApp);
-
+// 绑定新加的“清空”按钮
+document.getElementById('clear-taobao-products-btn').addEventListener('click', clearTaobaoProducts);
 // ▼▼▼ 在 init() 的事件监听区域末尾，粘贴下面这整块新代码 ▼▼▼
 
 /* --- 【全新】桃宝购物车功能事件监听器 --- */
@@ -53875,41 +53891,39 @@ document.getElementById('close-ai-products-modal-btn').addEventListener('click',
     await renderTaobaoProducts(); 
 });
 
-        // 3. 使用事件委托，处理结果弹窗内所有“添加”按钮的点击
-        document.getElementById('ai-product-results-grid').addEventListener('click', async (e) => {
-            if (e.target.classList.contains('add-to-my-page-btn')) {
-                const button = e.target;
-                const productData = JSON.parse(button.dataset.product);
+// 3. 使用事件委托，处理结果弹窗内所有“添加”按钮的点击
+document.getElementById('ai-product-results-grid').addEventListener('click', async (e) => {
+    if (e.target.classList.contains('add-to-my-page-btn')) {
+        const button = e.target;
+        const productData = JSON.parse(button.dataset.product);
+        // ▼▼▼ 在这里粘贴下面这段新代码 ▼▼▼
+        // 【核心修改】如果AI返回的商品数据里没有图片URL
+        if (!productData.imageUrl) {
+            // 就调用我们的辅助函数，给它一张随机默认图
+            productData.imageUrl = getRandomDefaultProductImage();
+            console.log(`AI生成的商品 "${productData.name}" 缺少图片，已自动补充默认图。`);
+        }
+        // ▲▲▲ 新增代码粘贴结束 ▲▲▲
+        // 检查商品是否已存在
+        const existingProduct = await db.taobaoProducts.where('name').equals(productData.name).first();
+        if (existingProduct) {
+            alert('这个商品已经存在于你的桃宝主页啦！');
+            button.textContent = '已添加';
+            button.disabled = true;
+            return;
+        }
 
-                // 检查商品是否已存在
-                const existingProduct = await db.taobaoProducts.where('name').equals(productData.name).first();
-                if (existingProduct) {
-                    alert('这个商品已经存在于你的桃宝主页啦！');
-                    button.textContent = '已添加';
-                    button.disabled = true;
-                    return;
-                }
-
-                // --- ▼▼▼ 核心修改在这里 ▼▼▼ ---
-                // 1. 定义你的两张默认图片
-                const defaultImages = [
-                    'https://i.postimg.cc/kG7C0gGP/11.jpg',
-                    'https://i.postimg.cc/L6CSWRp9/22.jpg'
-                ];
-                // 2. 强制覆盖AI生成的图片链接，从你的默认图片中随机选一张
-                productData.imageUrl = defaultImages[Math.floor(Math.random() * defaultImages.length)];
-                // --- ▲▲▲ 修改结束 ▲▲▲
-
-                // 添加到数据库
-                await db.taobaoProducts.add(productData);
-                
-                // 禁用按钮并更新文本，给用户反馈
-                button.textContent = '✓ 已添加';
-                button.disabled = true;
-            }
-        });
-
-
+        // 添加到数据库
+        await db.taobaoProducts.add(productData);
+        
+        // 禁用按钮并更新文本，给用户反馈
+        button.textContent = '✓ 已添加';
+        button.disabled = true;
+        
+        // （可选）给个小提示
+        // await showCustomAlert('添加成功', `“${productData.name}”已添加到你的桃宝！`);
+    }
+});
 
 // ▼▼▼ 在 init() 的事件监听器区域末尾，粘贴下面这整块新代码 ▼▼▼
 
