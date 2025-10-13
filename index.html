@@ -13155,38 +13155,32 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     color: #ff8a80;
 }
 /* ▲▲▲ 样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【最终修复版】只为“微博”和“粉丝”增加点击区域 ▼▼▼ */
 
-/* ▼▼▼ 这是为你新增的，让“关注/微博/粉丝”更好点击的样式 ▼▼▼ */
 /*
- * 核心原理：通过增加内边距（padding）来扩大可点击的热区，
- * 同时用等值的负外边距（margin）来抵消内边距带来的位置偏移，
- * 从而实现在“位置看起来不变”的情况下，让按钮变得更好点。
+ * 核心原理不变，但这次我们使用了更精确的 ID 选择器，
+ * 只选中 #weibo-posts-item (微博) 和 #weibo-fans-item (粉丝) 这两个元素。
  */
-.weibo-stat-item {
-    /* 我们为每个项目增加了上下 8px 和左右 10px 的内边距 */
-    /* 这意味着上下左右都多出了肉眼看不见的点击区域 */
+#weibo-posts-item,
+#weibo-fans-item {
     padding: 8px 10px;
-    
-    /* 为了抵消 padding 带来的位置变化，我们再减去相应的距离 */
     margin: -8px -10px;
-    
-    /* （可选，但推荐）再给它加上一个圆角，这样在手机上点击时，背景色的反馈会更好看 */
     border-radius: 8px;
-    
-    /* （可选）为点击时的背景色变化增加一个平滑的过渡动画 */
     transition: background-color 0.2s;
 }
 
-/* （可选）为按钮添加点击时的背景色，给用户明确的反馈 */
-.weibo-stat-item:active {
+/* 为这两个按钮添加点击时的背景色反馈 */
+#weibo-posts-item:active,
+#weibo-fans-item:active {
     background-color: rgba(0, 0, 0, 0.08); /* 点击时给一个淡淡的灰色背景 */
 }
 
 /* 在夜间模式下的点击反馈颜色 */
-#phone-screen.dark-mode .weibo-stat-item:active {
+#phone-screen.dark-mode #weibo-posts-item:active,
+#phone-screen.dark-mode #weibo-fans-item:active {
     background-color: rgba(255, 255, 255, 0.1);
 }
-/* ▲▲▲ 新增样式结束 ▲▲▲ */
+/* ▲▲▲ 最终修复版样式结束 ▲▲▲ */
 
 
     </style>
