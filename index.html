@@ -13081,6 +13081,125 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 #character-app-grid .app-icon:nth-child(11) { top: 375px; left: 30px; }  /* ★已更新: 365px + 10px */
 #character-app-grid .app-icon:nth-child(12) { top: 375px; left: 105px; } /* ★已更新: 365px + 10px */
 
+/* ▼▼▼ 【全新】角色手机主屏幕预设功能样式 (圆角胶囊风格) ▼▼▼ */
+.char-preset-manager-container {
+    width: 100%;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+#phone-screen.dark-mode .char-preset-manager-container {
+    border-top-color: #3a3a3c;
+}
+.char-preset-manager-container .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.preset-manager-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+}
+.preset-btn-capsule {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 20px; /* 超大圆角，实现胶囊感 */
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+.preset-btn-capsule:active {
+    transform: scale(0.96);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.preset-btn-capsule:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    background-color: #e9ecef !important;
+    color: #adb5bd !important;
+    border-color: #dee2e6 !important;
+}
+#phone-screen.dark-mode .preset-btn-capsule:disabled {
+    background-color: #3a3a3c !important;
+    color: #545458 !important;
+}
+.preset-manager-controls .preset-btn-apply {
+    background-color: var(--accent-color);
+    color: white;
+    grid-column: 1 / -1; /* 让应用按钮独占一行，更突出 */
+}
+.preset-manager-controls .preset-btn-save {
+    background-color: #4cd964;
+    color: white;
+}
+.preset-manager-controls .preset-btn-secondary {
+    background-color: #f8f9fa;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+#phone-screen.dark-mode .preset-manager-controls .preset-btn-secondary {
+    background-color: #3a3a3c;
+    border-color: #545458;
+}
+.preset-manager-controls .preset-btn-delete {
+    background-color: #ffdde5;
+    color: #ff3b30;
+}
+#phone-screen.dark-mode .preset-manager-controls .preset-btn-delete {
+    background-color: #5c2b2b;
+    color: #ff8a80;
+}
+/* ▲▲▲ 样式粘贴结束 ▲▲▲ */
+
+/* ▼▼▼ 【独家定制】扩大微博主页的粉丝、关注、昵称和职业的点击区域 ▼▼▼ */
+
+/* 1. 统一为所有可点击区域添加“小手”光标和圆角，提升交互体验 */
+#weibo-nickname,
+#weibo-user-profession-display,
+.weibo-stat-item {
+    cursor: pointer;
+    border-radius: 8px; /* 为可能的交互效果（如悬停背景色）做准备 */
+    transition: background-color 0.2s; /* 添加平滑过渡 */
+}
+
+/* 2. 为昵称和职业增加内边距来扩大点击范围，并用负外边距抵消位置变化 */
+/* 这种 “padding + 负 margin” 的技巧可以在不影响原有布局的情况下，安全地扩大点击区域 */
+#weibo-nickname {
+    padding: 5px 10px;
+    margin: -5px -10px;
+}
+
+#weibo-user-profession-display {
+    padding: 5px 10px;
+    margin: -5px -10px;
+}
+
+/* 3. 为“关注”、“微博”、“粉丝”这三个统计项目增加内边距 */
+/* 这里我们只加padding，flex布局会自动处理间距 */
+.weibo-stat-item {
+    padding: 8px;
+}
+
+/* 4. (可选但推荐) 添加一个悬停效果，让用户明确知道点到了哪里 */
+#weibo-nickname:hover,
+#weibo-user-profession-display:hover,
+.weibo-stat-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+#phone-screen.dark-mode #weibo-nickname:hover,
+#phone-screen.dark-mode #weibo-user-profession-display:hover,
+#phone-screen.dark-mode .weibo-stat-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ▲▲▲ 区域扩大定制结束 ▲▲▲ */
+
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -14514,6 +14633,30 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             <div id="char-phone-icon-settings-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 15px; text-align: center;">
             </div>
         </div>
+<!-- ▼▼▼ 在“App图标”设置区的下方，粘贴这段全新的预设管理代码 ▼▼▼ -->
+<hr style="width: 100%; opacity: 0.2; margin-top: 25px;">
+<div class="char-preset-manager-container">
+    <label style="font-weight: 500; color: var(--text-secondary);">主屏幕预设</label>
+    <div class="form-group">
+        <select id="char-home-preset-selector" class="form-group select"></select>
+        <div class="preset-manager-controls">
+            <!-- 独占一行的应用按钮 -->
+            <button id="apply-char-home-preset-btn" class="preset-btn-capsule preset-btn-apply" disabled>应用</button>
+            
+            <!-- 2x2 网格按钮 -->
+            <button id="save-char-home-preset-btn" class="preset-btn-capsule preset-btn-save">保存</button>
+            <button id="update-char-home-preset-btn" class="preset-btn-capsule preset-btn-secondary" disabled>更新</button>
+            <button id="rename-char-home-preset-btn" class="preset-btn-capsule preset-btn-secondary" disabled>重命名</button>
+            <button id="import-char-home-preset-btn" class="preset-btn-capsule preset-btn-secondary">导入</button>
+            <button id="export-char-home-preset-btn" class="preset-btn-capsule preset-btn-secondary" disabled>导出</button>
+            <button id="delete-char-home-preset-btn" class="preset-btn-capsule preset-btn-delete" disabled>删除</button>
+            
+            <input type="file" id="import-char-home-preset-input" accept=".json" hidden>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
+
     </div>
 </div>
 <!-- 隐藏的文件选择器 -->
@@ -19773,8 +19916,8 @@ function getRandomItem(arr) {
         // ===================================================================
 
 // ▼▼▼ 用这块新代码替换你旧的 db.version(...).stores(...) ▼▼▼
-db.version(38).stores({ // 版本号 +1 = 38
-    chats: '&id, isGroup, groupId, isPinned, characterPhoneData.widgetImages, settings.summary, settings.weiboNickname', // <-- 在这里添加了 characterPhoneData.widgetImages
+db.version(39).stores({ // 版本号 +1 = 39
+    chats: '&id, isGroup, groupId, isPinned, characterPhoneData.widgetImages, settings.summary, settings.weiboNickname',
     apiConfig: '&id',
     globalSettings: '&id, activeThemeId', 
     userStickers: '&id, url, name', 
@@ -19808,7 +19951,8 @@ db.version(38).stores({ // 版本号 +1 = 38
     taobaoProducts: '++id, name, category', 
     taobaoOrders: '++id, productId, timestamp',
     taobaoCart: '++id, productId',
-    userWalletTransactions: '++id, timestamp' 
+    userWalletTransactions: '++id, timestamp',
+    charHomeScreenPresets: '++id, name, characterId' // <-- ★★★ 我们新增的数据表！ ★★★
 });
 // ▲▲▲ 替换结束 ▲▲▲
 
@@ -19820,6 +19964,215 @@ window.db = db;
 // ===================================================================
 // 3. 所有功能函数定义
 // ===================================================================
+
+
+/* ▼▼▼ 【全新】角色手机主屏幕预设核心功能函数 ▼▼▼ */
+
+let activeCharHomePresetId = null; // 用于追踪当前选中的预设ID
+
+/**
+ * 启用或禁用角色手机预设管理按钮
+ */
+function toggleCharHomePresetButtons(isEnabled) {
+    document.getElementById('apply-char-home-preset-btn').disabled = !isEnabled;
+    document.getElementById('update-char-home-preset-btn').disabled = !isEnabled;
+    document.getElementById('rename-char-home-preset-btn').disabled = !isEnabled;
+    document.getElementById('delete-char-home-preset-btn').disabled = !isEnabled;
+    document.getElementById('export-char-home-preset-btn').disabled = !isEnabled;
+}
+
+/**
+ * 加载【特定角色】的预设到下拉框
+ */
+async function loadCharHomePresetsToDropdown() {
+    if (!activeCharacterPhoneId) return;
+
+    const selector = document.getElementById('char-home-preset-selector');
+    selector.innerHTML = '<option value="">-- 请选择一个预设 --</option>';
+    
+    // 从数据库中只查找属于当前角色的预设
+    const presets = await db.charHomeScreenPresets.where('characterId').equals(activeCharacterPhoneId).toArray();
+    
+    presets.forEach(preset => {
+        const option = document.createElement('option');
+        option.value = preset.id;
+        option.textContent = preset.name;
+        selector.appendChild(option);
+    });
+
+    activeCharHomePresetId = null; // 重置选择
+    toggleCharHomePresetButtons(false); // 默认禁用按钮
+}
+
+/**
+ * 当用户从下拉框选择一个预设时
+ */
+function handleCharHomePresetSelection() {
+    const selector = document.getElementById('char-home-preset-selector');
+    activeCharHomePresetId = selector.value ? parseInt(selector.value) : null;
+    toggleCharHomePresetButtons(!!activeCharHomePresetId);
+}
+
+/**
+ * 应用当前选中的预设到当前角色的手机
+ */
+async function applySelectedCharHomeScreenPreset() {
+    if (!activeCharHomePresetId || !activeCharacterPhoneId) return;
+
+    const preset = await db.charHomeScreenPresets.get(activeCharHomePresetId);
+    const chat = state.chats[activeCharacterPhoneId];
+
+    if (preset && preset.data && chat) {
+        // 应用壁纸
+        chat.characterPhoneData.wallpaper = preset.data.wallpaper || '';
+        // 应用App图标
+        chat.characterPhoneData.appIcons = { ...(preset.data.appIcons || {}) };
+        // 应用小组件图片
+        chat.characterPhoneData.widgetImages = { ...(preset.data.widgetImages || { widget1: '', widget2: '' }) };
+
+        await db.chats.put(chat); // 保存更新后的角色数据
+        
+        // 立即刷新角色手机的UI
+        openCharacterPhone(activeCharacterPhoneId); // 重新打开手机主页以应用壁纸
+        
+        alert(`已成功为“${chat.name}”应用预设: "${preset.name}"！`);
+    }
+}
+
+/**
+ * 保存当前角色手机的设置为一个新的预设
+ */
+async function saveCurrentCharHomeScreenAsPreset() {
+    if (!activeCharacterPhoneId) return;
+    const chat = state.chats[activeCharacterPhoneId];
+
+    const presetName = await showCustomPrompt("保存新预设", `请输入为“${chat.name}”的手机预设起的名字：`);
+    if (!presetName || !presetName.trim()) {
+        if (presetName !== null) alert("名字不能为空！");
+        return;
+    }
+
+    // 收集所有需要保存的数据
+    const presetData = {
+        wallpaper: chat.characterPhoneData.wallpaper,
+        appIcons: { ...chat.characterPhoneData.appIcons },
+        widgetImages: { ...chat.characterPhoneData.widgetImages }
+    };
+
+    // 保存到数据库，并关联当前角色ID
+    await db.charHomeScreenPresets.add({
+        name: presetName.trim(),
+        data: presetData,
+        characterId: activeCharacterPhoneId // 关键！记录这个预设属于谁
+    });
+
+    await loadCharHomePresetsToDropdown(); // 刷新下拉列表
+    alert(`预设 "${presetName.trim()}" 已保存！`);
+}
+
+/**
+ * 更新当前选中的预设
+ */
+async function updateSelectedCharHomeScreenPreset() {
+    if (!activeCharHomePresetId || !activeCharacterPhoneId) return;
+
+    const currentPreset = await db.charHomeScreenPresets.get(activeCharHomePresetId);
+    if (!currentPreset) return;
+
+    const confirmed = await showCustomConfirm(
+        "确认更新",
+        `确定要用当前的手机布局覆盖预设 "${currentPreset.name}" 吗？`,
+        { confirmButtonClass: 'btn-danger' }
+    );
+
+    if (confirmed) {
+        const chat = state.chats[activeCharacterPhoneId];
+        const newPresetData = {
+            wallpaper: chat.characterPhoneData.wallpaper,
+            appIcons: { ...chat.characterPhoneData.appIcons },
+            widgetImages: { ...chat.characterPhoneData.widgetImages }
+        };
+        await db.charHomeScreenPresets.update(activeCharHomePresetId, { data: newPresetData });
+        await showCustomAlert('成功', `预设 "${currentPreset.name}" 已更新！`);
+    }
+}
+
+/**
+ * 重命名选中的预设
+ */
+async function renameSelectedCharHomeScreenPreset() {
+    if (!activeCharHomePresetId) return;
+    const currentPreset = await db.charHomeScreenPresets.get(activeCharHomePresetId);
+    const newName = await showCustomPrompt("重命名", "请输入新的名称：", currentPreset.name);
+    if (newName && newName.trim()) {
+        await db.charHomeScreenPresets.update(activeCharHomePresetId, { name: newName.trim() });
+        await loadCharHomePresetsToDropdown();
+        document.getElementById('char-home-preset-selector').value = activeCharHomePresetId;
+        alert("重命名成功！");
+    }
+}
+
+/**
+ * 删除选中的预设
+ */
+async function deleteSelectedCharHomeScreenPreset() {
+    if (!activeCharHomePresetId) return;
+    const currentPreset = await db.charHomeScreenPresets.get(activeCharHomePresetId);
+    const confirmed = await showCustomConfirm("确认删除", `确定要删除预设 "${currentPreset.name}" 吗？`, { confirmButtonClass: 'btn-danger' });
+    if (confirmed) {
+        await db.charHomeScreenPresets.delete(activeCharHomePresetId);
+        await loadCharHomePresetsToDropdown();
+        alert("预设已删除。");
+    }
+}
+
+/**
+ * 导出选中的预设
+ */
+async function exportCharHomeScreenPreset() {
+    if (!activeCharHomePresetId) return;
+    const preset = await db.charHomeScreenPresets.get(activeCharHomePresetId);
+    const blob = new Blob([JSON.stringify(preset, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `[${state.chats[activeCharacterPhoneId].name}手机预设]${preset.name}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * 导入预设文件
+ */
+function importCharHomeScreenPreset(file) {
+    if (!file || !activeCharacterPhoneId) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.name && data.data) {
+                // 导入时，强制将 characterId 设置为当前角色的ID
+                data.characterId = activeCharacterPhoneId; 
+                delete data.id; // 删除旧的id，让数据库自动生成新的
+
+                const newId = await db.charHomeScreenPresets.add(data);
+                await loadCharHomePresetsToDropdown();
+                document.getElementById('char-home-preset-selector').value = newId; // 自动选中新导入的
+                handleCharHomePresetSelection(); // 启用按钮
+                alert(`预设 "${data.name}" 导入成功！`);
+            } else {
+                alert("导入失败：文件格式不正确。");
+            }
+        } catch (error) {
+            alert(`导入失败：文件解析错误。${error.message}`);
+        }
+    };
+    reader.readAsText(file);
+}
+
+/* ▲▲▲ 核心功能函数结束 ▲▲▲ */
+
+
 
 /**
  * 【全新辅助函数】切换语音消息的文字显示/隐藏
@@ -30764,6 +31117,28 @@ function runGroupSimulationTick() {
 }
 
 // ▲▲▲ 新增代码结束 ▲▲▲
+
+
+// ▼▼▼ 【全新】角色手机预设功能事件监听器 ▼▼▼
+document.getElementById('char-home-preset-selector').addEventListener('change', handleCharHomePresetSelection);
+document.getElementById('apply-char-home-preset-btn').addEventListener('click', applySelectedCharHomeScreenPreset);
+document.getElementById('save-char-home-preset-btn').addEventListener('click', saveCurrentCharHomeScreenAsPreset);
+document.getElementById('update-char-home-preset-btn').addEventListener('click', updateSelectedCharHomeScreenPreset);
+document.getElementById('rename-char-home-preset-btn').addEventListener('click', renameSelectedCharHomeScreenPreset);
+document.getElementById('delete-char-home-preset-btn').addEventListener('click', deleteSelectedCharHomeScreenPreset);
+document.getElementById('export-char-home-preset-btn').addEventListener('click', exportCharHomeScreenPreset);
+
+document.getElementById('import-char-home-preset-btn').addEventListener('click', () => {
+    document.getElementById('import-char-home-preset-input').click();
+});
+document.getElementById('import-char-home-preset-input').addEventListener('change', (e) => {
+    importCharHomeScreenPreset(e.target.files[0]);
+    e.target.value = null; // 清空以便下次能选择同一个文件
+});
+// ▲▲▲ 新增事件监听结束 ▲▲▲
+
+
+
 // ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼
 /**
  * 【全新】清空所有已关注角色的微博帖子
@@ -48499,7 +48874,14 @@ async function createOrdersFromCart(cartItems) {
 /**
  * 【总入口】打开角色手机的外观设置页面
  */
-function openCharPhoneAppearanceSettings() {
+/**
+ * 【总入口】打开角色手机的外观设置页面
+ */
+async function openCharPhoneAppearanceSettings() { // <-- 在这里添加 async
+    // ▼▼▼ 在这里添加下面这行新代码 ▼▼▼
+    await loadCharHomePresetsToDropdown(); // 在渲染其他内容前，先加载预设列表
+    // ▲▲▲ 添加结束 ▲▲▲
+    
     renderCharPhoneAppearanceScreen(); // 渲染页面内容
     showCharacterPhonePage('character-phone-appearance-screen'); // 显示页面
 }
