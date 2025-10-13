@@ -15261,6 +15261,9 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 </div>
 
     <audio id="audio-player" style="display:none;"></audio>
+<!-- ▼▼▼ 在这里添加下面这行新的音频元素 ▼▼▼ -->
+<audio id="tts-audio-player" style="display:none;"></audio>
+<!-- ▲▲▲ 添加结束 ▲▲▲ -->
 <audio id="ringtone-player" loop></audio>
 <audio id="notification-sound-player" preload="auto"></audio>
 <!-- ▼▼▼ 用下面这【一整块完整代码】替换掉你旧的 id="create-post-modal" 的整个 div ▼▼▼ -->
@@ -48581,47 +48584,54 @@ let currentTtsAudioBubble = null; // 修改变量名，更清晰地表示这是�
 
 // ▼▼▼ 用这整块【无弹窗修复版】的代码，完整替换你旧的 playMinimaxAudio 函数 ▼▼▼
 
+// ▼▼▼ 用这整块【已修复冲突】的代码，完整替换你旧的 playMinimaxAudio 函数 ▼▼▼
+
 /**
- * 【V5 - 无弹窗修复版】调用 Minimax TTS API 生成语音并播放
+ * 【V5 - 播放器分离修复版】调用 Minimax TTS API 生成语音并播放
  * @param {string} text - 要转换为语音的文本
  * @param {string} voiceId - Minimax 的语音 ID
  * @param {HTMLElement} clickedBubbleElement - 被点击的那个语音条的 message-bubble 元素
  */
 async function playMinimaxAudio(text, voiceId, clickedBubbleElement) {
-    const audioPlayer = document.getElementById('audio-player');
+    // 1. 【核心修改】获取专属的TTS播放器
+    const ttsPlayer = document.getElementById('tts-audio-player');
+    
+    // 2. 【新增】如果主音乐播放器正在播放，先暂停它
+    const mainAudioPlayer = document.getElementById('audio-player');
+    if (mainAudioPlayer && !mainAudioPlayer.paused) {
+        mainAudioPlayer.pause();
+        musicState.isPlaying = false; // 更新主播放器状态
+        updatePlayerUI(); // 更新主播放器UI
+    }
 
-    // 1. 如果当前有音频正在播放
+    // 3. 检查并处理当前正在播放的TTS
     if (isTtsPlaying && currentTtsAudioBubble) {
-        // 先停止当前播放
-        audioPlayer.pause();
-        audioPlayer.src = '';
-        audioPlayer.onended = null;
-        audioPlayer.onerror = null;
+        ttsPlayer.pause();
+        ttsPlayer.src = '';
+        ttsPlayer.onended = null;
+        ttsPlayer.onerror = null;
         isTtsPlaying = false;
         
-        // 移除旧气泡的播放动画
         if (currentTtsAudioBubble) {
             currentTtsAudioBubble.classList.remove('playing');
         }
-
-        // 如果用户点击的是同一个正在播放的语音条，那么目的就是“停止”，直接退出函数即可
         if (currentTtsAudioBubble === clickedBubbleElement) {
             currentTtsAudioBubble = null;
             return;
         }
     }
     
-    // 2. 【核心修改】检查API配置，如果未配置，则直接静默退出，不弹窗
+    // 4. 检查Minimax配置 (保持不变)
     const groupId = state.apiConfig.minimaxGroupId;
     const apiKey = state.apiConfig.minimaxApiKey;
     if (!groupId || !apiKey) {
-        console.log("Minimax TTS 未配置，跳过播放。");
+        // 配置未填，静默退出
         return;
     }
 
     try {
-        // 3. 开始请求API
-        clickedBubbleElement.classList.add('playing'); // 立即添加播放动画，提供即时反馈
+        // 5. 请求API并播放 (现在所有操作都针对 ttsPlayer)
+        clickedBubbleElement.classList.add('playing');
         const url = `https://api.minimax.chat/v1/text_to_speech?GroupId=${groupId}`;
         const response = await fetch(url, {
             method: 'POST',
@@ -48630,12 +48640,8 @@ async function playMinimaxAudio(text, voiceId, clickedBubbleElement) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                text: text,
-                voice_id: voiceId,
-                model: 'speech-01',
-                speed: 1.0,
-                pitch: 0,
-                timber_list: []
+                text: text, voice_id: voiceId, model: 'speech-01',
+                speed: 1.0, pitch: 0, timber_list: []
             })
         });
 
@@ -48647,33 +48653,31 @@ async function playMinimaxAudio(text, voiceId, clickedBubbleElement) {
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
 
-        // 4. 播放新的音频
-        audioPlayer.src = audioUrl;
+        ttsPlayer.src = audioUrl;
         
-        audioPlayer.onended = () => {
+        ttsPlayer.onended = () => {
             isTtsPlaying = false;
             currentTtsAudioBubble = null;
             URL.revokeObjectURL(audioUrl); 
             clickedBubbleElement.classList.remove('playing');
         };
 
-        audioPlayer.onerror = () => {
+        ttsPlayer.onerror = () => {
              isTtsPlaying = false;
              currentTtsAudioBubble = null;
              URL.revokeObjectURL(audioUrl);
              clickedBubbleElement.classList.remove('playing');
-             console.error("音频播放时发生错误。");
+             console.error("TTS音频播放时发生错误。");
         };
 
-        await audioPlayer.play();
+        await ttsPlayer.play();
         isTtsPlaying = true;
-        currentTtsAudioBubble = clickedBubbleElement; // 记录当前正在播放的气泡
+        currentTtsAudioBubble = clickedBubbleElement;
 
     } catch (error) {
         console.error("Minimax TTS 调用失败:", error);
-        // 只有在API调用真正失败时才弹窗报错，配置未填不弹
         await showCustomAlert('语音合成失败', `错误信息: ${error.message}`);
-        clickedBubbleElement.classList.remove('playing'); // 出错时也要移除播放动画
+        clickedBubbleElement.classList.remove('playing');
     }
 }
 // ▲▲▲ 替换结束 ▲▲▲
