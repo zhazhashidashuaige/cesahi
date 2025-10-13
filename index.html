@@ -12947,13 +12947,15 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* ============ “查手机”功能美化代码 v2.0 (支持自定义图片) 开始 ============ */
 
 /* --- 步骤1: 缩小图标尺寸，让桌面更协调 --- */
+/* 这是修改后的代码 */
 #character-app-grid .app-icon .icon-bg {
-    width: 50px !important;
-    height: 50px !important;
-    border-radius: 13px !important;
+    width: 42px !important;  /* <-- 把 50px 改为 42px */
+    height: 42px !important; /* <-- 把 50px 改为 42px */
+    border-radius: 11px !important; /* <-- 圆角也改小一点，更协调 */
 }
+
 #character-app-grid .app-icon .label {
-    font-size: 12px;
+    font-size: 11px;
 }
 
 /* --- 步骤2: 将图标容器改为自由定位的“桌面”布局 --- */
@@ -13016,17 +13018,69 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border-radius: 20px; /* 圆角 */
 }
 
-/* --- APP 图标位置调整 (围绕小组件重新排列) --- */
-#character-app-grid .app-icon:nth-child(1) { top: 70px; left: 150px; }
-#character-app-grid .app-icon:nth-child(2) { top: 70px; left: 215px; }
-#character-app-grid .app-icon:nth-child(3) { top: 155px; left: 30px; }
-#character-app-grid .app-icon:nth-child(4) { top: 155px; left: 95px; }
-#character-app-grid .app-icon:nth-child(5) { top: 155px; left: 160px; }
-#character-app-grid .app-icon:nth-child(6) { top: 240px; left: 95px; }
-#character-app-grid .app-icon:nth-child(7) { top: 240px; left: 160px; }
-#character-app-grid .app-icon:nth-child(8) { top: 240px; left: 225px; }
-#character-app-grid .app-icon:nth-child(9) { top: 325px; left: 30px; }
-#character-app-grid .app-icon:nth-child(10) { top: 325px; left: 95px; }
+/* ======================================================================= */
+/* === ★★★ 角色手机桌面美化布局 v11.0 (行距最终优化版) ★★★ === */
+/* ======================================================================= */
+
+/* --- 1. App图标尺寸 (不变) --- */
+#character-app-grid .app-icon .icon-bg {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 10px !important;
+}
+#character-app-grid .app-icon .label {
+    font-size: 11px;
+}
+
+/* --- 2. 黄金间距网格系统 (不变) --- */
+/*
+   - 第1列: left: 30px;
+   - 第2列: left: 105px;
+   - 第3列: left: 180px;
+   - 第4列: left: 255px;
+*/
+
+/* --- 3. 小组件位置和尺寸 (右下角组件top值已同步调整) --- */
+
+/* 左上角小组件 (不变) */
+#char-phone-widget-1 {
+    top: 10px;
+    left: 30px;
+    width: 135px;
+    height: 135px;
+    border-radius: 20px;
+}
+
+/* 右下角小组件 (★top值已为对齐新行距而更新) */
+#char-phone-widget-2 {
+    top: 365px;     /* ★已更新: 从 335px 调整为 365px, 与最后一行对齐 */
+    left: 180px;
+    width: 135px;
+    height: 135px;
+    border-radius: 20px;
+}
+
+/* --- 4. App图标位置 (★核心修改: 再次拉开垂直行距) --- */
+
+/* 第1行: top: 80px (位置不变!) */
+#character-app-grid .app-icon:nth-child(3) { top: 80px; left: 180px; }
+#character-app-grid .app-icon:nth-child(4) { top: 80px; left: 255px; }
+
+/* 第2行: top: 175px (★已更新: 从 165px 调整为 175px, 行距再+10px) */
+#character-app-grid .app-icon:nth-child(5) { top: 175px; left: 30px; }
+#character-app-grid .app-icon:nth-child(6) { top: 175px; left: 105px; }
+#character-app-grid .app-icon:nth-child(7) { top: 175px; left: 180px; }
+
+/* 第3行: top: 270px (★已更新: 从 250px 调整为 270px, 行距再+10px) */
+#character-app-grid .app-icon:nth-child(8) { top: 270px; left: 105px; }
+#character-app-grid .app-icon:nth-child(9) { top: 270px; left: 180px; }
+#character-app-grid .app-icon:nth-child(10) { top: 270px; left: 255px; }
+
+/* 第4行: top: 365px (★已更新: 从 335px 调整为 365px, 行距再+10px) */
+#character-app-grid .app-icon:nth-child(11) { top: 365px; left: 30px; }
+#character-app-grid .app-icon:nth-child(12) { top: 365px; left: 105px; }
+
+
 
 /* ============ “查手机”功能美化代码 结束 ============ */
 
