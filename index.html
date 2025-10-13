@@ -24570,7 +24570,9 @@ charLatestPosts.forEach(post => {
     // 核心修改：增加了 Array.isArray(post.comments) 的安全检查
     if (post.comments && Array.isArray(post.comments) && post.comments.length > 0) { 
         // 筛选出是“我”发的评论
-        const userComments = post.comments.filter(c => c.authorNickname === myNickname).slice(-3);
+        const userComments = Array.isArray(post.comments)
+  ? post.comments.filter(c => c.authorNickname === myNickname).slice(-3)
+  : [];
         if (userComments.length > 0) {
             const postContentPreview = (post.content || '(图片微博)').substring(0, 20);
             userCommentsOnMyPosts += `- 在你的微博 (ID: ${post.id}) "${postContentPreview}..." 下:\n`;
@@ -24687,7 +24689,9 @@ const myNickname = state.qzoneSettings.weiboNickname || state.qzoneSettings.nick
 charLatestPosts.forEach(post => {
     if (post.comments && post.comments.length > 0) {
         // 筛选出是“我”发的评论
-        const userComments = post.comments.filter(c => c.authorNickname === myNickname).slice(-3); // 只看最新的3条
+        const userComments = Array.isArray(post.comments)
+  ? post.comments.filter(c => c.authorNickname === myNickname).slice(-3)
+  : [];// 只看最新的3条
         if (userComments.length > 0) {
             const postContentPreview = (post.content || '(图片微博)').substring(0, 20);
             userCommentsOnMyPosts += `- 在你的微博 (ID: ${post.id}) "${postContentPreview}..." 下:\n`;
@@ -27212,11 +27216,13 @@ function buildCommentsContextForAI(post, viewerChat, userNickname) {
         // ★★★ 关键在这里：确保 "[评论区可见]" 是一个带引号的字符串 ★★★
         visibilityFlag = "[评论区可见]"; 
     } else {
-        commentsForAI = post.comments.filter(comment => {
-            return comment.commenterName === viewerName
-                || comment.commenterName === userNickname
-                || comment.replyTo === viewerName;
-        });
+commentsForAI = Array.isArray(post.comments)
+  ? post.comments.filter(comment => {
+      return comment.commenterName === viewerName
+          || comment.commenterName === userNickname
+          || comment.replyTo === viewerName;
+    })
+  : [];
         // ★★★ 关键在这里：确保 "[评论区部分可见]" 是一个带引号的字符串 ★★★
         visibilityFlag = "[评论区部分可见]";
     }
@@ -30721,11 +30727,13 @@ function buildCommentsContextForAI(post, viewerChat, userNickname) {
         // ★★★ 关键在这里：确保 "[评论区可见]" 是一个带引号的字符串 ★★★
         visibilityFlag = "[评论区可见]"; 
     } else {
-        commentsForAI = post.comments.filter(comment => {
-            return comment.commenterName === viewerName
-                || comment.commenterName === userNickname
-                || comment.replyTo === viewerName;
-        });
+commentsForAI = Array.isArray(post.comments)
+  ? post.comments.filter(comment => {
+      return comment.commenterName === viewerName
+          || comment.commenterName === userNickname
+          || comment.replyTo === viewerName;
+    })
+  : [];
         // ★★★ 关键在这里：确保 "[评论区部分可见]" 是一个带引号的字符串 ★★★
         visibilityFlag = "[评论区部分可见]";
     }
