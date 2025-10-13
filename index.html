@@ -12823,6 +12823,86 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     color: #FF5722;
 }
 /* ▲▲▲ 新增样式结束 ▲▲▲ */
+/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 的末尾 ▼▼▼ */
+
+/* 1. 让角色主页的内容区可以独立滚动 */
+#weibo-char-profile-page {
+    flex-grow: 1;
+    overflow-y: auto;
+    background-color: #f0f2f5;
+}
+
+/* 2. 修正夜间模式下主页和新页面的背景色 */
+#phone-screen.dark-mode #weibo-profile-page,
+#phone-screen.dark-mode #weibo-char-profile-page {
+    background-color: #000;
+}
+
+/* 3. 为角色主页上的职业显示添加样式 */
+#weibo-char-profession-display {
+    position: absolute;
+    right: 20px;
+    bottom: 25px;
+    z-index: 2;
+    font-size: 13px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    background-color: rgba(0,0,0,0.2);
+    padding: 3px 8px;
+    border-radius: 10px;
+}
+
+/* 4. 给关注列表的“查看主页”按钮添加样式 */
+.weibo-following-item .view-profile-btn {
+    margin-left: auto; /* 让按钮自动靠右 */
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent-color);
+    background-color: #e7f3ff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+}
+#phone-screen.dark-mode .weibo-following-item .view-profile-btn {
+    background-color: rgba(0, 123, 255, 0.2);
+}
+
+/* ▲▲▲ 新增CSS粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【层级修复】请将这段新CSS粘贴到 <style> 的末尾 ▼▼▼ */
+
+/* 强制提升头像框选择弹窗的层级，确保它能覆盖在其他弹窗之上 */
+#avatar-frame-modal {
+    z-index: 1005; 
+}
+
+/* ▲▲▲ 修复结束 ▲▲▲ */
+/* ▼▼▼ 这是新增的样式 ▼▼▼ */
+
+/* 这是我们新加的、包裹头像的可点击区域的样式 */
+.weibo-post-avatar-clickable {
+    cursor: pointer; /* 鼠标放上去时显示为小手形状 */
+    transition: opacity 0.2s ease-in-out; /* 添加一个平滑的过渡动画 */
+}
+
+/* 鼠标悬停时，让头像稍微变暗一点，给用户一个明确的反馈 */
+.weibo-post-avatar-clickable:hover {
+    opacity: 0.85;
+}
+
+/* ▲▲▲ 新增样式结束 ▲▲▲ */
+/* ▼▼▼ 【全新】语音播放动画样式 ▼▼▼ */
+.message-bubble.is-voice-message.playing .voice-waveform div {
+    animation: wave-play 1s ease-in-out infinite;
+}
+
+@keyframes wave-play {
+  0%, 100% { height: 2px; }
+  25% { height: 12px; }
+  50% { height: 6px; }
+  75% { height: 18px; }
+}
+/* ▲▲▲ 样式粘贴结束 ▲▲▲ */
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -13286,7 +13366,19 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     <input type="number" id="block-cooldown-input" min="0.1" step="0.1" value="1" style="width: 80px; text-align: center;">
 </div>
 <!-- ▲▲▲ 新增结束 ▲▲▲ -->
-
+<!-- ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼ -->
+<hr style="margin:20px 0; opacity:.3">
+<p style="font-size: 14px; color: #666; background-color: #f0f0f0; padding: 10px; border-radius: 8px;">以下是 Minimax 语音（TTS）的设置，用于AI发送语音消息。</p>
+<div class="form-group">
+    <label for="minimax-group-id">Minimax Group ID</label>
+    <input type="text" id="minimax-group-id" placeholder="输入你的 Minimax Group ID">
+</div>
+<div class="form-group">
+    <label for="minimax-api-key">Minimax API Key</label>
+    <input type="password" id="minimax-api-key" placeholder="输入你的 Minimax API Key">
+</div>
+<hr style="margin:20px 0; opacity:.3">
+<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
 <button class="form-button" id="save-api-settings-btn">保存设置</button>
 			<hr style="margin:20px 0; opacity:.3">
 
@@ -14847,6 +14939,12 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             <!-- ▼▼▼ 在这里粘贴新代码 ▼▼▼ -->
 <div class="form-group" id="npc-library-group">
     <button id="manage-npcs-btn" class="form-button form-button-secondary" style="width: 100%; margin-top: 5px;">管理NPC库</button>
+</div>
+<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
+ <!-- ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼ -->
+<div class="form-group" id="minimax-voice-id-group">
+    <label for="minimax-voice-id-input">Minimax 语音ID</label>
+    <input type="text" id="minimax-voice-id-input" placeholder="例如：male-01">
 </div>
 <!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
  <!-- 【全新】微博人设与职业设置 -->
@@ -17202,6 +17300,94 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 </div>
 
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 把这一整块全新的HTML，粘贴到 </body> 标签的正上方 ▼▼▼ -->
+
+<!-- 【全新】角色微博主页屏幕 -->
+<div id="weibo-char-profile-screen" class="screen">
+    <!-- 头部，包含返回按钮和角色名字 -->
+    <div class="header">
+        <span class="back-btn" id="back-from-char-profile">‹</span>
+        <span id="weibo-char-profile-title">角色主页</span>
+        <div class="header-actions">
+            <!-- 为角色主页也添加一个编辑按钮 -->
+            <span class="action-btn" id="edit-char-weibo-profile-btn" title="编辑角色资料">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+            </span>
+        </div>
+    </div>
+    <!-- 角色主页的内容区 -->
+    <div id="weibo-char-profile-page" class="weibo-profile-page"> <!-- 复用个人主页的滚动样式 -->
+        <div class="weibo-profile-header">
+            <img id="weibo-char-background-img" src="https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg" class="weibo-background">
+            <div class="weibo-avatar-container">
+                <img id="weibo-char-avatar-img" src="https://files.catbox.moe/q6z5fc.jpeg" class="weibo-avatar">
+                <img id="weibo-char-avatar-frame" class="weibo-avatar-frame" src="" style="display: none;">
+            </div>
+            <div class="weibo-nickname" id="weibo-char-nickname">角色昵称</div>
+            <div id="weibo-char-profession-display">角色职业</div>
+<!-- ▼▼▼ 用这整块代码，替换掉 id="weibo-char-profile-page" 里面那个旧的、只有注释的 <div class="weibo-stats"> ▼▼▼ -->
+<div class="weibo-stats">
+    <div id="weibo-char-following-item" class="weibo-stat-item" style="cursor: pointer;">
+        <span id="weibo-char-following-count" class="weibo-stat-number">0</span>
+        <span class="weibo-stat-label">关注</span>
+    </div>
+    <div id="weibo-char-posts-item" class="weibo-stat-item">
+        <span id="weibo-char-posts-count" class="weibo-stat-number">0</span>
+        <span class="weibo-stat-label">微博</span>
+    </div>
+    <div id="weibo-char-fans-item" class="weibo-stat-item" style="cursor: pointer;">
+        <span id="weibo-char-fans-count" class="weibo-stat-number">0</span>
+        <span class="weibo-stat-label">粉丝</span>
+    </div>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+        </div>
+        <div id="char-weibo-feed-list" style="padding: 15px; display: flex; flex-direction: column; gap: 15px;">
+            <!-- 角色的微博列表将由JS动态生成在这里 -->
+        </div>
+    </div>
+</div>
+
+<!-- 【全新】角色微博资料编辑弹窗 -->
+<div id="char-weibo-editor-modal" class="modal">
+    <div class="modal-content" style="height: auto;">
+        <div class="modal-header">
+            <span>编辑角色微博资料</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>微博头像</label>
+                <div class="avatar-upload">
+                    <img id="char-weibo-editor-avatar-preview">
+                    <button onclick="document.getElementById('char-weibo-editor-avatar-input').click()">上传头像</button>
+                    <button class="change-frame-btn" data-type="char-weibo">更换头像框</button>
+                    <input type="file" id="char-weibo-editor-avatar-input" accept="image/*" hidden>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="char-weibo-editor-nickname-input">微博昵称</label>
+                <input type="text" id="char-weibo-editor-nickname-input">
+            </div>
+            <div class="form-group">
+                <label>微博背景</label>
+                <div class="avatar-upload">
+                    <img id="char-weibo-editor-bg-preview" style="width: 120px; height: 67.5px; border-radius: 8px;">
+                    <button onclick="document.getElementById('char-weibo-editor-bg-input').click()">上传背景</button>
+                    <input type="file" id="char-weibo-editor-bg-input" accept="image/*" hidden>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="cancel-char-weibo-editor-btn">取消</button>
+            <button class="save" id="save-char-weibo-editor-btn">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- ▲▲▲ 全新的HTML粘贴结束 ▲▲▲ -->
 
 
 <!-- ▼▼▼ 【增强版】宠物功能模态框 ▼▼▼ -->
@@ -18013,7 +18199,7 @@ async function renderFollowingWeiboFeed() {
 }
 
 
-// ▼▼▼ 用这块【最终修复版】的代码，完整替换掉你旧的 createWeiboPostElement 函数 ▼▼▼
+// ▼▼▼ 用这块【功能增强版】的代码，完整替换你旧的 createWeiboPostElement 函数 ▼▼▼
 function createWeiboPostElement(post) {
     const postEl = document.createElement('div');
     postEl.className = 'weibo-post-item'; 
@@ -18051,12 +18237,10 @@ function createWeiboPostElement(post) {
         commentsHtml += '</div>';
     }
 
-    const myNickname = state.qzoneSettings.nickname || '我';
+    const myNickname = state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我';
     const isLiked = post.likes && post.likes.includes(myNickname);
     
-    let finalAuthorAvatar = post.authorAvatar;
-    let finalAuthorNickname = post.authorNickname;
-    let finalAuthorAvatarFrame = '';
+    let finalAuthorAvatar, finalAuthorNickname, finalAuthorAvatarFrame;
 
     if (post.authorId === 'user') {
         finalAuthorAvatar = state.qzoneSettings.weiboAvatar || state.qzoneSettings.avatar || defaultAvatar;
@@ -18064,9 +18248,13 @@ function createWeiboPostElement(post) {
         finalAuthorAvatarFrame = state.qzoneSettings.weiboAvatarFrame || '';
     } else if (state.chats[post.authorId]) {
         const authorChat = state.chats[post.authorId];
-        finalAuthorAvatar = authorChat.settings.aiAvatar || defaultAvatar;
-        finalAuthorNickname = authorChat.name;
-        finalAuthorAvatarFrame = authorChat.settings.aiAvatarFrame || '';
+        finalAuthorNickname = authorChat.settings.weiboNickname || authorChat.name;
+        finalAuthorAvatar = authorChat.settings.weiboAvatar || authorChat.settings.aiAvatar || defaultAvatar;
+        finalAuthorAvatarFrame = authorChat.settings.weiboAvatarFrame || authorChat.settings.aiAvatarFrame || '';
+    } else {
+        finalAuthorAvatar = defaultAvatar;
+        finalAuthorNickname = post.authorNickname || '未知用户';
+        finalAuthorAvatarFrame = '';
     }
 
     let avatarHtml = '';
@@ -18080,10 +18268,21 @@ function createWeiboPostElement(post) {
     } else {
         avatarHtml = `<img src="${finalAuthorAvatar}" class="weibo-post-avatar">`;
     }
+    
+    // --- ★★★ 核心修改在这里 ★★★ ---
+    // 1. 我们把头像的HTML，用一个新的 div 包裹起来
+    // 2. 这个新的 div 拥有一个 class="weibo-post-avatar-clickable"
+    // 3. 最重要的是，它携带了 data-char-id="${post.authorId}" 这个“身份证”！
+    const clickableAvatarWrapper = `
+        <div class="weibo-post-avatar-clickable" data-char-id="${post.authorId}">
+            ${avatarHtml}
+        </div>
+    `;
+    // --- ▲▲▲ 修改结束 ▲▲▲ ---
 
     postEl.innerHTML = `
         <div class="weibo-post-header">
-            ${avatarHtml}
+            ${clickableAvatarWrapper} 
             <div class="weibo-post-info">
                 <span class="weibo-post-nickname">${finalAuthorNickname}</span>
                 <span class="weibo-post-timestamp">${formatPostTimestamp(post.timestamp)}</span>
@@ -18116,34 +18315,22 @@ function createWeiboPostElement(post) {
         </div>
     `;
 
-    // --- ★★★ 核心修复：在这里为所有按钮直接绑定事件 ★★★ ---
-
-    // 1. 绑定“发送评论”按钮
+    // 后续的事件绑定逻辑保持不变
     const sendBtn = postEl.querySelector('.weibo-comment-send-btn');
     if (sendBtn) {
         sendBtn.addEventListener('click', () => {
             const input = postEl.querySelector('.weibo-comment-input');
-            handleWeiboComment(post.id, input); // 直接调用，传入post.id
+            handleWeiboComment(post.id, input);
         });
     }
-
-    // 2. 绑定“生成评论”按钮
     const generateBtn = postEl.querySelector('.generate-comments-btn');
     if (generateBtn) {
-        generateBtn.addEventListener('click', () => {
-            generateWeiboComments(post.id); // 直接调用，传入post.id
-        });
+        generateBtn.addEventListener('click', () => generateWeiboComments(post.id));
     }
-
-    // 3. 绑定“点赞”按钮
     const likeBtn = postEl.querySelector('.like-btn');
     if (likeBtn) {
-        likeBtn.addEventListener('click', () => {
-            handleWeiboLike(post.id); // 直接调用，传入post.id
-        });
+        likeBtn.addEventListener('click', () => handleWeiboLike(post.id));
     }
-
-    // 4. 绑定“删除评论”按钮 (使用事件委托)
     const commentsContainer = postEl.querySelector('.weibo-comments-container');
     if (commentsContainer) {
         commentsContainer.addEventListener('click', (e) => {
@@ -18156,34 +18343,16 @@ function createWeiboPostElement(post) {
             }
         });
     }
-    
-    // 5. 绑定“...”操作按钮
-    const actionsBtn = postEl.querySelector('.post-actions-btn');
-    if(actionsBtn){
-        actionsBtn.addEventListener('click', async () => {
-            const confirmed = await showCustomConfirm('删除微博', '确定要永久删除这条微博吗？此操作不可恢复。', { confirmButtonClass: 'btn-danger' });
-            if (confirmed) {
-                await db.weiboPosts.delete(post.id);
-                await renderMyWeiboFeed();
-                await renderFollowingWeiboFeed();
-                await renderWeiboProfile();
-                alert('微博已删除。');
-            }
-        });
-    }
-
-    // 6. 绑定评论区，实现点击回复功能
     const commentSection = postEl.querySelector('.weibo-comments-container');
     if (commentSection) {
         commentSection.addEventListener('click', (e) => {
             const commentItem = e.target.closest('.weibo-comment-item');
-            if (commentItem && !e.target.closest('.comment-delete-btn')) { // 确保不是点的删除按钮
+            if (commentItem && !e.target.closest('.comment-delete-btn')) {
                 const commenterName = commentItem.dataset.commenterName;
                 const commentId = commentItem.dataset.commentId;
                 const input = postEl.querySelector('.weibo-comment-input');
                 
                 if (input.dataset.replyToId === commentId) {
-                    // 如果再次点击同一个人，则取消回复
                     input.placeholder = '留下你的精彩评论吧...';
                     delete input.dataset.replyToId;
                     delete input.dataset.replyToNickname;
@@ -18199,6 +18368,9 @@ function createWeiboPostElement(post) {
 
     return postEl;
 }
+// ▲▲▲ 替换结束 ▲▲▲
+
+
 
 
 /**
@@ -19380,7 +19552,7 @@ function getRandomItem(arr) {
 
 // ▼▼▼ 用这块新代码替换你旧的 db.version(...).stores(...) ▼▼▼
 db.version(37).stores({ // 版本号 +1 = 37
-    chats: '&id, isGroup, groupId, isPinned, characterPhoneData, latestInnerVoice, innerVoiceHistory, loversSpaceData.emotionDiaries, settings.summary',
+    chats: '&id, isGroup, groupId, isPinned, characterPhoneData, latestInnerVoice, innerVoiceHistory, loversSpaceData.emotionDiaries, settings.summary, settings.weiboNickname',
     apiConfig: '&id',
     globalSettings: '&id, activeThemeId', 
     userStickers: '&id, url, name', 
@@ -21242,12 +21414,60 @@ if (!chat.isGroup && chat.settings.pet) {
             }
         }
         // ▲▲▲ 兼容代码添加结束 ▲▲▲
+        // 【全新】为旧角色数据兼容微博独立设置
+if (!chat.isGroup) {
+    if (!chat.settings.weiboNickname) {
+        chat.settings.weiboNickname = chat.name; // 默认使用角色名作为微博昵称
+    }
+    if (!chat.settings.weiboAvatar) {
+        chat.settings.weiboAvatar = chat.settings.aiAvatar; // 默认使用AI头像
+    }
+    if (!chat.settings.weiboAvatarFrame) {
+        chat.settings.weiboAvatarFrame = chat.settings.aiAvatarFrame || ''; // 默认使用AI头像框
+    }
+    if (!chat.settings.weiboBackground) {
+        chat.settings.weiboBackground = 'https://i.postimg.cc/mk93Y3j1/weibo-bg-default.jpg'; // 给一个默认背景
+    }
+    // weiboProfession 和 weiboInstruction 之前已经兼容过了，这里不用重复
+}
+        // 兼容旧数据：为没有微博设置的单聊角色添加空的微博设置
+        if (!chat.isGroup && (!chat.settings.weiboProfession || typeof chat.settings.weiboInstruction === 'undefined')) {
+            chat.settings.weiboProfession = '';
+            chat.settings.weiboInstruction = '';
+            console.log(`为旧角色 "${chat.name}" 补全了微博设置属性。`);
+        }
         
+        // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+        // 【全新】为旧角色数据兼容微博粉丝/关注数
+        if (!chat.isGroup && (typeof chat.settings.weiboFansCount === 'undefined' || typeof chat.settings.weiboFollowingCount === 'undefined')) {
+            const initialStats = getInitialWeiboStats(chat);
+            chat.settings.weiboFansCount = initialStats.fans;
+            chat.settings.weiboFollowingCount = initialStats.following;
+            console.log(`为旧角色 "${chat.name}" 初始化了微博数据。`);
+        }
+        // ▲▲▲ 新代码粘贴结束 ▲▲▲
+    // ▼▼▼ 在这个循环的末尾，acc[chat.id] = chat; 之前，添加下面这段代码 ▼▼▼
+    if (!chat.isGroup && (!chat.settings || typeof chat.settings.minimaxVoiceId === 'undefined')) {
+        if (!chat.settings) chat.settings = {};
+        chat.settings.minimaxVoiceId = ''; // 默认为空
+        console.log(`为旧角色 "${chat.name}" 补全了 minimaxVoiceId 属性。`);
+    }
+    // ▲▲▲ 添加结束 ▲▲▲
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
         // ▲▲▲ 新代码粘贴结束 ▲▲▲
         acc[chat.id] = chat;
         return acc;
     }, {});
-    state.apiConfig = apiConfig || { id: 'main', proxyUrl: '', apiKey: '', model: '' };
+    state.apiConfig = apiConfig || { 
+    id: 'main', 
+    proxyUrl: '', 
+    apiKey: '', 
+    model: '',
+    // 【核心新增】为旧数据添加默认空值
+    minimaxGroupId: '',
+    minimaxApiKey: ''
+};
+// ▲▲▲ 替换结束 ▲▲▲
 
 // ▼▼▼ 步骤 3.1：在 loadAllDataFromDB 函数中，找到并【替换】这行代码 ▼▼▼
 
@@ -21577,6 +21797,11 @@ function parseAiResponse(content) {
     // 1. 更新 API 相关的输入框
     document.getElementById('proxy-url').value = state.apiConfig.proxyUrl || '';
     document.getElementById('api-key').value = state.apiConfig.apiKey || '';
+        // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+    // 【核心新增】加载 Minimax 设置
+    document.getElementById('minimax-group-id').value = state.apiConfig.minimaxGroupId || '';
+    document.getElementById('minimax-api-key').value = state.apiConfig.minimaxApiKey || '';
+    // ▲▲▲ 粘贴结束 ▲▲▲
     // 如果你有模型选择，也一并更新
     if (document.getElementById('model-select')) {
         document.getElementById('model-select').value = state.apiConfig.model || 'gpt-4';
@@ -24167,8 +24392,8 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
 - **评论小组帖子**: \`{"type": "forum_comment", "postId": (帖子数字ID), "commentText": "评论内容"}\`
 
 **七、 微博指令**
-- **发布纯文字微博**: \`{"type": "weibo_post", "content": "微博正文...", "baseLikesCount": 8000, ...}\`
-- **发布文字图微博**: \`{"type": "weibo_post", "postType": "text_image", "content": "(可选)配文...", "hiddenContent": "文字图内容", ...}\`
+- **发布纯文字微博**: \`{"type": "weibo_post", "content": "微博正文...", "baseLikesCount": 8000, "baseCommentsCount": 250, "comments": [{"authorNickname": "路人甲", "commentText": "沙发！"}, {"authorNickname": "路人乙", "commentText": "前排围观"}]}\`
+- **发布文字图微博**: \`{"type": "weibo_post", "postType": "text_image", "content": "(可选)配文...", "hiddenContent": "文字图内容", "baseLikesCount": 5200, "baseCommentsCount": 180, "comments": [{"authorNickname": "技术宅", "commentText": "这是什么黑科技？"}]}\`
 - **评论微博**: \`{"type": "weibo_comment", "postId": 123, "commentText": "评论内容"}\`
 - **回复微博评论**: \`{"type": "weibo_reply", "postId": 123, "commentId": "comment_123", "replyText": "回复内容"}\`
 
@@ -24782,10 +25007,11 @@ if (msgData.type === 'text' && messageText.startsWith('[SEND_LOCATION]')) {
                     continue;
 // ▼▼▼ 在 switch (msgData.type) 结构内粘贴 ▼▼▼
 // ▼▼▼ 在 triggerAiResponse 的 switch (msgData.type) 结构内，用这整块新代码替换旧的 case 'weibo_post' ▼▼▼
-// ▼▼▼ 把下面这整块新代码，粘贴到 case 'qzone_like' 的 continue; 之后 ▼▼▼
+// ▼▼▼ 请用这一整块【已修复评论区不显示问题】的代码，完整替换你旧的 case 'weibo_post' 代码块 ▼▼▼
+
 case 'weibo_post': {
     const newPost = {
-        authorId: chatId, // 使用当前AI角色的ID作为作者ID
+        authorId: chatId,
         authorType: 'char',
         authorNickname: chat.name,
         authorAvatar: chat.settings.aiAvatar || defaultAvatar,
@@ -24793,41 +25019,59 @@ case 'weibo_post': {
         postType: msgData.postType || 'text_only',
         hiddenContent: msgData.hiddenContent || '',
         imageUrl: msgData.imageUrl || '',
+        imageDescription: msgData.imageDescription || '',
         timestamp: Date.now(),
         likes: [],
-        comments: [],
+        comments: [], // 先初始化为空数组
         baseLikesCount: msgData.baseLikesCount || 0,
         baseCommentsCount: msgData.baseCommentsCount || 0
     };
 
-    // 处理AI生成的水军评论
-    if (msgData.comments && typeof msgData.comments === 'string') {
-        newPost.comments = msgData.comments.split('\n').map(c => {
+    // --- ▼▼▼ 核心修复逻辑开始 ▼▼▼ ---
+
+    let commentsToProcess = [];
+
+    // 1. 优先处理新的、正确的【数组格式】
+    if (msgData.comments && Array.isArray(msgData.comments)) {
+        // 直接使用AI返回的数组
+        commentsToProcess = msgData.comments;
+    }
+    // 2. 兼容旧的【字符串格式】
+    else if (msgData.comments && typeof msgData.comments === 'string') {
+        // 如果是字符串，就按老方法解析
+        commentsToProcess = msgData.comments.split('\n').map(c => {
             const parts = c.split(/[:：]/);
             const commenter = parts.shift() || '路人';
             const commentText = parts.join(':').trim();
-            return {
-                commentId: 'comment_' + Date.now() + Math.random(),
-                authorNickname: commenter,
-                commentText: commentText
-            };
+            return { authorNickname: commenter, commentText: commentText };
         }).filter(c => c.commentText);
     }
+    
+    // 3. 【关键步骤】为所有解析好的评论，统一添加前端需要的 commentId
+    if (commentsToProcess.length > 0) {
+        newPost.comments = commentsToProcess.map(c => ({
+            commentId: 'comment_' + Date.now() + Math.random(), // 确保每条评论都有唯一ID
+            authorNickname: c.authorNickname,
+            commentText: c.commentText
+            // 这里我们不再需要 authorId 和 timestamp，因为它们不是渲染所必需的
+        }));
+    }
+    
+    // --- ▲▲▲ 核心修复逻辑结束 ▲▲▲ ---
 
-    // 将新微博存入数据库
     await db.weiboPosts.add(newPost);
     
-    // 弹出通知告诉你自己，角色发微博了
     showNotification(chatId, `${chat.name} 发了一条新微博`);
 
-    // 如果你正好在看微博页面，就自动刷新一下
     if (document.getElementById('weibo-screen').classList.contains('active')) {
         await renderFollowingWeiboFeed();
     }
     
-    // 这是一个后台操作，不需要在聊天里显示消息，所以用 continue 跳过
-    continue;
+    continue; // 这是后台操作，用 continue 跳过
 }
+
+// ▲▲▲ 替换结束 ▲▲▲
+
 // ▲▲▲ 粘贴结束 ▲▲▲
 case 'weibo_comment': {
                     // 这是一个AI评论微博的指令
@@ -25136,49 +25380,6 @@ case 'buy_gift_for_user': {
 }
 
 // ▲▲▲ 新增 case 代码粘贴结束 ▲▲▲
-
-// ▲▲▲ 替换结束 ▲▲▲
-                case 'weibo_comment': {
-                    const postToComment = await db.weiboPosts.get(msgData.postId);
-                    if (postToComment) {
-                        if (!postToComment.comments) postToComment.comments = [];
-                        const newComment = {
-                            commentId: 'comment_' + Date.now(),
-                            authorId: chatId,
-                            authorNickname: chat.name,
-                            commentText: msgData.commentText,
-                            timestamp: Date.now()
-                        };
-                        postToComment.comments.push(newComment);
-                        await db.weiboPosts.put(postToComment);
-                        await renderMyWeiboFeed();
-                        await renderFollowingWeiboFeed();
-                    }
-                    continue;
-                }
-                case 'weibo_reply': {
-                    const postToReply = await db.weiboPosts.get(msgData.postId);
-                    if (postToReply && postToReply.comments) {
-                        const targetComment = postToReply.comments.find(c => c.commentId === msgData.commentId);
-                        if (targetComment) {
-                             const newReply = {
-                                commentId: 'comment_' + Date.now(),
-                                authorId: chatId,
-                                authorNickname: chat.name,
-                                commentText: msgData.replyText,
-                                timestamp: Date.now(),
-                                replyToId: msgData.commentId,
-                                replyToNickname: targetComment.authorNickname
-                            };
-                            postToReply.comments.push(newReply);
-                            await db.weiboPosts.put(postToReply);
-                            await renderMyWeiboFeed();
-                            await renderFollowingWeiboFeed();
-                        }
-                    }
-                    continue;
-                }
-// ▲▲▲ 粘贴结束 ▲▲▲
 // ▼▼▼ 把这一整块全新的代码，粘贴到 triggerAiResponse 函数的 switch 结构里 ▼▼▼
 
 case 'ls_answer_question': { // 使用大括号创建块级作用域
@@ -31475,8 +31676,15 @@ async function openFrameSelectorModal(type, targetId = null) {
     let currentFrameUrl = '';
     let previewAvatarUrl = '';
 
-    if (type === 'home_profile') {
-        // 如果是主屏幕头像，就从全局设置里读数据
+    // --- ▼▼▼ 这就是新增的分支逻辑！▼▼▼ ---
+    if (type === 'char-weibo') { 
+        // 如果是为“角色微博”换框
+        const charChat = state.chats[currentViewingWeiboProfileId];
+        currentFrameUrl = charChat.settings.weiboAvatarFrame || '';
+        previewAvatarUrl = charChat.settings.weiboAvatar || defaultAvatar;
+    }
+    // --- ▲▲▲ 新增结束 ▲▲▲ ---
+    else if (type === 'home_profile') {
         currentFrameUrl = state.globalSettings.homeAvatarFrame || '';
         previewAvatarUrl = document.getElementById('profile-avatar-img').src;
     } 
@@ -31498,6 +31706,7 @@ async function openFrameSelectorModal(type, targetId = null) {
         }
     }
     
+    // 后续渲染逻辑保持不变
     const customFrames = await db.customAvatarFrames.toArray();
     const frameUrlSet = new Set();
     const allFrames = [...avatarFrames, ...customFrames].filter(frame => {
@@ -31520,6 +31729,7 @@ async function openFrameSelectorModal(type, targetId = null) {
     document.getElementById('avatar-frame-modal').classList.add('visible');
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
 
 // 辅助函数：创建一个头像框选项
 function createFrameItem(frame, previewAvatarSrc) {
@@ -31544,12 +31754,20 @@ async function saveSelectedFrames() {
     const chat = state.chats[state.activeChatId];
     const { type, url, target } = currentFrameSelection;
 
-    if (type === 'home_profile') {
-        // 如果是主屏幕头像，就保存到全局设置
+    // --- ▼▼▼ 这就是新增的分支逻辑！▼▼▼ ---
+    if (type === 'char-weibo') {
+        const charChat = state.chats[currentViewingWeiboProfileId];
+        if (charChat) {
+            charChat.settings.weiboAvatarFrame = url;
+            await db.chats.put(charChat);
+            await renderWeiboCharProfile(currentViewingWeiboProfileId);
+        }
+    }
+    // --- ▲▲▲ 新增结束 ▲▲▲ ---
+    else if (type === 'home_profile') {
         if (!state.globalSettings) state.globalSettings = {};
         state.globalSettings.homeAvatarFrame = url;
         await db.globalSettings.put(state.globalSettings);
-        // 保存后立刻渲染，让新框显示出来
         renderHomeScreenProfileFrame(); 
     } 
     else if (type === 'weibo_profile') {
@@ -31572,7 +31790,8 @@ async function saveSelectedFrames() {
     
     document.getElementById('avatar-frame-modal').classList.remove('visible');
     
-    if (type !== 'weibo_profile' && type !== 'home_profile') {
+    // 修正：只有当不是微博或主屏幕的头像框设置时，才刷新聊天界面
+    if (type !== 'weibo_profile' && type !== 'home_profile' && type !== 'char-weibo') {
         renderChatInterface(state.activeChatId);
         if (document.getElementById('chat-settings-modal').classList.contains('visible')) {
             document.getElementById('chat-settings-btn').click();
@@ -31581,6 +31800,7 @@ async function saveSelectedFrames() {
     }
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
 
 /**
  * 检查两个时间戳是否在不同的自然日
@@ -33517,6 +33737,7 @@ ${npcChatHistoryContext}
             });
         }
 
+        // 正确处理其他数组类型数据 (这些是没问题的，保持原样)
         if(!phoneData.shoppingCart) phoneData.shoppingCart = [];
         phoneData.shoppingCart.push(...(newData.shoppingCart || []));
         if(!phoneData.memos) phoneData.memos = [];
@@ -33527,16 +33748,60 @@ ${npcChatHistoryContext}
         phoneData.photoAlbum.push(...(newData.photoAlbum || []));
         if(!phoneData.trajectory) phoneData.trajectory = [];
         phoneData.trajectory.push(...(newData.trajectory || []));
-        if(!phoneData.appUsage) phoneData.appUsage = [];
-        phoneData.appUsage.push(...(newData.appUsage || []));
         if (!phoneData.diary) phoneData.diary = [];
         phoneData.diary.push(...(newData.diary || []));
 
-        if (newData.bank) {
-            if(!phoneData.bank) phoneData.bank = { balance: 0, transactions: [] };
-            phoneData.bank.balance = newData.bank.balance || phoneData.bank.balance;
-            phoneData.bank.transactions.push(...(newData.bank.transactions || []));
+        // 【修复1：屏幕使用时间】
+        if (newData.appUsage && Array.isArray(newData.appUsage)) {
+            const usageMap = new Map();
+            // 先加载已有的使用记录
+            (phoneData.appUsage || []).forEach(item => {
+                usageMap.set(item.appName, (usageMap.get(item.appName) || 0) + parseDurationToMinutes(item.duration));
+            });
+            // 再累加新生成的使用记录
+            newData.appUsage.forEach(item => {
+                usageMap.set(item.appName, (usageMap.get(item.appName) || 0) + parseDurationToMinutes(item.duration));
+            });
+            // 重新生成合并后的列表
+            const mergedUsage = [];
+            for (const [appName, totalMinutes] of usageMap.entries()) {
+                mergedUsage.push({ appName: appName, duration: formatMinutesToDuration(totalMinutes) });
+            }
+            phoneData.appUsage = mergedUsage;
         }
+
+        // 【修复2：钱包】
+        if (newData.bank) {
+            if (!phoneData.bank) phoneData.bank = { balance: 0, transactions: [] };
+            if (typeof phoneData.bank.balance !== 'number') phoneData.bank.balance = 0;
+
+            // 如果AI返回了新的总余额 (通常是第一次生成时)，则以此为准
+            if (typeof newData.bank.balance === 'number') {
+                phoneData.bank.balance = newData.bank.balance;
+            }
+
+            // 遍历新生成的交易记录，并【累加/累减】到余额上
+            if (newData.bank.transactions && Array.isArray(newData.bank.transactions)) {
+                newData.bank.transactions.forEach(transaction => {
+                    const amount = parseFloat(transaction.amount);
+                    if (!isNaN(amount)) {
+                        // 只有在AI没有直接提供新余额时，我们才根据交易记录自己计算
+                        if (typeof newData.bank.balance !== 'number') {
+                            if (transaction.type === '收入') {
+                                phoneData.bank.balance += amount;
+                            } else if (transaction.type === '支出') {
+                                phoneData.bank.balance -= amount;
+                            }
+                        }
+                    }
+                });
+                // 将新交易记录追加到历史记录中
+                if(!phoneData.bank.transactions) phoneData.bank.transactions = [];
+                phoneData.bank.transactions.push(...newData.bank.transactions);
+            }
+        }
+        
+        // --- ★★★ 核心修复到这里结束 ★★★ ---
 
         await db.chats.put(chat);
         alert('数据已刷新！');
@@ -35157,10 +35422,6 @@ function renderWeiboFeed(containerEl, feedData, isHotSearch) {
     });
 }
 // ▲▲▲ 替换结束 ▲▲▲
-
-        // ===================================================================
-        // 4. 初始化函数 init()
-        // ===================================================================
         /* ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼ */
 /**
  * 【全新】如果数据库中没有，则自动创建一个内置的夜间模式主题
@@ -35578,7 +35839,7 @@ async function showWeiboScreen() {
     showScreen('weibo-screen');
 }
 
-// ▼▼▼ 用这块【已添加按钮】的代码，完整替换你旧的 showFollowingList 函数 ▼▼▼
+// ▼▼▼ 用这块【已添加主页按钮】的代码，替换旧的 showFollowingList 函数 ▼▼▼
 function showFollowingList() {
     console.log("【诊断日志 2】: showFollowingList 函数已成功触发！");
 
@@ -35601,10 +35862,12 @@ function showFollowingList() {
             // --- 渲染角色本人 ---
             const charItem = document.createElement('div');
             charItem.className = 'weibo-following-item';
-            // 【核心修改】在这里加入了操作按钮
+            // 【核心修改】在这里加入了“查看主页”和“AI操作”按钮
             charItem.innerHTML = `
                 <img src="${chat.settings.aiAvatar || defaultAvatar}" class="weibo-following-avatar">
                 <span class="weibo-following-name">${chat.name}</span>
+                <!-- 这是我们新增的“查看主页”按钮 -->
+                <button class="view-profile-btn" data-char-id="${chat.id}">主页</button>
                 <span class="weibo-action-trigger-btn" data-target-id="${chat.id}" data-target-name="${chat.name}" data-is-npc="false" title="为Ta执行操作">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
                 </span>
@@ -35617,7 +35880,7 @@ function showFollowingList() {
                     const npcItem = document.createElement('div');
                     npcItem.className = 'weibo-following-item';
                     npcItem.style.paddingLeft = '30px';
-                    // 【核心修改】为NPC也加入了操作按钮
+                    // NPC暂时没有独立主页，所以不加“主页”按钮
                     npcItem.innerHTML = `
                          <img src="${npc.avatar || defaultGroupMemberAvatar}" class="weibo-following-avatar">
                          <span class="weibo-following-name">${npc.name} (NPC)</span>
@@ -46710,18 +46973,21 @@ async function handleCheckout() {
 
 
 
-// ▼▼▼ 【这是修改后的版本】请用这整块代码替换你旧的 renderTaobaoProducts 函数 ▼▼▼
+// ▼▼▼ 【最终修复版】请用这整块代码，完整替换旧的 renderTaobaoProducts 函数 ▼▼▼
 /**
- * 【已修改】渲染商品列表，加入了“加入购物车”按钮
+ * 【最终修复版】渲染商品列表，杜绝重复并移除多余按钮
  */
 async function renderTaobaoProducts(category = null) {
     const gridEl = document.getElementById('product-grid');
     const categoryTabsEl = document.getElementById('product-category-tabs');
+    
+    // 我们仍然保留清空操作，这是个好习惯
     gridEl.innerHTML = '';
 
     const allProducts = await db.taobaoProducts.orderBy('name').toArray();
     const categories = [...new Set(allProducts.map(p => p.category).filter(Boolean))];
 
+    // 渲染分类页签 (这部分逻辑是正确的，保持不变)
     categoryTabsEl.innerHTML = `<button class="category-tab-btn ${!category ? 'active' : ''}" data-category="all">全部</button>`;
     categories.forEach(cat => {
         categoryTabsEl.innerHTML += `<button class="category-tab-btn ${category === cat ? 'active' : ''}" data-category="${cat}">${cat}</button>`;
@@ -46737,10 +47003,18 @@ async function renderTaobaoProducts(category = null) {
     }
 
     productsToRender.forEach(product => {
+        // ★★★ 核心修复1：在这里检查商品是否已存在 ★★★
+        // 如果页面上已经有一个带有相同商品ID的卡片了，就直接跳过，不执行后面的添加操作。
+        if (gridEl.querySelector(`[data-product-id="${product.id}"]`)) {
+            console.warn(`检测到重复商品，已跳过渲染: ${product.name}`);
+            return; // 跳过本次循环
+        }
+
         const card = document.createElement('div');
         card.className = 'product-card';
         card.dataset.productId = product.id;
-        // ★★★ 核心修改：在卡片内部添加了加入购物车的按钮 ★★★
+
+        // ★★★ 核心修复2：移除了您不想要的“加入购物车”按钮 ★★★
         card.innerHTML = `
             <img src="${product.imageUrl}" class="product-image" alt="${product.name}">
             <div class="product-info">
@@ -46748,14 +47022,16 @@ async function renderTaobaoProducts(category = null) {
                 <div class="product-price">${product.price.toFixed(2)}</div>
             </div>
         `;
+        // 长按删除功能保持不变
         addLongPressListener(card, () => showProductActions(product.id));
+
+        // 最终将创建好的卡片添加到页面
         gridEl.appendChild(card);
     });
 }
 // ▲▲▲ 替换结束 ▲▲▲
 
 
-// ▲▲▲ 新增功能函数结束 ▲▲▲
 
 
 /**
@@ -47494,8 +47770,10 @@ async function createOrdersFromCart(cartItems) {
     }, 1000 * 10);
 }
 
+// ▼▼▼ 请用下面这整块【修复后】的代码，完整替换掉你旧的 handleShareCart 函数 ▼▼▼
+
 /**
- * 【全新总入口】处理“分享给Ta代付”的全部逻辑
+ * 【全新总入口 | 已修复备注名】处理“分享给Ta代付”的全部逻辑
  */
 async function handleShareCart() {
     const cartItems = await db.taobaoCart.toArray();
@@ -47536,7 +47814,24 @@ async function handleShareCart() {
     
     await showCustomAlert("处理中...", "正在通知Ta代付并下单...");
     
-    await updateCharacterPhoneBankBalance(targetChatId, -totalPrice, `为“我”代付购物车`);
+    // --- ▼▼▼ 这就是本次的核心修改 ▼▼▼ ---
+
+    // 1. 获取角色的手机数据，准备查找备注名
+    const characterPhoneData = char.characterPhoneData || { chats: {} };
+    
+    // 2. 在角色的联系人中，找到代表“用户”的那个联系人对象
+    //    （通常是那个没有聊天记录的特殊联系人条目）
+    const userContactInData = Object.values(characterPhoneData.chats || {}).find(c => !c.history || c.history.length === 0);
+    
+    // 3. 获取角色给用户的备注名，如果没设置，就默认用“我”
+    const remarkForUser = userContactInData ? userContactInData.remarkName : '我';
+    
+    // 4. 使用这个新的备注名来创建交易记录
+    const description = `为“${remarkForUser}”的桃宝购物车买单`;
+    await updateCharacterPhoneBankBalance(targetChatId, -totalPrice, description);
+    
+    // --- ▲▲▲ 修改结束 ▲▲▲ ---
+
     await createOrdersFromCart(cartItems);
 
     const itemsSummary = products.map((p, i) => `${p.name} x${cartItems[i].quantity}`).join('、 ');
@@ -47560,7 +47855,8 @@ async function handleShareCart() {
     triggerAiResponse(); // 让AI回应这次代付
 }
 
-// ▲▲▲ 新增功能函数结束 ▲▲▲
+// ▲▲▲ 替换结束 ▲▲▲
+
 // ▼▼▼ 把下面这两块全新的函数，粘贴到你的JS功能函数定义区 ▼▼▼
 
 /**
@@ -47929,9 +48225,6 @@ function openCharPhoneAppearanceSettings() {
     showCharacterPhonePage('character-phone-appearance-screen'); // 显示页面
 }
 
-/**
- * 渲染角色手机外观设置页面的所有内容（壁纸预览+图标列表）
- */
 function renderCharPhoneAppearanceScreen() {
     if (!activeCharacterPhoneId) return;
     const chat = state.chats[activeCharacterPhoneId];
@@ -47953,16 +48246,18 @@ function renderCharPhoneAppearanceScreen() {
     iconGrid.innerHTML = '';
     const customIcons = chat.characterPhoneData.appIcons || {};
 
-    // 我们使用刚刚定义的 CHAR_PHONE_APPS 数组来确保所有App都被渲染
     CHAR_PHONE_APPS.forEach(app => {
-        // “外观设置”这个App本身不需要被设置
-        if (app.id === 'appearance') return;
+        // “外观设置”这个App本身不需要被设置  <-- 这行注释也可以删掉
+        // if (app.id === 'appearance') return; // <-- 把这一行删掉！
 
         const customIconUrl = customIcons[app.id];
+        // ... 后续代码保持不变 ...
         const currentIconHtml = customIconUrl ? `<img src="${customIconUrl}" style="width:100%; height:100%; object-fit:cover;">` : app.svg;
         
         const itemEl = document.createElement('div');
-        itemEl.className = 'icon-setting-item'; // 复用主屏幕的样式
+        itemEl.className = 'icon-setting-item'; 
+        itemEl.dataset.iconId = app.id; 
+
         itemEl.innerHTML = `
             <div class="icon-preview" style="width: 50px; height: 50px; border-radius: 12px; display: flex; justify-content: center; align-items: center; padding: 8px; background: #f0f2f5;">
                 ${currentIconHtml}
@@ -48047,9 +48342,287 @@ async function handleChangeCharPhoneIcon(iconId) {
 }
 
 // ▲▲▲ 新增函数粘贴结束 ▲▲▲
+// ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的上方 ▼▼▼
+
+let currentViewingWeiboProfileId = null; // 全局变量，记录正在查看哪个角色的主页
+
+/**
+ * 【全新】打开指定角色的微博主页
+ * @param {string} charId - 要查看的角色的ID
+ */
+async function openWeiboCharProfile(charId) {
+    currentViewingWeiboProfileId = charId;
+    const chat = state.chats[charId];
+    if (!chat) return;
+
+    // 渲染角色主页内容
+    await renderWeiboCharProfile(charId);
+    
+    // 渲染该角色的微博Feed
+    await renderCharSpecificFeed(charId);
+
+    // 切换到角色主页屏幕
+    showScreen('weibo-char-profile-screen');
+    
+    // 隐藏关注列表弹窗（如果它还开着）
+    document.getElementById('weibo-following-modal').classList.remove('visible');
+}
+
+/**
+ * 【全新】渲染角色微博主页的个人资料部分 (V2 - 支持粉丝/关注数)
+ * @param {string} charId - 角色的ID
+ */
+async function renderWeiboCharProfile(charId) {
+    const chat = state.chats[charId];
+    if (!chat) return;
+
+    // 渲染基础信息（这部分不变）
+    document.getElementById('weibo-char-profile-title').textContent = `${chat.name}的主页`;
+    document.getElementById('weibo-char-avatar-img').src = chat.settings.weiboAvatar || chat.settings.aiAvatar;
+    document.getElementById('weibo-char-nickname').textContent = chat.settings.weiboNickname || chat.name;
+    document.getElementById('weibo-char-background-img').src = chat.settings.weiboBackground;
+    document.getElementById('weibo-char-profession-display').textContent = chat.settings.weiboProfession || '职业未设定';
+    
+    // --- ▼▼▼ 这就是我们新增的核心逻辑 ▼▼▼ ---
+
+    // 1. 从设置中读取关注数和粉丝数
+    document.getElementById('weibo-char-following-count').textContent = chat.settings.weiboFollowingCount || '0';
+    document.getElementById('weibo-char-fans-count').textContent = chat.settings.weiboFansCount || '0';
+
+    // 2. 动态计算并显示微博数
+    const postCount = await db.weiboPosts.where('authorId').equals(charId).count();
+    document.getElementById('weibo-char-posts-count').textContent = postCount;
+    
+    // --- ▲▲▲ 新增逻辑结束 ▲▲▲ ---
+
+    // 渲染头像框 (这部分不变)
+    const frameImg = document.getElementById('weibo-char-avatar-frame');
+    const frameUrl = chat.settings.weiboAvatarFrame || '';
+    if (frameUrl) {
+        frameImg.src = frameUrl;
+        frameImg.style.display = 'block';
+    } else {
+        frameImg.style.display = 'none';
+    }
+}
+
+
+/**
+ * 【全新】渲染指定角色的微博Feed
+ * @param {string} charId - 角色的ID
+ */
+async function renderCharSpecificFeed(charId) {
+    const feedEl = document.getElementById('char-weibo-feed-list');
+    feedEl.innerHTML = '';
+    
+    const posts = await db.weiboPosts.where('authorId').equals(charId).reverse().sortBy('timestamp');
+    
+    if (posts.length === 0) {
+        feedEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">Ta 还没有发过微博哦。</p>';
+        return;
+    }
+
+    posts.forEach(post => {
+        // 复用我们强大的微博帖子创建函数
+        feedEl.appendChild(createWeiboPostElement(post));
+    });
+}
+
+/**
+ * 【全新】打开角色微博资料的编辑器
+ */
+async function openCharWeiboEditor() {
+    if (!currentViewingWeiboProfileId) return;
+    const chat = state.chats[currentViewingWeiboProfileId];
+    if (!chat) return;
+
+    // 填充当前数据到编辑器
+    document.getElementById('char-weibo-editor-avatar-preview').src = chat.settings.weiboAvatar || chat.settings.aiAvatar;
+    document.getElementById('char-weibo-editor-nickname-input').value = chat.settings.weiboNickname || chat.name;
+    document.getElementById('char-weibo-editor-bg-preview').src = chat.settings.weiboBackground;
+
+    // 显示弹窗
+    document.getElementById('char-weibo-editor-modal').classList.add('visible');
+}
+
+/**
+ * 【全新】保存对角色微博资料的修改
+ */
+async function saveCharWeiboProfile() {
+    if (!currentViewingWeiboProfileId) return;
+    const chat = state.chats[currentViewingWeiboProfileId];
+    if (!chat) return;
+
+    // 从编辑器获取新数据
+    chat.settings.weiboAvatar = document.getElementById('char-weibo-editor-avatar-preview').src;
+    chat.settings.weiboNickname = document.getElementById('char-weibo-editor-nickname-input').value.trim();
+    chat.settings.weiboBackground = document.getElementById('char-weibo-editor-bg-preview').src;
+
+    // 保存到数据库
+    await db.chats.put(chat);
+    
+    // 刷新主页显示
+    await renderWeiboCharProfile(currentViewingWeiboProfileId);
+    
+    document.getElementById('char-weibo-editor-modal').classList.remove('visible');
+    alert('角色微博资料已保存！');
+}
 
 // ▲▲▲ 新功能函数粘贴结束 ▲▲▲
+// ▼▼▼ 在 const db = ... 的正上方，粘贴下面这一整块新代码 ▼▼▼
 
+/**
+ * 【全新】根据角色人设和职业，生成初始的微博关注数和粉丝数
+ * @param {object} chat - 角色的聊天对象
+ * @returns {{following: string, fans: string}}
+ */
+function getInitialWeiboStats(chat) {
+    const persona = (chat.settings.aiPersona || '') + (chat.settings.weiboProfession || '');
+    const keywords = ["偶像", "明星", "演员", "歌手", "博主", "网红", "UP主", "主播", "选手", "画家", "作家"];
+    const isPublicFigure = keywords.some(keyword => persona.includes(keyword));
+
+    let fansCount, followingCount;
+
+    if (isPublicFigure) {
+        fansCount = Math.floor(100000 + Math.random() * 9900000); // 10万 - 1000万
+        followingCount = Math.floor(50 + Math.random() * 450); // 50 - 500
+    } else {
+        fansCount = Math.floor(100 + Math.random() * 4900); // 100 - 5000
+        followingCount = Math.floor(50 + Math.random() * 250); // 50 - 300
+    }
+
+    return {
+        fans: formatNumberToChinese(fansCount),
+        following: formatNumberToChinese(followingCount)
+    };
+}
+
+/**
+ * 【全新】将数字格式化为带“万”或“亿”的字符串
+ * @param {number} num - 原始数字
+ * @returns {string} - 格式化后的字符串
+ */
+function formatNumberToChinese(num) {
+    if (num >= 100000000) {
+        return (num / 100000000).toFixed(1).replace(/\.0$/, '') + '亿';
+    }
+    if (num >= 10000) {
+        return (num / 10000).toFixed(1).replace(/\.0$/, '') + '万';
+    }
+    return String(num);
+}
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+// ▼▼▼ 【最终修复版】用这整块代码，完整替换你旧的 playMinimaxAudio 函数 ▼▼▼
+
+// 全局变量，用于控制音频播放，防止同时播放多个
+let isTtsPlaying = false; 
+let currentTtsAudioBubble = null; // 修改变量名，更清晰地表示这是那个气泡元素
+
+/**
+ * 【V4 - 最终无弹窗修复版】调用 Minimax TTS API 生成语音并播放
+ * @param {string} text - 要转换为语音的文本
+ * @param {string} voiceId - Minimax 的语音 ID
+ * @param {HTMLElement} clickedBubbleElement - 被点击的那个语音条的 message-bubble 元素
+ */
+async function playMinimaxAudio(text, voiceId, clickedBubbleElement) {
+    const audioPlayer = document.getElementById('audio-player');
+
+    // 1. 如果当前有音频正在播放
+    if (isTtsPlaying && currentTtsAudioBubble) {
+        // 先停止当前播放
+        audioPlayer.pause();
+        audioPlayer.src = '';
+        audioPlayer.onended = null; // 清除旧的事件处理器
+        audioPlayer.onerror = null;
+        isTtsPlaying = false;
+        
+        // 移除旧气泡的播放动画
+        if (currentTtsAudioBubble) {
+            currentTtsAudioBubble.classList.remove('playing');
+        }
+
+        // 【核心修复】如果用户点击的是同一个正在播放的语音条，那么我们的目的就是“停止”，直接退出函数即可
+        if (currentTtsAudioBubble === clickedBubbleElement) {
+            currentTtsAudioBubble = null;
+            return;
+        }
+    }
+    
+    // 2. 检查API配置 (保持不变)
+    const groupId = state.apiConfig.minimaxGroupId;
+    const apiKey = state.apiConfig.minimaxApiKey;
+    if (!groupId || !apiKey) {
+        alert('请先在“API设置”中配置您的 Minimax Group ID 和 API Key！');
+        return;
+    }
+
+    try {
+        // 3. 开始请求API
+        const url = `https://api.minimax.chat/v1/text_to_speech?GroupId=${groupId}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: text, voice_id: voiceId, model: 'speech-01',
+                speed: 1.0, pitch: 0, timber_list: []
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Minimax API 错误: ${errorData.base_resp?.status_msg || response.statusText}`);
+        }
+
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        // 4. 播放新的音频
+        audioPlayer.src = audioUrl;
+        
+        // 【核心修复】为当前气泡添加播放动画
+        clickedBubbleElement.classList.add('playing');
+        
+        // 5. 【核心修复】设置自洽的事件处理器
+        audioPlayer.onended = () => {
+            isTtsPlaying = false;
+            currentTtsAudioBubble = null;
+            URL.revokeObjectURL(audioUrl); 
+            clickedBubbleElement.classList.remove('playing');
+        };
+
+        audioPlayer.onerror = () => {
+             isTtsPlaying = false;
+             currentTtsAudioBubble = null;
+             URL.revokeObjectURL(audioUrl);
+             clickedBubbleElement.classList.remove('playing');
+             console.error("音频播放时发生错误。");
+             // 我们在这里不再弹窗，只在控制台打印错误
+             // alert("音频播放失败，请检查网络或音频文件格式。");
+        };
+
+        await audioPlayer.play();
+        isTtsPlaying = true;
+        currentTtsAudioBubble = clickedBubbleElement; 
+
+    } catch (error) {
+        console.error("Minimax TTS 调用失败:", error);
+        await showCustomAlert('语音合成失败', `错误信息: ${error.message}`);
+        // 如果出错，也要确保移除播放状态
+        clickedBubbleElement.classList.remove('playing');
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+
+// ▲▲▲ 新功能函数粘贴结束 ▲▲▲
+        // ===================================================================
+        // 4. 初始化函数 init()
+        // ===================================================================
         async function init() {
 
     // ▼▼▼ 在 init()    // ▼▼▼ 在这里粘贴下面这几行新代码 ▼▼▼
@@ -48693,9 +49266,9 @@ state.globalSettings.removeHomeFontShadow = document.getElementById('remove-home
 
             document.getElementById('save-api-settings-btn').addEventListener('click', async () => { 
 
-// ▼▼▼ 在这里粘贴新代码 ▼▼▼
-const proxyUrlToCheck = document.getElementById('proxy-url').value.trim();
-const isBlocked = BLOCKED_API_SITES.some(blockedDomain => proxyUrlToCheck.includes(blockedDomain));
+    const proxyUrl = document.getElementById('proxy-url').value.trim();
+    const apiKey = document.getElementById('api-key').value.trim();
+    const isBlocked = BLOCKED_API_SITES.some(blockedDomain => proxyUrl.includes(blockedDomain));
 
 if (isBlocked) {
     alert('错误：该 API 站点已被禁用，无法使用。');
@@ -48703,7 +49276,13 @@ if (isBlocked) {
 }
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
 
-state.apiConfig.proxyUrl = document.getElementById('proxy-url').value.trim(); state.apiConfig.apiKey = document.getElementById('api-key').value.trim(); state.apiConfig.model = document.getElementById('model-select').value; await db.apiConfig.put(state.apiConfig); 
+state.apiConfig.proxyUrl = document.getElementById('proxy-url').value.trim(); 
+state.apiConfig.apiKey = document.getElementById('api-key').value.trim(); 
+state.apiConfig.model = document.getElementById('model-select').value; 
+    // 【核心新增】保存 Minimax 设置
+    state.apiConfig.minimaxGroupId = document.getElementById('minimax-group-id').value.trim();
+    state.apiConfig.minimaxApiKey = document.getElementById('minimax-api-key').value.trim();
+await db.apiConfig.put(state.apiConfig); 
 
 // 在 'save-api-settings-btn' 的 click 事件监听器内部
 // await db.apiConfig.put(state.apiConfig); 这行之后
@@ -48802,8 +49381,125 @@ alert('API设置已保存!'); });
         // ▲▲▲ 修改结束 ▲▲▲
 
 await db.worldBooks.put(book); document.getElementById('world-book-editor-title').textContent = newName; editingWorldBookId = null; renderWorldBookScreen(); showScreen('world-book-screen'); } });
-            document.getElementById('chat-messages').addEventListener('click', (e) => { const aiImage = e.target.closest('.ai-generated-image'); if (aiImage) { const description = aiImage.dataset.description; if (description) showCustomAlert('照片描述', description); return; }  });
-            
+            // ▼▼▼ 用这整块【已修改】的代码，完整替换旧的 chat-messages 点击事件监听器 ▼▼▼
+document.getElementById('chat-messages').addEventListener('click', async (e) => {
+    
+   // ▼▼▼ 用这整块【最终简化版】的代码，替换旧的 if (voiceBody) { ... } 逻辑 ▼▼▼
+    const voiceBody = e.target.closest('.voice-message-body');
+    if (voiceBody) {
+        const bubble = voiceBody.closest('.message-bubble');
+        if (!bubble) return;
+        
+        // 如果点击的是用户自己的语音条，执行转文字逻辑
+        const isUserMessage = bubble.classList.contains('user');
+        if (isUserMessage) {
+            const spinner = voiceBody.querySelector('.loading-spinner');
+            const transcriptEl = bubble.querySelector('.voice-transcript');
+
+            if (bubble.dataset.state === 'loading') return;
+
+            if (bubble.dataset.state === 'expanded') {
+                transcriptEl.style.display = 'none';
+                bubble.dataset.state = 'collapsed';
+            } else {
+                bubble.dataset.state = 'loading';
+                spinner.style.display = 'block';
+                setTimeout(() => {
+                    if (document.body.contains(bubble)) {
+                        const voiceText = bubble.dataset.voiceText || '(无法识别)';
+                        transcriptEl.textContent = voiceText;
+                        spinner.style.display = 'none';
+                        transcriptEl.style.display = 'block';
+                        bubble.dataset.state = 'expanded';
+                    }
+                }, 500);
+            }
+        } 
+        // 如果点击的是AI的语音条，调用我们的播放函数
+        else {
+            const chatId = state.activeChatId;
+            const chat = state.chats[chatId];
+            if (!chat) return;
+
+            const voiceId = chat.settings.minimaxVoiceId || 'male-01'; 
+            const textToSpeak = bubble.dataset.voiceText;
+
+            if (!textToSpeak) {
+                alert("这条语音没有文字内容，无法播放。");
+                return;
+            }
+
+            // 【核心修改】直接调用播放函数，把 bubble 元素传进去
+            playMinimaxAudio(textToSpeak, voiceId, bubble);
+        }
+        return; // 处理完语音点击后就退出
+    }
+    // ▲▲▲ 替换结束 ▲▲▲
+
+    // --- 你原来的其他点击事件逻辑保持不变 ---
+    const aiImage = e.target.closest('.ai-generated-image');
+    if (aiImage) {
+        const description = aiImage.dataset.description;
+        if (description) showCustomAlert('照片描述', description);
+        return;
+    }
+    const linkCard = e.target.closest('.link-share-card');
+    if (linkCard && linkCard.closest('.message-bubble.is-link-share')) {
+        const timestamp = parseInt(linkCard.dataset.timestamp);
+        if (!isNaN(timestamp)) {
+            openBrowser(timestamp);
+        }
+    }
+    const packetCard = e.target.closest('.red-packet-card');
+    if (packetCard) {
+        const messageBubble = packetCard.closest('.message-bubble');
+        if (messageBubble && messageBubble.dataset.timestamp) {
+            const timestamp = parseInt(messageBubble.dataset.timestamp);
+            handlePacketClick(timestamp);
+        }
+    }
+    const pollCard = e.target.closest('.poll-card');
+    if (pollCard) {
+        const timestamp = parseInt(pollCard.dataset.pollTimestamp);
+        if (isNaN(timestamp)) return;
+        const optionItem = e.target.closest('.poll-option-item');
+        if (optionItem && !pollCard.classList.contains('closed')) {
+            handleUserVote(timestamp, optionItem.dataset.option);
+            return;
+        }
+        const actionBtn = e.target.closest('.poll-action-btn');
+        if (actionBtn) {
+            if (pollCard.classList.contains('closed')) {
+                showPollResults(timestamp);
+            } else {
+                endPoll(timestamp);
+            }
+            return;
+        }
+        if (pollCard.classList.contains('closed')) {
+            showPollResults(timestamp);
+        }
+    }
+    const card = e.target.closest('.waimai-card');
+    if (card) {
+        const messageBubble = card.closest('.message-bubble');
+        const invitationMsg = state.chats[state.activeChatId].history.find(m => m.timestamp === parseInt(messageBubble.dataset.timestamp));
+        if (invitationMsg && invitationMsg.type === 'lovers_space_invitation' && invitationMsg.status === 'pending') {
+            const choice = e.target.dataset.choice;
+            if (choice) {
+                handleLoversSpaceResponse(invitationMsg.timestamp, choice);
+            }
+        }
+    }
+    const repostCard = e.target.closest('.link-share-card[data-post-id]');
+    if (repostCard) {
+        const postId = parseInt(repostCard.dataset.postId);
+        if (!isNaN(postId)) {
+            openPost(postId);
+        }
+    }
+});
+// ▲▲▲ 替换结束 ▲▲▲
             const chatSettingsModal = document.getElementById('chat-settings-modal');
             const worldBookSelectBox = document.querySelector('.custom-multiselect .select-box');
             const worldBookCheckboxesContainer = document.getElementById('world-book-checkboxes-container');
@@ -48932,6 +49628,7 @@ document.getElementById('reroll-call-btn-text').addEventListener('click', handle
 
 
     document.getElementById('chat-name-group').style.display = 'block';
+    document.getElementById('minimax-voice-id-group').style.display = isGroup ? 'none' : 'block';
     document.getElementById('my-persona-group').style.display = 'block';
     document.getElementById('my-avatar-group').style.display = 'block';
     document.getElementById('my-group-nickname-group').style.display = isGroup ? 'block' : 'none';
@@ -49070,6 +49767,7 @@ groupActivitySwitch.onchange = () => {
 document.getElementById('weibo-profession-input').value = chat.settings.weiboProfession || '';
 document.getElementById('weibo-instruction-input').value = chat.settings.weiboInstruction || '';
         document.getElementById('ai-avatar-preview').src = chat.settings.aiAvatar || defaultAvatar;
+        document.getElementById('minimax-voice-id-input').value = chat.settings.minimaxVoiceId || '';
         // ▼▼▼ Part C.1: 在这里粘贴【加载】情侣头像设置的代码 ▼▼▼
 const coupleAvatarToggle = document.getElementById('couple-avatar-toggle');
 const coupleAvatarDescContainer = document.getElementById('couple-avatar-desc-container');
@@ -49279,6 +49977,7 @@ chat.settings.backgroundActivity = {
     } else {
         chat.settings.aiPersona = document.getElementById('ai-persona').value;
         chat.settings.aiAvatar = document.getElementById('ai-avatar-preview').src;
+        chat.settings.minimaxVoiceId = document.getElementById('minimax-voice-id-input').value.trim();
         // ▼▼▼ Part C.2: 在这里粘贴【保存】情侣头像设置的代码 ▼▼▼
 chat.settings.isCoupleAvatar = document.getElementById('couple-avatar-toggle').checked;
 chat.settings.coupleAvatarDescription = document.getElementById('couple-avatar-description').value.trim();
@@ -52340,6 +53039,18 @@ document.getElementById('weibo-app-icon').addEventListener('click', () => {
 
 // 2. 绑定微博页面内的各种点击事件 (使用事件委托)
 document.getElementById('weibo-screen').addEventListener('click', async (e) => {
+    // --- 【全新】处理微博帖子中头像点击的逻辑 ---
+    const avatarWrapper = e.target.closest('.weibo-post-avatar-clickable');
+    if (avatarWrapper) {
+        const charId = avatarWrapper.dataset.charId;
+        // 如果点击的不是用户自己，就打开TA的主页
+        if (charId && charId !== 'user') {
+            openWeiboCharProfile(charId);
+        }
+        return; // 处理完就结束，不再执行后面的逻辑
+    }
+    
+    // ▲▲▲ 新代码粘贴结束 ▲▲▲
     const target = e.target;
 // ▼▼▼ 在这里粘贴新代码 ▼▼▼
             // ▼▼▼ 在 'const target = e.target;' 的下一行，粘贴下面这整块新代码 ▼▼▼
@@ -52406,19 +53117,29 @@ if (target.classList.contains('weibo-post-image') && target.dataset.hiddenText) 
         return;
     }
 
-    // --- 处理旧的“…”删除按钮 ---
-    const actionsBtn = target.closest('.post-actions-btn');
-    if (actionsBtn) {
-        const confirmed = await showCustomConfirm('删除微博', '确定要永久删除这条微博吗？此操作不可恢复。', { confirmButtonClass: 'btn-danger' });
-        if (confirmed && postId) {
-            await db.weiboPosts.delete(postId);
-            await renderMyWeiboFeed();
-            await renderFollowingWeiboFeed();
-            await renderWeiboProfile();
-            alert('微博已删除。');
-        }
-        return;
-    }
+// ▼▼▼ 用这块新代码替换 ▼▼▼
+
+            const actionsBtn = target.closest('.post-actions-btn');
+            if (actionsBtn) {
+                // 核心修正1：从按钮本身获取正确的 postId
+                const postId = parseInt(actionsBtn.dataset.postId);
+
+                const confirmed = await showCustomConfirm('删除微博', '确定要永久删除这条微博吗？此操作不可恢复。', { confirmButtonClass: 'btn-danger' });
+                
+                // 核心修正2：检查 postId 是否是一个有效的数字
+                if (confirmed && !isNaN(postId)) { 
+                    await db.weiboPosts.delete(postId);
+                    // 删除后，刷新所有相关的微博列表和个人资料
+                    await renderMyWeiboFeed(); 
+                    await renderFollowingWeiboFeed();
+                    await renderWeiboProfile();
+                    alert('微博已删除。');
+                }
+                return;
+            }
+
+// ▲▲▲ 替换结束 ▲▲▲
+
     
     // --- 处理点赞、评论、回复 ---
     if (target.closest('.like-btn')) { if (postId) handleWeiboLike(postId); return; }
@@ -54307,6 +55028,107 @@ document.getElementById('char-phone-wallpaper-upload-input').addEventListener('c
     event.target.value = null; // 清空，以便下次能选择同一个文件
 });
 // ▲▲▲ 事件监听结束 ▲▲▲
+// ▼▼▼ 在 init() 的事件监听器区域末尾，粘贴下面这整块新代码 ▼▼▼
+
+/* --- 【全新】角色微博主页事件监听器 --- */
+// ▼▼▼ 在 init() 的事件监听器区域粘贴这段新代码 ▼▼▼
+
+// 为角色微博主页的“关注”和“粉丝”添加点击编辑功能
+document.getElementById('weibo-char-profile-page').addEventListener('click', async (e) => {
+    if (!currentViewingWeiboProfileId) return;
+    const chat = state.chats[currentViewingWeiboProfileId];
+    if (!chat) return;
+
+    // 判断点击的是否是“关注”区域
+    if (e.target.closest('#weibo-char-following-item')) {
+        const newFollowing = await showCustomPrompt("编辑关注数", "请输入新的关注数:", chat.settings.weiboFollowingCount);
+        if (newFollowing !== null) {
+            chat.settings.weiboFollowingCount = newFollowing.trim() || '0';
+            await db.chats.put(chat);
+            await renderWeiboCharProfile(currentViewingWeiboProfileId);
+        }
+    }
+    // 判断点击的是否是“粉丝”区域
+    else if (e.target.closest('#weibo-char-fans-item')) {
+        const newFans = await showCustomPrompt("编辑粉丝数", "请输入新的粉丝数 (支持'万'/'亿'):", chat.settings.weiboFansCount);
+        if (newFans !== null) {
+            chat.settings.weiboFansCount = newFans.trim() || '0';
+            await db.chats.put(chat);
+            await renderWeiboCharProfile(currentViewingWeiboProfileId);
+        }
+    }
+});
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
+// ▼▼▼ 请用下面这块【已修复】的代码，完整替换掉上面那段旧代码 ▼▼▼
+document.getElementById('back-from-char-profile').addEventListener('click', () => {
+    // 【核心修改】我们不再显示关注列表弹窗，而是直接返回到微博主屏幕
+    showScreen('weibo-screen'); 
+});
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+// 2. 绑定新页面右上角的编辑按钮
+document.getElementById('edit-char-weibo-profile-btn').addEventListener('click', openCharWeiboEditor);
+
+// 3. 绑定角色资料编辑弹窗的按钮
+document.getElementById('cancel-char-weibo-editor-btn').addEventListener('click', () => {
+    document.getElementById('char-weibo-editor-modal').classList.remove('visible');
+});
+document.getElementById('save-char-weibo-editor-btn').addEventListener('click', saveCharWeiboProfile);
+
+// 4. 为角色资料编辑弹窗的图片上传绑定事件
+setupFileUpload('char-weibo-editor-avatar-input', (base64) => {
+    document.getElementById('char-weibo-editor-avatar-preview').src = base64;
+});
+setupFileUpload('char-weibo-editor-bg-input', (base64) => {
+    document.getElementById('char-weibo-editor-bg-preview').src = base64;
+});
+
+// 5. 绑定关注列表的点击事件（事件委托）
+document.getElementById('weibo-following-list-container').addEventListener('click', (e) => {
+    const viewProfileBtn = e.target.closest('.view-profile-btn');
+    if (viewProfileBtn && viewProfileBtn.dataset.charId) {
+        openWeiboCharProfile(viewProfileBtn.dataset.charId);
+    }
+});
+
+/* --- 新事件监听结束 --- */
+// ▲▲▲ 新增代码粘贴结束 ▲▲▲
+// ▼▼▼ 在 init() 函数的事件监听器区域末尾，粘贴下面这整块新代码 ▼▼▼
+
+/* --- 【全新】角色微博资料编辑器事件绑定 --- */
+
+// 1. 使用事件委托，为角色微博编辑弹窗内的所有按钮绑定事件
+document.getElementById('char-weibo-editor-modal').addEventListener('click', (e) => {
+    // a. 如果点击的是“更换头像框”按钮
+    if (e.target.classList.contains('change-frame-btn')) {
+        const type = e.target.dataset.type; // 获取按钮类型 'char-weibo'
+        const targetId = currentViewingWeiboProfileId; // 获取当前正在查看的角色ID
+        
+        // 调用头像框选择函数，并传入正确的参数
+        openFrameSelectorModal(type, targetId);
+    }
+    // b. 如果点击的是“取消”按钮
+    else if (e.target.id === 'cancel-char-weibo-editor-btn') {
+        document.getElementById('char-weibo-editor-modal').classList.remove('visible');
+    }
+    // c. 如果点击的是“保存”按钮
+    else if (e.target.id === 'save-char-weibo-editor-btn') {
+        saveCharWeiboProfile();
+    }
+});
+
+// 2. 为角色手机的图片上传输入框绑定事件（这是之前就有的，确保它在正确的位置）
+setupFileUpload('char-weibo-editor-avatar-input', (base64) => {
+    document.getElementById('char-weibo-editor-avatar-preview').src = base64;
+});
+setupFileUpload('char-weibo-editor-bg-input', (base64) => {
+    document.getElementById('char-weibo-editor-bg-preview').src = base64;
+});
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 
 // ▲▲▲ 新增事件监听结束 ▲▲▲
 
