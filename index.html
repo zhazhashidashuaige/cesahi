@@ -13156,49 +13156,37 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 /* ▲▲▲ 样式粘贴结束 ▲▲▲ */
 
-/* ▼▼▼ 【独家定制】扩大微博主页的粉丝、关注、昵称和职业的点击区域 ▼▼▼ */
-
-/* 1. 统一为所有可点击区域添加“小手”光标和圆角，提升交互体验 */
-#weibo-nickname,
-#weibo-user-profession-display,
+/* ▼▼▼ 这是为你新增的，让“关注/微博/粉丝”更好点击的样式 ▼▼▼ */
+/*
+ * 核心原理：通过增加内边距（padding）来扩大可点击的热区，
+ * 同时用等值的负外边距（margin）来抵消内边距带来的位置偏移，
+ * 从而实现在“位置看起来不变”的情况下，让按钮变得更好点。
+ */
 .weibo-stat-item {
-    cursor: pointer;
-    border-radius: 8px; /* 为可能的交互效果（如悬停背景色）做准备 */
-    transition: background-color 0.2s; /* 添加平滑过渡 */
+    /* 我们为每个项目增加了上下 8px 和左右 10px 的内边距 */
+    /* 这意味着上下左右都多出了肉眼看不见的点击区域 */
+    padding: 8px 10px;
+    
+    /* 为了抵消 padding 带来的位置变化，我们再减去相应的距离 */
+    margin: -8px -10px;
+    
+    /* （可选，但推荐）再给它加上一个圆角，这样在手机上点击时，背景色的反馈会更好看 */
+    border-radius: 8px;
+    
+    /* （可选）为点击时的背景色变化增加一个平滑的过渡动画 */
+    transition: background-color 0.2s;
 }
 
-/* 2. 为昵称和职业增加内边距来扩大点击范围，并用负外边距抵消位置变化 */
-/* 这种 “padding + 负 margin” 的技巧可以在不影响原有布局的情况下，安全地扩大点击区域 */
-#weibo-nickname {
-    padding: 5px 10px;
-    margin: -5px -10px;
+/* （可选）为按钮添加点击时的背景色，给用户明确的反馈 */
+.weibo-stat-item:active {
+    background-color: rgba(0, 0, 0, 0.08); /* 点击时给一个淡淡的灰色背景 */
 }
 
-#weibo-user-profession-display {
-    padding: 5px 10px;
-    margin: -5px -10px;
-}
-
-/* 3. 为“关注”、“微博”、“粉丝”这三个统计项目增加内边距 */
-/* 这里我们只加padding，flex布局会自动处理间距 */
-.weibo-stat-item {
-    padding: 8px;
-}
-
-/* 4. (可选但推荐) 添加一个悬停效果，让用户明确知道点到了哪里 */
-#weibo-nickname:hover,
-#weibo-user-profession-display:hover,
-.weibo-stat-item:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
-#phone-screen.dark-mode #weibo-nickname:hover,
-#phone-screen.dark-mode #weibo-user-profession-display:hover,
-#phone-screen.dark-mode .weibo-stat-item:hover {
+/* 在夜间模式下的点击反馈颜色 */
+#phone-screen.dark-mode .weibo-stat-item:active {
     background-color: rgba(255, 255, 255, 0.1);
 }
-
-/* ▲▲▲ 区域扩大定制结束 ▲▲▲ */
+/* ▲▲▲ 新增样式结束 ▲▲▲ */
 
 
     </style>
