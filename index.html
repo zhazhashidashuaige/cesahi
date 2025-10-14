@@ -13165,12 +13165,57 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     margin-top: -8px; /* 这个负值会把整个图标+文字的组合向上拉 */
 }
 /* ▲▲▲ 修复代码结束 ▲▲▲ */
+/* ▼▼▼ 这是步骤1需要粘贴的新样式 ▼▼▼ */
 
+/* 让每一条评论都变成可点击的，并增加悬停效果 */
+.weibo-comment-item {
+    cursor: pointer; /* 鼠标悬停时显示为小手形状 */
+    transition: background-color 0.2s; /* 添加一个平滑的背景色过渡动画 */
+    border-radius: 4px; /* 给一点点圆角，更好看 */
+    padding: 2px 5px; /* 增加一点内边距，让点击区域更大 */
+    margin: 0 -5px; /* 把上面的内边距抵消掉，保持对齐 */
+}
+.weibo-comment-item:hover {
+    background-color: #f0f2f5; /* 鼠标放上去时，给一个淡淡的背景色 */
+}
+#phone-screen.dark-mode .weibo-comment-item:hover {
+    background-color: #2c2c2e; /* 夜间模式下的悬停颜色 */
+}
 
+/* “回复”这两个字的样式，让它更柔和 */
+.weibo-comment-item .weibo-comment-reply-tag {
+    color: var(--text-secondary);
+    margin: 0 4px; /* 和两边的名字拉开一点距离 */
+}
 
+/* 被回复者的名字样式，让它和普通评论者名字一样可以点击 */
+.weibo-comment-item .reply-target-name {
+    font-weight: 600;
+    color: var(--accent-color);
+    cursor: pointer;
+    margin-right: 5px;
+}
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】角色手机App内壁纸样式 ▼▼▼ */
 
+/* 1. 给内部屏幕容器添加背景过渡效果 */
+.character-phone-inner-screen {
+    transition: background-image 0.3s ease-in-out;
+}
 
+/* 2. 【核心】当设置了内壁纸时，让所有子页面背景透明 */
+.character-phone-inner-screen.has-inner-wallpaper .character-phone-page {
+    background-color: transparent !important;
+}
 
+/* 3. 【兼容】特别处理一些有自己背景色的页面，确保它们也透明 */
+.character-phone-inner-screen.has-inner-wallpaper #character-chat-history-messages,
+.character-phone-inner-screen.has-inner-wallpaper #character-bank-details {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+/* ▲▲▲ 新增CSS代码结束 ▲▲▲ */
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
     <style id="custom-theme-style"></style>
@@ -14579,7 +14624,18 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             <button id="upload-char-phone-wallpaper-btn" class="form-button">上传壁纸</button>
             <button id="remove-char-phone-wallpaper-btn" class="form-button form-button-secondary" style="margin-top: 10px;">移除壁纸</button>
         </div>
-        
+        <!-- ▼▼▼ 把这一整块全新的代码，粘贴到“手机壁纸”设置区的后面 ▼▼▼ -->
+<hr style="width: 100%; opacity: 0.2;">
+<div>
+    <label style="font-weight: 500; color: var(--text-secondary);">App内壁纸</label>
+    <div id="char-phone-inner-wallpaper-preview" class="wallpaper-preview" style="height: 240px; width: 135px; margin: 10px auto; border-radius: 12px;">点击下方上传</div>
+    <button id="upload-char-phone-inner-wallpaper-btn" class="form-button">上传App内壁纸</button>
+    <button id="remove-char-phone-inner-wallpaper-btn" class="form-button form-button-secondary" style="margin-top: 10px;">移除App内壁纸</button>
+</div>
+<!-- 隐藏的文件选择器 -->
+<input type="file" id="char-phone-inner-wallpaper-upload-input" accept="image/*" hidden>
+<!-- ▲▲▲ 新增HTML代码结束 ▲▲▲ -->
+
         <hr style="width: 100%; opacity: 0.2;">
 
         <!-- App图标设置区 -->
@@ -18538,7 +18594,8 @@ async function renderFollowingWeiboFeed() {
 }
 
 
-// ▼▼▼ 用这块【功能增强版】的代码，完整替换你旧的 createWeiboPostElement 函数 ▼▼▼
+// ▼▼▼ 请用这【一整块】全新的代码，完整替换掉你旧的 createWeiboPostElement 函数 ▼▼▼
+
 function createWeiboPostElement(post) {
     const postEl = document.createElement('div');
     postEl.className = 'weibo-post-item'; 
@@ -18550,7 +18607,7 @@ function createWeiboPostElement(post) {
     
     if (post.imageUrl) {
         if (post.postType === 'text_image') {
-            contentHtml += `<img src="${post.imageUrl}" class="weibo-post-image" style="cursor: pointer;" data-hidden-text="${post.hiddenContent}">`;
+            contentHtml += `<img src="${post.imageUrl}" class="weibo-post-image" style="cursor: pointer;" data-hidden-text="${post.hiddenContent || ''}">`;
         } else {
             contentHtml += `<img src="${post.imageUrl}" class="weibo-post-image">`;
         }
@@ -18562,9 +18619,12 @@ function createWeiboPostElement(post) {
         post.comments.forEach(comment => {
             if (typeof comment !== 'object' || comment === null) return;
             let replyHtml = '';
+            
+            // ★ 修改1：为被回复者添加专属的 class 和 data 属性，方便我们精确点击
             if (comment.replyToNickname) {
-                replyHtml = `<span class="weibo-comment-reply-tag">回复</span><span class="weibo-commenter-name">${comment.replyToNickname}</span>`;
+                replyHtml = `<span class="weibo-comment-reply-tag">回复</span><span class="reply-target-name" data-reply-to-name="${comment.replyToNickname}">${comment.replyToNickname}</span>`;
             }
+
             commentsHtml += `
                 <div class="weibo-comment-item" data-comment-id="${comment.commentId}" data-commenter-name="${comment.authorNickname}">
                     <span class="weibo-commenter-name">${comment.authorNickname}</span>
@@ -18580,7 +18640,6 @@ function createWeiboPostElement(post) {
     const isLiked = post.likes && post.likes.includes(myNickname);
     
     let finalAuthorAvatar, finalAuthorNickname, finalAuthorAvatarFrame;
-
     if (post.authorId === 'user') {
         finalAuthorAvatar = state.qzoneSettings.weiboAvatar || state.qzoneSettings.avatar || defaultAvatar;
         finalAuthorNickname = state.qzoneSettings.weiboNickname || state.qzoneSettings.nickname || '我';
@@ -18602,22 +18661,16 @@ function createWeiboPostElement(post) {
             <div class="avatar-with-frame">
                 <img src="${finalAuthorAvatar}" class="avatar-img weibo-post-avatar">
                 <img src="${finalAuthorAvatarFrame}" class="avatar-frame">
-            </div>
-        `;
+            </div>`;
     } else {
         avatarHtml = `<img src="${finalAuthorAvatar}" class="weibo-post-avatar">`;
     }
     
-    // --- ★★★ 核心修改在这里 ★★★ ---
-    // 1. 我们把头像的HTML，用一个新的 div 包裹起来
-    // 2. 这个新的 div 拥有一个 class="weibo-post-avatar-clickable"
-    // 3. 最重要的是，它携带了 data-char-id="${post.authorId}" 这个“身份证”！
     const clickableAvatarWrapper = `
         <div class="weibo-post-avatar-clickable" data-char-id="${post.authorId}">
             ${avatarHtml}
         </div>
     `;
-    // --- ▲▲▲ 修改结束 ▲▲▲ ---
 
     postEl.innerHTML = `
         <div class="weibo-post-header">
@@ -18654,7 +18707,7 @@ function createWeiboPostElement(post) {
         </div>
     `;
 
-    // 后续的事件绑定逻辑保持不变
+    // 绑定发送评论按钮
     const sendBtn = postEl.querySelector('.weibo-comment-send-btn');
     if (sendBtn) {
         sendBtn.addEventListener('click', () => {
@@ -18662,45 +18715,62 @@ function createWeiboPostElement(post) {
             handleWeiboComment(post.id, input);
         });
     }
+
+    // 绑定AI生成评论按钮
     const generateBtn = postEl.querySelector('.generate-comments-btn');
     if (generateBtn) {
         generateBtn.addEventListener('click', () => generateWeiboComments(post.id));
     }
+    
+    // 绑定点赞按钮
     const likeBtn = postEl.querySelector('.like-btn');
     if (likeBtn) {
         likeBtn.addEventListener('click', () => handleWeiboLike(post.id));
     }
-    const commentsContainer = postEl.querySelector('.weibo-comments-container');
-    if (commentsContainer) {
-        commentsContainer.addEventListener('click', (e) => {
-            const deleteBtn = e.target.closest('.comment-delete-btn');
-            if (deleteBtn) {
-                const commentItem = deleteBtn.closest('.weibo-comment-item');
-                if (commentItem && commentItem.dataset.commentId) {
-                    deleteWeiboComment(post.id, commentItem.dataset.commentId);
-                }
-            }
-        });
-    }
+
+    // ★ 修改2：为评论区绑定一个全新的、功能更强大的点击事件监听器
     const commentSection = postEl.querySelector('.weibo-comments-container');
     if (commentSection) {
         commentSection.addEventListener('click', (e) => {
-            const commentItem = e.target.closest('.weibo-comment-item');
-            if (commentItem && !e.target.closest('.comment-delete-btn')) {
-                const commenterName = commentItem.dataset.commenterName;
-                const commentId = commentItem.dataset.commentId;
-                const input = postEl.querySelector('.weibo-comment-input');
-                
-                if (input.dataset.replyToId === commentId) {
-                    input.placeholder = '留下你的精彩评论吧...';
-                    delete input.dataset.replyToId;
-                    delete input.dataset.replyToNickname;
-                } else {
-                    input.placeholder = `回复 @${commenterName}:`;
-                    input.dataset.replyToId = commentId;
-                    input.dataset.replyToNickname = commenterName;
-                    input.focus();
-                }
+            // 阻止事件冒泡，这是解决点击无效的核心！
+            e.stopPropagation();
+
+            const target = e.target;
+            const commentItem = target.closest('.weibo-comment-item');
+            if (!commentItem) return; // 如果点击的不是评论区，就什么也不做
+            
+            const input = postEl.querySelector('.weibo-comment-input');
+
+            // 检查点击的是否是删除按钮
+            if (target.closest('.comment-delete-btn')) {
+                deleteWeiboComment(post.id, commentItem.dataset.commentId);
+                return; // 删除后结束
+            }
+            
+            let replyToName = '';
+            const replyToId = commentItem.dataset.commentId;
+
+            // ★ 修改3：新增逻辑，判断你点击的是谁
+            if (target.classList.contains('reply-target-name')) {
+                // 如果点击了“被回复者”的名字
+                replyToName = target.dataset.replyToName;
+            } else {
+                // 否则，默认回复这条评论的作者
+                replyToName = commentItem.dataset.commenterName;
+            }
+
+            // ★ 修改4：优化回复逻辑
+            // 如果正在回复同一个人，则取消回复
+            if (input.dataset.replyToId === replyToId && input.placeholder.includes(`@${replyToName}`)) {
+                input.placeholder = '留下你的精彩评论吧...';
+                delete input.dataset.replyToId;
+                delete input.dataset.replyToNickname;
+            } else {
+                // 否则，设置为新的回复目标
+                input.placeholder = `回复 @${replyToName}:`;
+                input.dataset.replyToId = replyToId;
+                input.dataset.replyToNickname = replyToName;
+                input.focus();
             }
         });
     }
@@ -18708,6 +18778,7 @@ function createWeiboPostElement(post) {
     return postEl;
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
 
 
 
@@ -21713,6 +21784,12 @@ if (!chat.isGroup) {
     if (!chat.characterPhoneData.trajectory) chat.characterPhoneData.trajectory = [];
     if (!chat.characterPhoneData.appUsage) chat.characterPhoneData.appUsage = [];
     if (!chat.characterPhoneData.diary) chat.characterPhoneData.diary = []; // 核心修复！
+    // ▼▼▼ 在 loadAllDataFromDB 函数的 if (!chat.isGroup) { ... } 内部，粘贴这段代码 ▼▼▼
+if (!chat.characterPhoneData.innerScreenWallpaper) {
+    chat.characterPhoneData.innerScreenWallpaper = ''; // 初始化App内壁纸为空
+}
+// ▲▲▲ 新增代码粘贴结束 ▲▲▲
+
 }
 // ▲▲▲ 修正结束 ▲▲▲
 // 兼容旧数据，为没有后台活动设置的群聊添加默认值
@@ -33491,7 +33568,31 @@ async function renderCharacterSelectionScreen() {
     });
 }
 
-// ▼▼▼ 用这块【已添加小组件渲染】的代码，完整替换你旧的 openCharacterPhone 函数 ▼▼▼
+// ▼▼▼ 在 openCharacterPhone 函数的正上方，粘贴这个新函数 ▼▼▼
+/**
+ * 【全新】应用角色手机的App内壁纸
+ */
+function applyCharPhoneInnerWallpaper() {
+    if (!activeCharacterPhoneId) return;
+    const chat = state.chats[activeCharacterPhoneId];
+    if (!chat) return;
+
+    const innerScreen = document.querySelector('.character-phone-inner-screen');
+    const innerWallpaperUrl = chat.characterPhoneData.innerScreenWallpaper || '';
+
+    if (innerWallpaperUrl) {
+        innerScreen.style.backgroundImage = `url(${innerWallpaperUrl})`;
+        // 添加一个class，让CSS知道现在有壁纸了
+        innerScreen.classList.add('has-inner-wallpaper');
+    } else {
+        innerScreen.style.backgroundImage = 'none';
+        innerScreen.classList.remove('has-inner-wallpaper');
+    }
+}
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
+
+
+// ▼▼▼ 然后，用下面这块【已修改】的代码，替换你旧的 openCharacterPhone 函数 ▼▼▼
 function openCharacterPhone(chatId) {
     activeCharacterPhoneId = chatId;
     const chat = state.chats[chatId];
@@ -33513,11 +33614,12 @@ function openCharacterPhone(chatId) {
         phoneHomeScreen.style.backgroundColor = isDarkMode ? '#000000' : '#f0f2f5';
     }
     
-    // --- ▼▼▼ 【全新】在这里渲染小组件图片 ▼▼▼ ---
     const widgets = chat.characterPhoneData.widgets || {};
     document.getElementById('char-phone-widget-img-1').src = widgets.widget1_url || '';
     document.getElementById('char-phone-widget-img-2').src = widgets.widget2_url || '';
-    // --- ▲▲▲ 新增代码结束 ▲▲▲
+
+    // ★★★ 在这里调用我们新创建的函数，应用App内壁纸 ★★★
+    applyCharPhoneInnerWallpaper();
 
     renderCharacterAppGrid(); 
 
@@ -48615,13 +48717,15 @@ function openCharPhoneAppearanceSettings() {
     loadCharPhonePresetsToDropdown();
 }
 
-// ▼▼▼ 用这块【已添加小组件渲染】的代码，完整替换你旧的 renderCharPhoneAppearanceScreen 函数 ▼▼▼
+/**
+ * 【全新 | 已修复】渲染角色手机的外观设置页面
+ */
 function renderCharPhoneAppearanceScreen() {
     if (!activeCharacterPhoneId) return;
     const chat = state.chats[activeCharacterPhoneId];
     if (!chat) return;
 
-    // --- 渲染壁纸预览 (逻辑不变) ---
+    // --- 渲染主屏幕壁纸预览 (逻辑不变) ---
     const wallpaperPreview = document.getElementById('char-phone-wallpaper-preview');
     const wallpaperUrl = chat.characterPhoneData.wallpaper || '';
     if (wallpaperUrl) {
@@ -48632,14 +48736,27 @@ function renderCharPhoneAppearanceScreen() {
         wallpaperPreview.textContent = '暂无壁纸';
     }
 
+    // --- ▼▼▼ 【核心新增】渲染App内壁纸预览 ▼▼▼ ---
+    const innerWallpaperPreview = document.getElementById('char-phone-inner-wallpaper-preview');
+    const innerWallpaperUrl = chat.characterPhoneData.innerScreenWallpaper || '';
+    if (innerWallpaperUrl) {
+        innerWallpaperPreview.style.backgroundImage = `url(${innerWallpaperUrl})`;
+        innerWallpaperPreview.textContent = '';
+    } else {
+        innerWallpaperPreview.style.backgroundImage = 'none';
+        innerWallpaperPreview.textContent = '点击上传';
+    }
+    // --- ▲▲▲ 新增结束 ▲▲▲
+
     // --- 渲染App图标设置列表 (逻辑不变) ---
     const iconGrid = document.getElementById('char-phone-icon-settings-grid');
     iconGrid.innerHTML = '';
     const customIcons = chat.characterPhoneData.appIcons || {};
     CHAR_PHONE_APPS.forEach(app => {
-        if (app.id === 'appearance') return;
         const customIconUrl = customIcons[app.id];
-        const currentIconHtml = customIconUrl ? `<img src="${customIconUrl}" style="width:100%; height:100%; object-fit:cover;">` : app.svg;
+        const currentIconUrl = customIconUrl || (DEFAULT_APP_ICONS[app.id] || '');
+        const currentIconHtml = currentIconUrl ? `<img src="${currentIconUrl}" style="width:100%; height:100%; object-fit:cover;">` : app.svg;
+        
         const itemEl = document.createElement('div');
         itemEl.className = 'icon-setting-item'; 
         itemEl.dataset.iconId = app.id; 
@@ -48653,7 +48770,7 @@ function renderCharPhoneAppearanceScreen() {
         iconGrid.appendChild(itemEl);
     });
     
-    // --- ▼▼▼ 【全新】在这里渲染小组件的预览图 ▼▼▼ ---
+    // --- 渲染小组件预览 (逻辑不变) ---
     const widgets = chat.characterPhoneData.widgets || {};
     const widgetPreview1 = document.getElementById('char-phone-widget-preview-1');
     const widgetPreview2 = document.getElementById('char-phone-widget-preview-2');
@@ -48673,9 +48790,10 @@ function renderCharPhoneAppearanceScreen() {
         widgetPreview2.style.backgroundImage = 'none';
         widgetPreview2.textContent = '点击上传';
     }
-    // --- ▲▲▲ 新增代码结束 ▲▲▲
+    
+    // 加载预设下拉框
+    loadCharPhonePresetsToDropdown();
 }
-// ▲▲▲ 替换结束 ▲▲▲
 
 
 /**
@@ -55838,6 +55956,45 @@ document.getElementById('import-char-phone-preset-input').addEventListener('chan
     e.target.value = null; // 清空以便下次能选择同一个文件
 });
 // ▲▲▲ 事件绑定结束 ▲▲▲
+// ▼▼▼ 【全新】角色手机App内壁纸的事件监听器 ▼▼▼
+document.getElementById('upload-char-phone-inner-wallpaper-btn').addEventListener('click', () => {
+    document.getElementById('char-phone-inner-wallpaper-upload-input').click();
+});
+
+document.getElementById('char-phone-inner-wallpaper-upload-input').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (file && activeCharacterPhoneId) {
+        const dataUrl = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(file);
+        });
+        
+        // 更新数据和UI
+        const chat = state.chats[activeCharacterPhoneId];
+        chat.characterPhoneData.innerScreenWallpaper = dataUrl;
+        await db.chats.put(chat);
+        applyCharPhoneInnerWallpaper(); // 实时应用
+        renderCharPhoneAppearanceScreen(); // 刷新预览
+        alert('App内壁纸已更新！');
+    }
+    event.target.value = null;
+});
+
+document.getElementById('remove-char-phone-inner-wallpaper-btn').addEventListener('click', async () => {
+    if (!activeCharacterPhoneId) return;
+    
+    const chat = state.chats[activeCharacterPhoneId];
+    if (chat.characterPhoneData.innerScreenWallpaper) {
+        chat.characterPhoneData.innerScreenWallpaper = '';
+        await db.chats.put(chat);
+        applyCharPhoneInnerWallpaper(); // 实时移除
+        renderCharPhoneAppearanceScreen(); // 刷新预览
+        alert('App内壁纸已移除。');
+    }
+});
+// ▲▲▲ 新增事件监听结束 ▲▲▲
+
 
 // ===================================================================
 // 5. 启动！
