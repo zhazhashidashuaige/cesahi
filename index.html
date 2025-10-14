@@ -21915,6 +21915,12 @@ if (!chat.isGroup && chat.settings.pet) {
         if (!chat.settings.linkedMemories) {
             chat.settings.linkedMemories = [];
         }
+            // ▼▼▼ 在这里新增下面这段代码，以兼容旧数据 ▼▼▼
+    // 为旧数据添加默认的记忆条数设置
+    if (typeof chat.settings.linkMemoryDepth === 'undefined') {
+        chat.settings.linkMemoryDepth = 5;
+    }
+    // ▲▲▲ 新增结束 ▲▲▲
               // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
         // 兼容线下模式设置
         if (!chat.settings.offlineMode) {
@@ -46810,9 +46816,8 @@ async function notifyForManualSummary(chatId) {
 // ▲▲▲ 替换结束 ▲▲▲
 
 
-// ▼▼▼ 【V2 - 范围控制版】用这整块代码替换旧的 generateSummary 函数 ▼▼▼
 /**
- * 【AI核心 V2】调用API生成总结内容
+ * 【AI核心 V2 - 已优化】调用API生成总结内容
  * @param {string} chatId - 聊天的ID
  * @param {Array | null} specificMessages - 如果提供，则只总结这个数组里的消息；如果为null，则总结自上次以来的所有消息。
  * @returns {Promise<string|null>} - AI生成的总结文本
@@ -46828,26 +46833,27 @@ async function generateSummary(chatId, specificMessages = null) {
     const summarySettings = chat.settings.summary;
     let messagesToSummarize;
 
-    // 【核心修改】根据 specificMessages 参数决定总结范围
     if (specificMessages && specificMessages.length > 0) {
-        // 如果指定了消息范围（用于自动总结），就用它
         messagesToSummarize = specificMessages;
     } else {
-        // 否则（用于手动总结），沿用旧逻辑，总结自上次以来的所有消息
         const lastSummaryIndex = summarySettings.lastSummaryIndex > -1 ? summarySettings.lastSummaryIndex : 0;
         messagesToSummarize = chat.history.slice(lastSummaryIndex + 1);
     }
     
-    if (messagesToSummarize.length === 0) {
+    // --- 核心优化：在总结前，先过滤掉任何旧的总结内容 ---
+    const filteredMessagesForSummary = messagesToSummarize.filter(msg => msg.type !== 'summary');
+
+    if (filteredMessagesForSummary.length === 0) {
         // 如果是手动点击，但没有新消息，给个提示
         if (!specificMessages) {
              await showCustomAlert("无需总结", "自上次总结以来没有新的对话内容。");
         }
         return null;
     }
+    // --- 优化结束 ---
 
-    // 将消息格式化为纯文本对话 (这部分逻辑不变)
-    const conversationText = messagesToSummarize.map(msg => {
+    // 使用过滤后的消息来构建对话文本
+    const conversationText = filteredMessagesForSummary.map(msg => {
         const sender = msg.role === 'user' ? (chat.isGroup ? (chat.settings.myNickname || '我') : '我') : (msg.senderName || chat.name);
         let content = '';
         if (typeof msg.content === 'string') {
@@ -46862,12 +46868,10 @@ async function generateSummary(chatId, specificMessages = null) {
 
     const systemPrompt = summarySettings.prompt + `\n\n--- 对话开始 ---\n${conversationText}\n--- 对话结束 ---`;
     
-    // API调用部分保持不变，但加入了try...catch
     try {
-        if (!specificMessages) { // 只有手动总结时才显示这个弹窗
+        if (!specificMessages) {
              await showCustomAlert("正在生成...", "AI正在努力总结你们的对话，请稍候...");
         }
-
         const response = await fetch(`${proxyUrl}/v1/chat/completions`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
@@ -46883,13 +46887,11 @@ async function generateSummary(chatId, specificMessages = null) {
         return data.choices[0].message.content;
 
     } catch (error) {
-        // 无论自动还是手动，只要出错就弹窗
         console.error("生成总结失败:", error);
         await showCustomAlert('总结失败', `发生错误: ${error.message}`);
         return null;
     }
 }
-// ▲▲▲ 替换结束 ▲▲▲
 
 /**
  * 将生成的总结作为一条特殊的记忆消息保存起来
@@ -46980,17 +46982,44 @@ async function editSummary(timestamp) {
 }
 
 /**
- * 删除一条总结
+ * 【已修复】删除一条总结，并智能更新总结索引
  */
 async function deleteSummary(timestamp) {
     const confirmed = await showCustomConfirm('确认删除', '确定要删除这条总结记忆吗？这可能会影响AI的长期记忆。', { confirmButtonClass: 'btn-danger' });
     if (confirmed) {
         const chat = state.chats[state.activeChatId];
+        
+        // 1. 从历史记录中过滤掉被删除的总结
         chat.history = chat.history.filter(msg => msg.timestamp !== timestamp);
+
+        // 2. --- 核心修复：重新计算 lastSummaryIndex ---
+        // 找到剩下的总结中，最新的那一条
+        const lastRemainingSummary = chat.history.filter(m => m.type === 'summary').pop();
+        
+        let newLastSummaryIndex;
+
+        if (lastRemainingSummary) {
+            // 3. 如果还有其他总结，就找到它在历史记录中的位置
+            const lastSummaryMessageIndexInHistory = chat.history.findIndex(m => m.timestamp === lastRemainingSummary.timestamp);
+            // 4. 新的索引就是它前面那条普通消息的索引
+            newLastSummaryIndex = lastSummaryMessageIndexInHistory > 0 ? (lastSummaryMessageIndexInHistory - 1) : -1;
+        } else {
+            // 5. 如果一条总结都不剩了，就彻底重置索引
+            newLastSummaryIndex = -1;
+        }
+        
+        // 6. 更新设置
+        if (chat.settings.summary) {
+            chat.settings.summary.lastSummaryIndex = newLastSummaryIndex;
+        }
+
+        // 保存更改并刷新UI
         await db.chats.put(chat);
-        openSummaryViewer(); // 重新渲染列表
+        openSummaryViewer();
+        await showCustomAlert('操作成功', '总结已删除！');
     }
 }
+
 // ▼▼▼ 把这一整块全新的功能函数，粘贴到你的JS代码中 ▼▼▼
 
 /**
@@ -49148,52 +49177,100 @@ function formatNumberToChinese(num) {
 
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
 // ▼▼▼ 【最终修复版】用这整块代码，完整替换你旧的 playMinimaxAudio 函数 ▼▼▼
-
-// ▼▼▼ 步骤 1：用这两行新代码，替换旧的 isTtsPlaying 和 currentTtsAudioBubble 变量 ▼▼▼
+let isIntentionalStop = false;
+// ▼▼▼ 步骤 1：添加或替换这两行代码 ▼▼▼
 let isTtsPlaying = false; // 全局锁，true表示有语音正在播放或加载
 let currentTtsAudioBubble = null; // 记录当前正在播放动画或音频的气泡元素
 // ▲▲▲ 替换结束 ▲▲▲
 
-
-// ▼▼▼ 步骤 2：用这整块【终极修复版】代码，完整替换旧的 playMinimaxAudio 函数 ▼▼▼
-
+// ▼▼▼ 第1步：在这里粘贴下面这个【全新的】辅助函数 ▼▼▼
 /**
- * 【V6 - 终极修复版】调用 Minimax TTS API 生成语音并播放
- * 解决了重复点击的播放/暂停逻辑，并修复了与其他音频的冲突。
- * @param {string} text - 要转换为语音的文本
- * @param {string} voiceId - Minimax 的语音 ID
- * @param {HTMLElement} clickedBubbleElement - 被点击的那个语音条的 message-bubble 元素
+ * 【全新】查找从指定位置开始的所有连续AI语音消息
+ * @param {Array} history - 完整的聊天历史记录数组
+ * @param {number} startIndex - 开始查找的索引位置
+ * @returns {Array} - 一个包含所有连续AI语音消息对象的数组
  */
-async function playMinimaxAudio(text, voiceId, clickedBubbleElement) {
-    const ttsPlayer = document.getElementById('tts-audio-player');
-
-    // --- 核心逻辑1：处理点击事件 ---
-    // 如果当前有语音正在播放，并且用户再次点击了同一个气泡，那么就执行“停止”操作
-    if (isTtsPlaying && currentTtsAudioBubble === clickedBubbleElement) {
-        ttsPlayer.pause();
-        ttsPlayer.src = '';
-        isTtsPlaying = false;
-        currentTtsAudioBubble.classList.remove('playing');
-        currentTtsAudioBubble = null;
-        console.log('Minimax TTS: Playback stopped by user.');
-        return; // 操作完成，退出函数
+function findConsecutiveAiVoiceMessages(history, startIndex) {
+    const messagesToPlay = [];
+    if (startIndex < 0 || startIndex >= history.length) {
+        return messagesToPlay;
     }
 
-    // 如果有其他语音正在播放，先把它停掉，并清除旧的状态
-    if (isTtsPlaying) {
-        ttsPlayer.pause();
-        ttsPlayer.src = '';
-        if (currentTtsAudioBubble) {
-            currentTtsAudioBubble.classList.remove('playing');
+    // 从点击的那条消息开始，向后遍历
+    for (let i = startIndex; i < history.length; i++) {
+        const msg = history[i];
+        // 检查这条消息是否是AI发送的，并且类型是语音
+        if (msg.role === 'assistant' && msg.type === 'voice_message') {
+            messagesToPlay.push(msg); // 如果是，就把它加入待播放列表
+        } else {
+            // 一旦遇到不是AI语音的消息（比如用户的回复，或AI的图片/文字消息），就立刻停止查找
+            break;
         }
     }
+    return messagesToPlay;
+}
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
+// ▼▼▼ 第1步：在这里粘贴这个【全新的】停止函数 ▼▼▼
 
-    // --- 核心逻辑2：准备播放新的语音 ---
-    isTtsPlaying = true; // 立刻上锁，防止快速重复点击导致并发请求
-    currentTtsAudioBubble = clickedBubbleElement;
-    clickedBubbleElement.classList.add('playing'); // 立刻显示播放动画
+// ▼▼▼ 第2步：用这整块【V2 - 精准停止版】代码，完整替换旧的 stopMinimaxAudio 函数 ▼▼▼
 
-    // 暂停可能正在播放的主音乐播放器，避免冲突
+/**
+ * 【V2 - 精准停止版】停止当前正在播放的Minimax TTS语音
+ */
+function stopMinimaxAudio() {
+    if (!isTtsPlaying) return;
+
+    // 核心修改1：在执行停止操作前，先设置“故意停止”的标志为 true
+    isIntentionalStop = true;
+
+    const ttsPlayer = document.getElementById('tts-audio-player');
+    ttsPlayer.pause();
+    ttsPlayer.src = ''; // 这行代码会触发 onerror 事件
+
+    if (window.currentAnimatingBubbles) {
+        window.currentAnimatingBubbles.forEach(b => b.classList.remove('playing'));
+    }
+
+    isTtsPlaying = false;
+    currentTtsAudioBubble = null;
+    window.currentAnimatingBubbles = null;
+    console.log('Minimax TTS: Playback stopped by user.');
+
+    // 核心修改2：用一个微小的延迟来重置标志位
+    // 这能确保 onerror 事件有足够的时间检查到标志位，然后再将其重置
+    setTimeout(() => {
+        isIntentionalStop = false;
+    }, 100);
+}
+
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+
+// ▼▼▼ 第3步：用这整块【V8 - 错误处理终极版】代码，完整替换旧的 playMinimaxAudio 函数 ▼▼▼
+
+/**
+ * 【V8 - 错误处理终极版】调用 Minimax TTS API 生成语音并播放
+ * @param {string} text - 要转换为语音的合并后的文本
+ * @param {string} voiceId - Minimax 的语音 ID
+ * @param {Array<HTMLElement>} bubblesToAnimate - 需要播放动画的所有语音气泡元素的数组
+ */
+async function playMinimaxAudio(text, voiceId, bubblesToAnimate) {
+    // 播放前先停止，确保环境干净
+    stopMinimaxAudio(); 
+    // 等待一小会儿，确保旧的播放器完全清理干净
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    const ttsPlayer = document.getElementById('tts-audio-player');
+    const firstBubble = bubblesToAnimate[0]; 
+
+    // --- 准备播放新的语音 ---
+    isTtsPlaying = true;
+    currentTtsAudioBubble = firstBubble;
+    window.currentAnimatingBubbles = bubblesToAnimate;
+    bubblesToAnimate.forEach(b => b.classList.add('playing'));
+
+    // 暂停主音乐播放器
     const mainAudioPlayer = document.getElementById('audio-player');
     if (mainAudioPlayer && !mainAudioPlayer.paused) {
         mainAudioPlayer.pause();
@@ -49201,41 +49278,24 @@ async function playMinimaxAudio(text, voiceId, clickedBubbleElement) {
         updatePlayerUI();
     }
 
-    // --- 核心逻辑3：请求并播放语音 ---
+    // --- 请求并播放语音 ---
     const groupId = state.apiConfig.minimaxGroupId;
     const apiKey = state.apiConfig.minimaxApiKey;
     if (!groupId || !apiKey) {
-        await showCustomAlert('语音播放失败', '尚未配置Minimax的Group ID和API Key，请在API设置中填写。');
-        // 清理状态并退出
-        isTtsPlaying = false;
-        clickedBubbleElement.classList.remove('playing');
-        currentTtsAudioBubble = null;
+        await showCustomAlert('语音播放失败', '尚未配置Minimax的Group ID和API Key。');
+        stopMinimaxAudio();
         return;
     }
 
     try {
         const response = await fetch(`https://api.minimax.chat/v1/text_to_speech?GroupId=${groupId}`, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: text,
-                voice_id: voiceId,
-                model: 'speech-01',
-                speed: 1.0,
-                pitch: 0,
-                timber_list: []
-            })
+            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: text, voice_id: voiceId, model: 'speech-01', speed: 1.0, pitch: 0, timber_list: [] })
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            // 检查是否是 "operation is not supported" 错误
-            if (errorData.base_resp?.status_msg?.includes('operation is not supported')) {
-                throw new Error(`Minimax API 错误: ${errorData.base_resp.status_msg}。这通常意味着你使用的 voice_id (例如 '${voiceId}') 不被你的Minimax账户支持，请检查你的Minimax后台或更换一个常用的 voice_id (如 'male-01') 试试。`);
-            }
             throw new Error(`Minimax API 错误: ${errorData.base_resp?.status_msg || response.statusText}`);
         }
 
@@ -49244,39 +49304,46 @@ async function playMinimaxAudio(text, voiceId, clickedBubbleElement) {
 
         ttsPlayer.src = audioUrl;
         
-        ttsPlayer.onended = () => {
-            isTtsPlaying = false;
-            URL.revokeObjectURL(audioUrl); 
-            if (currentTtsAudioBubble) {
-                currentTtsAudioBubble.classList.remove('playing');
+        const cleanupAndReset = () => {
+            if (isTtsPlaying) { // 只有在还在播放状态时才清理
+                isTtsPlaying = false;
+                URL.revokeObjectURL(audioUrl); 
+                if (window.currentAnimatingBubbles) {
+                    window.currentAnimatingBubbles.forEach(b => b.classList.remove('playing'));
+                }
                 currentTtsAudioBubble = null;
+                window.currentAnimatingBubbles = null;
             }
         };
 
+        ttsPlayer.onended = cleanupAndReset;
+        
+        // ★★★★★ 这就是本次修复的核心 ★★★★★
         ttsPlayer.onerror = (e) => {
-             isTtsPlaying = false;
-             URL.revokeObjectURL(audioUrl);
-             if (currentTtsAudioBubble) {
-                currentTtsAudioBubble.classList.remove('playing');
-                currentTtsAudioBubble = null;
+             // 在显示弹窗前，先检查一下是不是我们自己故意停掉的
+             if (!isIntentionalStop) {
+                 console.error("TTS音频播放时发生错误:", e);
+                 showCustomAlert('播放失败', '播放音频文件时发生未知错误。');
+             } else {
+                 // 如果是故意停的，就在控制台打印一条日志，不打扰用户
+                 console.log("Intentional stop triggered error event, alert skipped.");
              }
-             console.error("TTS音频播放时发生错误:", e);
-             showCustomAlert('播放失败', '播放音频文件时发生未知错误。');
+             // 无论如何，都要清理状态
+             cleanupAndReset();
         };
+        // ★★★★★ 修复结束 ★★★★★
 
         await ttsPlayer.play();
 
     } catch (error) {
         console.error("Minimax TTS 调用失败:", error);
         await showCustomAlert('语音合成失败', `错误信息: ${error.message}`);
-        // 出错时，也要重置状态
-        isTtsPlaying = false;
-        clickedBubbleElement.classList.remove('playing');
-        currentTtsAudioBubble = null;
+        stopMinimaxAudio();
     }
 }
-
 // ▲▲▲ 替换结束 ▲▲▲
+
+
 
 // ▼▼▼ 【全新】角色手机外观预设功能核心函数 ▼▼▼
 
@@ -50417,48 +50484,61 @@ document.getElementById('world-book-import-input').addEventListener('change', (e
         // ▲▲▲ 修改结束 ▲▲▲
 
 await db.worldBooks.put(book); document.getElementById('world-book-editor-title').textContent = newName; editingWorldBookId = null; renderWorldBookScreen(); showScreen('world-book-screen'); } });
-// ▼▼▼ 用这整块【已集成新逻辑】的代码，替换旧的 chat-messages 点击事件监听器 ▼▼▼
+// ▼▼▼ 第3步：用这整块【全新的】代码，完整替换旧的 'chat-messages' 点击事件监听器 ▼▼▼
 document.getElementById('chat-messages').addEventListener('click', async (e) => {
     
-    // --- 语音消息点击逻辑 (已更新) ---
     const voiceBody = e.target.closest('.voice-message-body');
     if (voiceBody) {
         const bubble = voiceBody.closest('.message-bubble');
         if (!bubble) return;
 
-        const isUserMessage = bubble.classList.contains('user');
-        
-        // 1. 如果是用户消息，只执行转文字
-        if (isUserMessage) {
+        // 如果是用户自己的语音，只切换文字显示，不播放
+        if (bubble.classList.contains('user')) {
             toggleVoiceTranscript(bubble);
-        } 
-        // 2. 如果是AI消息
-        else {
-            const chat = state.chats[state.activeChatId];
-            if (!chat) return;
+            return;
+        }
 
-            // 2a. 【总是】执行转文字，实现点击AI语音条也能展开/收起文字
-            toggleVoiceTranscript(bubble);
-            
-            // 2b. 【按需】执行播放，检查Minimax是否配置
-            const groupId = state.apiConfig.minimaxGroupId;
-            const apiKey = state.apiConfig.minimaxApiKey;
-            
-            if (groupId && apiKey) {
-                const voiceId = chat.settings.minimaxVoiceId || 'male-01'; 
-                const textToSpeak = bubble.dataset.voiceText;
+        // --- 以下是处理AI语音的全新逻辑 ---
+        const chat = state.chats[state.activeChatId];
+        if (!chat) return;
 
-                if (textToSpeak) {
-                    // 调用我们修改过的播放函数
-                    playMinimaxAudio(textToSpeak, voiceId, bubble);
-                } else {
-                    console.warn("AI语音消息缺少文字内容，无法播放。");
+        // 检查被点击的气泡是否就是当前正在播放的那一组的“头头”
+        const isPlayingThisGroup = isTtsPlaying && currentTtsAudioBubble === bubble;
+
+        if (isPlayingThisGroup) {
+            // 如果是，说明用户想停止播放
+            stopMinimaxAudio();
+        } else {
+            // 否则，用户想开始播放
+            const clickedTimestamp = parseInt(bubble.dataset.timestamp);
+            const startIndex = chat.history.findIndex(m => m.timestamp === clickedTimestamp);
+            if (startIndex === -1) return;
+
+            // 1. 查找连续的语音消息
+            const messagesToPlay = findConsecutiveAiVoiceMessages(chat.history, startIndex);
+            if (messagesToPlay.length > 0) {
+                // 2. 展开所有相关语音条的文字
+                const bubblesToAnimate = messagesToPlay.map(m => document.querySelector(`.message-bubble[data-timestamp="${m.timestamp}"]`)).filter(Boolean);
+                bubblesToAnimate.forEach(b => {
+                    if (b.dataset.state !== 'expanded') {
+                        toggleVoiceTranscript(b);
+                    }
+                });
+
+                // 3. 检查Minimax配置
+                const groupId = state.apiConfig.minimaxGroupId;
+                const apiKey = state.apiConfig.minimaxApiKey;
+                if (groupId && apiKey) {
+                    // 4. 拼接文本并调用播放器
+                    const combinedText = messagesToPlay.map(m => m.content.trim()).join('，');
+                    const voiceId = chat.settings.minimaxVoiceId || 'male-01'; 
+                    playMinimaxAudio(combinedText, voiceId, bubblesToAnimate);
                 }
             }
-            // 如果未配置，playMinimaxAudio内部会直接退出，这里无需额外处理
         }
-        return; // 处理完语音点击后就退出
+        return; // 处理完语音后退出
     }
+
 
     // --- 你原来的其他点击事件逻辑 ---
     const aiImage = e.target.closest('.ai-generated-image');
@@ -50755,9 +50835,10 @@ function updateMemoryLinkDisplay() {
     }
 }
 
-// 4. 加载第一个链接的记忆条数，或默认值
-const firstLink = chat.settings.linkedMemories[0];
-document.getElementById('link-memory-depth-input').value = firstLink ? firstLink.depth : 5;
+    // 4. 加载记忆条数设置
+    // 我们现在从一个独立的设置项加载，确保它总能被正确读取
+    document.getElementById('link-memory-depth-input').value = chat.settings.linkMemoryDepth || 5;
+
 
 // 5. 绑定事件
 updateMemoryLinkDisplay(); // 初始化显示
@@ -50994,14 +51075,19 @@ document.getElementById('save-chat-settings-btn').addEventListener('click', asyn
     if (!newName) return alert('备注名/群名不能为空！');
     chat.name = newName;
     // ▼▼▼ 【全新】记忆互通功能 - 保存逻辑 ▼▼▼
-const linkedMemoryCheckboxes = document.querySelectorAll('#memory-link-checkboxes-container input:checked');
-const memoryDepth = parseInt(document.getElementById('link-memory-depth-input').value) || 5;
+    const linkedMemoryCheckboxes = document.querySelectorAll('#memory-link-checkboxes-container input:checked');
+    const memoryDepth = parseInt(document.getElementById('link-memory-depth-input').value) || 5;
 
-chat.settings.linkedMemories = Array.from(linkedMemoryCheckboxes).map(checkbox => ({
-    chatId: checkbox.value,
-    depth: memoryDepth // 对所有选中的链接应用相同的深度
-}));
-// ▲▲▲ 保存逻辑结束 ▲▲▲
+    // ▼▼▼ 在这里新增下面这一行 ▼▼▼
+    chat.settings.linkMemoryDepth = memoryDepth; // 独立保存记忆条数设置
+    // ▲▲▲ 新增结束 ▲▲▲
+
+    chat.settings.linkedMemories = Array.from(linkedMemoryCheckboxes).map(checkbox => ({
+        chatId: checkbox.value,
+        depth: memoryDepth // 对所有选中的链接应用相同的深度
+    }));
+    // ▲▲▲ 保存逻辑结束 ▲▲▲
+
 
     const selectedThemeRadio = document.querySelector('input[name="theme-select"]:checked');
     chat.settings.theme = selectedThemeRadio ? selectedThemeRadio.value : 'default';
