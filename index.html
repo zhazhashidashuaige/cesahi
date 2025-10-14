@@ -20083,47 +20083,45 @@ window.db = db;
 // 3. 所有功能函数定义
 // ===================================================================
 
+// ▼▼▼ 请用这整块【修复版】代码，完整替换掉你旧的 toggleVoiceTranscript 函数 ▼▼▼
+
 /**
- * 【全新辅助函数】切换语音消息的文字显示/隐藏
+ * 【V2 - 修复版】切换语音消息的文字显示/隐藏
  * @param {HTMLElement} bubble - 被点击的语音消息的 .message-bubble 元素
  */
 function toggleVoiceTranscript(bubble) {
     if (!bubble) return;
 
-    const voiceBody = bubble.querySelector('.voice-message-body');
-    if (!voiceBody) return;
-
-    const spinner = voiceBody.querySelector('.loading-spinner');
     const transcriptEl = bubble.querySelector('.voice-transcript');
+    if (!transcriptEl) return;
 
-    // 防止在加载时重复点击
-    if (bubble.dataset.state === 'loading') return;
+    // 核心逻辑：直接检查文字区域当前是不是显示状态
+    const isCurrentlyExpanded = transcriptEl.style.display === 'block';
 
-    // 如果文字已经展开，则收起
-    if (bubble.dataset.state === 'expanded') {
+    if (isCurrentlyExpanded) {
+        // 如果是展开的，就直接收起来
         transcriptEl.style.display = 'none';
-        bubble.dataset.state = 'collapsed';
-    } 
-    // 如果是收起状态，则开始“转录”流程
-    else {
-        bubble.dataset.state = 'loading'; // 进入加载状态
-        if (spinner) spinner.style.display = 'block';   // 显示加载动画
+    } else {
+        // 如果是收起的，就执行展开流程
+        
+        // 1. 先显示一个“正在转写”的提示，给用户即时反馈
+        transcriptEl.textContent = '正在转文字...';
+        transcriptEl.style.display = 'block';
 
-        // 模拟0.5秒的“语音识别”过程
+        // 2. 模拟一个短暂的“识别”过程
         setTimeout(() => {
-            // 再次检查元素是否存在，防止用户在等待时切换了聊天
-            if (document.body.contains(bubble)) {
+            // 再次检查元素是否还在页面上，防止用户切换聊天导致错误
+            if (document.body.contains(transcriptEl)) {
+                // 获取并显示真正的转写文字
                 const voiceText = bubble.dataset.voiceText || '(无法识别)';
-                if(transcriptEl) {
-                    transcriptEl.textContent = voiceText; // 填充文字
-                    transcriptEl.style.display = 'block';// 显示文字
-                }
-                if (spinner) spinner.style.display = 'none';      // 隐藏加载动画
-                bubble.dataset.state = 'expanded';     // 进入展开状态
+                transcriptEl.textContent = voiceText;
             }
-        }, 500);
+        }, 300); // 300毫秒的延迟，感觉更灵敏
     }
 }
+
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 
 // ▼▼▼ 把这一整块全新的微博功能函数，粘贴到 init() 函数的上方 ▼▼▼
@@ -50509,63 +50507,62 @@ document.getElementById('chat-messages').addEventListener('click', async (e) => 
             return;
         }
 
-        // --- 以下是处理AI语音的全新逻辑 ---
+// ▼▼▼ 请用下面这段【已修复点击收起功能】的代码，完整替换你旧的AI语音点击处理逻辑 ▼▼▼
+        // 如果是AI的语音消息
         const chat = state.chats[state.activeChatId];
         if (!chat) return;
 
-        // 检查被点击的气泡是否就是当前正在播放的那一组的“头头”
-        const isPlayingThisGroup = isTtsPlaying && currentTtsAudioBubble === bubble;
+        // --- 核心逻辑开始 ---
 
-        if (isPlayingThisGroup) {
-            // 如果是，说明用户想停止播放
-            stopMinimaxAudio();
-        } else {
-            // 否则，用户想开始播放
+        // 1. 检查是否点击了正在播放的语音条
+        if (isTtsPlaying && currentTtsAudioBubble === bubble) {
+            // 如果是，则停止播放并收起所有关联的文字
+            stopMinimaxAudio(); 
+        } 
+        // 2. 检查点击的是否是已经展开了文字但没有播放的语音条
+        else if (bubble.dataset.state === 'expanded') {
+            // 如果是，则只收起文字，不影响其他
+            toggleVoiceTranscript(bubble);
+        }
+        // 3. 如果以上都不是，说明是想开始播放或只展开文字
+        else {
             const clickedTimestamp = parseInt(bubble.dataset.timestamp);
             const startIndex = chat.history.findIndex(m => m.timestamp === clickedTimestamp);
             if (startIndex === -1) return;
 
-            // 1. 查找连续的语音消息
+            // 查找连续的语音消息
             const messagesToPlay = findConsecutiveAiVoiceMessages(chat.history, startIndex);
             if (messagesToPlay.length > 0) {
-                // 2. 展开所有相关语音条的文字
                 const bubblesToAnimate = messagesToPlay.map(m => document.querySelector(`.message-bubble[data-timestamp="${m.timestamp}"]`)).filter(Boolean);
-                bubblesToAnimate.forEach(b => {
-                    if (b.dataset.state !== 'expanded') {
-                        toggleVoiceTranscript(b);
-                    }
-                });
-
-// ▼▼▼ 请用下面这段【修复后】的代码替换 ▼▼▼
-// ▼▼▼ 请用下面这段【修复后】的代码替换 ▼▼▼
-                // 3. 检查全局Minimax配置
+                
+                // 检查配置，决定是播放还是只显示文字
                 const groupId = state.apiConfig.minimaxGroupId;
                 const apiKey = state.apiConfig.minimaxApiKey;
+                const voiceId = chat.settings.minimaxVoiceId;
 
-                if (groupId && apiKey) {
-                    // 4. 【核心修复】获取当前角色的语音ID，不再使用默认值
-                    const voiceId = chat.settings.minimaxVoiceId; 
-
-                    // 5. 【核心修复】检查角色的语音ID是否已配置
-                    if (voiceId) {
-                        // 只有在配置了 voiceId 的情况下，才拼接文本并调用播放器
-                        const combinedText = messagesToPlay.map(m => m.content.trim()).join('，');
-                        playMinimaxAudio(combinedText, voiceId, bubblesToAnimate);
-                    } else {
-                        // 如果该角色没有配置 voiceId，也当作未配置处理，只显示文字
-                        toggleVoiceTranscript(bubble);
-                    }
+                if (groupId && apiKey && voiceId) {
+                    // 【播放分支】
+                    // 先展开所有文字
+                    bubblesToAnimate.forEach(b => {
+                        if (b.dataset.state !== 'expanded') {
+                            toggleVoiceTranscript(b);
+                        }
+                    });
+                    // 然后调用播放器
+                    const combinedText = messagesToPlay.map(m => m.content.trim()).join('，');
+                    playMinimaxAudio(combinedText, voiceId, bubblesToAnimate);
                 } else {
-                    // 如果全局Minimax未配置，也只显示文字
+                    // 【只显示文字分支】
+                    // 只展开当前点击的这一个语音条的文字
                     toggleVoiceTranscript(bubble);
                 }
-// ▲▲▲ 替换结束 ▲▲▲
-
             }
         }
+        
         return; // 处理完语音后退出
     }
 // ▲▲▲ 替换结束 ▲▲▲
+
 
 
 
