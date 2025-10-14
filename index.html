@@ -5122,10 +5122,12 @@ body {
 }
 /* ▼▼▼ 用这块【透明毛玻璃版】代码，完整替换掉旧的 .character-phone-header 样式 ▼▼▼ */
 
+/* ▼▼▼ 用这块【透明毛玻璃版】代码，完整替换掉旧的 .character-phone-header 样式 ▼▼▼ */
+
 .character-phone-header {
     flex-shrink: 0;
-    margin: 35px 12px 10px;
-    height: 48px;
+    margin: 10px 12px 10px; /* ★ 修改点1: 将上边距 35px 改为 0，让它贴顶 */
+    height: 50px;           /* ★ 修改点2: 将高度从 48px 增加到 56px，让它更高一点 */
 
     /* ★ 核心修改1：变成一个更圆润的胶囊形状 */
     border-radius: 24px; /* 将圆角从16px增加到24px，看起来更圆润 */
@@ -5151,6 +5153,15 @@ body {
     box-sizing: border-box;
     font-size: 16px;
 }
+
+
+/* ★★★【重要】为了确保所有图标都变成白色，请把下面这段新代码也加到<style>里 ★★★ */
+.character-phone-header .action-btn svg,
+.character-phone-header .back-btn svg {
+    color: #ffffff !important;
+}
+
+/* ▲▲▲ 替换结束 ▲▲▲ */
 
 /* ★★★【重要】为了确保所有图标都变成白色，请把下面这段新代码也加到<style>里 ★★★ */
 .character-phone-header .action-btn svg,
@@ -13078,7 +13089,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     /* 调整这个值，就能让所有图标和小组件一起上下移动 */
     /* 增加数值 = 整体下移；减小数值 = 整体上移 */
     /* 我帮你设置了一个看起来比较居中的初始值 */
-    --global-vertical-offset: 30px;
+    --global-vertical-offset: 10px;
     
     /* (水平居中部分，保持不变) */
     --grid-width: 345px;
