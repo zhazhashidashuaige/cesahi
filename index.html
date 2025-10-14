@@ -44912,7 +44912,7 @@ async function startGuessWhatGame() {
     if (gameMode === 'ai_guesses') { // 【我出题，AI猜】
         guessWhatGameState.secretWord = userWord;
         guessWhatGameState.currentTurn = 'user'; // 用户先手，给出第一个提示
-        logToGuessWhatGame(`游戏开始！你出的词是【${userWord}】，请给出你的第一个提示。`, 'system');
+        logToGuessWhatGame('游戏开始！你来出题，请给出你的第一个提示。', 'system');
         inputEl.placeholder = "请给出第一个提示...";
         inputEl.disabled = false;
         
@@ -44992,7 +44992,7 @@ function logToGuessWhatGame(message, type = 'system') {
 }
 
 /**
- * 【你说我猜 V3 | 升级错误处理】游戏主循环/引擎
+ * 【你说我猜 V5 | 裁判逻辑最终修复版】游戏主循环/引擎
  * @param {string} userInput - 用户刚刚的输入
  */
 async function processGuessWhatTurn(userInput) {
@@ -45003,7 +45003,7 @@ async function processGuessWhatTurn(userInput) {
     const aiPlayer = guessWhatGameState.opponent;
     const currentMode = guessWhatGameState.mode;
 
-    // 1. 记录用户行为
+    // 1. 记录并显示用户的行为
     logToGuessWhatGame({ player: userPlayer, text: userInput }, 'user-turn');
 
     // 2. 轮到AI行动，禁用输入框
@@ -45011,281 +45011,64 @@ async function processGuessWhatTurn(userInput) {
     inputEl.placeholder = `等待 ${aiPlayer.name} 的回应...`;
     inputEl.disabled = true;
     renderGuessWhatGameScreen();
-    await sleep(1500); // 模拟思考
+    await sleep(1500);
 
-    // 3. 让AI执行动作
+    // 3. 让AI根据上下文执行动作
     const aiResponse = await triggerGuessWhatAiAction(
         currentMode === 'ai_guesses' ? 'guess_word' : 'give_hint',
         userInput
     );
     
-    // 4. 处理AI的行动结果
+    // 4. 【核心修复】使用 switch 结构清晰地处理AI的每一种行动结果
     if (aiResponse) {
-        // --- ▼▼▼ 【核心升级】处理新的 'error' 类型 ▼▼▼ ---
-        if (aiResponse.type === 'error') {
-            logToGuessWhatGame({ player: aiPlayer, text: aiResponse.text }, 'ai-turn');
-        } 
-        // --- ▲▲▲ 升级结束 ▲▲▲ ---
-        else if (aiResponse.type === 'game_over') {
-            endGuessWhatGame(aiResponse.winner, aiResponse.reason);
-            return; // 游戏结束，退出
-        } else {
-            const aiMessage = aiResponse.type === 'hint' ? aiResponse.text : aiResponse.text;
-            logToGuessWhatGame({ player: aiPlayer, text: aiMessage }, 'ai-turn');
+        switch (aiResponse.type) {
+            case 'guess':
+                const guessText = aiResponse.text;
+                // 先把AI的猜测显示出来
+                logToGuessWhatGame({ player: aiPlayer, text: guessText }, 'ai-turn');
+
+                // 调用裁判函数进行判断
+                if (isGuessCorrect(guessText, guessWhatGameState.secretWord)) {
+                    await sleep(1000); // 停顿一下，让玩家看到猜测内容
+                    endGuessWhatGame('ai', `我猜对啦！答案就是【${guessWhatGameState.secretWord}】！`);
+                    return; // 猜对了，游戏结束，退出函数
+                }
+                // 如果没猜对，则不执行任何操作，流程会自然地走到最后，把控制权还给用户
+                break;
+
+            case 'hint':
+                // AI给出新提示
+                logToGuessWhatGame({ player: aiPlayer, text: aiResponse.text }, 'ai-turn');
+                break;
+
+            case 'game_over':
+                // AI在给提示时直接判断用户猜对了
+                endGuessWhatGame(aiResponse.winner, aiResponse.reason);
+                return; // 游戏结束，退出函数
+
+            case 'error':
+                // AI返回了错误信息
+                logToGuessWhatGame({ player: aiPlayer, text: aiResponse.text }, 'ai-turn');
+                break;
+
+            default:
+                // 未知类型的回复，也记录下来
+                logToGuessWhatGame({ player: aiPlayer, text: '我好像有点跑神了，我们说到哪了？' }, 'ai-turn');
+                console.warn("收到了未知的AI行动类型:", aiResponse);
+                break;
         }
     } else {
-        // 兜底的极端情况
+        // API调用彻底失败
         logToGuessWhatGame({ player: aiPlayer, text: '我...好像彻底断线了...' }, 'ai-turn');
     }
 
-    // 5. 轮到用户行动，【在任何情况下都要】恢复输入框
+    // 5. 如果游戏没有结束，则轮到用户行动，恢复输入框
     guessWhatGameState.currentTurn = 'user';
     inputEl.placeholder = currentMode === 'ai_guesses' ? "请继续给出你的提示..." : "请根据提示继续猜测...";
     inputEl.disabled = false;
     inputEl.focus();
 }
 
-
-/**
- * 【你说我猜】游戏结束处理
- */
-function endGuessWhatGame(winner, reason) {
-    guessWhatGameState.isActive = false;
-    logToGuessWhatGame(`游戏结束！谜底是【${guessWhatGameState.secretWord}】。`, 'system');
-    logToGuessWhatGame(`${reason}`, 'system');
-    document.getElementById('guess-what-action-area').style.display = 'none';
-}
-
-// ▼▼▼ 【V4 | 铜墙铁壁版】请用这整块代码，完整替换旧的 triggerGuessWhatAiAction 函数 ▼▼▼
-/**
- * 【你说我猜-AI核心 V4 | 铜墙铁壁版】调用AI执行游戏逻辑，内置强大的重试机制
- * @param {string} actionType - AI需要执行的动作: 'generate_word', 'give_hint', 'guess_word'
- * @param {string} userInput - 用户刚刚的输入
- * @returns {Promise<object|null>} - AI的行动结果
- */
-async function triggerGuessWhatAiAction(actionType, userInput = null) {
-    const { proxyUrl, apiKey, model } = state.apiConfig;
-    if (!proxyUrl || !apiKey || !model) return null;
-
-    // --- 这部分Prompt逻辑保持不变 ---
-    const opponent = guessWhatGameState.opponent;
-    const historyText = guessWhatGameState.gameLog.map(log => log.type === 'system' ? `[系统提示: ${log.message}]` : `${log.message.player.name}: ${log.message.text}`).slice(-10).join('\n');
-    let systemPrompt = `# 你的任务\n你正在扮演角色“${opponent.name}”，你的人设是：“${opponent.persona}”。\n你正在和你的朋友“${state.qzoneSettings.nickname || '我'}”玩“你说我猜”游戏。\n你的所有发言都【必须】严格符合你的人设和口吻，让整个过程像一次真实的聊天互动。\n\n# 游戏历史 (最近的对话)\n${historyText}\n`;
-    switch (actionType) {
-case 'generate_word': 
-    systemPrompt += `# 你的行动指令
-1. 根据你的人设，想一个随机的、2-5个字的中文词语作为谜底。
-2. 为这个词语，给出你的【第一条】符合人设的、有趣的提示，只需要给出大概方向，不要那种完全直接能猜到的，可以进行适当的吐槽。
-3. 你的回复【必须且只能】是一个严格的JSON对象，包含 "secretWord" 和 "firstHint" 两个字段。
-
-# JSON输出格式示例:
-{"secretWord": "月亮", "firstHint": "【指了指天上】晚上才能看到的东西哦，圆圆的，亮亮的~"}`; 
-    break;
-case 'give_hint':
-    systemPrompt += `# 游戏规则
-你是出题人，你的谜底是【${guessWhatGameState.secretWord}】。
-用户刚刚的猜测是：“${userInput}”。
-
-# 你的行动指令
-1.  首先判断用户的猜测是否正确。
-2.  如果用户猜对了，游戏结束。
-3.  如果用户猜错了，你【必须】根据用户的错误猜测，给出【下一条】新的、更具针对性的提示，引导他们。
-4.  【【【人设扮演铁律】】】你的所有提示都【必须】符合你的人设和口吻，可以加入动作、表情、语气词，甚至可以对用户【笨笨的猜测进行一些俏皮的吐槽】，让游戏更有趣。
-5.  你的回复【必须且只能】是一个严格的JSON对象。
-
-# JSON输出格式
-- 如果猜对了: \`{"type": "game_over", "winner": "user", "reason": "恭喜你猜对啦！就是【${guessWhatGameState.secretWord}】！"}\`
-- 如果猜错了: \`{"type": "hint", "text": "【叹气】不对哦，再想想。提示是：[在这里写你的新提示]"}\``;
-    break;
-case 'guess_word': 
-    systemPrompt += `# 游戏规则
-你是猜题人。
-用户刚刚给你的新提示是：“${userInput}”。
-
-# 你的行动指令
-1.  综合分析【游戏历史】中用户给出的【所有提示】。
-2.  根据所有线索，进行【一次】猜测。
-3.  你的猜测【必须】符合你的人设和口吻，可以加入你的思考过程或情绪，可以进行适当的吐槽。
-4.  【【【绝对禁止】】】你【不能】再向用户提问，你的任务是直接猜测。
-5.  你的回复【必须且只能】是一个严格的JSON对象。
-
-# JSON输出格式
-- 如果猜对了: \`{"type": "game_over", "winner": "ai", "reason": "我猜对啦！谜底就是【${guessWhatGameState.secretWord}】！"}\`
-- 如果猜错了: \`{"type": "guess", "text": "我猜是...[你的猜测]"}\``; 
-    break;
-    }
-    
-    // --- 【核心改造】带有智能重试的API请求逻辑 ---
-    const maxRetries = 5; // ★★★ 修改点1：最大重试次数改为5，更稳健 ★★★
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-            const messagesForApi = [{ role: 'user', content: "请根据你在系统指令中读到的规则，立即开始你的行动。" }];
-            const isGemini = proxyUrl === GEMINI_API_URL;
-            const geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
-
-            const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
-                body: JSON.stringify({ model: model, messages: [{ role: 'system', content: systemPrompt }, ...messagesForApi], temperature: 0.9, response_format: { type: "json_object" } })
-            });
-
-            // ★★★ 修改点2：智能判断错误类型 ★★★
-            if (!response.ok) {
-                // 对于 4xx 类的客户端错误 (如 401 Unauthorized)，通常重试无效，直接抛出。
-                if (response.status >= 400 && response.status < 500 && response.status !== 429) {
-                     const errorText = await response.text();
-                     throw new Error(`API客户端错误 (状态码 ${response.status}): ${errorText}`);
-                }
-                // 对于 5xx 服务器错误或 429 速率限制，是可重试的。
-                // 我们把错误信息也抛出去，方便catch块里解析
-                throw new Error(`API服务器临时错误 (状态码 ${response.status}): ${await response.text()}`);
-            }
-
-            const data = await response.json();
-            const content = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(/^```json\s*|```$/g, '');
-            return JSON.parse(content); // **成功，直接返回结果，跳出循环**
-
-        } catch (error) {
-            console.error(`“你说我猜”AI行动[${actionType}]失败 (第 ${attempt}/${maxRetries} 次尝试):`, error.message);
-            
-            if (attempt === maxRetries || error.message.includes('API客户端错误')) {
-                break; // 如果是最后一次尝试，或是一个不可重试的错误，则跳出循环
-            }
-            
-            // ★★★ 修改点3：智能解析API建议的等待时间 ★★★
-            let delay = 2000 * attempt; // 默认的指数退避延迟
-            try {
-                // 错误信息本身可能是一个JSON字符串，我们尝试解析它
-                // 先从error.message中提取出JSON部分
-                const jsonMatch = error.message.match(/{.*}/);
-                if (jsonMatch) {
-                    const errorJson = JSON.parse(jsonMatch[0]);
-                    const errorMessage = errorJson.error.message;
-                    
-                    // 正则表达式匹配 "retry in X.XXXXs"
-                    const retryMatch = errorMessage.match(/retry in (\d+\.?\d*)s/);
-                    if (retryMatch && retryMatch[1]) {
-                        // 找到了建议时间，就用它，并额外加一点点缓冲
-                        delay = parseFloat(retryMatch[1]) * 1000 + 500;
-                        console.log(`API请求过于频繁，将根据建议在 ${Math.round(delay/1000)} 秒后重试...`);
-                    }
-                } else {
-                     console.log(`API请求失败，将在 ${Math.round(delay/1000)} 秒后进行第 ${attempt + 1} 次重试...`);
-                }
-            } catch(e) {
-                // 如果解析失败，说明错误信息格式不符合预期，就使用默认延迟
-                 console.log(`API请求失败（无法解析错误），将在 ${Math.round(delay/1000)} 秒后进行第 ${attempt + 1} 次重试...`);
-            }
-            
-            await sleep(delay); // 等待计算出的延迟时间
-        }
-    }
-    
-    // --- 所有重试都失败后的最终处理 ---
-    console.error(`“你说我猜”AI行动[${actionType}]在所有尝试后均失败。`);
-    // 根据失败的阶段，返回一个特定的错误对象
-    if (actionType === 'generate_word') {
-        return { secretWord: null, firstHint: null };
-    }
-    // 返回一个全新的 'error' 类型，让游戏主循环知道如何处理
-    return { type: 'error', text: '【叹了口气】抱歉，我的网络好像出问题了，试了好几次都没连上...' };
-}
-// ▲▲▲ 替换结束 ▲▲▲
-
-
-
-/**
- * 【你说我猜】渲染游戏主界面
- */
-function renderGuessWhatGameScreen() {
-    const logContainer = document.getElementById('guess-what-game-log');
-    logContainer.innerHTML = '';
-    
-    guessWhatGameState.gameLog.forEach(log => {
-        const logEl = document.createElement('div');
-        logEl.className = `guess-log-entry ${log.type}`;
-
-        if (log.type === 'system') {
-            logEl.textContent = log.message;
-        } else {
-            const avatarUrl = log.message.player.isUser ? (state.qzoneSettings.avatar || defaultAvatar) : log.message.player.avatar;
-            logEl.innerHTML = `
-                <img src="${avatarUrl}" class="avatar">
-                <div class="bubble">
-                    <div class="name">${log.message.player.name}</div>
-                    <div>${log.message.text.replace(/\n/g, '<br>')}</div>
-                </div>
-            `;
-        }
-        logContainer.appendChild(logEl);
-    });
-
-    logContainer.scrollTop = logContainer.scrollHeight;
-}
-
-/**
- * 【你说我猜】添加一条游戏日志
- */
-function logToGuessWhatGame(message, type = 'system') {
-    guessWhatGameState.gameLog.push({ message, type });
-    renderGuessWhatGameScreen();
-}
-
-// ▼▼▼ 【全新 | V3版】请用这整块代码，完整替换旧的 processGuessWhatTurn 函数 ▼▼▼
-/**
- * 【你说我猜 V3 | 升级错误处理】游戏主循环/引擎
- * @param {string} userInput - 用户刚刚的输入
- */
-async function processGuessWhatTurn(userInput) {
-    if (!guessWhatGameState.isActive) return;
-
-    const inputEl = document.getElementById('guess-what-user-input');
-    const userPlayer = { id: 'user', name: state.qzoneSettings.nickname || '我', isUser: true };
-    const aiPlayer = guessWhatGameState.opponent;
-    const currentMode = guessWhatGameState.mode;
-
-    // 1. 记录用户行为
-    logToGuessWhatGame({ player: userPlayer, text: userInput }, 'user-turn');
-
-    // 2. 轮到AI行动，禁用输入框
-    guessWhatGameState.currentTurn = 'ai';
-    inputEl.placeholder = `等待 ${aiPlayer.name} 的回应...`;
-    inputEl.disabled = true;
-    renderGuessWhatGameScreen();
-    await sleep(1500); // 模拟思考
-
-    // 3. 让AI执行动作
-    const aiResponse = await triggerGuessWhatAiAction(
-        currentMode === 'ai_guesses' ? 'guess_word' : 'give_hint',
-        userInput
-    );
-    
-    // 4. 处理AI的行动结果
-    if (aiResponse) {
-        // --- ▼▼▼ 【核心升级】处理新的 'error' 类型 ▼▼▼ ---
-        if (aiResponse.type === 'error') {
-            logToGuessWhatGame({ player: aiPlayer, text: aiResponse.text }, 'ai-turn');
-        } 
-        // --- ▲▲▲ 升级结束 ▲▲▲ ---
-        else if (aiResponse.type === 'game_over') {
-            endGuessWhatGame(aiResponse.winner, aiResponse.reason);
-            return; // 游戏结束，退出
-        } else {
-            const aiMessage = aiResponse.type === 'hint' ? aiResponse.text : aiResponse.text;
-            logToGuessWhatGame({ player: aiPlayer, text: aiMessage }, 'ai-turn');
-        }
-    } else {
-        // 兜底的极端情况
-        logToGuessWhatGame({ player: aiPlayer, text: '我...好像彻底断线了...' }, 'ai-turn');
-    }
-
-    // 5. 轮到用户行动，【在任何情况下都要】恢复输入框
-    guessWhatGameState.currentTurn = 'user';
-    inputEl.placeholder = currentMode === 'ai_guesses' ? "请继续给出你的提示..." : "请根据提示继续猜测...";
-    inputEl.disabled = false;
-    inputEl.focus();
-}
-// ▲▲▲ 替换结束 ▲▲▲
 
 /**
  * 【你说我猜】游戏结束处理
@@ -45302,6 +45085,23 @@ function endGuessWhatGame(winner, reason) {
     const summaryText = generateGuessWhatSummary(winner, reason);
     // 显示结算卡片
     showGuessWhatSummaryModal(summaryText);
+}
+/**
+ * 【全新】判断AI的猜测是否正确（简单版）
+ * @param {string} guess - AI猜测的词语
+ * @param {string} answer - 正确答案
+ * @returns {boolean}
+ */
+function isGuessCorrect(guess, answer) {
+    if (!guess || !answer) return false;
+
+    // 为了更宽松的匹配，我们都转为小写并去除空格
+    const cleanGuess = guess.toLowerCase().replace(/\s+/g, '');
+    const cleanAnswer = answer.toLowerCase().replace(/\s+/g, '');
+
+    // 只要猜测包含了答案，或者答案包含了猜测，就认为正确
+    // 例如：答案是“冰淇淋”，猜测“冰淇淋车”或“淇淋”，都算对
+    return cleanGuess.includes(cleanAnswer) || cleanAnswer.includes(cleanGuess);
 }
 
 /**
@@ -45337,9 +45137,10 @@ async function triggerGuessWhatAiAction(actionType, userInput = null) {
 - 如果猜错了: \`{"type": "hint", "text": "【叹气】不对哦，再想想。提示是：[在这里写你的新提示]"}\``;
     break;
 
-  case 'guess_word':
-    systemPrompt += `# 游戏规则
-你是猜题人，用户出的谜底是【${guessWhatGameState.secretWord}】。
+// ▼▼▼ 请用这整块【修复后】的代码，替换掉旧的 case 'guess_word' 代码块 ▼▼▼
+        case 'guess_word':
+            systemPrompt += `# 游戏规则
+你是猜题人，用户正在描述一个词语，你需要根据提示猜出这个词。
 用户刚刚给你的新提示是：“${userInput}”。
 
 # 你的行动指令
@@ -45350,10 +45151,11 @@ async function triggerGuessWhatAiAction(actionType, userInput = null) {
 5.  【【【绝对禁止】】】你【不能】再向用户提问，你的任务是直接猜测。
 6.  你的回复【必须且只能】是一个严格的JSON对象。
 
-# JSON输出格式
-- 如果猜对了: \`{"type": "game_over", "winner": "ai", "reason": "我猜对啦！谜底就是【${guessWhatGameState.secretWord}】！"}\`
-- 如果猜错了: \`{"type": "guess", "text": "【假装恍然大悟】哦~我知道了，是“电饭煲”对不对？...好吧好吧不逗你了，我猜是...[你的真实猜测]"}\``;
-    break;
+# JSON输出格式 (注意：你无法判断自己是否猜对，所以永远使用这个格式)
+{"type": "guess", "text": "【假装恍-然大悟】哦~我知道了，是“电饭煲”对不对？...好吧好吧不逗你了，我猜是...[你的真实猜测]"}`;
+            break;
+// ▲▲▲ 替换结束 ▲▲▲
+
 
     }
     
