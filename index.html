@@ -13029,21 +13029,19 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 
 /* ======================================================================= /
-/ === ★★★ 角色手机桌面美化布局 (最终可调节+注释版) ★★★ === /
+/ === ★★★ 角色手机桌面美化布局 (终极居中固定版) ★★★ === /
 / ======================================================================= */
 
-/* --- 0. 总控制器 (在这里调整整体下移的距离！) --- */
+/* --- 1. 定义一个固定大小的“手机画板”，并让它水平居中 --- */
 #character-phone-screen {
-    /* ★★★ 我已将数值从 55px 增加到 65px，让整体位置更靠下 ★★★ */
-    /* ★★★ 你可以继续修改这个数字，数字越大，整体越往下 ★★★ */
-    --desktop-offset-y: 115px; 
-}
-
-
-/* --- 准备工作：让容器支持自由定位 (请勿修改) --- */
-#character-phone-screen {
+    box-sizing: border-box !important;
     position: relative !important;
+    width: 345px !important; /* 固定手机的宽度 */
+    margin: 0 auto !important; /* 实现水平居中 */
+    /* 我们不再需要在这里设置偏移量了 */
 }
+
+/* --- 2. 让App图标的容器铺满整个“画板” --- */
 #character-app-grid {
     position: absolute !important;
     top: 0;
@@ -13054,13 +13052,15 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     grid-template-columns: none !important;
     gap: 0 !important;
 }
+
+/* --- 3. 准备工作：让所有图标和小组件“浮动”起来 --- */
 #character-app-grid .app-icon,
 #char-phone-widget-1,
 #char-phone-widget-2 {
     position: absolute !important;
 }
 
-/* --- App图标尺寸 (请勿修改) --- */
+/* --- 4. App图标尺寸和字体 --- */
 #character-app-grid .app-icon .icon-bg {
     width: 40px !important;
     height: 40px !important;
@@ -13070,40 +13070,42 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     font-size: 11px;
 }
 
-/* --- 小组件位置和尺寸 (已应用偏移量) --- */
+/* --- 5. 小组件位置和尺寸 (使用精确的像素值) --- */
 #char-phone-widget-1 {
-    top: calc(20px + var(--desktop-offset-y));
+    top: 85px;  /* 整体下移后的新位置 */
     left: 30px;
     width: 135px;
     height: 135px;
     border-radius: 20px;
 }
 #char-phone-widget-2 {
-    top: calc(375px + var(--desktop-offset-y));
+    top: 440px; /* 整体下移后的新位置 */
     left: 180px;
     width: 135px;
     height: 135px;
     border-radius: 20px;
 }
 
-/* --- App图标位置 (★核心修复: 已添加App名称注释) --- */
+/* --- 6. App图标位置 (使用精确的像素值，并附带注释) --- */
+
 /* 第1行 */
-#character-app-grid .app-icon:nth-child(1) { top: calc(90px + var(--desktop-offset-y)); left: 180px; }  /* 微信 */
-#character-app-grid .app-icon:nth-child(2) { top: calc(90px + var(--desktop-offset-y)); left: 255px; }  /* 购物车 */
+#character-app-grid .app-icon:nth-child(1) { top: 155px; left: 180px; }  /* 微信 */
+#character-app-grid .app-icon:nth-child(2) { top: 155px; left: 255px; }  /* 购物车 */
 
 /* 第2行 */
-#character-app-grid .app-icon:nth-child(3) { top: calc(185px + var(--desktop-offset-y)); left: 30px; }   /* 备忘录 */
-#character-app-grid .app-icon:nth-child(4) { top: calc(185px + var(--desktop-offset-y)); left: 105px; }  /* 浏览器 */
-#character-app-grid .app-icon:nth-child(5) { top: calc(185px + var(--desktop-offset-y)); left: 180px; }  /* 相册 */
+#character-app-grid .app-icon:nth-child(3) { top: 250px; left: 30px; }   /* 备忘录 */
+#character-app-grid .app-icon:nth-child(4) { top: 250px; left: 105px; }  /* 浏览器 */
+#character-app-grid .app-icon:nth-child(5) { top: 250px; left: 180px; }  /* 相册 */
 
 /* 第3行 */
-#character-app-grid .app-icon:nth-child(6) { top: calc(280px + var(--desktop-offset-y)); left: 105px; }  /* 钱包 */
-#character-app-grid .app-icon:nth-child(7) { top: calc(280px + var(--desktop-offset-y)); left: 180px; }  /* 足迹 */
-#character-app-grid .app-icon:nth-child(8) { top: calc(280px + var(--desktop-offset-y)); left: 255px; }  /* 使用记录 */
+#character-app-grid .app-icon:nth-child(6) { top: 345px; left: 105px; }  /* 钱包 */
+#character-app-grid .app-icon:nth-child(7) { top: 345px; left: 180px; }  /* 足迹 */
+#character-app-grid .app-icon:nth-child(8) { top: 345px; left: 255px; }  /* 使用记录 */
 
 /* 第4行 */
-#character-app-grid .app-icon:nth-child(9) { top: calc(375px + var(--desktop-offset-y)); left: 30px; }   /* 日记 */
-#character-app-grid .app-icon:nth-child(10) { top: calc(375px + var(--desktop-offset-y)); left: 105px; } /* 外观设置 */
+#character-app-grid .app-icon:nth-child(9) { top: 440px; left: 30px; }   /* 日记 */
+#character-app-grid .app-icon:nth-child(10) { top: 440px; left: 105px; } /* 外观设置 */
+
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
