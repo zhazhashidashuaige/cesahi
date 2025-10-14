@@ -291,6 +291,9 @@ body {
     padding: 20px;
     margin-bottom: 30px; 
 }
+
+
+
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
 
@@ -5117,14 +5120,46 @@ body {
     visibility: visible;
     z-index: 5;
 }
+/* ▼▼▼ 用这块【透明毛玻璃版】代码，完整替换掉旧的 .character-phone-header 样式 ▼▼▼ */
+
 .character-phone-header {
     flex-shrink: 0;
-    padding: 8px 12px;
-    padding-top: 35px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    margin: 35px 12px 10px;
+    height: 48px;
+
+    /* ★ 核心修改1：变成一个更圆润的胶囊形状 */
+    border-radius: 24px; /* 将圆角从16px增加到24px，看起来更圆润 */
+
+    /* ★ 核心修改2：设置一个几乎透明的、带有毛玻璃效果的背景 */
+    background-color: rgba(180, 180, 180, 0.2); /* 降低不透明度，营造透明感 */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    /* ★ 核心修改3：让边框和阴影更精致，以适应透明感 */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* 边框也调得更透明 */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);   /* 阴影稍微调整，更柔和 */
+
+    /* ★ 核心修改4：强制文字和图标颜色变为白色，并加上阴影以保证清晰 */
+    color: #ffffff; /* 标题文字变为白色 */
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3); /* 给文字加一点阴影，防止背景太亮看不清 */
+
+    /* 布局部分保持不变 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    box-sizing: border-box;
     font-size: 16px;
 }
+
+/* ★★★【重要】为了确保所有图标都变成白色，请把下面这段新代码也加到<style>里 ★★★ */
+.character-phone-header .action-btn svg,
+.character-phone-header .back-btn svg {
+    color: #ffffff !important;
+}
+
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
 .character-phone-header .action-btn svg,
 .character-phone-header .back-btn svg {
     color: var(--accent-color);
@@ -5135,19 +5170,22 @@ body {
 /* ▲▲▲ 样式修正结束 ▲▲▲ */
 
 /* ▼▼▼ 【V5最终修复版】角色手机APP图标布局修正 ▼▼▼ */
+/* ▼▼▼ 找到 #character-app-grid.app-grid-standard，修改其中的 padding-top 属性 ▼▼▼ */
+
 #character-app-grid.app-grid-standard {
-    display: grid; /* ★★★ 核心修复：告诉浏览器这是一个网格布局！ ★★★ */
-    grid-template-columns: repeat(3, 1fr); /* 保持三列的设置 */
-    gap: 20px 15px;  /* ★★★ 新增：为图标之间添加合适的 垂直 和 水平 间距 ★★★ */
-    padding: 20px; /* ★★★ 修改：统一设置内边距，让布局更规整 ★★★ */
-    padding-top: 50px; /* 覆盖一下顶部内边距，离刘海远一点 */
-    box-sizing: border-box; /* 确保内边距不会撑破容器 */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px 15px;
+    padding: 20px;
+    padding-top: 95px; /* ★★★ 把 50px 改成 95px，为新顶栏留出空间 ★★★ */
+    box-sizing: border-box;
     width: 100%;
-    
-    /* 覆盖掉旧flex布局的影响 */
     flex-direction: initial; 
     align-items: initial;
 }
+
+/* ▲▲▲ 修改结束 ▲▲▲ */
+
 /* ▲▲▲ 样式修正结束 ▲▲▲ */
 
 
@@ -13029,82 +13067,97 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 
 /* ======================================================================= /
-/ === ★★★ 角色手机桌面美化布局 (终极居中固定版) ★★★ === /
+/ === ★★★ 角色手机桌面美化布局 v16.0 (垂直居中偏移版) ★★★ === /
 / ======================================================================= */
 
-/* --- 1. 定义一个固定大小的“手机画板”，并让它水平居中 --- */
+/* --- 1. 总控制台 & 布局变量 --- */
 #character-phone-screen {
-    box-sizing: border-box !important;
     position: relative !important;
-    width: 345px !important; /* 固定手机的宽度 */
-    margin: 0 auto !important; /* 实现水平居中 */
-    /* 我们不再需要在这里设置偏移量了 */
+    
+    /* --- ★★★ 唯一的【垂直位置】总控制器 ★★★ --- */
+    /* 调整这个值，就能让所有图标和小组件一起上下移动 */
+    /* 增加数值 = 整体下移；减小数值 = 整体上移 */
+    /* 我帮你设置了一个看起来比较居中的初始值 */
+    --global-vertical-offset: 30px;
+    
+    /* (水平居中部分，保持不变) */
+    --grid-width: 345px;
+    --grid-left-edge: calc((100% - var(--grid-width)) / 2);
 }
 
-/* --- 2. 让App图标的容器铺满整个“画板” --- */
+/* --- 2. 准备工作 (保持不变) --- */
 #character-app-grid {
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: block !important;
-    grid-template-columns: none !important;
-    gap: 0 !important;
+    position: absolute !important; top: 0; left: 0; width: 100%; height: 100%;
+    display: block !important; grid-template-columns: none !important; gap: 0 !important;
 }
-
-/* --- 3. 准备工作：让所有图标和小组件“浮动”起来 --- */
 #character-app-grid .app-icon,
 #char-phone-widget-1,
 #char-phone-widget-2 {
     position: absolute !important;
 }
 
-/* --- 4. App图标尺寸和字体 --- */
+/* --- 3. App图标样式 (保持不变) --- */
 #character-app-grid .app-icon .icon-bg {
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 10px !important;
+    width: 40px !important; height: 40px !important;
+    background: transparent !important; box-shadow: none !important; border: none !important;
 }
 #character-app-grid .app-icon .label {
-    font-size: 11px;
+    font-size: 12px; color: #fff; padding-top: 8px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
-/* --- 5. 小组件位置和尺寸 (使用精确的像素值) --- */
+/* --- 4. 小组件位置和尺寸 (★核心修改: 应用全局偏移) --- */
 #char-phone-widget-1 {
-    top: 85px;  /* 整体下移后的新位置 */
-    left: 30px;
-    width: 135px;
-    height: 135px;
-    border-radius: 20px;
+    top: calc(var(--global-vertical-offset) + 90px); /* 90px 是你固定的值 */
+    left: calc(var(--grid-left-edge) + 30px);
+    width: 135px; height: 135px; border-radius: 22px;
 }
 #char-phone-widget-2 {
-    top: 440px; /* 整体下移后的新位置 */
-    left: 180px;
-    width: 135px;
-    height: 135px;
-    border-radius: 20px;
+    top: calc(var(--global-vertical-offset) + 480px); /* 480px 是你固定的值 */
+    left: calc(var(--grid-left-edge) + 180px);
+    width: 135px; height: 135px; border-radius: 22px;
 }
 
-/* --- 6. App图标位置 (使用精确的像素值，并附带注释) --- */
-
+/* --- 5. App图标位置 (★核心修改: 应用全局偏移) --- */
 /* 第1行 */
-#character-app-grid .app-icon:nth-child(1) { top: 155px; left: 180px; }  /* 微信 */
-#character-app-grid .app-icon:nth-child(2) { top: 155px; left: 255px; }  /* 购物车 */
-
+#character-app-grid .app-icon:nth-child(1) { top: calc(var(--global-vertical-offset) + 155px); left: calc(var(--grid-left-edge) + 185px); }
+#character-app-grid .app-icon:nth-child(2) { top: calc(var(--global-vertical-offset) + 155px); left: calc(var(--grid-left-edge) + 250px); }
 /* 第2行 */
-#character-app-grid .app-icon:nth-child(3) { top: 250px; left: 30px; }   /* 备忘录 */
-#character-app-grid .app-icon:nth-child(4) { top: 250px; left: 105px; }  /* 浏览器 */
-#character-app-grid .app-icon:nth-child(5) { top: 250px; left: 180px; }  /* 相册 */
-
+#character-app-grid .app-icon:nth-child(3) { top: calc(var(--global-vertical-offset) + 270px); left: calc(var(--grid-left-edge) + 30px); }
+#character-app-grid .app-icon:nth-child(4) { top: calc(var(--global-vertical-offset) + 270px); left: calc(var(--grid-left-edge) + 105px); }
+#character-app-grid .app-icon:nth-child(5) { top: calc(var(--global-vertical-offset) + 270px); left: calc(var(--grid-left-edge) + 180px); }
 /* 第3行 */
-#character-app-grid .app-icon:nth-child(6) { top: 345px; left: 105px; }  /* 钱包 */
-#character-app-grid .app-icon:nth-child(7) { top: 345px; left: 180px; }  /* 足迹 */
-#character-app-grid .app-icon:nth-child(8) { top: 345px; left: 255px; }  /* 使用记录 */
-
+#character-app-grid .app-icon:nth-child(6) { top: calc(var(--global-vertical-offset) + 375px); left: calc(var(--grid-left-edge) + 105px); }
+#character-app-grid .app-icon:nth-child(7) { top: calc(var(--global-vertical-offset) + 375px); left: calc(var(--grid-left-edge) + 185px); }
+#character-app-grid .app-icon:nth-child(8) { top: calc(var(--global-vertical-offset) + 375px); left: calc(var(--grid-left-edge) + 250px); }
 /* 第4行 */
-#character-app-grid .app-icon:nth-child(9) { top: 440px; left: 30px; }   /* 日记 */
-#character-app-grid .app-icon:nth-child(10) { top: 440px; left: 105px; } /* 外观设置 */
+#character-app-grid .app-icon:nth-child(9) { top: calc(var(--global-vertical-offset) + 480px); left: calc(var(--grid-left-edge) + 30px); }
+#character-app-grid .app-icon:nth-child(10) { top: calc(var(--global-vertical-offset) + 480px); left: calc(var(--grid-left-edge) + 105px); }
+
+
+/* ▼▼▼ 【查手机功能 | 图标对齐终极修复 V4】 ▼▼▼ */
+/*
+ * 解决方案：
+ * 1. (保留) 使用负外边距，将应用名(.label)向上拉，使其紧贴图标。
+ * 2. (新增) 对包含默认SVG图标的整个.app-icon元素，也使用一个负的margin-top，
+ *    使其整体向上移动，从而和其他自定义图标在垂直方向上完美对齐。
+ */
+
+/* 步骤1：让文字紧贴图标 (这是上次的成功修复，我们保留它) */
+#character-app-grid .app-icon:has(.icon-bg > svg) .label {
+    margin-top: -7px !important;
+    padding-top: 0px !important;
+}
+
+/* 步骤2：让图标和文字作为一个整体，向上移动 */
+#character-app-grid .app-icon:has(.icon-bg > svg) {
+    margin-top: -8px; /* 这个负值会把整个图标+文字的组合向上拉 */
+}
+/* ▲▲▲ 修复代码结束 ▲▲▲ */
+
+
+
+
 
 
     </style>
