@@ -49304,7 +49304,12 @@ async function playMinimaxAudio(text, voiceId, bubblesToAnimate) {
             const errorData = await response.json();
             throw new Error(`Minimax API 错误: ${errorData.base_resp?.status_msg || response.statusText}`);
         }
-
+        // 【核心修复】检查返回的内容类型，如果不是音频就直接报错！
+        const contentType = response.headers.get('Content-Type');
+        if (!contentType || !contentType.startsWith('audio/')) {
+            const errorData = await response.json().catch(() => response.text()); // 尝试解析错误信息
+            throw new Error(`Minimax API 未返回有效的音频文件，而是返回了: ${JSON.stringify(errorData)}`);
+        }
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
 
@@ -49322,22 +49327,22 @@ async function playMinimaxAudio(text, voiceId, bubblesToAnimate) {
             }
         };
 
-        ttsPlayer.onended = cleanupAndReset;
+       ttsPlayer.onended = cleanupAndReset;
         
-        // ★★★★★ 这就是本次修复的核心 ★★★★★
+        // ▼▼▼ 使用这段【修复后】的代码进行替换 ▼▼▼
         ttsPlayer.onerror = (e) => {
-             // 在显示弹窗前，先检查一下是不是我们自己故意停掉的
              if (!isIntentionalStop) {
-                 console.error("TTS音频播放时发生错误:", e);
-                 showCustomAlert('播放失败', '播放音频文件时发生未知错误。');
+                 // 1. 【保留】在控制台打印错误，方便你自己调试问题
+                 console.error("TTS音频播放时发生错误，已自动切换为文本显示:", e);
+                 // 2. 【核心修改】我们不再弹出任何烦人的提示框！
+                 //    showCustomAlert('播放失败', '播放音频文件时发生未知错误。');  <-- 这行代码被删掉了！
              } else {
-                 // 如果是故意停的，就在控制台打印一条日志，不打扰用户
                  console.log("Intentional stop triggered error event, alert skipped.");
              }
-             // 无论如何，都要清理状态
+             // 3. 【保留】无论如何，都调用 cleanupAndReset 来停止播放动画，恢复UI
              cleanupAndReset();
         };
-        // ★★★★★ 修复结束 ★★★★★
+        // ▲▲▲ 替换结束 ▲▲▲
 
         await ttsPlayer.play();
 
@@ -50531,19 +50536,37 @@ document.getElementById('chat-messages').addEventListener('click', async (e) => 
                     }
                 });
 
-                // 3. 检查Minimax配置
+// ▼▼▼ 请用下面这段【修复后】的代码替换 ▼▼▼
+// ▼▼▼ 请用下面这段【修复后】的代码替换 ▼▼▼
+                // 3. 检查全局Minimax配置
                 const groupId = state.apiConfig.minimaxGroupId;
                 const apiKey = state.apiConfig.minimaxApiKey;
+
                 if (groupId && apiKey) {
-                    // 4. 拼接文本并调用播放器
-                    const combinedText = messagesToPlay.map(m => m.content.trim()).join('，');
-                    const voiceId = chat.settings.minimaxVoiceId || 'male-01'; 
-                    playMinimaxAudio(combinedText, voiceId, bubblesToAnimate);
+                    // 4. 【核心修复】获取当前角色的语音ID，不再使用默认值
+                    const voiceId = chat.settings.minimaxVoiceId; 
+
+                    // 5. 【核心修复】检查角色的语音ID是否已配置
+                    if (voiceId) {
+                        // 只有在配置了 voiceId 的情况下，才拼接文本并调用播放器
+                        const combinedText = messagesToPlay.map(m => m.content.trim()).join('，');
+                        playMinimaxAudio(combinedText, voiceId, bubblesToAnimate);
+                    } else {
+                        // 如果该角色没有配置 voiceId，也当作未配置处理，只显示文字
+                        toggleVoiceTranscript(bubble);
+                    }
+                } else {
+                    // 如果全局Minimax未配置，也只显示文字
+                    toggleVoiceTranscript(bubble);
                 }
+// ▲▲▲ 替换结束 ▲▲▲
+
             }
         }
         return; // 处理完语音后退出
     }
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 
     // --- 你原来的其他点击事件逻辑 ---
