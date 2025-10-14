@@ -13242,6 +13242,11 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
      background-color: rgba(48, 93, 32, 0.85); /* 夜间模式的绿色 */
 }
 /* ▲▲▲ 新CSS粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】这是为“游戏分享”新增的颜色样式 ▼▼▼ */
+.share-type.game {
+    background-color: #9c27b0; /* 一个代表游戏的神秘紫色 */
+}
+/* ▲▲▲ 新增样式结束 ▲▲▲ */
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -24947,8 +24952,9 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
 - **写情书/回信**: \`{"type": "ls_letter", "content": "情书的正文内容..."}\` (收到情书后必须用此指令回信)
 -   **分享歌曲**:\`{"type": "ls_share", "shareType": "song", "title": "歌曲名", "artist": "歌手", "thoughts": "在这里写下你分享这首歌的感想..."}\`
 -   **分享电影**: \`{"type": "ls_share", "shareType": "movie", "title": "电影名", "summary": "在这里写下这部电影的简介...", "thoughts": "在这里写下你分享这部电影的感想..."}\`
--   **【分享书籍**: \`{"type": "ls_share", "shareType": "book", "title": "书名", "summary": "在这里写下这本书的简介...", "thoughts": "在这里写下你分享这本书的感想..."}\`
--   **【新】写日记**: \`{"type": "ls_diary_entry", "emoji": "emoji表情", "diary": "今天发生了什么..."}\`
+-   **分享书籍**: \`{"type": "ls_share", "shareType": "book", "title": "书名", "summary": "在这里写下这本书的简介...", "thoughts": "在这里写下你分享这本书的感想..."}\`
+-   **分享游戏**:\`{"type": "ls_share", "shareType": "game", "title": "游戏名", "summary": "游戏简介...", "thoughts": "在这里写下你分享这款游戏的感想/感谢..."}\`
+-   **写日记**: \`{"type": "ls_diary_entry", "emoji": "emoji表情", "diary": "今天发生了什么..."}\`
 ### **【第六部分：当前上下文信息】**
 
 - **对话者(用户)角色设定**:
@@ -39451,7 +39457,7 @@ function renderLSShares(shares, chat) {
         item.className = 'ls-list-item ls-share-item';
         item.dataset.shareData = JSON.stringify(share);
 
-        const typeText = { song: '歌曲', movie: '电影', book: '书籍' }[share.shareType] || '分享';
+        const typeText = { song: '歌曲', movie: '电影', book: '书籍', game: '游戏' }[share.shareType] || '分享';
         const authorName = share.author === 'user' ? (chat.settings.myNickname || '我') : chat.name;
         
         // ▼▼▼ 核心修改在这里：我们重构了“摘要”部分的逻辑 ▼▼▼
@@ -55006,6 +55012,12 @@ document.getElementById('ls-shares-list').addEventListener('click', async (e) =>
     else if (shareData.shareType === 'movie' || shareData.shareType === 'book') {
         await showCustomAlert(`分享详情 - ${shareData.title}`, shareData.thoughts || shareData.summary || '暂无简介');
     }
+    // ▼▼▼ 在这里粘贴下面这块【全新】的代码 ▼▼▼
+else if (shareData.shareType === 'game') {
+    // 为游戏分享卡片构建一个更详细的弹窗内容
+    const gameInfo = `游戏名：${shareData.title}\n\n简介：${shareData.summary || '暂无简介'}\n\nTa说：“${shareData.thoughts || '一起玩吧！'}”`;
+    await showCustomAlert(`分享的游戏`, gameInfo);
+}
 });
 
 // ▲▲▲ 新增事件监听结束 ▲▲▲
