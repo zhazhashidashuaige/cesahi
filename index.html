@@ -5063,7 +5063,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* background-color 已被删除 */
+    background-color: #ffffff; /* ★★★ 把这里改为纯白色 ★★★ */
     padding-top: 50px; 
     box-sizing: border-box; /* 确保内边距计算正确 */
 }
@@ -9794,11 +9794,13 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
 /* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 标签的最末尾 ▼▼▼ */
-/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 标签的最末尾 ▼▼▼ */
+
+/* 1. 这是包裹头像和所有新气泡的总容器 (V2 加大版) */
 /* 1. 这是包裹头像和所有新气泡的总容器 (V2 加大版) */
 #center-avatar-wrapper {
     position: absolute;
-    top: 190px;
+    /* ★ 核心修改：将固定值改为可调节的变量，并提供一个默认值 190px */
+    top: var(--second-page-center-avatar-top-offset, 190px); 
     transform: translateX(-55%);
     z-index: 5;
     
@@ -9806,6 +9808,8 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     width: 300px;  /* 从 250px 增加到了 300px */
     height: 180px; /* 从 150px 增加到了 180px */
 }
+
+
 
 
 
@@ -9820,7 +9824,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 #avatar-subtitle {
     position: absolute;
-    bottom: 5px; /* ★ 修改点：把它从容器外面移到里面，位置更协调 */
+    bottom:  20px; /* ★ 修改点：把它从容器外面移到里面，位置更协调 */
     left: 50%;
     transform: translateX(-50%);
     
@@ -9838,47 +9842,46 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 
-/* 4. 这是四个角落气泡的通用样式 (V3 最终版) */
+/* 这是四个角落气泡的通用样式 */
 .corner-bubble {
     position: absolute;
     background-color: rgba(255, 255, 255, 0.25);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 12px;
     padding: 8px 12px;
-    
     color: white;
     font-size: 12px;
     font-weight: 500;
     text-align: center;
     text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    
-    min-width: 80px; /* ★ 修改点：把最小宽度从40px增加到了60px */
+    min-width: 80px; 
     cursor: pointer;
 }
 
+/* ▼▼▼ 在这里分别修改四个角落的位置 ▼▼▼ */
 
 /* 5. 分别定位四个角落的气泡 */
 #bubble-top-left {
-    top: 0;
-    left: 0;
-}
-#bubble-top-right {
-    top: 0;
-    right: 0;
-}
-#bubble-bottom-left {
-    bottom: 0;
-    left: 0;
-}
-#bubble-bottom-right {
-    bottom: 0;
-    right: 0;
+    top: 40px;    /* 控制上下位置，数值越大越【往下】移 */
+    left: -15px;   /* 控制左右位置，数值越大越【往右】移 */
 }
 
-/* ▲▲▲ 新增CSS粘贴结束 ▲▲▲ */
+#bubble-top-right {
+    top: 40px;    /* 控制上下位置，数值越大越【往下】移 */
+    right: -15px;  /* 控制左右位置，数值越大越【往左】移 */
+}
+
+#bubble-bottom-left {
+    bottom: 40px; /* 控制上下位置，数值越大越【往上】移 */
+    left: -15px;   /* 控制左右位置，数值越大越【往右】移 */
+}
+
+#bubble-bottom-right {
+    bottom: 40px; /* 控制上下位置，数值越大越【往上】移 */
+    right: -15px;  /* 控制左右位置，数值越大越【往左】移 */
+}
 /* ▼▼▼ 【这是修改后的版本】请用这整块代码替换旧的 ▼▼▼ */
 
 /* 1. 总容器：移除了顶部的内边距 */
