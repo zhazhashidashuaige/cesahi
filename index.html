@@ -5069,18 +5069,19 @@ body {
 }
 
 
-/* 2. 手机边框样式 (保持不变) */
+/* 2. 手机边框样式 (修改后) */
 .character-phone-frame {
     width: 95%;
     height: 98%;
     background-color: #111;
     border-radius: 30px;
     padding: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: none; /* ★★★ 就是修改这里 ★★★ */
     box-sizing: border-box;
     position: relative;
     display: flex;
 }
+
 
 /* ▼▼▼ 用下面这块【已修复】的代码替换旧的 #character-app-grid .app-icon .icon-bg 规则 ▼▼▼ */
 #character-app-grid .app-icon .icon-bg {
