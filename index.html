@@ -5082,7 +5082,6 @@ body {
     display: flex;
 }
 
-
 /* ▼▼▼ 用下面这块【已修复】的代码替换旧的 #character-app-grid .app-icon .icon-bg 规则 ▼▼▼ */
 #character-app-grid .app-icon .icon-bg {
     width: 65px;  /* 恢复原来的尺寸 */
@@ -47503,10 +47502,9 @@ async function handleConciseAllSummaries() {
 
 // ▲▲▲ 新功能函数粘贴结束 ▲▲▲
 
-// ▲▲▲ 聊天总结功能核心函数粘贴结束 ▲▲▲
-// ▼▼▼ 【全新】粘贴这个新函数到你的JS功能函数定义区 ▼▼▼
+// ▼▼▼ 【最终修复版】用这整块代码，完整替换你旧的 triggerManualSummaryNow 函数 ▼▼▼
 /**
- * 用户点击“立即手动总结”按钮时触发的函数
+ * 【手动总结】用户点击“立即手动总结”按钮时触发的函数 (V2 - 已修复逻辑)
  */
 async function triggerManualSummaryNow() {
     if (isSummarizing) {
@@ -47514,28 +47512,52 @@ async function triggerManualSummaryNow() {
         return;
     }
 
+    const chat = state.chats[state.activeChatId];
+    if (!chat) {
+        alert("错误：找不到当前聊天，无法总结。");
+        return;
+    }
+    
     isSummarizing = true; // 上锁
 
     try {
-        // 调用 generateSummary，但不传递第二个参数，这样它就会总结自上次以来的所有新消息
-        const summaryText = await generateSummary(state.activeChatId, null);
+        // --- ▼▼▼ 这就是我们本次修改的核心逻辑 ▼▼▼ ---
+
+        // 1. 获取当前聊天设定的总结条数
+        const summarySettings = chat.settings.summary;
+        const count = (summarySettings && summarySettings.count > 0) ? summarySettings.count : 20;
+
+        // 2. 直接从聊天记录的末尾，截取最后 N 条消息
+        const messagesToSummarize = chat.history.slice(-count);
+
+        // 3. 检查是否有足够的消息可供总结
+        if (messagesToSummarize.length === 0) {
+            alert("聊天记录为空，无法进行总结。");
+            return; // 提前退出
+        }
         
+        // 4. 【关键】将我们手动截取的消息数组，作为参数传递给 generateSummary 函数
+        // 这样它就不会再执行“自上次总结以来没有新内容”的错误判断了
+        const summaryText = await generateSummary(state.activeChatId, messagesToSummarize);
+        
+        // --- ▲▲▲ 修改结束 ▲▲▲ ---
+
         if (summaryText) {
             await saveSummaryAsMemory(state.activeChatId, summaryText);
             await showCustomAlert('总结完成', '新的对话记忆已生成！');
-            // 成功后，刷新总结管理列表
+            // 如果总结管理列表是打开的，就刷新它
             if (document.getElementById('summary-viewer-modal').classList.contains('visible')) {
                 openSummaryViewer();
             }
         }
     } catch (e) {
-        // generateSummary 内部已经处理了错误弹窗
         console.error("手动总结过程中发生未捕获的错误:", e);
+        await showCustomAlert('错误', '手动总结时发生错误，详情请查看控制台。');
     } finally {
         isSummarizing = false; // 解锁
     }
 }
-// ▲▲▲ 新函数粘贴结束 ▲▲▲
+
 // ▼▼▼ 在这里粘贴下面这一整块新代码 ▼▼▼
 
 /**
