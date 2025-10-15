@@ -33,8 +33,6 @@
 
     <title>EPhone（兔k机版）</title>
 
-
-
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
@@ -469,7 +467,21 @@ body {
         #chat-input { flex-grow: 1; border: none; padding: 10px 15px; border-radius: 20px; background-color: var(--secondary-bg); font-size: 16px; max-height: 100px; resize: none; }
         .action-button { border: none; color: white; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; flex-shrink: 0; }
         #send-btn { background-color: var(--accent-color); height: 40px; padding: 0 15px;}
-        .modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .modal {
+    /* ▼▼▼ 核心修改：将定位方式从 absolute 改为 fixed ▼▼▼ */
+    position: fixed; 
+    /* ▲▲▲ 修改结束 ▲▲▲ */
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0,0,0,0.4); 
+    display: none; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 100; 
+}
+
         .modal.visible { display: flex; }
         .modal-content { width: 90%; max-height: 90%; background-color: white; border-radius: 15px; display: flex; flex-direction: column; }
         .modal-header { padding: 15px; font-weight: 600; border-bottom: 1px solid var(--border-color); text-align: center; display: flex; justify-content: space-between; align-items: center; }
@@ -13247,6 +13259,222 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     background-color: #9c27b0; /* 一个代表游戏的神秘紫色 */
 }
 /* ▲▲▲ 新增样式结束 ▲▲▲ */
+/* ▼▼▼ 【全新】心动飞行棋样式 ▼▼▼ */
+
+/* --- 游戏主界面布局 --- */
+#ludo-game-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    padding: 15px;
+    box-sizing: border-box;
+    gap: 15px;
+    background-color: #fff0f5; /* 温柔的淡粉色背景 */
+}
+
+#phone-screen.dark-mode #ludo-game-content {
+    background-color: #2c1e22; /* 夜间模式下的深粉紫色 */
+}
+
+/* --- 棋盘容器与棋盘本身 --- */
+#ludo-board-container {
+    position: relative;
+    width: 100%;
+    height: 280px; /* 给棋盘一个固定的高度 */
+    flex-shrink: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#ludo-board {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr); /* 10x6的网格布局 */
+    grid-template-rows: repeat(6, 1fr);
+    width: 100%;
+    height: 100%;
+    gap: 3px;
+}
+
+/* --- 棋盘格子样式 --- */
+.ludo-cell {
+    border-radius: 4px;
+    background-color: rgba(255, 192, 203, 0.3); /* 淡淡的粉色格子 */
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #db7093;
+}
+
+/* 起点和终点格子 */
+.ludo-cell.start { background-color: #90ee90; color: #2e8b57; }
+.ludo-cell.end { background-color: #ffd700; color: #b8860b; }
+
+/* 特殊事件格子 */
+.ludo-cell.event-truth { background-color: #ffb6c1; } /* 真心话 */
+.ludo-cell.event-dare { background-color: #add8e6; }  /* 大冒险 */
+.ludo-cell.event-kiss { background-color: #ff69b4; }  /* 亲亲 */
+.ludo-cell.event-hug { background-color: #ffdab9; }   /* 抱抱 */
+
+.ludo-cell .cell-number {
+    font-size: 10px;
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    color: rgba(0,0,0,0.2);
+}
+
+/* --- 棋子样式 --- */
+.ludo-piece {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+}
+.ludo-piece.user { border-color: #87cefa; }
+.ludo-piece.char { border-color: #ffc0cb; }
+
+/* --- 游戏日志 --- */
+#ludo-log-container {
+    flex-grow: 1;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    padding: 10px;
+    overflow-y: auto;
+    min-height: 0;
+}
+#ludo-game-log .log-entry {
+    padding: 6px 8px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    line-height: 1.5;
+}
+#ludo-game-log .log-entry.system {
+    color: #db7093;
+    font-style: italic;
+    text-align: center;
+}
+#ludo-game-log .log-entry.user { color: #007bff; }
+#ludo-game-log .log-entry.char { color: #e83e8c; }
+#ludo-game-log .log-entry strong { font-weight: 900; }
+
+
+/* --- 操作区与骰子动画 --- */
+#ludo-action-area {
+    flex-shrink: 0;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60px;
+}
+#ludo-dice-container {
+    perspective: 1000px;
+}
+.dice {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1s;
+    cursor: pointer;
+}
+.dice.rolling { animation: roll-dice 1.5s ease-out; }
+@keyframes roll-dice {
+    0% { transform: rotateX(0deg) rotateY(0deg); }
+    100% { transform: rotateX(1080deg) rotateY(720deg); }
+}
+.dice .face {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border: 1px solid #ccc;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+.face.front  { transform: rotateY(0deg) translateZ(25px); }
+.face.back   { transform: rotateY(180deg) translateZ(25px); }
+.face.right  { transform: rotateY(90deg) translateZ(25px); }
+.face.left   { transform: rotateY(-90deg) translateZ(25px); }
+.face.top    { transform: rotateX(90deg) translateZ(25px); }
+.face.bottom { transform: rotateX(-90deg) translateZ(25px); }
+
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】飞行棋问题类型标签样式 ▼▼▼ */
+.question-type-tag {
+    font-size: 10px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 10px;
+    color: white;
+    margin-left: 10px;
+    flex-shrink: 0;
+}
+.question-type-tag.both-answer {
+    background-color: #ff8fab; /* 粉色代表共同回答 */
+}
+.question-type-tag.single-answer {
+    background-color: #87ceeb; /* 蓝色代表一人回答 */
+}
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】飞行棋结算卡片样式 ▼▼▼ */
+#ludo-summary-content h3 {
+    text-align: center;
+    color: var(--accent-color);
+    margin-bottom: 15px;
+    font-size: 20px;
+    font-weight: bold;
+}
+#ludo-summary-content .ludo-qa-log {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    max-height: 300px; /* 给问答记录一个最大高度，内容多了可以滚动 */
+    overflow-y: auto;
+}
+#ludo-summary-content h4 {
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+#ludo-summary-content .qa-item {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #eee;
+}
+#ludo-summary-content .qa-item:last-child {
+    border-bottom: none;
+}
+#ludo-summary-content .qa-question {
+    font-weight: 600;
+    color: #db7093; /* 一个可爱的粉紫色 */
+    margin-bottom: 8px;
+}
+#ludo-summary-content .qa-answer {
+    padding-left: 15px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+#ludo-summary-content .qa-answer strong {
+    color: var(--text-primary);
+}
+#phone-screen.dark-mode #ludo-summary-content .qa-answer {
+    color: #bbb;
+}
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -16920,6 +17148,14 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                     <div class="game-desc">考验默契的时候到了</div>
                 </div>
             </div>
+<div class="game-card" data-game="ludo">
+    <div class="game-icon">🎲</div>
+    <div class="game-info">
+        <div class="game-title">心动飞行棋</div>
+        <div class="game-desc">和Ta来一场只属于你们的冒险</div>
+    </div>
+</div>
+<!-- ▲▲▲ 新增代码结束 ▲▲▲ -->
              <p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary); font-size: 14px; margin-top: 20px;">更多游戏正在火速开发中...</p>
         </div>
     </div>
@@ -17536,6 +17772,73 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+ <!-- ▼▼▼ 【全新】这是“心动飞行棋”的所有新HTML代码 ▼▼▼ -->
+
+<!-- 1. 飞行棋游戏设置屏幕 -->
+<div id="ludo-setup-screen" class="screen">
+    <div class="header">
+        <span class="back-btn" onclick="showScreen('game-hall-screen')">‹</span>
+        <span>心动飞行棋 - 游戏设置</span>
+    </div>
+    <div class="form-container">
+        <div class="form-group">
+            <label>选择一位玩伴</label>
+            <!-- 邀请列表，我们会用JS来填充 -->
+            <div id="ludo-player-selection" class="list-container" style="height: 400px; border: 1px solid var(--border-color); border-radius: 8px;">
+            </div>
+        </div>
+        <!-- ▼▼▼ 在 #ludo-setup-screen 的 "form-container" 内，粘贴这段新代码 ▼▼▼ -->
+<div class="form-group">
+    <label>选择问题库</label>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <select id="ludo-question-bank-select" style="flex-grow: 1;"></select>
+        <button id="manage-ludo-question-banks-btn" class="form-button-secondary" style="margin-top: 0; padding: 12px; width: auto;">管理题库</button>
+    </div>
+</div>
+<!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
+
+        <button id="start-ludo-game-btn" class="form-button">开始游戏</button>
+    </div>
+</div>
+
+<!-- 2. 飞行棋游戏主界面 -->
+<div id="ludo-game-screen" class="screen">
+    <div class="header">
+        <span class="back-btn" id="exit-ludo-game-btn">‹ 退出</span>
+        <span>心动飞行棋</span>
+        <!-- 这里可以放一个重置游戏的按钮 -->
+        <span class="action-btn" id="restart-ludo-game-btn" title="重新开始">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+        </span>
+    </div>
+    <!-- 游戏主内容区 -->
+    <div id="ludo-game-content">
+        <!-- 棋盘区域 -->
+        <div id="ludo-board-container">
+            <div id="ludo-board">
+                <!-- 棋盘格子将由JS动态生成 -->
+            </div>
+            <!-- 玩家棋子 -->
+            <div id="ludo-user-piece" class="ludo-piece user"></div>
+            <div id="ludo-char-piece" class="ludo-piece char"></div>
+        </div>
+
+        <!-- 游戏日志区域 -->
+        <div id="ludo-log-container">
+            <div id="ludo-game-log">
+                <!-- 游戏过程信息会显示在这里 -->
+            </div>
+        </div>
+        
+        <!-- 玩家操作区 -->
+        <div id="ludo-action-area">
+            <!-- 用户的按钮会根据游戏阶段显示在这里 -->
+        </div>
+    </div>
+</div>
+
+<!-- ▲▲▲ “心动飞行棋”HTML代码结束 ▲▲▲ -->
+
 <!-- ▼▼▼ 在这里找到你的微博私信列表页面 ▼▼▼ -->
 <div id="weibo-dm-list-screen" class="screen">
     <div class="header">
@@ -18048,6 +18351,94 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 </div>
 
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 在 </body> 标签的正上方，粘贴下面这一整块新代码 ▼▼▼ -->
+
+<!-- 【全新】飞行棋问题库管理模态框 (已修改) -->
+<div id="ludo-qbank-manager-modal" class="modal">
+    <div class="modal-content" style="height: 70%;">
+        <div class="modal-header">
+            <span>管理问题库</span>
+            <!-- ▼▼▼ 核心修改在这里 ▼▼▼ -->
+            <div class="header-actions">
+                <span class="action-btn" id="import-ludo-qbank-btn" title="导入题库">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </span>
+                <span class="action-btn" id="add-ludo-qbank-btn" style="font-size: 16px;">新建</span>
+            </div>
+            <!-- ▲▲▲ 修改结束 ▲▲▲ -->
+        </div>
+        <div class="modal-body" id="ludo-qbank-list" style="padding: 0;">
+            <!-- 问题库列表将由JS动态生成在这里 -->
+        </div>
+        <div class="modal-footer">
+            <button class="save" id="close-qbank-manager-btn" style="width: 100%;">完成</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- 【全新】飞行棋问题编辑器模态框 -->
+<div id="ludo-question-editor-modal" class="modal">
+    <div class="modal-content" style="height: 80%;">
+        <div class="modal-header">
+            <span class="back-btn" id="back-to-qbank-manager-btn">‹</span>
+            <span id="ludo-question-editor-title">编辑问题</span>
+            <span class="action-btn" id="add-ludo-question-btn" style="font-size: 28px; font-weight: 300;">+</span>
+        </div>
+        <div class="modal-body" id="ludo-question-list" style="padding: 10px;">
+            <!-- 问题列表将由JS动态生成在这里 -->
+        </div>
+    </div>
+</div>
+
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 在 </body> 标签的正上方，粘贴下面这一整块新代码 ▼▼▼ -->
+<!-- 【全新】飞行棋单个问题编辑器模态框 -->
+<div id="ludo-single-question-editor-modal" class="modal">
+    <div class="modal-content" style="height: auto;">
+        <div class="modal-header">
+            <span id="ludo-single-question-title">编辑问题</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="ludo-question-text-input">问题内容</label>
+                <textarea id="ludo-question-text-input" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label>问题类型</label>
+                <div style="display: flex; gap: 20px;">
+                    <label><input type="radio" name="ludo_question_type" value="both_answer" checked> 共同回答</label>
+                    <label><input type="radio" name="ludo_question_type" value="single_answer"> 一人回答,一人评价</label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="cancel-single-question-btn">取消</button>
+            <button class="save" id="save-single-question-btn">保存</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 【全新】这是飞行棋游戏结算卡片，请粘贴到 </body> 标签前 ▼▼▼ -->
+<div id="ludo-summary-modal" class="modal">
+    <div class="modal-content" style="height: auto; max-height: 80%;">
+        <div class="modal-header">
+            <span>游戏结算</span>
+        </div>
+        <div class="modal-body" id="ludo-summary-content" style="text-align: left; line-height: 1.7;">
+            <!-- 结算内容将由JS动态生成在这里 -->
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="share-ludo-summary-btn">分享给Ta</button>
+            <button class="save" id="back-to-hall-from-ludo-btn">返回大厅</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲
 
 <!-- ▲▲▲ HTML代码粘贴结束 ▲▲▲ -->
 <!-- ▼▼▼ 用这整块代码替换旧的 inner-voice-modal ▼▼▼ -->
@@ -19149,6 +19540,19 @@ let guessWhatGameState = {
     currentTurn: 'user'   // 当前轮到谁: 'user' 或 'ai'
 };
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
+// ▼▼▼ 在这里粘贴下面这一整块新代码 ▼▼▼
+
+let ludoGameState = {
+    isActive: false,
+    opponent: null,
+    players: [], // { id, name, avatar, piecePosition: -1 (at home), isUser }
+    currentTurnIndex: 0,
+    gameLog: [],
+    boardLayout: [],
+    isDiceRolling: false
+};
+
+const LUDO_BOARD_SIZE = 42; // 总格子数，可以根据你的棋盘布局调整
 
 let tempGeneratedScriptData = null;
 let currentReplyContext = null; // <--- 新增这行，用来存储当前正在引用的消息信息
@@ -20034,7 +20438,7 @@ function getRandomItem(arr) {
         // ===================================================================
 
 // ▼▼▼ 用这块新代码替换你旧的 db.version(...).stores(...) ▼▼▼
-db.version(38).stores({ // 版本号 +1 = 37
+db.version(40).stores({ // 版本号 +1 = 40
     chats: '&id, isGroup, groupId, isPinned, characterPhoneData, latestInnerVoice, innerVoiceHistory, loversSpaceData.emotionDiaries, settings.summary, settings.weiboNickname',
     apiConfig: '&id',
     globalSettings: '&id, activeThemeId', 
@@ -20054,7 +20458,7 @@ db.version(38).stores({ // 版本号 +1 = 37
     callRecords: '++id, chatId, timestamp, customName',
     customAvatarFrames: '&id, name, url',   
     themes: '++id, name, css',
-    apiPresets: '++id, name, proxyUrl, apiKey',
+    apiPresets: '++id, name, proxyUrl',
     bubbleStylePresets: '++id, name, css',
     fontPresets: '&id, name, url',
     homeScreenPresets: '++id, name',
@@ -20069,11 +20473,15 @@ db.version(38).stores({ // 版本号 +1 = 37
     taobaoProducts: '++id, name, category', 
     taobaoOrders: '++id, productId, timestamp',
     taobaoCart: '++id, productId',
-    // ★★★ 在这里新增下面这一行 ★★★
     userWalletTransactions: '++id, timestamp' ,
-    charPhonePresets: '++id, name' 
+    charPhonePresets: '++id, name',
+    ludoQuestionBanks: '++id, name',
+    // ★★★ 核心修改：为问题表增加 type 字段索引 ★★★
+    ludoQuestions: '++id, bankId, text, type'
 });
 // ▲▲▲ 替换结束 ▲▲▲
+
+
 
 
 
@@ -41700,7 +42108,6 @@ async function processGameTurn() {
     switch (werewolfGameState.gamePhase) {
         case 'start':
             logToWerewolfGame('游戏开始，正在分配身份...');
-            // ▼▼▼ 第2处修改（添加翻译）▼▼▼
             const roleNameMapForLog = {
                 wolf: '狼人', villager: '平民', seer: '预言家',
                 witch: '女巫', hunter: '猎人', guard: '守卫', idiot: '白痴'
@@ -41709,35 +42116,36 @@ async function processGameTurn() {
                 .map(([role, count]) => `${roleNameMapForLog[role] || role}x${count}`)
                 .join(', ');
             logToWerewolfGame(`本局配置: ${configText}`);
-            // ▲▲▲ 修改结束 ▲▲▲
             werewolfGameState.gamePhase = 'night_start';
             await sleep(3000);
             await processGameTurn();
             break;
 
-
         case 'night_start':
             werewolfGameState.dayNumber++;
-            werewolfGameState.lastNightKilled = []; // 清空上一晚的记录
-            werewolfGameState.votes = {}; // 清空上一轮的投票
+            werewolfGameState.lastNightKilled = [];
+            werewolfGameState.votes = {};
             logToWerewolfGame(`第 ${werewolfGameState.dayNumber} 天，天黑请闭眼。`);
             werewolfGameState.gamePhase = 'guard_action'; // 从守卫开始
             await sleep(2000);
             await processGameTurn();
             break;
         
+        // 【守卫行动阶段】
         case 'guard_action':
             const guard = werewolfGameState.players.find(p => p.role === 'guard' && p.isAlive);
             if (guard) {
                 logToWerewolfGame('守卫请睁眼，请选择你要守护的玩家。');
                 let protectedId;
+                // ★★★ 核心检查点1：判断守卫是不是User ★★★
                 if (guard.isUser) {
+                    // 如果是，就调用waitForUserAction，这会弹出操作框
                     protectedId = await waitForUserAction('请选择你要守护的玩家', 'guard_protect');
                 } else {
+                    // 如果不是，就让AI自己决策
                     protectedId = await triggerWerewolfAiAction(guard.id, 'guard_protect');
                 }
                 werewolfGameState.guardLastNightProtected = protectedId;
-                const protectedPlayer = werewolfGameState.players.find(p => p.id === protectedId);
                 logToWerewolfGame(`守卫请闭眼。`);
             }
             werewolfGameState.gamePhase = 'wolf_action';
@@ -41745,28 +42153,27 @@ async function processGameTurn() {
             await processGameTurn();
             break;
 
-// ▼▼▼ 【狼人频道增强版】请用这整块代码替换旧的 'wolf_action' case ▼▼▼
+// ▼▼▼ 用这块【狼人频道增强+平票处理版】的代码替换旧的 'wolf_action' case ▼▼▼
 case 'wolf_action':
     logToWerewolfGame('狼人请睁眼，请选择一个目标。');
     const wolves = werewolfGameState.players.filter(p => p.role === 'wolf' && p.isAlive);
     const userPlayer = wolves.find(w => w.isUser);
     let allWolfVotes = [];
 
-    // 1. 检查User是不是活着的狼人
+    // 场景1: 用户是狼人
     if (userPlayer) {
-        // 2. 如果是，启动狼人秘密沟通流程
         const aiWolves = wolves.filter(w => !w.isUser);
         let suggestionsText = "🐺 狼人频道 (秘密):\n";
         
         if (aiWolves.length > 0) {
-            // 2.1 先获取所有AI狼队友的投票意向
+            // 从AI队友获取建议
             const aiVotePromises = aiWolves.map(wolf => 
-                triggerWerewolfAiAction(wolf.id, 'wolf_kill', { isUserWolfAlly: true }) // 传入新上下文
+                triggerWerewolfAiAction(wolf.id, 'wolf_kill', { isUserWolfAlly: true })
             );
             const aiVotes = (await Promise.all(aiVotePromises)).filter(Boolean);
             allWolfVotes.push(...aiVotes);
 
-            // 2.2 整理AI队友的建议，准备显示给用户
+            // 格式化建议给用户看
             aiVotes.forEach((targetId, index) => {
                 const votingWolf = aiWolves[index];
                 const targetPlayer = werewolfGameState.players.find(p => p.id === targetId);
@@ -41776,28 +42183,25 @@ case 'wolf_action':
             });
             suggestionsText += "\n请参考队友意见后进行投票。";
             
-            // 2.3 弹窗告知用户队友的想法
             await showCustomAlert("狼人请沟通", suggestionsText);
 
         } else {
-            // 如果只有User一个狼
             await showCustomAlert("你是唯一的狼", "请独自决定今晚的目标。");
         }
         
-        // 2.4 等用户看完建议后，再让用户投票
+        // 获取用户的最终投票
         const userVote = await waitForUserAction('请选择最终攻击目标', 'wolf_kill');
         if (userVote) {
             allWolfVotes.push(userVote);
         }
 
-    } else {
-        // 3. 如果User不是狼人，则AI狼人按原逻辑自行投票
+    } else { // 场景2: 用户不是狼人，AI狼人自行决定
         const wolfPromises = wolves.map(wolf => triggerWerewolfAiAction(wolf.id, 'wolf_kill'));
         const wolfVotes = (await Promise.all(wolfPromises)).filter(Boolean);
         allWolfVotes.push(...wolfVotes);
     }
     
-    // 4. 统计所有狼人的最终投票结果（这部分逻辑不变）
+    // 统计所有狼人的投票
     const voteCounts = {};
     allWolfVotes.forEach(vote => { voteCounts[vote] = (voteCounts[vote] || 0) + 1; });
     
@@ -41814,27 +42218,37 @@ case 'wolf_action':
         }
     }
 
-    if (targetId && !tied) {
+    // ★★★ 这就是我们新增的平票处理逻辑！★★★
+    if (tied && maxVotes > 0) {
+         // 如果出现平票，就从所有平票的目标中随机选择一个
+         const tiedTargets = Object.keys(voteCounts).filter(id => voteCounts[id] === maxVotes);
+         targetId = tiedTargets[Math.floor(Math.random() * tiedTargets.length)];
+         logToWerewolfGame(`(狼人内部经过一番激烈讨论，最终决定目标为 ${werewolfGameState.players.find(p=>p.id === targetId).name})`);
+    }
+
+    if (targetId) { // 只要有目标（无论是统一意见还是随机决定），就执行击杀
         werewolfGameState.lastNightKilled = [targetId];
         logToWerewolfGame(`狼人请闭眼。`);
     } else {
-         logToWerewolfGame(`狼人意见不一或放弃行动，今晚无人被袭击。`);
+         // 只有在所有狼人都没投票的情况下，才会是平安夜
+         logToWerewolfGame(`狼人放弃了行动，今晚无人被袭击。`);
          werewolfGameState.lastNightKilled = [];
     }
     
-    // 5. 进入下一个游戏阶段（这部分逻辑不变）
+    // 进入下一个游戏阶段
     werewolfGameState.gamePhase = 'seer_action';
     await sleep(2000);
     await processGameTurn();
     break;
 // ▲▲▲ 替换结束 ▲▲▲
 
-        
+        // 【预言家行动阶段】
         case 'seer_action':
             const seer = werewolfGameState.players.find(p => p.role === 'seer' && p.isAlive);
             if (seer) {
                 logToWerewolfGame('预言家请睁眼，请选择你要查验的玩家。');
                 let targetId;
+                // ★★★ 核心检查点3：判断预言家是不是User ★★★
                 if (seer.isUser) {
                     targetId = await waitForUserAction('请选择你要查验的玩家', 'seer_check');
                 } else {
@@ -41853,6 +42267,7 @@ case 'wolf_action':
             await processGameTurn();
             break;
         
+        // 【女巫行动阶段】
         case 'witch_action':
             const witch = werewolfGameState.players.find(p => p.role === 'witch' && p.isAlive);
             if (witch) {
@@ -41865,6 +42280,7 @@ case 'wolf_action':
                 }
 
                 let witchAction;
+                 // ★★★ 核心检查点4：判断女巫是不是User ★★★
                 if (witch.isUser) {
                     witchAction = await waitForUserAction('女巫请行动', 'witch_action', { killedId, killedPlayerName });
                 } else {
@@ -41877,23 +42293,20 @@ case 'wolf_action':
                 } else if (witchAction?.action === 'poison' && witchAction.targetId) {
                     werewolfGameState.lastNightKilled.push(witchAction.targetId);
                     werewolfGameState.witchPotions.poison = 0;
-                    const poisonedPlayer = werewolfGameState.players.find(p => p.id === witchAction.targetId);
                 }
             }
             logToWerewolfGame(`女巫请闭眼。`);
-             werewolfGameState.gamePhase = 'day_start';
-             await sleep(2000);
-             await processGameTurn();
-             break;
+            werewolfGameState.gamePhase = 'day_start';
+            await sleep(2000);
+            await processGameTurn();
+            break;
 
         case 'day_start':
             logToWerewolfGame('天亮了。');
             let deathAnnouncements = [];
             const deathsThisNight = new Set();
             
-            // 处理死亡结算
             werewolfGameState.lastNightKilled.forEach(killedId => {
-                // 守卫守护判断
                 if (killedId === werewolfGameState.guardLastNightProtected) {
                     logToWerewolfGame(`昨晚 ${werewolfGameState.players.find(p=>p.id === killedId).name} 被袭击但同时也被守护了。`);
                 } else {
@@ -41917,18 +42330,16 @@ case 'wolf_action':
             renderWerewolfGameScreen();
             if (checkGameOver()) return;
             
-            // 处理猎人
             let hunterDied = null;
             deathsThisNight.forEach(deadId => {
                 const deadPlayer = werewolfGameState.players.find(p => p.id === deadId);
-                if (deadPlayer.role === 'hunter') {
-                    hunterDied = deadPlayer;
-                }
+                if (deadPlayer.role === 'hunter') hunterDied = deadPlayer;
             });
 
             if(hunterDied) {
                 logToWerewolfGame(`${hunterDied.name} 是猎人，可以选择一名玩家带走。`);
                 let targetId;
+                // ★★★ 核心检查点5：判断猎人是不是User ★★★
                 if (hunterDied.isUser) {
                     targetId = await waitForUserAction('请选择你要带走的玩家', 'hunter_shoot');
                 } else {
@@ -41959,8 +42370,7 @@ case 'wolf_action':
                 } else {
                     speech = await triggerWerewolfAiAction(player.id, 'speak');
                 }
-                // 我们现在传递一个包含完整玩家信息的对象，而不仅仅是文本
-logToWerewolfGame({ player: player, speech: speech }, 'speech');
+                logToWerewolfGame({ player: player, speech: speech }, 'speech');
                 await sleep(1000);
             }
             renderWerewolfGameScreen();
@@ -41982,8 +42392,7 @@ logToWerewolfGame({ player: player, speech: speech }, 'speech');
             const voteTallyResult = {};
             allVotesResult.forEach(vote => { voteTallyResult[vote] = (voteTallyResult[vote] || 0) + 1; });
             
-            let maxVotesResult = 0;
-            let playersToEliminate = [];
+            let maxVotesResult = 0, playersToEliminate = [];
             for (const playerId in voteTallyResult) {
                 if (voteTallyResult[playerId] > maxVotesResult) {
                     maxVotesResult = voteTallyResult[playerId];
@@ -41999,7 +42408,6 @@ logToWerewolfGame({ player: player, speech: speech }, 'speech');
                 logToWerewolfGame(`投票结果：${eliminatedPlayer.name} 被淘汰。`);
                 renderWerewolfGameScreen();
                 if (checkGameOver()) return;
-                 // 检查被投票出局的是否是猎人
                 if (eliminatedPlayer.role === 'hunter') {
                     logToWerewolfGame(`${eliminatedPlayer.name} 是猎人，可以选择一名玩家带走。`);
                     let targetId;
@@ -42484,7 +42892,7 @@ function waitForUserAction(prompt, actionType, context = {}) {
 }
 // ▲▲▲ 替换结束 ▲▲▲
 
-// ▼▼▼ 用这个【功能完整版】的函数替换旧的 triggerWerewolfAiAction ▼▼▼
+// ▼▼▼ 用这个【已修复拼写错误】的函数完整替换旧的 triggerWerewolfAiAction ▼▼▼
 async function triggerWerewolfAiAction(playerId, action, context = {}) {
     const player = werewolfGameState.players.find(p => p.id === playerId);
     if (!player || !player.isAlive) return null;
@@ -42495,15 +42903,13 @@ async function triggerWerewolfAiAction(playerId, action, context = {}) {
     let jsonFormat = '';
     const alivePlayersList = werewolfGameState.players.filter(p => p.isAlive).map(p => `- ${p.name} (id: ${p.id})`).join('\n');
     let extraContext = '';
-    // 【核心修复】为预言家提供查验结果
+
     if (player.role === 'seer' && action === 'speak' && werewolfGameState.seerLastNightResult) {
         const result = werewolfGameState.seerLastNightResult;
         extraContext = `\n# 预言家专属情报 (此信息仅你可见)\n- **重要信息**: 昨晚你查验了 **${result.targetName}**，Ta的身份是【${result.isWolf ? '狼人' : '好人'}】。\n- **你的任务**: 你可以选择在发言中公布这个信息（可以说真话，也可以为了迷惑狼人而说谎），或者暂时隐藏它。请根据你的人设和当前局势做出最有利的决策。\n`;
-        
-        // 将查验结果告诉AI后就“销毁”，防止它第二天还说同样的话
         werewolfGameState.seerLastNightResult = null; 
     }
-    // ▲▲▲ 新代码粘贴结束 ▲▲▲
+
     switch (action) {
         case 'guard_protect':
             actionPrompt = '你是守卫，请选择一名玩家进行守护。你不能连续两晚守护同一个人。';
@@ -42511,12 +42917,15 @@ async function triggerWerewolfAiAction(playerId, action, context = {}) {
             if(werewolfGameState.guardLastNightProtected) extraContext = `\n- 提示: 你昨晚守护了 ${werewolfGameState.players.find(p=>p.id === werewolfGameState.guardLastNightProtected).name}。`;
             break;
         case 'wolf_kill':
-            // 【核心修改】检查是否需要与狼队友(User)沟通
+            const wolfTeammates = werewolfGameState.players.filter(p => p.role === 'wolf' && p.id !== player.id).map(w => w.name).join('、');
             if (context.isUserWolfAlly) {
-                actionPrompt = '你是狼人，请选择一个非狼人角色进行攻击。你的狼队友(用户)会看到你的选择，请给出你的建议。';
+                actionPrompt = `你是狼人，你的队友是【${wolfTeammates}】和【用户】。请给你的用户队友一个击杀建议。`;
             } else {
-                actionPrompt = '你是狼人，请选择一个非狼人角色进行攻击。';
+                // ▼▼▼ 核心Bug修复：修正这里的变量名拼写错误 ▼▼▼
+                actionPrompt = `你是狼人，你的队友是【${wolfTeammates || '无'}】。请选择一个非狼人角色进行攻击。`;
+                // ▲▲▲ 修复结束 ▲▲▲
             }
+            extraContext += `\n# 狼人战术指令 (至关重要)\n- **团队合作**: 你的首要目标是和你的狼队友们【集火】同一个目标，以确保击杀成功。\n- **攻击优先级**: 请优先攻击你认为是【预言家】、【女巫】等神职的玩家，或者发言逻辑清晰、对狼人阵营威胁大的好人。`;
             jsonFormat = '{"action": "vote", "targetId": "你选择攻击的玩家ID"}';
             break;
         case 'seer_check':
@@ -42538,12 +42947,16 @@ async function triggerWerewolfAiAction(playerId, action, context = {}) {
              jsonFormat = '{"action": "vote", "targetId": "你选择带走的玩家ID"}';
              break;
         case 'speak':
-            actionPrompt = '现在轮到你发言。请根据你的角色身份、人设和当前局势，发表你的看法，可以撒谎或引导。';
+            actionPrompt = '现在轮到你发言。请根据你的角色身份、人设和当前局势，发表你的看法，可以撒谎或引导。你的发言应该围绕游戏本身，而不是只和用户聊天。';
             jsonFormat = '{"action": "speak", "speech": "你的发言内容..."}';
             break;
         case 'vote':
             actionPrompt = '现在是白天投票环节，请根据大家的发言和你自己的判断，投票选出你认为是狼人的玩家。';
             jsonFormat = '{"action": "vote", "targetId": "你投票的玩家ID"}';
+            break;
+        case 'reveal_clue':
+            systemPrompt += `你刚刚搜到了一个关于你自己的线索：“${context.clue}”。\n公开这条线索可能会让你暴露，但也可能洗清嫌疑；隐藏它可能会让你在后期被动。\n请根据你的人设和任务，决定是公开还是隐藏。`;
+            jsonFormat = '{"action": "reveal" or "hide", "reasoning": "你的决策理由..."}';
             break;
     }
 
@@ -42559,10 +42972,8 @@ ${alivePlayersList}
 - 游戏日志 (最近15条):
 ${werewolfGameState.gameLog.slice(-15).map(log => {
     if (log.type === 'speech') {
-        // 如果是发言记录，就格式化成 "名字: 内容" 的形式
         return `${log.message.player.name}: ${log.message.speech}`;
     }
-    // 否则，直接返回系统消息文本
     return log.message;
 }).join('\n')}
 ${extraContext}
@@ -42577,15 +42988,18 @@ ${jsonFormat}
         const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
             method: 'POST',
             headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
-            body: JSON.stringify({ model, messages: messagesForApi, temperature: 1.1, response_format: { type: "json_object" } })
+            body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 1.1, response_format: { type: "json_object" } })
         });
         if (!response.ok) throw new Error(await response.text());
         const data = await response.json();
         const content = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(/^```json\s*|```$/g, '');
         const aiAction = JSON.parse(content);
+        
         if (action === 'witch_action') return aiAction;
         if (aiAction.action === 'vote') return aiAction.targetId;
         if (aiAction.action === 'speak') return aiAction.speech;
+        if (action === 'reveal_clue') return aiAction;
+
         return null;
     } catch (error) {
         console.error(`AI (${player.name}) 行动失败:`, error);
@@ -42598,6 +43012,8 @@ ${jsonFormat}
     }
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
+
 
 /**
  * 一个简单的sleep函数，用于在游戏流程中制造停顿
@@ -49516,12 +49932,1159 @@ async function handleImportSillyTavernWorldBook(file) {
     reader.readAsText(file, 'UTF-8');
 }
 // ▲▲▲ 替换结束 ▲▲▲
+// ▼▼▼ 【全新】这是“心动飞行棋”的所有核心功能函数 ▼▼▼
+/**
+ * 【全新】导出指定的飞行棋问题库
+ * @param {number} bankId - 要导出的问题库的ID
+ */
+async function exportLudoQuestionBank(bankId) {
+    try {
+        const bank = await db.ludoQuestionBanks.get(bankId);
+        const questions = await db.ludoQuestions.where('bankId').equals(bankId).toArray();
+
+        if (!bank) {
+            alert("错误：找不到要导出的题库。");
+            return;
+        }
+
+        // 1. 准备要导出的数据结构，只包含纯粹的数据
+        const exportData = {
+            bankName: bank.name,
+            questions: questions.map(q => ({
+                text: q.text,
+                type: q.type
+            }))
+        };
+
+        // 2. 将数据转换为格式化的JSON字符串
+        const jsonString = JSON.stringify(exportData, null, 2);
+        
+        // 3. 创建Blob对象
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        
+        // 4. 创建并触发下载链接
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const dateStr = new Date().toISOString().split('T')[0];
+        link.href = url;
+        link.download = `[飞行棋题库]${bank.name}-${dateStr}.json`;
+        document.body.appendChild(link);
+        link.click();
+        
+        // 5. 清理临时创建的对象
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        await showCustomAlert('导出成功', `问题库“${bank.name}”已成功导出！`);
+
+    } catch (error) {
+        console.error("导出飞行棋题库失败:", error);
+        await showCustomAlert('导出失败', `发生了一个错误: ${error.message}`);
+    }
+}
+
+/**
+ * 【全新】处理导入的飞行棋问题库文件
+ * @param {File} file - 用户选择的JSON文件
+ */
+async function importLudoQuestionBank(file) {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const text = e.target.result;
+            const data = JSON.parse(text);
+
+            // 1. 验证文件格式
+            if (!data.bankName || !Array.isArray(data.questions)) {
+                throw new Error("文件格式无效。必须包含 'bankName' 和 'questions' 数组。");
+            }
+
+            // 2. 检查题库名称是否已存在
+            let newBankName = data.bankName;
+            const existingBank = await db.ludoQuestionBanks.where('name').equals(newBankName).first();
+            if (existingBank) {
+                newBankName = `${newBankName} (导入)`; // 如果重名，自动添加后缀
+            }
+
+            // 3. 创建新的题库
+            const newBankId = await db.ludoQuestionBanks.add({ name: newBankName });
+
+            // 4. 准备要批量添加的新问题
+            const questionsToAdd = data.questions.map(q => ({
+                bankId: newBankId,
+                text: q.text,
+                type: q.type || 'both_answer' // 兼容旧的没有type的题库
+            }));
+
+            // 5. 如果有问题，就批量添加到数据库
+            if (questionsToAdd.length > 0) {
+                await db.ludoQuestions.bulkAdd(questionsToAdd);
+            }
+
+            // 6. 刷新UI并给出提示
+            await renderLudoQuestionBanks();
+            await showCustomAlert('导入成功', `问题库“${newBankName}”已成功导入，包含 ${questionsToAdd.length} 个问题！`);
+
+        } catch (error) {
+            console.error("导入飞行棋题库失败:", error);
+            await showCustomAlert('导入失败', `无法解析文件，请确保它是正确的题库备份文件。\n\n错误: ${error.message}`);
+        }
+    };
+    reader.readAsText(file, 'UTF-8');
+}
+
+// ▼▼▼ 用这块新代码替换旧的 openLudoSetup 函数 ▼▼▼
+async function openLudoSetup() {
+    showScreen('ludo-setup-screen');
+    const selectionEl = document.getElementById('ludo-player-selection');
+    selectionEl.innerHTML = '<p>正在加载角色列表...</p>';
+
+    const singleChats = Object.values(state.chats).filter(chat => !chat.isGroup);
+
+    selectionEl.innerHTML = '';
+    if (singleChats.length === 0) {
+        selectionEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">还没有可以一起玩的好友哦~</p>';
+        return;
+    }
+
+    singleChats.forEach(chat => {
+        const item = document.createElement('div');
+        item.className = 'player-selection-item';
+        item.innerHTML = `
+            <input type="radio" name="ludo-opponent" value="${chat.id}" id="ludo-opponent-${chat.id}">
+            <label for="ludo-opponent-${chat.id}" style="display:flex; align-items:center; width:100%; cursor:pointer;">
+                <img src="${chat.settings.aiAvatar || defaultAvatar}" alt="${chat.name}">
+                <span class="name">${chat.name}</span>
+            </label>
+        `;
+        selectionEl.appendChild(item);
+    });
+    if (selectionEl.querySelector('input')) {
+        selectionEl.querySelector('input').checked = true;
+    }
+
+    // ★★★ 这就是我们新增的代码 ★★★
+    const bankSelect = document.getElementById('ludo-question-bank-select');
+    bankSelect.innerHTML = '';
+    const banks = await db.ludoQuestionBanks.toArray();
+    if (banks.length === 0) {
+        bankSelect.innerHTML = '<option value="">暂无可用题库</option>';
+    } else {
+        banks.forEach(bank => {
+            const option = document.createElement('option');
+            option.value = bank.id;
+            option.textContent = bank.name;
+            bankSelect.appendChild(option);
+        });
+    }
+    // ★★★ 新增代码结束 ★★★
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+// ▼▼▼ 用这块新代码替换旧的 startLudoGame 函数 ▼▼▼
+async function startLudoGame() {
+    const selectedOpponentRadio = document.querySelector('input[name="ludo-opponent"]:checked');
+    if (!selectedOpponentRadio) {
+        alert("请选择一位玩伴！");
+        return;
+    }
+    const opponentId = selectedOpponentRadio.value;
+    const opponentChat = state.chats[opponentId];
+
+    // ★★★ 核心修改：获取并保存选中的问题库ID ★★★
+    const selectedBankId = parseInt(document.getElementById('ludo-question-bank-select').value);
+    if (isNaN(selectedBankId)) {
+        alert("请选择一个有效的问题库！");
+        return;
+    }
+
+    ludoGameState = {
+        isActive: true,
+        opponent: opponentChat,
+        players: [],
+        currentTurnIndex: 0,
+        gameLog: [],
+        boardLayout: [],
+        isDiceRolling: false,
+        activeQuestionBankId: selectedBankId // <-- 保存ID
+    };
+
+    const userPlayer = { id: 'user', name: '你', avatar: state.qzoneSettings.avatar || defaultAvatar, piecePosition: -1, isUser: true };
+    const charPlayer = { id: opponentChat.id, name: opponentChat.name, avatar: opponentChat.settings.aiAvatar || defaultAvatar, piecePosition: -1, isUser: false, persona: opponentChat.settings.aiPersona };
+    
+    if (Math.random() > 0.5) {
+        ludoGameState.players = [userPlayer, charPlayer];
+    } else {
+        ludoGameState.players = [charPlayer, userPlayer];
+    }
+    ludoGameState.currentTurnIndex = 0;
+
+    generateLudoBoard();
+    showScreen('ludo-game-screen');
+    renderLudoGameScreen();
+    logToLudoGame('游戏开始！掷出6点即可起飞。', 'system');
+    
+    await sleep(1000);
+    await processLudoTurn();
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+// 【已修复】请用下面这个函数完整替换你旧的 renderLudoGameScreen 函数
+function renderLudoGameScreen(options = {}) {
+    if (!ludoGameState.isActive) return;
+
+    const userPieceEl = document.getElementById('ludo-user-piece');
+    const charPieceEl = document.getElementById('ludo-char-piece');
+    if(!userPieceEl || !charPieceEl) return;
+
+    userPieceEl.style.backgroundImage = `url(${ludoGameState.players.find(p => p.isUser).avatar})`;
+    charPieceEl.style.backgroundImage = `url(${ludoGameState.players.find(p => !p.isUser).avatar})`;
+
+    ludoGameState.players.forEach(player => {
+        const pieceEl = player.isUser ? userPieceEl : charPieceEl;
+        const pos = player.piecePosition;
+
+        if (pos === -1) { // 在起点
+            const startCell = document.querySelector('.ludo-cell.start');
+            // ▼▼▼ 核心修复1：加上 if (startCell) 的安全检查 ▼▼▼
+            if (startCell) {
+                pieceEl.style.left = `${startCell.offsetLeft + (player.isUser ? 0 : 5)}px`;
+                pieceEl.style.top = `${startCell.offsetTop + (player.isUser ? 0 : 5)}px`;
+            }
+        } else if (pos >= LUDO_BOARD_SIZE) { // 已到终点
+            const endCell = document.querySelector('.ludo-cell.end');
+            // ▼▼▼ 核心修复2：加上 if (endCell) 的安全检查 ▼▼▼
+            if (endCell) {
+                pieceEl.style.left = `${endCell.offsetLeft + (player.isUser ? 0 : 5)}px`;
+                pieceEl.style.top = `${endCell.offsetTop + (player.isUser ? 0 : 5)}px`;
+            }
+        } else {
+            const cell = document.querySelector(`.ludo-cell[data-index="${pos}"]`);
+            if (cell) {
+                pieceEl.style.left = `${cell.offsetLeft + (player.isUser ? 0 : 5)}px`;
+                pieceEl.style.top = `${cell.offsetTop + (player.isUser ? 0 : 5)}px`;
+            }
+        }
+    });
+
+    const logContainer = document.getElementById('ludo-game-log');
+    logContainer.innerHTML = ludoGameState.gameLog.map(log => 
+        `<div class="log-entry ${log.type}">${log.message.replace(/\n/g, '<br>')}</div>`
+    ).join('');
+    logContainer.scrollTop = logContainer.scrollHeight;
+}
+
+/**
+ * 【全新】飞行棋专用的用户输入函数
+ * @param {string} promptText - 提示文字 (虽然我们没用上，但保留接口)
+ * @param {string} placeholder - 输入框的占位文字
+ * @returns {Promise<string>} - 返回用户的输入内容
+ */
+function waitForLudoUserAction(promptText, placeholder) {
+    return new Promise(resolve => {
+        const actionArea = document.getElementById('ludo-action-area');
+        actionArea.innerHTML = ''; // 清空旧内容（比如骰子）
+        actionArea.classList.add('speaking-mode'); // 复用剧本杀的发言样式
+
+        const textarea = document.createElement('textarea');
+        textarea.id = 'ludo-user-speech-input'; // 使用新ID，避免冲突
+        textarea.rows = 1;
+        textarea.placeholder = placeholder || '请输入你的回答...';
+        
+        // 实时调整高度
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        });
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className = 'form-button'; // 使用通用按钮样式
+        confirmBtn.textContent = '确认回答';
+
+        actionArea.appendChild(textarea);
+        actionArea.appendChild(confirmBtn);
+        textarea.focus();
+
+        confirmBtn.onclick = () => {
+            const answer = textarea.value.trim() || '...（跳过）';
+            actionArea.innerHTML = ''; // 清空输入框和按钮
+            actionArea.classList.remove('speaking-mode');
+            resolve(answer);
+        };
+    });
+}
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
+// ▼▼▼ 用这块【V2 - 支持新问题类型】的代码，完整替换你旧的 handleLudoQuestionEvent 函数 ▼▼▼
+async function handleLudoQuestionEvent(player) {
+    // 1. 根据游戏状态获取问题库
+    const questionBankId = ludoGameState.activeQuestionBankId;
+    let questions = [];
+    if (questionBankId) {
+        questions = await db.ludoQuestions.where('bankId').equals(questionBankId).toArray();
+    }
+
+    // 2. 如果题库是空的，提示并直接进入下一回合
+    if (questions.length === 0) {
+        logToLudoGame('当前题库是空的，跳过本轮问答。', 'system');
+        await sleep(1500);
+        await advanceTurn(); // 别忘了切换回合
+        return;
+    }
+
+    // 3. 随机抽一个问题
+    const questionObj = getRandomItem(questions);
+    const questionText = questionObj.text;
+
+    // 4. 【核心】弹出模式选择框，让用户决定怎么玩
+    const mode = await showAnswerModeSelector(questionText);
+    if (!mode) {
+        logToLudoGame('玩家取消了答题，游戏继续。', 'system');
+        await advanceTurn(); // 取消也要切换回合
+        return;
+    }
+
+    // 5. 根据选择的模式，执行不同的流程
+    logToLudoGame(`【${mode === 'both_answer' ? '共同回答' : '一人回答，一人评价'}】抽到的问题是：“${questionText}”`, 'system');
+    await sleep(1500);
+
+    const currentPlayer = player;
+    const otherPlayer = ludoGameState.players.find(p => p.id !== currentPlayer.id);
+
+    // --- 流程分支 ---
+    if (mode === 'both_answer') {
+        logToLudoGame(`请 <strong>${currentPlayer.name}</strong> 先回答。`, 'system');
+        let answer1 = currentPlayer.isUser 
+            ? await waitForLudoUserAction('轮到你回答问题', '请输入你的回答...')
+            : await triggerLudoAiAction('answer_question', { question: questionText });
+        logToLudoGame(`<strong>${currentPlayer.name}:</strong> ${answer1}`, currentPlayer.isUser ? 'user' : 'char');
+        await sleep(2000);
+
+        logToLudoGame(`现在请 <strong>${otherPlayer.name}</strong> 回答。`, 'system');
+        let answer2 = otherPlayer.isUser 
+            ? await waitForLudoUserAction('轮到你回答问题', '请输入你的回答...')
+            : await triggerLudoAiAction('answer_question', { question: questionText });
+        logToLudoGame(`<strong>${otherPlayer.name}:</strong> ${answer2}`, otherPlayer.isUser ? 'user' : 'char');
+    
+    } else if (mode === 'single_answer') {
+        logToLudoGame(`请 <strong>${currentPlayer.name}</strong> 先回答。`, 'system');
+        let answer = currentPlayer.isUser
+            ? await waitForLudoUserAction('轮到你回答问题', '请输入你的回答...')
+            : await triggerLudoAiAction('answer_question', { question: questionText });
+        logToLudoGame(`<strong>${currentPlayer.name}:</strong> ${answer}`, currentPlayer.isUser ? 'user' : 'char');
+        await sleep(2000);
+
+        logToLudoGame(`现在请 <strong>${otherPlayer.name}</strong> 对Ta的回答发表一下看法吧。`, 'system');
+        let evaluation = otherPlayer.isUser
+            ? await waitForLudoUserAction(`对“${answer}”的看法`, '请输入你的评价...')
+            : await triggerLudoAiAction('evaluate_answer', { question: questionText, answer: answer });
+        logToLudoGame(`<strong>${otherPlayer.name}:</strong> ${evaluation}`, otherPlayer.isUser ? 'user' : 'char');
+    }
+
+    // 6. 问答流程结束后，提示并切换到下一回合
+    await sleep(1500);
+    logToLudoGame('本轮问答结束，游戏继续！', 'system');
+    await advanceTurn();
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 【飞行棋】添加一条游戏日志
+ */
+function logToLudoGame(message, type) {
+    ludoGameState.gameLog.push({ message, type });
+    renderLudoGameScreen();
+}
+// ▼▼▼ 在这里粘贴下面的新函数 ▼▼▼
+/**
+ * 【全新】一个带“魔法”的掷骰子函数
+ * @param {object} player - 正在掷骰子的玩家对象
+ * @returns {number} - 最终的骰子点数
+ */
+function rollTheDice(player) {
+    // 如果玩家还在起点（没有起飞）
+    if (player.piecePosition === -1) {
+        // 就有50%的超高概率直接掷出6！
+        if (Math.random() < 0.5) {
+            return 6;
+        }
+        // 另外50%的概率，随机掷出1-5
+        return Math.floor(Math.random() * 5) + 1;
+    }
+    // 如果已经起飞了，就恢复正常的公平骰子
+    return Math.floor(Math.random() * 6) + 1;
+}
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
+
+/**
+ * 【飞行棋】游戏主循环
+ */
+async function processLudoTurn() {
+    if (!ludoGameState.isActive) return;
+
+    const currentPlayer = ludoGameState.players[ludoGameState.currentTurnIndex];
+    logToLudoGame(`轮到 <strong>${currentPlayer.name}</strong> 行动了。`, 'system');
+    
+    if (currentPlayer.isUser) {
+        // 用户回合
+        const actionArea = document.getElementById('ludo-action-area');
+        actionArea.innerHTML = `
+            <div id="ludo-dice-container" title="点击掷骰子">
+                <div class="dice">
+                    <div class="face front">1</div><div class="face back">6</div>
+                    <div class="face right">3</div><div class="face left">4</div>
+                    <div class="face top">2</div><div class="face bottom">5</div>
+                </div>
+            </div>
+        `;
+        document.getElementById('ludo-dice-container').onclick = handleUserRollDice;
+    } else {
+        // AI回合
+        document.getElementById('ludo-action-area').innerHTML = `<p>${currentPlayer.name} 正在思考...</p>`;
+        await sleep(2000);
+const diceRoll = rollTheDice(currentPlayer); 
+        await handlePlayerMove(currentPlayer, diceRoll, false);
+    }
+}
+
+/**
+ * 【飞行棋】处理用户掷骰子
+ */
+async function handleUserRollDice() {
+    if (ludoGameState.isDiceRolling) return;
+    ludoGameState.isDiceRolling = true;
+    
+    const diceEl = document.querySelector('.dice');
+    diceEl.classList.add('rolling');
+    document.getElementById('ludo-dice-container').onclick = null; // 防止重复点击
+
+    const userPlayer = ludoGameState.players.find(p => p.isUser); // 先找到用户玩家对象
+    const diceRoll = rollTheDice(userPlayer); // 调用新函数
+    
+    setTimeout(async () => {
+        diceEl.classList.remove('rolling');
+        // 根据点数旋转到对应面 (这是一个简化的视觉效果)
+        const rotations = { 1: 'rotateY(0deg)', 2: 'rotateX(-90deg)', 3: 'rotateY(-90deg)', 4: 'rotateY(90deg)', 5: 'rotateX(90deg)', 6: 'rotateY(180deg)' };
+        diceEl.style.transform = rotations[diceRoll];
+        
+        const userPlayer = ludoGameState.players.find(p => p.isUser);
+        await handlePlayerMove(userPlayer, diceRoll, true);
+
+        ludoGameState.isDiceRolling = false;
+    }, 1500);
+}
+
+// ▼▼▼ 用这块【已修复】的代码，完整替换你旧的 handlePlayerMove 函数 ▼▼▼
+async function handlePlayerMove(player, diceRoll, isUserMove) {
+    logToLudoGame(`<strong>${player.name}</strong> 掷出了 <strong>${diceRoll}</strong> 点！`, isUserMove ? 'user' : 'char');
+
+    if (player.piecePosition === -1) { // 如果棋子还在起点
+        if (diceRoll === 6) {
+            player.piecePosition = 0; // 起飞到第0格
+            logToLudoGame(`<strong>${player.name}</strong> 的棋子起飞了！`, 'system');
+            renderLudoGameScreen();
+            
+            if (!isUserMove) {
+                await triggerLudoAiAction('roll_6');
+            }
+            logToLudoGame(`掷出6点，<strong>${player.name}</strong> 再行动一次。`, 'system');
+            await sleep(1000);
+            await processLudoTurn(); // 重新执行当前玩家的回合
+        } else {
+            logToLudoGame('点数不是6，无法起飞。', 'system');
+            await advanceTurn(); // 切换到下一位玩家
+        }
+        return; // 结束本次移动处理
+    }
+
+    // --- ▼▼▼ 核心修复从这里开始 ▼▼▼ ---
+
+    const newPosition = player.piecePosition + diceRoll;
+    const finalPositionIndex = LUDO_BOARD_SIZE - 1; // 终点格子的索引
+
+    // 1. 【核心修改】只要新位置大于或等于终点，就直接判定胜利！
+    if (newPosition >= finalPositionIndex) {
+        player.piecePosition = finalPositionIndex; // 无论掷出几点，都让棋子停在终点格子上
+        renderLudoGameScreen();
+        logToLudoGame(`🎉 <strong>${player.name}</strong> 到达了终点！`, 'system');
+        await triggerLudoAiAction(isUserMove ? 'user_win' : 'char_win');
+        ludoGameState.isActive = false;
+        document.getElementById('ludo-action-area').innerHTML = '';
+        await sleep(1000);
+        showLudoSummary(player.name); // 显示结算界面
+        return; // 游戏结束，直接返回
+    } 
+    // 2. 如果不是胜利，就正常移动
+    else {
+        player.piecePosition = newPosition;
+    }
+    
+    // --- ▲▲▲ 核心修复到这里结束 ▲▲▲ ---
+
+    renderLudoGameScreen();
+    await sleep(500);
+
+    // 检查是否踩到对方棋子
+    const opponent = ludoGameState.players.find(p => p.id !== player.id);
+    if (player.piecePosition === opponent.piecePosition && opponent.piecePosition !== -1) {
+        opponent.piecePosition = -1; // 将对方棋子送回起点
+        logToLudoGame(`💥 <strong>${player.name}</strong> 踩中了 <strong>${opponent.name}</strong>！`, 'system');
+        renderLudoGameScreen();
+        await triggerLudoAiAction(isUserMove ? 'kick_char' : 'kick_user');
+        await sleep(1000);
+    }
+    
+    // 检查是否踩到事件格子
+    const cellIndex = ludoGameState.boardLayout.findIndex(c => c && c.index === player.piecePosition);
+    if (cellIndex > -1 && ludoGameState.boardLayout[cellIndex].event) {
+        const eventType = ludoGameState.boardLayout[cellIndex].event;
+        if (eventType === 'question') {
+            await handleLudoQuestionEvent(player);
+            return;
+        }
+    }
+    
+    // 如果掷出6点，再行动一次
+    if (diceRoll === 6) {
+        if (!isUserMove) {
+            await triggerLudoAiAction('roll_6');
+        }
+        logToLudoGame(`掷出6点，<strong>${player.name}</strong> 再行动一次。`, 'system');
+        await sleep(1000);
+        await processLudoTurn();
+    } else {
+        await advanceTurn(); // 否则切换到下一位玩家
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+
+/**
+ * 【飞行棋】推进到下一个回合
+ */
+async function advanceTurn() {
+    ludoGameState.currentTurnIndex = (ludoGameState.currentTurnIndex + 1) % ludoGameState.players.length;
+    await processLudoTurn();
+}
+
+// ▼▼▼ 用这块【优化后】的代码，完整替换你旧的 triggerLudoAiAction 函数 ▼▼▼
+async function triggerLudoAiAction(eventType, context = {}) {
+    const aiPlayer = ludoGameState.players.find(p => !p.isUser);
+    const userPlayer = ludoGameState.players.find(p => p.isUser);
+
+    const eventPrompts = {
+        roll_6: "你掷出了6点，可以再行动一次！",
+        kick_char: "你刚刚把我踢回了起点！",
+        kick_user: "我刚刚把你的棋子踢回了起点！",
+        char_win: "我赢得了这场游戏！",
+        user_win: "你赢得了这场游戏！"
+    };
+    
+    let eventPrompt = eventPrompts[eventType] || "请根据当前情况自由发挥。";
+    
+    // --- ▼▼▼ 核心修改1：为不同的问答场景提供更详细的指令 ▼▼▼ ---
+    if (eventType === 'answer_question') {
+        eventPrompt = `现在请根据你的人设，详细回答这个问题：“${context.question}”`;
+    } else if (eventType === 'evaluate_answer') {
+        eventPrompt = `对于问题“${context.question}”，对方的回答是：“${context.answer}”。现在请你以你的角色身份，对这个回答详细地发表一下看法或感受。`;
+    }
+
+    const systemPrompt = `
+# 角色扮演指令
+你正在和你的伴侣(${userPlayer.name})玩一场心动的线上飞行棋游戏。
+你的名字是"${aiPlayer.name}"，你的人设是：${aiPlayer.persona}
+你的回复必须完全符合你的人设，自然地表达你的情绪。
+
+# 游戏当前状态
+- 你的棋子位置: ${aiPlayer.piecePosition}
+- 对方的棋子位置: ${userPlayer.piecePosition}
+- 当前回合: 轮到 ${ludoGameState.players[ludoGameState.currentTurnIndex].name}
+
+# 刚刚发生的事件
+${eventPrompt}
+
+# 你的任务
+根据以上所有信息，生成一段符合你人设的回应。你的回应可以包含动作、心理活动和对话，让互动更生动，要非常的贴合你的人设，以人设为主。
+
+# 输出格式
+你的回复【必须且只能】是一个严格的JSON对象，格式如下:
+{"speech": "你的回应..."}
+`;
+    
+    try {
+        const { proxyUrl, apiKey, model } = state.apiConfig;
+        let isGemini = proxyUrl === GEMINI_API_URL;
+        let messagesForApi = [{ role: 'user', content: systemPrompt }];
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        
+        const response = isGemini 
+            ? await fetch(geminiConfig.url, geminiConfig.data) 
+            : await fetch(`${proxyUrl}/v1/chat/completions`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+                body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 1.0, response_format: { type: "json_object" } })
+            });
+
+        if (!response.ok) throw new Error(await response.text());
+        const data = await response.json();
+        const content = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(/^```json\s*|```$/g, '');
+        const aiResponse = JSON.parse(content);
+
+        if (eventType === 'answer_question' || eventType === 'evaluate_answer') {
+            return aiResponse.speech || "嗯...让我想想。";
+        }
+        
+        if (aiResponse.speech) {
+            logToLudoGame(`<strong>${aiPlayer.name}:</strong> ${aiResponse.speech}`, 'char');
+        }
+
+    } catch (error) {
+        console.error("飞行棋AI响应失败:", error);
+        if (eventType === 'answer_question' || eventType === 'evaluate_answer') {
+            return "我...我不知道该怎么回答了。";
+        }
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▼▼▼ 【最终智能版 | 问题数量精确匹配】用这块代码，完整替换你旧的 generateLudoBoard 函数 ▼▼▼
+/**
+ * 【飞行棋】生成棋盘格子 (V4 - 问题数量精确匹配版)
+ */
+async function generateLudoBoard() {
+    const boardEl = document.getElementById('ludo-board');
+    boardEl.innerHTML = '';
+    const pathCoordinates = [
+        [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],
+        [9,1],[9,2],[8,2],[7,2],[6,2],[5,2],[4,2],[3,2],[2,2],[1,2],[0,2],
+        [0,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],
+        [9,5],[8,5],[7,5],[6,5],[5,5],[4,5],[3,5],[2,5],[1,5],[0,5]
+    ];
+
+    let cells = Array(60).fill(null);
+    pathCoordinates.slice(0, LUDO_BOARD_SIZE).forEach((coord, i) => {
+        const pos = coord[1] * 10 + coord[0];
+        cells[pos] = { type: 'path', index: i };
+    });
+
+    cells[21] = { type: 'start', index: -1 };
+    cells[38] = { type: 'end', index: LUDO_BOARD_SIZE };
+
+    // --- ▼▼▼ 这就是本次的【核心修改】 ▼▼▼ ---
+
+    // 1. 获取当前游戏选择的问题库ID
+    const questionBankId = ludoGameState.activeQuestionBankId;
+    let questionsInBank = [];
+
+    // 2. 从数据库中加载该问题库的所有问题
+    if (questionBankId) {
+        questionsInBank = await db.ludoQuestions.where('bankId').equals(questionBankId).toArray();
+    }
+    
+    // 3. 筛选出所有可以放置问题的普通格子
+    const availableCellIndices = [];
+    cells.forEach((cellData, index) => {
+        // 我们不在起点、终点，以及紧邻起点的第一格放问题
+        if (cellData && cellData.type === 'path' && cellData.index > 0) {
+            availableCellIndices.push(index);
+        }
+    });
+
+    // 4. 打乱这些格子的顺序，让问题随机分布
+    availableCellIndices.sort(() => Math.random() - 0.5);
+
+    // 5. 【关键】确定要放置的问题数量：取 问题库总数 和 可用格子数 中较小的一个
+    const eventCount = Math.min(questionsInBank.length, availableCellIndices.length);
+    
+    // 如果问题数量比可用格子还多，给个提示
+    if (questionsInBank.length > availableCellIndices.length) {
+        console.warn(`飞行棋警告：问题库中的问题数量(${questionsInBank.length})超过了棋盘上的可用格子数量(${availableCellIndices.length})，部分问题将不会出现。`);
+    }
+    
+    // 6. 放置与问题库数量相等的问号格子
+    for (let i = 0; i < eventCount; i++) {
+        const cellIndexToModify = availableCellIndices[i];
+        if (cells[cellIndexToModify]) {
+            cells[cellIndexToModify].event = 'question';
+        }
+    }
+    
+    // --- ▲▲▲ 修改结束 ▲▲▲ ---
+
+    ludoGameState.boardLayout = cells;
+
+    // 后续的渲染逻辑保持不变...
+    cells.forEach((cellData, i) => {
+        if (cellData) {
+            const cellEl = document.createElement('div');
+            cellEl.className = 'ludo-cell';
+
+            if(cellData.type === 'path') {
+                cellEl.dataset.index = cellData.index;
+                cellEl.innerHTML = `<span class="cell-number">${cellData.index + 1}</span>`;
+            }
+            if(cellData.type === 'start') {
+                 cellEl.classList.add('start');
+                 cellEl.innerHTML = '🏠';
+            }
+            if(cellData.type === 'end') {
+                 cellEl.classList.add('end');
+                 cellEl.innerHTML = '🏁';
+            }
+            if (cellData.event === 'question') {
+                cellEl.classList.add(`event-truth`);
+                cellEl.innerHTML += '❓';
+            }
+            
+            const position = ludoGameState.boardLayout.indexOf(cellData);
+            const row = Math.floor(position / 10);
+            const col = position % 10;
+            cellEl.style.gridRowStart = row + 1;
+            cellEl.style.gridColumnStart = col + 1;
+            
+            boardEl.appendChild(cellEl);
+        }
+    });
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+// ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的【正上方】 ▼▼▼
+
+// ▼▼▼ 用这整块新代码，替换掉所有旧的飞行棋问题库核心函数 ▼▼▼
+
+/* --- 【全新 | V2分类版】飞行棋问题库功能核心函数 --- */
+
+let activeQuestionBankId = null; // 用于追踪正在编辑的问题库ID
+let editingQuestionId = null; // 用于追踪正在编辑的问题ID
+
+// ▼▼▼ 用这块【已修复】的代码，完整替换你旧的 migrateDefaultLudoQuestions 函数 ▼▼▼
+/**
+ * 【数据迁移】在首次加载时，将旧的硬编码问题迁移到数据库
+ */
+async function migrateDefaultLudoQuestions() {
+    const defaultBankName = "默认题库";
+    const existingBank = await db.ludoQuestionBanks.where('name').equals(defaultBankName).first();
+    // 如果“默认题库”已经存在，就说明迁移过了，直接返回
+    if (existingBank) return;
+    
+    console.log("正在迁移飞行棋默认问题到数据库...");
+
+    // 创建默认题库
+    const bankId = await db.ludoQuestionBanks.add({ name: defaultBankName });
+    
+    // ★★★ 核心修改：将问题库改为对象数组，并为每个问题添加类型 ★★★
+    const defaultQuestions = [
+        // --- 类型1: 共同回答 (双方都需要回答) ---
+        { type: 'both_answer', text: '如果我们一起去旅行，你最想去哪里，为什么？' },
+        { type: 'both_answer', text: '你认为一段完美的关系中，最不可或缺的三个要素是什么？' },
+        { type: 'both_answer', text: '分享一件最近因为我而让你感到心动或开心的小事。' },
+        { type: 'both_answer', text: '回忆一下，我们第一次见面时，你对我的第一印象是什么？' },
+        { type: 'both_answer', text: '如果我们可以一起学习一项新技能，你希望是什么？' },
+        { type: 'both_answer', text: '描述一个你最希望和我一起度过的完美周末。' },
+        { type: 'both_answer', text: '你觉得我们之间最有默契的一件事是什么？' },
+        { type: 'both_answer', text: '如果用一种动物来形容我，你觉得是什么？为什么？' },
+        { type: 'both_answer', text: '在未来的一年里，你最想和我一起完成的一件事是什么？' },
+        { type: 'both_answer', text: '分享一部你最近很喜欢、并且想推荐给我一起看的电影或剧。' },
+        { type: 'both_answer', text: '我们下次约会，你希望穿什么风格的衣服？' },
+
+        // --- 类型2: 一人回答，对方评价 ---
+        { type: 'single_answer', text: '描述一下我最让你心动的一个瞬间。' },
+        { type: 'single_answer', text: '诚实地说，我做的哪件事曾经让你偷偷生过气？' },
+        { type: 'single_answer', text: '如果我有一种超能力，你希望是什么？' },
+        { type: 'single_answer', text: '给我三个最贴切的标签。' },
+        { type: 'single_answer', text: '在你心里，我的形象和你的理想型有多接近？' },
+        { type: 'single_answer', text: '分享一个你觉得我可能不知道的，关于你的小秘密。' },
+        { type: 'single_answer', text: '如果我们的故事是一首歌，你觉得歌名应该叫什么？' },
+        { type: 'single_answer', text: '说一件你觉得我做得比你好/更擅长的事情。' },
+        { type: 'single_answer', text: '如果可以回到我们认识的任意一天，你会选择哪一天，想做什么？' },
+        { type: 'single_answer', text: '用三个词来形容你眼中的我们的关系。' }
+    ];
+
+    const questionsToAdd = defaultQuestions.map(q => ({
+        bankId: bankId,
+        text: q.text,
+        type: q.type // <-- 关键修复：把类型也存进去！
+    }));
+    
+    await db.ludoQuestions.bulkAdd(questionsToAdd);
+    console.log(`成功迁移了 ${questionsToAdd.length} 条默认问题。`);
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+/**
+ * 打开问题库管理弹窗
+ */
+async function openLudoQuestionBankManager() {
+    await renderLudoQuestionBanks();
+    document.getElementById('ludo-qbank-manager-modal').classList.add('visible');
+}
+
+/**
+ * 渲染问题库列表
+ */
+async function renderLudoQuestionBanks() {
+    const listEl = document.getElementById('ludo-qbank-list');
+    listEl.innerHTML = '';
+    const banks = await db.ludoQuestionBanks.toArray();
+
+    if (banks.length === 0) {
+        listEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary); padding: 50px 0;">还没有问题库，点击右上角“新建”创建一个吧！</p>';
+    } else {
+        banks.forEach(bank => {
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            item.innerHTML = `<div class="item-title">${bank.name}</div>`;
+            item.addEventListener('click', () => openLudoQuestionEditor(bank.id, bank.name));
+addLongPressListener(item, async () => {
+    // ▼▼▼ 核心修改在这里：在菜单里增加一个 'export' 选项 ▼▼▼
+    const choice = await showChoiceModal(`操作“${bank.name}”`, [
+        { text: '✏️ 重命名', value: 'rename' },
+        { text: '📤 导出', value: 'export' }, // <-- 新增的导出选项
+        { text: '🗑️ 删除', value: 'delete', isDanger: true }
+    ]);
+
+    if (choice === 'rename') {
+        const newName = await showCustomPrompt('重命名问题库', '请输入新的名称：', bank.name);
+        if (newName && newName.trim()) {
+            await db.ludoQuestionBanks.update(bank.id, { name: newName.trim() });
+            await renderLudoQuestionBanks();
+        }
+    } else if (choice === 'export') {
+        // ▼▼▼ 在这里调用我们新写的导出函数 ▼▼▼
+        await exportLudoQuestionBank(bank.id);
+    } else if (choice === 'delete') {
+        const confirmed = await showCustomConfirm('确认删除', `确定要删除问题库“${bank.name}”吗？这将同时删除库内所有问题。`, { confirmButtonClass: 'btn-danger' });
+        if (confirmed) {
+            await db.transaction('rw', db.ludoQuestionBanks, db.ludoQuestions, async () => {
+                await db.ludoQuestions.where('bankId').equals(bank.id).delete();
+                await db.ludoQuestionBanks.delete(bank.id);
+            });
+            await renderLudoQuestionBanks();
+        }
+    }
+});
+            listEl.appendChild(item);
+        });
+    }
+}
+
+/**
+ * 添加一个新的问题库
+ */
+async function addNewLudoQuestionBank() {
+    const name = await showCustomPrompt('新建问题库', '请输入问题库的名称：');
+    if (name && name.trim()) {
+        await db.ludoQuestionBanks.add({ name: name.trim() });
+        await renderLudoQuestionBanks();
+    }
+}
+
+/**
+ * 打开指定问题库的问题编辑器
+ */
+async function openLudoQuestionEditor(bankId, bankName) {
+    activeQuestionBankId = bankId;
+    document.getElementById('ludo-question-editor-title').textContent = `编辑 - ${bankName}`;
+    await renderLudoQuestionsInBank(bankId);
+    document.getElementById('ludo-question-editor-modal').classList.add('visible');
+}
+
+/**
+ * 渲染一个问题库中的所有问题
+ */
+async function renderLudoQuestionsInBank(bankId) {
+    const listEl = document.getElementById('ludo-question-list');
+    listEl.innerHTML = '';
+    const questions = await db.ludoQuestions.where('bankId').equals(bankId).toArray();
+
+    if (questions.length === 0) {
+        listEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary); padding: 50px 0;">这个题库还是空的，点击右上角“+”添加第一个问题吧！</p>';
+    } else {
+        questions.forEach(q => {
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            
+            // ★★★ 核心修改：根据问题类型添加标签 ★★★
+            const typeText = q.type === 'single_answer' ? '一人回答' : '共同回答';
+            const typeClass = q.type === 'single_answer' ? 'single-answer' : 'both-answer';
+            
+            item.innerHTML = `
+                <div class="item-title" style="white-space: normal; display: flex; align-items: center;">
+                    <span>${q.text}</span>
+                    <span class="question-type-tag ${typeClass}">${typeText}</span>
+                </div>
+            `;
+            
+            item.addEventListener('click', () => openSingleQuestionEditor(q.id));
+            addLongPressListener(item, async () => {
+                const confirmed = await showCustomConfirm('删除问题', '确定要删除这个问题吗？', { confirmButtonClass: 'btn-danger' });
+                if(confirmed) {
+                    await db.ludoQuestions.delete(q.id);
+                    await renderLudoQuestionsInBank(bankId);
+                }
+            });
+            listEl.appendChild(item);
+        });
+    }
+}
+
+/**
+ * 打开单个问题编辑器（用于新建或编辑）
+ */
+async function openSingleQuestionEditor(questionId = null) {
+    editingQuestionId = questionId;
+    const modal = document.getElementById('ludo-single-question-editor-modal');
+    const titleEl = document.getElementById('ludo-single-question-title');
+    const textInput = document.getElementById('ludo-question-text-input');
+    const typeRadios = document.querySelectorAll('input[name="ludo_question_type"]');
+
+    if (questionId) {
+        // 编辑模式
+        const question = await db.ludoQuestions.get(questionId);
+        if (!question) return;
+        titleEl.textContent = '编辑问题';
+        textInput.value = question.text;
+        typeRadios.forEach(radio => radio.checked = radio.value === (question.type || 'both_answer'));
+    } else {
+        // 新建模式
+        titleEl.textContent = '添加新问题';
+        textInput.value = '';
+        typeRadios[0].checked = true; // 默认选中“共同回答”
+    }
+    
+    modal.classList.add('visible');
+}
+
+/**
+ * 保存单个问题（新建或更新）
+ */
+async function saveSingleQuestion() {
+    const text = document.getElementById('ludo-question-text-input').value.trim();
+    if (!text) {
+        alert('问题内容不能为空！');
+        return;
+    }
+    const type = document.querySelector('input[name="ludo_question_type"]:checked').value;
+
+    if (editingQuestionId) {
+        // 更新
+        await db.ludoQuestions.update(editingQuestionId, { text, type });
+    } else {
+        // 新建
+        await db.ludoQuestions.add({ bankId: activeQuestionBankId, text, type });
+    }
+
+    document.getElementById('ludo-single-question-editor-modal').classList.remove('visible');
+    await renderLudoQuestionsInBank(activeQuestionBankId); // 刷新列表
+    editingQuestionId = null;
+}
+
+/**
+ * 飞行棋触发问答事件的总控函数
+ */
+async function handleLudoQuestionEvent(player) {
+    const questionBankId = ludoGameState.activeQuestionBankId;
+    let questions = [];
+    if (questionBankId) {
+        questions = await db.ludoQuestions.where('bankId').equals(questionBankId).toArray();
+    }
+
+    if (questions.length === 0) {
+        logToLudoGame('当前题库是空的，跳过本轮问答。', 'system');
+        await sleep(1500);
+        await advanceTurn();
+        return;
+    }
+
+    const questionObj = getRandomItem(questions);
+    const questionText = questionObj.text;
+    
+    // ★★★ 核心修改：不再弹窗让用户选择，直接从问题对象中获取模式 ★★★
+    const mode = questionObj.type || 'both_answer'; // 如果老数据没有type，则默认为共同回答
+    
+    logToLudoGame(`【${mode === 'both_answer' ? '共同回答' : '一人回答，一人评价'}】抽到的问题是：“${questionText}”`, 'system');
+    await sleep(1500);
+
+    const currentPlayer = player;
+    const otherPlayer = ludoGameState.players.find(p => p.id !== currentPlayer.id);
+
+    if (mode === 'both_answer') {
+        logToLudoGame(`请 <strong>${currentPlayer.name}</strong> 先回答。`, 'system');
+        let answer1 = currentPlayer.isUser 
+            ? await waitForLudoUserAction('轮到你回答问题', '请输入你的回答...')
+            : await triggerLudoAiAction('answer_question', { question: questionText });
+        logToLudoGame(`<strong>${currentPlayer.name}:</strong> ${answer1}`, currentPlayer.isUser ? 'user' : 'char');
+        await sleep(2000);
+
+        logToLudoGame(`现在请 <strong>${otherPlayer.name}</strong> 回答。`, 'system');
+        let answer2 = otherPlayer.isUser 
+            ? await waitForLudoUserAction('轮到你回答问题', '请输入你的回答...')
+            : await triggerLudoAiAction('answer_question', { question: questionText });
+        logToLudoGame(`<strong>${otherPlayer.name}:</strong> ${answer2}`, otherPlayer.isUser ? 'user' : 'char');
+    
+    } else if (mode === 'single_answer') {
+        logToLudoGame(`请 <strong>${currentPlayer.name}</strong> 回答这个问题。`, 'system');
+        let answer = currentPlayer.isUser
+            ? await waitForLudoUserAction('轮到你回答问题', '请输入你的回答...')
+            : await triggerLudoAiAction('answer_question', { question: questionText });
+        logToLudoGame(`<strong>${currentPlayer.name}:</strong> ${answer}`, currentPlayer.isUser ? 'user' : 'char');
+        await sleep(2000);
+
+        logToLudoGame(`现在请 <strong>${otherPlayer.name}</strong> 对Ta的回答发表一下看法吧。`, 'system');
+        let evaluation = otherPlayer.isUser
+            ? await waitForLudoUserAction(`对“${answer}”的看法`, '请输入你的评价...')
+            : await triggerLudoAiAction('evaluate_answer', { question: questionText, answer: answer });
+        logToLudoGame(`<strong>${otherPlayer.name}:</strong> ${evaluation}`, otherPlayer.isUser ? 'user' : 'char');
+    }
+
+    await sleep(1500);
+    logToLudoGame('本轮问答结束，游戏继续！', 'system');
+    await advanceTurn();
+}
+// ▲▲▲ 替换结束 ▲▲▲
+/**
+ * 【全新】显示飞行棋游戏结算卡片
+ * @param {string} winnerName - 胜利者的名字
+ */
+function showLudoSummary(winnerName) {
+    const modal = document.getElementById('ludo-summary-modal');
+    const contentEl = document.getElementById('ludo-summary-content');
+
+    // 1. 提取问答记录
+    let qaLogHtml = '<h4>心动问答记录</h4>';
+    const questionsAndAnswers = [];
+    let currentQuestion = null;
+
+    ludoGameState.gameLog.forEach(log => {
+        // 通过识读系统日志里的特定文本来找到“问题”
+        if (log.type === 'system' && log.message.includes('抽到的问题是')) {
+            const questionText = log.message.match(/“(.+?)”/);
+            if (questionText && questionText[1]) {
+                currentQuestion = { question: questionText[1], answers: [] };
+                questionsAndAnswers.push(currentQuestion);
+            }
+        } 
+        // 如果我们刚刚找到了一个问题，那么后续的用户或角色发言就是“回答”
+        else if (currentQuestion && (log.type === 'user' || log.type === 'char') && !log.message.includes('掷出了')) {
+            const answerText = log.message.replace(/<strong>.*?<\/strong>:\s*/, '');
+            const speakerNameMatch = log.message.match(/<strong>(.*?)<\/strong>/);
+            if (speakerNameMatch && speakerNameMatch[1]) {
+                currentQuestion.answers.push({ speaker: speakerNameMatch[1], text: answerText });
+            }
+        }
+    });
+    
+    // 2. 将提取出的问答记录格式化为HTML
+    if(questionsAndAnswers.length > 0){
+        questionsAndAnswers.forEach((qa, index) => {
+            qaLogHtml += `<div class="qa-item">
+                <div class="qa-question">Q${index + 1}: ${qa.question}</div>`;
+            qa.answers.forEach(ans => {
+                 qaLogHtml += `<div class="qa-answer"><strong>${ans.speaker}:</strong> ${ans.text}</div>`;
+            });
+            qaLogHtml += `</div>`;
+        });
+    } else {
+        qaLogHtml += '<p>本局没有触发任何问答。</p>';
+    }
+
+    // 3. 拼接完整的结算卡片内容
+    contentEl.innerHTML = `
+        <h3>🎉 恭喜 ${winnerName} 获胜！ 🎉</h3>
+        <div class="ludo-qa-log">${qaLogHtml}</div>
+    `;
+    
+    // 4. 为按钮绑定事件 (使用克隆节点技巧防止重复绑定)
+    const shareBtn = document.getElementById('share-ludo-summary-btn');
+    const backBtn = document.getElementById('back-to-hall-from-ludo-btn');
+    
+    const newShareBtn = shareBtn.cloneNode(true);
+    shareBtn.parentNode.replaceChild(newShareBtn, shareBtn);
+    newShareBtn.onclick = () => {
+        // 准备纯文本格式的复盘内容用于分享
+        const summaryForShare = `飞行棋游戏结束啦！🎉\n\n胜利者: ${winnerName}\n\n--- 心动问答 ---\n` + 
+            questionsAndAnswers.map((qa, i) => 
+                `Q${i+1}: ${qa.question}\n` + 
+                qa.answers.map(ans => `${ans.speaker}: ${ans.text}`).join('\n')
+            ).join('\n\n');
+        
+        shareLudoSummary(summaryForShare, winnerName);
+    };
+
+    const newBackBtn = backBtn.cloneNode(true);
+    backBtn.parentNode.replaceChild(newBackBtn, backBtn);
+    newBackBtn.onclick = () => {
+        modal.classList.remove('visible');
+        showScreen('game-hall-screen');
+    };
+
+    // 5. 显示结算弹窗
+    modal.classList.add('visible');
+}
+
+/**
+ * 【全新】将飞行棋游戏复盘发送给对手
+ * @param {string} summaryText - 要发送的复盘文本
+ */
+async function shareLudoSummary(summaryText, winnerName) { 
+    const opponentId = ludoGameState.opponent?.id;
+    if (!opponentId) {
+        alert("找不到对手信息，无法分享。");
+        return;
+    }
+
+    const chat = state.chats[opponentId];
+    if (!chat) {
+         alert("找不到与对手的聊天窗口，无法分享。");
+        return;
+    }
+
+    // 创建对用户可见的复盘消息
+    const visibleMessage = {
+        role: 'user',
+        type: 'text',
+        timestamp: Date.now(),
+        content: summaryText
+    };
+    
+    // 创建给AI看的隐藏指令，让它可以就游戏结果发表感想
+    const aiContext = `[系统指令：刚刚结束了一局飞行棋。重要：本次游戏的胜利者是【${winnerName}】。这是游戏复盘，请根据这个结果，以你的角色人设，和用户聊聊刚才的游戏。]\n\n${summaryText}`;
+    const hiddenInstruction = {
+        role: 'system',
+        content: aiContext,
+        timestamp: Date.now() + 1,
+        isHidden: true
+    };
+    
+    chat.history.push(visibleMessage, hiddenInstruction);
+    await db.chats.put(chat);
+
+    // 关闭结算卡片
+    document.getElementById('ludo-summary-modal').classList.remove('visible');
+    
+    await showCustomAlert("分享成功", `游戏复盘已发送至与“${chat.name}”的聊天中！`);
+
+    // 跳转到聊天界面并让AI回应
+    openChat(chat.id);
+    triggerAiResponse();
+}
+
+
+// ▲▲▲ 新增代码粘贴结束 ▲▲▲
+
 // ▲▲▲ 新功能函数粘贴结束 ▲▲▲
         // ===================================================================
         // 4. 初始化函数 init()
         // ===================================================================
         async function init() {
-
+await migrateDefaultLudoQuestions();
     // ▼▼▼ 在 init()    // ▼▼▼ 在这里粘贴下面这几行新代码 ▼▼▼
     // 更新小组件的月份显示
     const monthElement = document.getElementById('widget-month-display');
@@ -55069,7 +56632,7 @@ document.getElementById('reset-forum-filter-btn').addEventListener('click', asyn
     await applyForumFilter();
 });
 // ▲▲▲ 新增事件监听结束 ▲▲▲
-// ▼▼▼ 用这块【已修改】的代码，替换旧的 game-hall-grid 事件监听器 ▼▼▼
+// ▼▼▼ 用这块【已添加飞行棋】的代码，替换旧的 game-hall-grid 事件监听器 ▼▼▼
 document.getElementById('game-hall-grid').addEventListener('click', (e) => {
     const gameCard = e.target.closest('.game-card');
     if (!gameCard) return;
@@ -55078,18 +56641,23 @@ document.getElementById('game-hall-grid').addEventListener('click', (e) => {
     if (gameId === 'werewolf') {
         openWerewolfSetup();
     } else if (gameId === 'sea-turtle-soup') {
-        // 【核心修改】当点击海龟汤时，打开设置界面
         openSeaTurtleSoupSetup();
     } else if (gameId === 'script-kill') {
-    openScriptKillSetup();
-    }else if (gameId === 'guess-what') {
-                openGuessWhatSetup();
-            }
+        openScriptKillSetup();
+    } else if (gameId === 'guess-what') {
+        openGuessWhatSetup();
+    } 
+    // ★★★ 这就是我们新增的分支 ★★★
+    else if (gameId === 'ludo') {
+        openLudoSetup(); // 调用我们新写的函数
+    } 
+    // ★★★ 新增结束 ★★★
     else {
         alert(`“${gameCard.querySelector('.game-title').textContent}”还在开发中，敬请期待！`);
     }
 });
 // ▲▲▲ 替换结束 ▲▲▲
+
 
 // ▲▲▲ 新增事件监听结束 ▲▲▲
 // ▼▼▼ 【全新】狼人杀游戏事件监听器 ▼▼▼
@@ -56216,6 +57784,74 @@ document.getElementById('remove-char-phone-app-wallpaper-btn').addEventListener(
 });
 
 // ▲▲▲ 新事件绑定结束 ▲▲▲
+// ▼▼▼ 在这里粘贴下面这整块【全新的】事件监听器代码 ▼▼▼
+// ▼▼▼ 用这整块新代码，替换旧的飞行棋事件监听器 ▼▼▼
+/* --- 【全新 | V2分类版】心动飞行棋功能事件监听器 --- */
+
+// 1. 设置页面的按钮
+document.getElementById('start-ludo-game-btn').addEventListener('click', startLudoGame);
+document.getElementById('manage-ludo-question-banks-btn').addEventListener('click', openLudoQuestionBankManager);
+
+// 2. 游戏主界面的按钮
+document.getElementById('exit-ludo-game-btn').addEventListener('click', async () => {
+    const confirmed = await showCustomConfirm('退出游戏', '确定要中途退出游戏吗？');
+    if (confirmed) {
+        ludoGameState.isActive = false;
+        showScreen('game-hall-screen');
+    }
+});
+document.getElementById('restart-ludo-game-btn').addEventListener('click', async () => {
+    const confirmed = await showCustomConfirm('重新开始', '确定要重新开始这一局吗？');
+    if (confirmed) {
+        startLudoGame(); 
+    }
+});
+
+// 3. 问题库管理弹窗的按钮
+document.getElementById('close-qbank-manager-btn').addEventListener('click', async () => {
+    document.getElementById('ludo-qbank-manager-modal').classList.remove('visible');
+    // 如果设置页面还开着，就刷新一下下拉框
+    if(document.getElementById('ludo-setup-screen').classList.contains('active')) {
+        await openLudoSetup();
+    }
+});
+document.getElementById('add-ludo-qbank-btn').addEventListener('click', addNewLudoQuestionBank);
+
+// 4. 问题编辑器弹窗的按钮
+document.getElementById('back-to-qbank-manager-btn').addEventListener('click', () => {
+    document.getElementById('ludo-question-editor-modal').classList.remove('visible');
+    openLudoQuestionBankManager(); // 返回到题库管理列表
+});
+document.getElementById('add-ludo-question-btn').addEventListener('click', () => openSingleQuestionEditor(null));
+
+// 5. 单个问题编辑/添加弹窗的按钮
+document.getElementById('cancel-single-question-btn').addEventListener('click', () => {
+    document.getElementById('ludo-single-question-editor-modal').classList.remove('visible');
+});
+document.getElementById('save-single-question-btn').addEventListener('click', saveSingleQuestion);
+// ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+/* --- 【全新】飞行棋题库导入功能事件监听 --- */
+document.getElementById('import-ludo-qbank-btn').addEventListener('click', () => {
+    // 点击“导入”按钮时，触发隐藏的文件选择框
+    document.getElementById('ludo-qbank-import-input').click();
+});
+
+document.getElementById('ludo-qbank-import-input').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        // 当用户选择了文件后，调用我们的导入处理函数
+        importLudoQuestionBank(file);
+    }
+    e.target.value = null; // 清空，以便下次能选择同一个文件
+});
+/* --- 事件监听结束 --- */
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
+/* --- 飞行棋事件监听器结束 --- */
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+// ▲▲▲ 新增代码结束 ▲▲▲
 
 // ===================================================================
 // 5. 启动！
@@ -56524,5 +58160,6 @@ const avatarFrames = [
 <input type="file" id="character-card-input" accept=".png, .json" style="display: none;">
 <!-- ▲▲▲ 文件选择器结束 ▲▲▲ -->
 <input type="file" id="world-book-import-input" accept=".json, .jsonl" style="display: none;">
+<input type="file" id="ludo-qbank-import-input" accept=".json" hidden>
 </body>
 </html>
