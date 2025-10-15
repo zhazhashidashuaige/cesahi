@@ -13544,6 +13544,44 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 
 
+/* ======================================================================= */
+/* ===         修复“查手机-外观设置”中预览图过大的问题 v1.0         === */
+/* ======================================================================= */
+
+/* 1. 修复手机壁纸和App内壁纸的预览 */
+/* 
+   问题原因：之前的样式是 background-size: cover，会强制图片填满预览框，导致裁剪。
+   解决方案：改为 background-size: contain，让图片在框内完整显示。
+*/
+#char-phone-wallpaper-preview,
+#char-phone-app-wallpaper-preview {
+    background-size: contain !important; 
+    background-repeat: no-repeat !important; /* 防止图片在无法填满时重复平铺 */
+}
+
+/* 2. 修复两个桌面小组件的图片预览 */
+/* 
+   问题原因：和上面类似，但对于<img>标签，控制显示方式的属性是 object-fit。
+   解决方案：同样将 cover 改为 contain。
+*/
+#char-phone-widget-preview-1,
+#char-phone-widget-preview-2 {
+    object-fit: contain !important;
+    /* (可选美化) 为没有图片时的预览框加个底色，更好看 */
+    background-color: #f0f2f5; 
+}
+/* ======================================================================= */
+/* ===         【V2 最终修复】修复查手机-小组件预览图过大问题         === */
+/* ======================================================================= */
+
+#char-phone-widget-preview-1,
+#char-phone-widget-preview-2 {
+    background-size: contain !important;      /* 核心：让背景图完整显示 */
+    background-repeat: no-repeat !important; /* 防止图片重复平铺 */
+    background-position: center !important;  /* 确保图片居中 */
+}
+
+
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
     <style id="custom-theme-style"></style>
