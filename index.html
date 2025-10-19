@@ -14014,6 +14014,18 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】续火花图标样式 ▼▼▼ */
+.streak-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 13px; /* 调整了字体大小，让它更精致 */
+    color: #ff6f00; /* 温暖的橙色 */
+    font-weight: bold;
+    margin-left: 8px; /* 和角色名字拉开一点距离 */
+    text-shadow: 0 0 5px rgba(255, 152, 0, 0.5); /* 加一点发光效果 */
+}
+/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
 
 
     </style>
@@ -16334,6 +16346,42 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 用这块【功能增强版】代码，替换旧的续火花设置区 ▼▼▼ -->
+<div class="form-group" id="streak-settings-section">
+    <!-- 火花总开关 -->
+    <label for="streak-enabled-toggle" class="toggle-switch-label">
+        <span class="toggle-switch-text">
+            开启续火花
+            <p style="font-size: 12px; font-weight: normal; color: #999; margin-top: 5px;">
+                开启后，每天和Ta互动即可延续火花。
+            </p>
+        </span>
+        <input type="checkbox" id="streak-enabled-toggle">
+        <span class="toggle-switch-slider"></span>
+    </label>
+
+    <!-- 火花详细设置 (默认隐藏) -->
+    <div id="streak-details-container" style="display: none; margin-top: 15px; padding-left: 10px; border-left: 3px solid var(--accent-color);">
+        <!-- 【全新】初始天数输入框 -->
+        <div class="form-group">
+            <label for="streak-initial-days-input">初始火花天数</label>
+            <input type="number" id="streak-initial-days-input" value="0" min="0">
+        </div>
+
+        <!-- 【已修改】熄灭规则选择器 -->
+        <div class="form-group">
+            <label for="streak-extinguish-threshold-select">火花熄灭规则</label>
+            <select id="streak-extinguish-threshold-select">
+                <option value="1">1天不联系则熄灭</option>
+                <option value="3">3天不联系则熄灭</option>
+                <option value="7">7天不联系则熄灭</option>
+                <option value="-1">永不熄灭 🔥</option>
+            </select>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 替换结束 ▲▲▲ -->
+
 
 <div class="form-group"><label for="max-memory">上下文记忆条数</label><input type="number" id="max-memory" value="10"></div><div class="form-group"><label>聊天气泡主题 <button id="reset-theme-btn" type="button">重置</button></label><div class="theme-selector"><label><input type="radio" name="theme-select" value="default" id="theme-default"> 默认</label><label><input type="radio" name="theme-select" value="pink_blue"> 粉蓝</label><label><input type="radio" name="theme-select" value="blue_white"> 蓝白</label><label><input type="radio" name="theme-select" value="purple_yellow"> 紫黄</label><label><input type="radio" name="theme-select" value="black_white"> 黑白</label><label><input type="radio" name="theme-select" value="yellow_white"> 黄白</label><label><input type="radio" name="theme-select" value="red_black"> 红黑</label><label><input type="radio" name="theme-select" value="blue_yellow"> 蓝黄</label><label><input type="radio" name="theme-select" value="pink_yellow"> 粉黄</label><label><input type="radio" name="theme-select" value="pink_purple"> 粉紫</label><label><input type="radio" name="theme-select" value="gray_white"> 灰白</label><label><input type="radio" name="theme-select" value="blue_green"> 蓝绿</label><label><input type="radio" name="theme-select" value="pink_white"> 粉白</label><label><input type="radio" name="theme-select" value="pink_black"> 粉黑</label><label><input type="radio" name="theme-select" value="pink_green"> 粉绿</label><label><input type="radio" name="theme-select" value="green_black"> 绿黑</label></div></div>
 
@@ -23224,6 +23272,26 @@ if (!chat.isGroup) {
     }
     // ▲▲▲ 添加结束 ▲▲▲
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
+// ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+// ▼▼▼ 用这块【增强版】代码，替换你旧的“火花”兼容代码 ▼▼▼
+// 兼容旧数据：为没有火花设置的聊天添加默认值
+if (!chat.settings.streak) {
+    chat.settings.streak = {
+        enabled: false,
+        initialDays: 0,           // 【新】用户填写的初始天数
+        currentDays: 0,           // 当前的火花天数
+        extinguishThreshold: 1,   // 【新】熄灭阈值，默认1天
+        lastInteractionDate: null // 上次互动日期
+    };
+    console.log(`为角色 "${chat.name}" 补全了增强版火花(streak)设置。`);
+} else if (typeof chat.settings.streak.extinguishThreshold === 'undefined') {
+    // 兼容你上个版本的数据，为它们也加上熄灭阈值
+    chat.settings.streak.extinguishThreshold = 1; 
+    console.log(`为角色 "${chat.name}" 的旧火花设置添加了熄灭阈值。`);
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
         // ▲▲▲ 新代码粘贴结束 ▲▲▲
         acc[chat.id] = chat;
         return acc;
@@ -23781,12 +23849,12 @@ async function renderChatList() {
 // ▲▲▲ 替换结束 ▲▲▲
 
 
-// ▼▼▼ 用这个【最终修正版】替换你项目中那个导致错误的 createChatListItem 函数 ▼▼▼
+// ▼▼▼ 【最终美化版】请用这整块代码，完整替换你旧的 createChatListItem 函数 ▼▼▼
 function createChatListItem(chat) {
     const lastMsgObj = chat.history.filter(msg => !msg.isHidden).slice(-1)[0] || {};
     let lastMsgDisplay;
 
-    // --- 消息预览的逻辑保持不变 ---
+    // --- 消息预览的逻辑 (这部分保持不变) ---
     if (!chat.isGroup && chat.relationship?.status === 'pending_user_approval') {
         lastMsgDisplay = `<span style="color: #ff8c00;">[好友申请] ${chat.relationship.applicationReason || '请求添加你为好友'}</span>`;
     } else if (!chat.isGroup && chat.relationship?.status === 'blocked_by_ai') {
@@ -23818,8 +23886,41 @@ function createChatListItem(chat) {
     content.className = `chat-list-item-content ${chat.isPinned ? 'pinned' : ''}`;
     
     const avatar = chat.isGroup ? chat.settings.groupAvatar : chat.settings.aiAvatar;
+
+    // ★★★★★ 这就是我们本次唯一需要修改的地方！ ★★★★★
+    let streakHtml = '';
+    // 检查是否为单聊、功能是否开启
+    if (!chat.isGroup && chat.settings.streak && chat.settings.streak.enabled) {
+        const streak = chat.settings.streak;
+        
+        // 1. 判断火花是否已经熄灭
+        let isExtinguished = false;
+        if (streak.lastInteractionDate && streak.extinguishThreshold !== -1) {
+            const lastDate = new Date(streak.lastInteractionDate);
+            const todayDate = new Date();
+            todayDate.setHours(0, 0, 0, 0); // 将今天的日期时间设为午夜，以便精确比较
+            const daysDiff = (todayDate - lastDate) / (1000 * 3600 * 24);
+            if (daysDiff >= streak.extinguishThreshold) {
+                isExtinguished = true;
+            }
+        }
+        
+        // 2. 根据不同状态生成不同的图标HTML
+        if (isExtinguished) {
+            // 如果熄灭了，就显示一个灰色的、不带数字的火花
+            streakHtml = `<span class="streak-indicator" style="color: #9e9e9e; text-shadow: none;">熄灭的火花</span>`;
+        } else if (streak.initialDays === -1) {
+            // 如果是永不熄灭模式
+            streakHtml = `<span class="streak-indicator">🔥∞</span>`;
+        } else if (streak.currentDays > 0) {
+            // 如果有正在燃烧的火花
+            streakHtml = `<span class="streak-indicator">🔥${streak.currentDays}</span>`;
+        }
+        // 如果是刚开启，currentDays为0，则什么也不显示，保持原样
+    }
+    // ★★★★★ 修改结束 ★★★★★
     
-    // --- 【核心修正】在这里，我们创建了一个新的右侧容器，并把时间和未读红点都放了进去 ---
+    // 后续的HTML拼接部分保持不变
     content.innerHTML = `
         <div class="chat-list-item" data-chat-id="${chat.id}">
             <img src="${avatar || defaultAvatar}" class="avatar">
@@ -23827,6 +23928,7 @@ function createChatListItem(chat) {
                 <div class="name-line">
                     <span class="name">${chat.name}</span>
                     ${chat.isGroup ? '<span class="group-tag">群聊</span>' : ''}
+                    ${streakHtml}
                 </div>
                 <div class="last-msg" style="color: ${chat.isGroup ? 'var(--text-secondary)' : '#b5b5b5'}; font-style: italic;">${lastMsgDisplay}</div>
             </div>
@@ -23839,20 +23941,16 @@ function createChatListItem(chat) {
         </div>
     `;
     
-    // 后续的滑动按钮逻辑保持不变
+    // 后续的所有代码都保持不变...
     const actions = document.createElement('div');
     actions.className = 'swipe-actions';
     const pinButtonText = chat.isPinned ? '取消置顶' : '置顶';
     const pinButtonClass = chat.isPinned ? 'unpin' : 'pin';
-    actions.innerHTML = `
-        <button class="swipe-action-btn ${pinButtonClass}">${pinButtonText}</button>
-        <button class="swipe-action-btn delete">删除</button>
-    `;
+    actions.innerHTML = `<button class="swipe-action-btn ${pinButtonClass}">${pinButtonText}</button><button class="swipe-action-btn delete">删除</button>`;
     
     container.appendChild(content);
     container.appendChild(actions);
     
-    // --- 【重要】现在这段代码可以正常工作了，因为 .unread-count 元素又回来了！ ---
     const unreadCount = chat.unreadCount || 0;
     const unreadEl = content.querySelector('.unread-count');
     if (unreadCount > 0) {
@@ -23862,22 +23960,23 @@ function createChatListItem(chat) {
         unreadEl.style.display = 'none';
     }
     
-    // 事件监听逻辑保持不变
     const infoEl = content.querySelector('.info');
     if (infoEl) {
         infoEl.addEventListener('click', () => openChat(chat.id));
     }
-const avatarEl = content.querySelector('.avatar, .avatar-with-frame');
-if (avatarEl) {
-     avatarEl.addEventListener('click', (e) => {
-        e.stopPropagation();
-        handleUserPat(chat.id, chat.name);
-    });
-}
+    const avatarEl = content.querySelector('.avatar, .avatar-with-frame');
+    if (avatarEl) {
+         avatarEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleUserPat(chat.id, chat.name);
+        });
+    }
 
     return container;
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
+
 
 // ▼▼▼ 请用这个【带诊断功能的全新版本】替换旧的 renderChatInterface 函数 ▼▼▼
 function renderChatInterface(chatId) {
@@ -28191,6 +28290,17 @@ case 'forum_comment': { // 使用大括号创建块级作用域
         
         await db.chats.put(chat);
 checkAndTriggerSummary(chatId);
+// ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+// ▼▼▼ 用这块新代码替换旧的火花逻辑 ▼▼▼
+// --- 【全新】续火花逻辑 ---
+if (await updateStreak(chatId)) {
+    // 如果火花天数发生了变化，就刷新聊天列表
+    renderChatList();
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
     } catch (error) {
         chat.history = chat.history.filter(msg => !msg.isTemporary);
         if (!chat.isGroup && chat.relationship?.status === 'pending_ai_approval') {
@@ -53940,6 +54050,61 @@ function parseTime(timeStr) {
 
     return hours * 60 + minutes;
 }
+// ▼▼▼ 【全新】这是火花功能的核心逻辑函数，请粘贴到JS功能区 ▼▼▼
+/**
+ * 【火花 V2】检查并更新火花天数
+ * @param {string} chatId - 要更新火花的聊天ID
+ * @returns {Promise<boolean>} - 如果火花天数有变化，则返回true
+ */
+async function updateStreak(chatId) {
+    const chat = state.chats[chatId];
+    // 如果不是单聊，或功能未开启，直接返回
+    if (!chat || chat.isGroup || !chat.settings.streak?.enabled) {
+        return false;
+    }
+
+    const streak = chat.settings.streak;
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD格式
+
+    // 如果今天已经互动过了，就什么都不做
+    if (streak.lastInteractionDate === today) {
+        return false;
+    }
+
+    let changed = false;
+
+    // 检查火花是否已熄灭
+    if (streak.lastInteractionDate && streak.extinguishThreshold !== -1) {
+        const lastDate = new Date(streak.lastInteractionDate);
+        const todayDate = new Date(today);
+        const daysDiff = (todayDate - lastDate) / (1000 * 3600 * 24);
+
+        if (daysDiff > streak.extinguishThreshold) {
+            streak.currentDays = streak.initialDays; // 重置为初始天数
+            console.log(`🔥 与 ${chat.name} 的火花因超过 ${streak.extinguishThreshold} 天未联系而熄灭，已重置为 ${streak.currentDays} 天。`);
+            changed = true;
+        }
+    }
+    
+    // 今天是新的互动日，天数+1
+    // 如果是永不熄灭模式，currentDays 为 -1, 不应该增加
+    if (streak.currentDays >= 0) {
+        streak.currentDays++;
+        changed = true;
+    }
+    
+    // 更新最后互动日期为今天
+    streak.lastInteractionDate = today;
+
+    // 如果数据有变，就保存到数据库
+    if (changed) {
+        await db.chats.put(chat);
+        console.log(`🔥 与 ${chat.name} 的火花天数更新为: ${streak.currentDays}`);
+    }
+    
+    return changed; // 返回是否发生了变化
+}
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
 
         // ===================================================================
         // 4. 初始化函数 init()
@@ -55280,6 +55445,26 @@ updateWorldBookSelectionDisplay(); // 更新顶部的已选数量显示
     fontSizeSlider.value = chat.settings.fontSize || 13;
     document.getElementById('font-size-value').textContent = `${fontSizeSlider.value}px`;
     const customCssInput = document.getElementById('custom-css-input');
+    // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+// ▼▼▼ 用这块【新代码】替换旧的火花加载逻辑 ▼▼▼
+// --- 加载火花设置 ---
+const streakSettings = chat.settings.streak || { enabled: false, initialDays: 0, extinguishThreshold: 1 };
+const streakToggle = document.getElementById('streak-enabled-toggle');
+const streakDetails = document.getElementById('streak-details-container');
+const initialDaysInput = document.getElementById('streak-initial-days-input');
+const thresholdSelect = document.getElementById('streak-extinguish-threshold-select');
+
+streakToggle.checked = streakSettings.enabled;
+streakDetails.style.display = streakSettings.enabled ? 'block' : 'none';
+initialDaysInput.value = streakSettings.initialDays || 0;
+thresholdSelect.value = streakSettings.extinguishThreshold || 1;
+
+// 为开关添加实时交互
+streakToggle.onchange = () => {
+    streakDetails.style.display = streakToggle.checked ? 'block' : 'none';
+};
+// ▲▲▲ 替换结束 ▲▲▲
+
     customCssInput.value = chat.settings.customCss || '';
     
     updateSettingsPreview(); 
@@ -55427,6 +55612,43 @@ chat.settings.summary.mode = document.querySelector('input[name="summary-mode"]:
 chat.settings.summary.count = parseInt(document.getElementById('summary-count-input').value) || 20;
 chat.settings.summary.prompt = document.getElementById('summary-prompt-input').value.trim();
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
+// ▼▼▼ 用这块【新代码】替换旧的火花保存逻辑 ▼▼▼
+// --- 保存火花设置 ---
+const isStreakEnabled = document.getElementById('streak-enabled-toggle').checked;
+const newInitialDays = parseInt(document.getElementById('streak-initial-days-input').value) || 0;
+const newThreshold = parseInt(document.getElementById('streak-extinguish-threshold-select').value);
+
+const oldStreak = chat.settings.streak || {};
+
+if (isStreakEnabled) {
+    // 检查是否是首次开启，或者初始天数被修改了
+    if (!oldStreak.enabled || oldStreak.initialDays !== newInitialDays) {
+        // 如果是，就重置当前天数为新的初始天数
+        chat.settings.streak = {
+            enabled: true,
+            initialDays: newInitialDays,
+            currentDays: newInitialDays,
+            extinguishThreshold: newThreshold,
+            lastInteractionDate: null // 重置互动日期，以便下次立即生效
+        };
+    } else {
+        // 如果只是普通保存，只更新开关状态和熄灭规则
+        chat.settings.streak.enabled = true;
+        chat.settings.streak.extinguishThreshold = newThreshold;
+        // 保持 currentDays 和 lastInteractionDate 不变
+    }
+} else {
+    // 如果用户关闭了功能，就重置所有设置
+    chat.settings.streak = {
+        enabled: false,
+        initialDays: 0,
+        currentDays: 0,
+        extinguishThreshold: 1,
+        lastInteractionDate: null
+    };
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
     await db.chats.put(chat);
 
     applyScopedCss(chat.settings.customCss, '#chat-messages', 'custom-bubble-style');
