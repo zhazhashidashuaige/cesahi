@@ -31454,35 +31454,70 @@ async function openContactPickerForGroupCreate() {
 }
 // ▲▲▲ 替换结束 ▲▲▲
 
-/**
- * 渲染联系人选择列表
- */
+// ▼▼▼ 请用这整块【功能增强版】代码，完整替换旧的 renderContactPicker 函数 ▼▼▼
+
 async function renderContactPicker() {
     const listEl = document.getElementById('contact-picker-list');
     listEl.innerHTML = '';
+    selectedContacts.clear(); // 清空上次的选择
 
-    // 只选择单聊角色作为群成员候选
-    const contacts = Object.values(state.chats).filter(chat => !chat.isGroup);
+    const allAvailablePeople = [];
+    // 1. 添加主要角色
+    Object.values(state.chats).filter(c => !c.isGroup).forEach(c => {
+        allAvailablePeople.push({
+            id: c.id,
+            name: c.name,
+            avatar: c.settings.aiAvatar || defaultAvatar,
+            isNpc: false, // 标记为非NPC
+            type: '角色'
+        });
+    });
 
-    if (contacts.length === 0) {
+    // 2. 添加所有角色库里的NPC，并自动去重
+    const npcMap = new Map();
+    Object.values(state.chats).forEach(chat => {
+        if (chat.npcLibrary) {
+            chat.npcLibrary.forEach(npc => {
+                // 使用NPC的ID作为key，确保同一个NPC不会被重复添加
+                if (!npcMap.has(npc.id)) {
+                    npcMap.set(npc.id, {
+                        id: npc.id,
+                        name: npc.name,
+                        avatar: npc.avatar || defaultGroupMemberAvatar,
+                        isNpc: true, // 标记为NPC
+                        type: `NPC (${chat.name})` // 显示该NPC所属的角色
+                    });
+                }
+            });
+        }
+    });
+    allAvailablePeople.push(...Array.from(npcMap.values()));
+
+    if (allAvailablePeople.length === 0) {
         listEl.innerHTML = '<p style="text-align:center; color:#8a8a8a; margin-top:50px;">还没有可以拉进群的联系人哦~</p>';
         return;
     }
-
-    contacts.forEach(contact => {
+    
+    // 3. 渲染整合后的列表
+    allAvailablePeople.forEach(contact => {
         const item = document.createElement('div');
         item.className = 'contact-picker-item';
         item.dataset.contactId = contact.id;
+        
+        // 核心修改：为NPC添加一个“(NPC)”的标签，方便区分
         item.innerHTML = `
             <div class="checkbox"></div>
-            <img src="${contact.settings.aiAvatar || defaultAvatar}" class="avatar">
-            <span class="name">${contact.name}</span>
+            <img src="${contact.avatar}" class="avatar">
+            <span class="name">${contact.name} ${contact.isNpc ? '<span style="color: #888; font-size: 12px;">(NPC)</span>' : ''}</span>
         `;
         listEl.appendChild(item);
     });
 
     updateContactPickerConfirmButton();
 }
+
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 /**
  * 更新“完成”按钮的计数
@@ -31509,22 +31544,52 @@ async function handleCreateGroup() {
     const newChatId = 'group_' + Date.now();
     const members = [];
     
-    for (const contactId of selectedContacts) {
-        const contactChat = state.chats[contactId];
-        if (contactChat) {
+// ▼▼▼ 在 handleCreateGroup 函数内，用这整块新代码替换旧的 for 循环 ▼▼▼
+
+for (const contactId of selectedContacts) {
+    const contactChat = state.chats[contactId];
+    if (contactChat) {
+        // 这是原来的逻辑，用于处理普通角色(Char)
+        members.push({
+            id: contactId,
+            originalName: contactChat.name,
+            groupNickname: contactChat.name,
+            avatar: contactChat.settings.aiAvatar || defaultAvatar,
+            persona: contactChat.settings.aiPersona,
+            avatarFrame: contactChat.settings.aiAvatarFrame || '',
+            isAdmin: false,
+            groupTitle: ''
+        });
+    } else {
+        // 【核心新增】这是处理NPC的逻辑
+        let foundNpc = null;
+        // 遍历所有角色，查找他们各自的NPC库
+        for (const chat of Object.values(state.chats)) {
+            if (chat.npcLibrary) {
+                const npc = chat.npcLibrary.find(n => n.id === contactId);
+                if (npc) {
+                    foundNpc = npc;
+                    break; // 找到了就跳出循环
+                }
+            }
+        }
+        // 如果找到了这个NPC，就把它添加到成员列表里
+        if (foundNpc) {
             members.push({
-                id: contactId, 
-                originalName: contactChat.name,
-                groupNickname: contactChat.name,
-                avatar: contactChat.settings.aiAvatar || defaultAvatar,
-                persona: contactChat.settings.aiPersona,
-                avatarFrame: contactChat.settings.aiAvatarFrame || '',
-                // ★★★ 核心新增：为新成员添加管理员和头衔的默认值 ★★★
-                isAdmin: false, 
+                id: foundNpc.id,
+                originalName: foundNpc.name,
+                groupNickname: foundNpc.name,
+                avatar: foundNpc.avatar || defaultGroupMemberAvatar,
+                persona: foundNpc.persona,
+                avatarFrame: '', // NPC没有头像框
+                isAdmin: false,
                 groupTitle: ''
             });
         }
     }
+}
+
+// ▲▲▲ 替换结束 ▲▲▲
 
     const newGroupChat = {
         id: newChatId,
@@ -31807,22 +31872,53 @@ async function handleAddMembersToGroup() {
     const chat = state.chats[state.activeChatId];
     const addedNames = [];
 
-    for (const contactId of selectedContacts) {
-        const contactChat = state.chats[contactId];
-        if (contactChat) {
+// ▼▼▼ 在 handleAddMembersToGroup 函数内，用这整块新代码替换旧的 for 循环 ▼▼▼
+
+for (const contactId of selectedContacts) {
+    const contactChat = state.chats[contactId];
+    if (contactChat) {
+        // 这是原来的逻辑，用于处理普通角色(Char)
+        chat.members.push({
+            id: contactId,
+            originalName: contactChat.name,
+            groupNickname: contactChat.name,
+            avatar: contactChat.settings.aiAvatar || defaultAvatar,
+            persona: contactChat.settings.aiPersona,
+            avatarFrame: contactChat.settings.aiAvatarFrame || '',
+            isAdmin: false,
+            groupTitle: ''
+        });
+        addedNames.push(`“${contactChat.name}”`);
+    } else {
+        // 【核心新增】这是处理NPC的逻辑
+        let foundNpc = null;
+        for (const c of Object.values(state.chats)) {
+            if (c.npcLibrary) {
+                const npc = c.npcLibrary.find(n => n.id === contactId);
+                if (npc) {
+                    foundNpc = npc;
+                    break;
+                }
+            }
+        }
+        if (foundNpc) {
             chat.members.push({
-                id: contactId,
-                originalName: contactChat.name,
-                groupNickname: contactChat.name,
-                avatar: contactChat.settings.aiAvatar || defaultAvatar,
-                persona: contactChat.settings.aiPersona,
-                avatarFrame: contactChat.settings.aiAvatarFrame || '',
+                id: foundNpc.id,
+                originalName: foundNpc.name,
+                groupNickname: foundNpc.name,
+                avatar: foundNpc.avatar || defaultGroupMemberAvatar,
+                persona: foundNpc.persona,
+                avatarFrame: '',
                 isAdmin: false,
                 groupTitle: ''
             });
-            addedNames.push(`“${contactChat.name}”`);
+            addedNames.push(`“${foundNpc.name}”`);
         }
     }
+}
+
+// ▲▲▲ 替换结束 ▲▲▲
+
 
     await db.chats.put(chat);
 
@@ -31915,42 +32011,70 @@ async function removeMemberFromGroup(memberId) {
     }
 }
 
-/**
- * 打开联系人选择器，用于拉人入群
- */
+// ▼▼▼ 请用这整块【功能增强版】代码，完整替换旧的 openContactPickerForAddMember 函数 ▼▼▼
+
 async function openContactPickerForAddMember() {
-    selectedContacts.clear(); // 清空选择
+    selectedContacts.clear(); 
+
+    // 【核心修改1】在这里绑定正确的“添加成员”函数
+    const confirmBtn = document.getElementById('confirm-contact-picker-btn');
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    newConfirmBtn.addEventListener('click', handleAddMembersToGroup);
+
+    const listEl = document.getElementById('contact-picker-list');
+    listEl.innerHTML = '';
     
     const chat = state.chats[state.activeChatId];
     const existingMemberIds = new Set(chat.members.map(m => m.id));
+    existingMemberIds.add('user'); // 把用户自己也算作已存在成员
 
-    // 渲染联系人列表，并自动排除已在群内的成员
-    const listEl = document.getElementById('contact-picker-list');
-    listEl.innerHTML = '';
-    const contacts = Object.values(state.chats).filter(c => !c.isGroup && !existingMemberIds.has(c.id));
+    // 【核心修改2】和创建群聊时一样，整合所有角色和NPC
+    const allAvailablePeople = [];
+    Object.values(state.chats).filter(c => !c.isGroup).forEach(c => {
+        allAvailablePeople.push({
+            id: c.id, name: c.name, avatar: c.settings.aiAvatar || defaultAvatar, isNpc: false
+        });
+    });
+    const npcMap = new Map();
+    Object.values(state.chats).forEach(c => {
+        if (c.npcLibrary) {
+            c.npcLibrary.forEach(npc => {
+                if (!npcMap.has(npc.id)) {
+                    npcMap.set(npc.id, {
+                        id: npc.id, name: npc.name, avatar: npc.avatar || defaultGroupMemberAvatar, isNpc: true
+                    });
+                }
+            });
+        }
+    });
+    allAvailablePeople.push(...Array.from(npcMap.values()));
+
+    // 过滤掉已经是群成员的人
+    const contacts = allAvailablePeople.filter(p => !existingMemberIds.has(p.id));
 
     if (contacts.length === 0) {
-        listEl.innerHTML = '<p style="text-align:center; color:#8a8a8a; margin-top:50px;">没有更多可以邀请的好友了。</p>';
-        document.getElementById('confirm-contact-picker-btn').style.display = 'none'; // 没有人可选，隐藏完成按钮
+        listEl.innerHTML = '<p style="text-align:center; color:#8a8a8a; margin-top:50px;">没有更多可以邀请的联系人了。</p>';
     } else {
-        document.getElementById('confirm-contact-picker-btn').style.display = 'block';
         contacts.forEach(contact => {
             const item = document.createElement('div');
             item.className = 'contact-picker-item';
             item.dataset.contactId = contact.id;
             item.innerHTML = `
                 <div class="checkbox"></div>
-                <img src="${contact.settings.aiAvatar || defaultAvatar}" class="avatar">
-                <span class="name">${contact.name}</span>
+                <img src="${contact.avatar}" class="avatar">
+                <span class="name">${contact.name} ${contact.isNpc ? '<span style="color: #888; font-size: 12px;">(NPC)</span>' : ''}</span>
             `;
             listEl.appendChild(item);
         });
     }
 
-    // 更新按钮状态并显示屏幕
     updateContactPickerConfirmButton();
     showScreen('contact-picker-screen');
 }
+
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 /**
  * 【重构版】在群聊中创建一个全新的虚拟成员
