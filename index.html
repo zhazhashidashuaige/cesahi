@@ -12029,13 +12029,51 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 /* 6. 内容区距离 (保持不变) */
 #inner-voice-content-area { margin-top: 165px; }
 
-/* 7. 卡片和标题的样式 (保持不变) */
-#inner-voice-content-area > div { background-color: rgba(255, 255, 255, 0.7); border-radius: 16px; padding: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); border: 1px solid rgba(255, 255, 255, 0.9); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
-#inner-voice-content-area strong { padding: 3px 10px; border-radius: 12px; color: white !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-#inner-voice-content-area div:nth-of-type(1) strong { background-color: #f0a1a8; }
-#inner-voice-content-area div:nth-of-type(2) strong { background-color: #81c784; }
-#inner-voice-content-area div:nth-of-type(3) strong { background-color: #64b5f6; }
-#inner-voice-content-area div:nth-of-type(4) strong { background-color: #ba68c8; }
+/* ▼▼▼ 【全新 | CSS变量版】心声面板卡片和标签样式 ▼▼▼ */
+
+/* 这是心声面板里，每个项目（例如“服装”的整个卡片）的样式 */
+#inner-voice-content-area > div {
+    /* 核心修改：我们把颜色和透明度变成了可以被JS修改的变量 */
+    background-color: rgba(var(--iv-card-bg-rgb, 255, 255, 255), var(--iv-card-opacity, 0.7));
+
+    border-radius: 16px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: background-color 0.3s; /* 添加平滑过渡 */
+}
+
+/* ▼▼▼ 【最终修复版】心声面板标签样式 ▼▼▼ */
+
+/* 1. 先定义所有标签的通用样式，确保形状、字体颜色、阴影等都保持不变 */
+#inner-voice-content-area strong {
+    padding: 3px 10px;
+    border-radius: 12px;
+    color: white !important; /* 强制字体颜色为白色 */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2); /* 保持文字阴影 */
+}
+
+/* 2. 然后，再为每个标签单独设置可变的背景颜色 */
+#inner-voice-content-area div:nth-of-type(1) strong {
+    background-color: var(--iv-color-clothing, #f0a1a8); /* 服装 */
+}
+#inner-voice-content-area div:nth-of-type(2) strong {
+    background-color: var(--iv-color-behavior, #81c784); /* 行为 */
+}
+#inner-voice-content-area div:nth-of-type(3) strong {
+    background-color: var(--iv-color-thoughts, #64b5f6); /* 心声 */
+}
+#inner-voice-content-area div:nth-of-type(4) strong {
+    background-color: var(--iv-color-naughty, #ba68c8); /* 坏心思 */
+}
+
+/* ▲▲▲ 修复结束 ▲▲▲ */
+
+
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
 
 /* ▲▲▲ 定制样式结束 ▲▲▲ */
 
@@ -14526,7 +14564,39 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】这是为心声面板编辑功能新增的CSS ▼▼▼ */
 
+/* 当头部有这个class时，强制隐藏底部边框 */
+#inner-voice-main-panel .modal-header.no-border {
+    border-bottom: none !important;
+}
+
+/* ▲▲▲ 新增CSS结束 ▲▲▲ */
+/* 强制提升“心声样式编辑器”的层级，确保它能覆盖在心声面板之上 */
+#inner-voice-editor-modal {
+    z-index: 1001; /* 这个值比心声面板的默认层级(1000)要高 */
+}
+
+/* ▲▲▲ 修复结束 ▲▲▲ */
+/* ▼▼▼ 【全新】这是为心声面板图标新增的颜色控制样式 ▼▼▼ */
+
+/* 1. 为心声面板定义一个CSS变量，并设置默认颜色 */
+#inner-voice-main-panel {
+    --iv-icon-color: #ff8a80; /* 你可以修改这个默认的粉红色 */
+}
+
+/* 2. 让所有目标图标的颜色都使用这个变量 */
+#close-inner-voice-modal {
+    color: var(--iv-icon-color);
+}
+
+#inner-voice-edit-btn svg,
+#change-inner-voice-bg-btn svg,
+#inner-voice-history-btn svg {
+    /* 核心：将图标的线条颜色设置为我们定义的变量 */
+    stroke: var(--iv-icon-color);
+}
+/* ▲▲▲ 新增样式结束 ▲▲▲ */
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -19830,36 +19900,90 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 【全新】这是心声面板的样式编辑器弹窗 ▼▼▼ -->
+<div id="inner-voice-editor-modal" class="modal">
+    <div class="modal-content" style="height: auto;">
+        <div class="modal-header">
+            <span>编辑心声面板样式</span>
+        </div>
+        <div class="modal-body">
+            <!-- 卡片背景颜色 -->
+            <div class="form-group">
+                <label for="iv-card-bg-color">卡片背景颜色</label>
+                <input type="color" id="iv-card-bg-color" value="#FFFFFF" style="width: 100%; height: 40px;">
+            </div>
+            <!-- 卡片透明度 -->
+            <div class="form-group">
+                <label for="iv-opacity-slider">卡片背景透明度: <span id="iv-opacity-value">70%</span></label>
+                <input type="range" id="iv-opacity-slider" min="0" max="1" step="0.05" value="0.7" style="width: 100%;">
+            </div>
+            <hr style="opacity: 0.2;">
+            <!-- 四个标签的背景色 -->
+            <div class="form-group">
+                <label for="iv-color-clothing">“服装”标签背景色</label>
+                <input type="color" id="iv-color-clothing" value="#f0a1a8" style="width: 100%; height: 40px;">
+            </div>
+            <div class="form-group">
+                <label for="iv-color-behavior">“行为”标签背景色</label>
+                <input type="color" id="iv-color-behavior" value="#81c784" style="width: 100%; height: 40px;">
+            </div>
+            <div class="form-group">
+                <label for="iv-color-thoughts">“心声”标签背景色</label>
+                <input type="color" id="iv-color-thoughts" value="#64b5f6" style="width: 100%; height: 40px;">
+            </div>
+            <div class="form-group">
+                <label for="iv-color-naughty">“坏心思”标签背景色</label>
+                <input type="color" id="iv-color-naughty" value="#ba68c8" style="width: 100%; height: 40px;">
+            </div>
+            <!-- ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼ -->
+<hr style="opacity: 0.2; margin: 20px 0;">
+<div class="form-group">
+    <label for="iv-icon-color">图标颜色</label>
+    <input type="color" id="iv-icon-color" value="#ff8a80" style="width: 100%; height: 40px;">
+</div>
+<!-- ▲▲▲ 新增代码粘贴结束 ▲▲▲ -->
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="iv-editor-cancel-btn">取消</button>
+            <button class="save" id="iv-editor-save-btn">保存</button>
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 
 
 <!-- ▼▼▼ 用这整块代码替换旧的 inner-voice-modal ▼▼▼ -->
 <div id="inner-voice-modal" class="modal">
     <!-- 心声主面板 -->
     <div id="inner-voice-main-panel" class="modal-content" style="width: 90%; max-width: 340px; height: auto; max-height: 80%; background-color: #fffafb; border: 1px solid #ffe4e1;">
-<!-- ▼▼▼ 请用这整块代码，替换旧的 <div class="modal-header">...</div> ▼▼▼ -->
+<!-- ▼▼▼ 用这块新代码替换旧的 <div class="modal-header">...</div> ▼▼▼ -->
 <div class="modal-header" style="border-bottom: 1px solid #ffe4e1; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;">
-    <span id="close-inner-voice-modal" style="cursor: pointer; font-size: 24px; color: #ff8a80;">×</span>
+    <span id="close-inner-voice-modal" style="cursor: pointer; font-size: 24px;">×</span>
     
-    <!-- 我们在这里新增一个容器来包裹右边的两个按钮 -->
     <div style="display: flex; align-items: center; gap: 15px;">
-        <!-- 这是你要求新增的“更换背景”按钮 -->
+        <span id="inner-voice-edit-btn" style="cursor: pointer;" title="编辑心声面板">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+        </span>
         <span id="change-inner-voice-bg-btn" style="cursor: pointer;" title="更换背景">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff8a80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
                 <polyline points="21 15 16 10 5 21"></polyline>
             </svg>
         </span>
-        <!-- 这是原来的“历史心声”按钮 -->
         <span id="inner-voice-history-btn" style="cursor: pointer;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff8a80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
             </svg>
         </span>
     </div>
-    <!-- 容器结束 -->
 </div>
 <!-- ▲▲▲ 替换结束 ▲▲▲ -->
+
+
 
         <div class="modal-body" style="padding: 15px;">
             <!-- 头像和名字信息现在是独立的、可定位的元素 -->
@@ -21868,9 +21992,9 @@ function getRandomItem(arr) {
         // 2. 数据库结构定义
         // ===================================================================
 
-// ▼▼▼ 用这块【V42版本】的代码替换你旧的 db.version(...).stores(...) ▼▼▼
-db.version(42).stores({ // 版本号 +1 = 42
-    chats: '&id, isGroup, groupId, ownerId, isPinned, characterPhoneData, latestInnerVoice, innerVoiceHistory, loversSpaceData.emotionDiaries, settings.summary, settings.weiboNickname',
+// ▼▼▼ 用这块【V43版本】的代码替换你旧的 db.version(...).stores(...) ▼▼▼
+db.version(43).stores({ // 版本号 +1 = 43
+    chats: '&id, isGroup, groupId, ownerId, isPinned, characterPhoneData, latestInnerVoice, innerVoiceHistory, loversSpaceData.emotionDiaries, settings.summary, settings.weiboNickname, settings.innerVoiceHideHeaderBorder, settings.innerVoiceAdopterLabelFormat', // <-- 在这里修改了
     // ... 其他表格保持不变 ...
     apiConfig: '&id',
     globalSettings: '&id, activeThemeId', 
@@ -21881,7 +22005,7 @@ db.version(42).stores({ // 版本号 +1 = 42
     musicLibrary: '&id', 
     personaPresets: '&id',
     qzoneSettings: '&id',
-    qzonePosts: '++id, timestamp', 
+    qzonePosts: '++id, authorId, timestamp', 
     qzoneAlbums: '++id, name, createdAt',
     qzonePhotos: '++id, albumId',
     favorites: '++id, type, timestamp, originalTimestamp',
@@ -23587,7 +23711,11 @@ if (typeof chat.innerVoiceBackground === 'undefined') {
     chat.innerVoiceBackground = '';
 }
 // ▲▲▲ 新代码粘贴结束 ▲▲▲
-
+// ★★★ 这就是本次新增的兼容性代码！ ★★★
+if (chat.settings && typeof chat.settings.innerVoiceAdopterLabelFormat === 'undefined') {
+    chat.settings.innerVoiceAdopterLabelFormat = '领养人: {{user}}';
+}
+// ★★★ 新增结束 ★★★
         // ★★★【核心重构：数据迁移脚本】★★★
         // 检查是否是群聊，并且其成员对象使用的是旧的 `name` 结构
         if (chat.isGroup && chat.members && chat.members.length > 0 && chat.members[0].name) {
@@ -23882,9 +24010,24 @@ if (chat.isGroup) {
 }
 
 // ▲▲▲ 粘贴结束 ▲▲▲
+// 在 loadAllDataFromDB 函数的 forEach 循环内，acc[chat.id] = chat; 之前添加：
 
-
-
+// 【全新】为旧数据兼容心声面板样式设置
+if (!chat.settings.innerVoiceStyles) {
+    chat.settings.innerVoiceStyles = {
+        clothingColor: '#f0a1a8',
+        behaviorColor: '#81c784',
+        thoughtsColor: '#64b5f6',
+        naughtyColor: '#ba68c8',
+        cardBgColor: '#ffffff',
+        cardOpacity: 0.7
+    };
+}
+// 为旧数据兼容图标颜色设置
+if (chat.settings.innerVoiceStyles && typeof chat.settings.innerVoiceStyles.iconColor === 'undefined') {
+    chat.settings.innerVoiceStyles.iconColor = '#ff8a80'; // 默认粉红色
+}
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
         // ▲▲▲ 新代码粘贴结束 ▲▲▲
         acc[chat.id] = chat;
         return acc;
@@ -38025,16 +38168,18 @@ async function deleteCharacterPhoneContact(contactName) {
         }
     }
 }
-// ▼▼▼ 用这块【V3 - 背景加载修复版】代码，完整替换旧的 openInnerVoiceModal 函数 ▼▼▼
+// ▼▼▼ 用这块【V5 - 已集成样式应用】的代码，替换旧的 openInnerVoiceModal 函数 ▼▼▼
 /**
- * 【V3】打开心声面板，并加载【当前角色】的专属背景
+ * 【V5】打开心声面板，应用背景和所有自定义设置
  */
 function openInnerVoiceModal() {
     if (!state.activeChatId) return;
     const chat = state.chats[state.activeChatId];
     if (!chat) return;
 
-    // 【核心修改1】在打开面板时，立刻应用已保存的、属于这个角色的背景
+    // --- ★★★ 核心新增1：应用自定义样式 ★★★ ---
+    applySavedInnerVoiceStyles();
+
     applyInnerVoiceBackground(chat.innerVoiceBackground || '');
 
     if (!chat.latestInnerVoice) {
@@ -38045,7 +38190,7 @@ function openInnerVoiceModal() {
     const modal = document.getElementById('inner-voice-modal');
     const data = chat.latestInnerVoice;
     
-    // --- 角色信息填充 ---
+    // --- 角色信息填充 (不变) ---
     document.getElementById('inner-voice-avatar').src = chat.settings.aiAvatar || defaultAvatar;
     document.getElementById('inner-voice-char-name').textContent = chat.name;
     const frameImg = document.getElementById('inner-voice-avatar-frame');
@@ -38062,23 +38207,34 @@ function openInnerVoiceModal() {
         avatarWrapper.classList.add('has-border');
     }
 
-    // --- 领养人信息填充 ---
+    const labelFormat = chat.settings.innerVoiceAdopterLabelFormat || '领养人: {{user}}';
+    const userNickname = chat.settings.myNickname || '你';
+    const finalAdopterText = labelFormat.replace('{{user}}', userNickname);
+    
     document.getElementById('inner-voice-adopter-avatar').src = chat.settings.myAvatar || defaultAvatar;
-    document.getElementById('inner-voice-adopter-name').textContent = `领养人: ${chat.settings.myNickname || '你'}`;
+    document.getElementById('inner-voice-adopter-name').textContent = finalAdopterText;
 
-    // --- 心声内容填充 ---
+    const header = document.querySelector('#inner-voice-main-panel .modal-header');
+    if (header) {
+        const shouldHideBorder = chat.settings.innerVoiceHideHeaderBorder || false;
+        header.classList.toggle('no-border', shouldHideBorder);
+    }
+
+    // --- 心声内容填充 (不变) ---
     document.getElementById('inner-voice-clothing').textContent = data.clothing || '...';
     document.getElementById('inner-voice-behavior').textContent = data.behavior || '...';
     document.getElementById('inner-voice-thoughts').textContent = data.thoughts || '...';
     document.getElementById('inner-voice-naughty-thoughts').textContent = data.naughtyThoughts || '...';
 
-    // --- 显示面板 ---
+    // --- 显示面板 (不变) ---
     modal.classList.add('visible');
     document.getElementById('inner-voice-history-panel').style.display = 'none';
     document.getElementById('inner-voice-main-panel').style.display = 'flex';
     isInnerVoiceHistoryOpen = false;
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
+
 
 /**
  * 打开或关闭历史记录面板
@@ -55945,7 +56101,190 @@ function exitCharStickerSelectionMode() {
     }
 }
 
-// ▲▲▲ 新函数粘贴结束 ▲▲▲
+// ▼▼▼ 用这块【新代码】替换旧的 showInnerVoiceEditOptions 函数 ▼▼▼
+/**
+ * 【总入口】当用户点击心声面板的编辑按钮时，打开操作菜单
+ */
+async function showInnerVoiceEditOptions() {
+    const chat = state.chats[state.activeChatId];
+    if (!chat) return;
+
+    const borderHidden = chat.settings.innerVoiceHideHeaderBorder || false;
+    const borderOptionText = borderHidden ? '显示分割线' : '隐藏分割线';
+    
+    // 【核心修改】在选项数组里新增了 'editStyles'
+    const choice = await showChoiceModal("编辑心声面板", [
+        { text: '🎨 编辑面板样式', value: 'editStyles' },
+        { text: borderOptionText, value: 'toggleBorder' },
+        { text: '修改领养人', value: 'editAdopter' }
+    ]);
+
+    if (choice === 'editStyles') {
+        openInnerVoiceStyleEditor(); // 调用我们新写的函数来打开样式编辑器
+    } else if (choice === 'toggleBorder') {
+        await toggleInnerVoiceHeaderBorder();
+    } else if (choice === 'editAdopter') {
+        await editInnerVoiceAdopterName();
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+/**
+ * 切换心声面板头部分割线的显示/隐藏
+ */
+async function toggleInnerVoiceHeaderBorder() {
+    const chat = state.chats[state.activeChatId];
+    if (!chat) return;
+
+    // 确保 chat.settings 存在
+    if (!chat.settings) chat.settings = {};
+
+    // 切换布尔值
+    chat.settings.innerVoiceHideHeaderBorder = !(chat.settings.innerVoiceHideHeaderBorder || false);
+
+    // 保存到数据库
+    await db.chats.put(chat);
+
+    // 更新UI
+    const header = document.querySelector('#inner-voice-main-panel .modal-header');
+    if (header) {
+        header.classList.toggle('no-border', chat.settings.innerVoiceHideHeaderBorder);
+    }
+
+    await showCustomAlert('操作成功', `分割线已${chat.settings.innerVoiceHideHeaderBorder ? '隐藏' : '显示'}。`);
+}
+
+// ▼▼▼ 用这块【模板编辑版】的代码，替换旧的 editInnerVoiceAdopterName 函数 ▼▼▼
+/**
+ * 修改“领养人”的标签模板
+ */
+async function editInnerVoiceAdopterName() {
+    const chat = state.chats[state.activeChatId];
+    if (!chat) return;
+
+    // 获取当前的标签模板，如果没有设置过，就使用默认值
+    const currentFormat = chat.settings.innerVoiceAdopterLabelFormat || '领养人: {{user}}';
+    
+    // 弹出输入框，让用户编辑整个模板字符串
+    const newFormat = await showCustomPrompt(
+        '修改领养人标签', 
+        '你可以修改整个标签，其中 {{user}} 会被自动替换为你的昵称。', 
+        currentFormat
+    );
+
+    // 如果用户输入了新内容（不是取消）
+    if (newFormat !== null) {
+        // 保存新模板，如果输入为空则恢复默认
+        chat.settings.innerVoiceAdopterLabelFormat = newFormat.trim() || '领养人: {{user}}';
+        await db.chats.put(chat);
+        
+        // 重新渲染心声面板以显示新标签
+        openInnerVoiceModal(); 
+        await showCustomAlert('修改成功', '领养人标签已更新！');
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+/* ▼▼▼ 【全新】心声面板样式编辑功能的核心函数 ▼▼▼ */
+
+/**
+ * 将十六进制颜色(#FFFFFF)转换为 "R, G, B" 字符串 (255, 255, 255)
+ * @param {string} hex - 十六进制颜色代码
+ * @returns {string} - RGB字符串
+ */
+function hexToRgb(hex) {
+    if (!hex || hex.length < 4) return '255, 255, 255';
+    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255, 255, 255';
+}
+
+// ▼▼▼ 用这块新代码替换旧的 applySavedInnerVoiceStyles 函数 ▼▼▼
+/**
+ * 将保存的样式应用到心声面板
+ */
+function applySavedInnerVoiceStyles() {
+    if (!state.activeChatId) return;
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.settings.innerVoiceStyles) return;
+
+    const styles = chat.settings.innerVoiceStyles;
+    const panel = document.getElementById('inner-voice-main-panel');
+
+    panel.style.setProperty('--iv-color-clothing', styles.clothingColor);
+    panel.style.setProperty('--iv-color-behavior', styles.behaviorColor);
+    panel.style.setProperty('--iv-color-thoughts', styles.thoughtsColor);
+    panel.style.setProperty('--iv-color-naughty', styles.naughtyColor);
+    panel.style.setProperty('--iv-card-bg-rgb', hexToRgb(styles.cardBgColor));
+    panel.style.setProperty('--iv-card-opacity', styles.cardOpacity);
+    
+    // ★★★ 核心新增：在这里应用我们保存的图标颜色！ ★★★
+    panel.style.setProperty('--iv-icon-color', styles.iconColor || '#ff8a80');
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▼▼▼ 用这块新代码替换旧的 openInnerVoiceStyleEditor 函数 ▼▼▼
+/**
+ * 打开心声面板样式编辑器
+ */
+function openInnerVoiceStyleEditor() {
+    if (!state.activeChatId) return;
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.settings.innerVoiceStyles) return;
+
+    document.getElementById('inner-voice-edit-options-modal')?.classList.remove('visible');
+    
+    const styles = chat.settings.innerVoiceStyles;
+    const modal = document.getElementById('inner-voice-editor-modal');
+    
+    // 加载当前样式到编辑器
+    document.getElementById('iv-color-clothing').value = styles.clothingColor;
+    document.getElementById('iv-color-behavior').value = styles.behaviorColor;
+    document.getElementById('iv-color-thoughts').value = styles.thoughtsColor;
+    document.getElementById('iv-color-naughty').value = styles.naughtyColor;
+    document.getElementById('iv-card-bg-color').value = styles.cardBgColor;
+    document.getElementById('iv-opacity-slider').value = styles.cardOpacity;
+    document.getElementById('iv-opacity-value').textContent = `${Math.round(styles.cardOpacity * 100)}%`;
+    
+    // ★★★ 核心新增：在这里加载我们保存的图标颜色！ ★★★
+    document.getElementById('iv-icon-color').value = styles.iconColor || '#ff8a80';
+
+    modal.classList.add('visible');
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 保存用户修改的样式
+ */
+async function saveInnerVoiceStyles() {
+    if (!state.activeChatId) return;
+    const chat = state.chats[state.activeChatId];
+    
+    // 从编辑器读取新值
+    const newStyles = {
+        clothingColor: document.getElementById('iv-color-clothing').value,
+        behaviorColor: document.getElementById('iv-color-behavior').value,
+        thoughtsColor: document.getElementById('iv-color-thoughts').value,
+        naughtyColor: document.getElementById('iv-color-naughty').value,
+        cardBgColor: document.getElementById('iv-card-bg-color').value,
+        cardOpacity: parseFloat(document.getElementById('iv-opacity-slider').value),
+        iconColor: document.getElementById('iv-icon-color').value
+    };
+
+    // 更新到state和数据库
+    chat.settings.innerVoiceStyles = newStyles;
+    await db.chats.put(chat);
+    
+    // 关闭弹窗
+    document.getElementById('inner-voice-editor-modal').classList.remove('visible');
+    
+    // 重新应用一下最终保存的样式，以防万一
+    applySavedInnerVoiceStyles();
+    
+    await showCustomAlert('保存成功', '心声面板的样式已更新！');
+}
+
+/* ▲▲▲ 新功能函数结束 ▲▲▲ */
+
 
 
         // ===================================================================
@@ -63086,6 +63425,60 @@ document.getElementById('back-from-sticker-manager').addEventListener('click', (
     document.getElementById('chat-settings-btn').click();
 });
 // ▲▲▲ 添加结束 ▲▲▲
+        // ▼▼▼ 【全新】这是为心声面板编辑按钮新增的事件监听 ▼▼▼
+        document.getElementById('inner-voice-modal').addEventListener('click', (e) => {
+            if (e.target.closest('#inner-voice-edit-btn')) {
+                showInnerVoiceEditOptions();
+            }
+        });
+        // ▲▲▲ 新增结束 ▲▲▲
+        // ▼▼▼ 【全新】心声样式编辑器事件绑定 ▼▼▼
+const ivEditorModal = document.getElementById('inner-voice-editor-modal');
+const ivPanel = document.getElementById('inner-voice-main-panel');
+
+// 实时预览功能
+ivEditorModal.addEventListener('input', (e) => {
+    const targetId = e.target.id;
+    const value = e.target.value;
+
+    switch (targetId) {
+        case 'iv-color-clothing':
+            ivPanel.style.setProperty('--iv-color-clothing', value);
+            break;
+        case 'iv-color-behavior':
+            ivPanel.style.setProperty('--iv-color-behavior', value);
+            break;
+        case 'iv-color-thoughts':
+            ivPanel.style.setProperty('--iv-color-thoughts', value);
+            break;
+        case 'iv-color-naughty':
+            ivPanel.style.setProperty('--iv-color-naughty', value);
+            break;
+        case 'iv-card-bg-color':
+            ivPanel.style.setProperty('--iv-card-bg-rgb', hexToRgb(value));
+            break;
+        case 'iv-opacity-slider':
+            document.getElementById('iv-opacity-value').textContent = `${Math.round(value * 100)}%`;
+            ivPanel.style.setProperty('--iv-card-opacity', value);
+            break;
+                // ★★★ 在这里添加下面的新 case ★★★
+        case 'iv-icon-color':
+            ivPanel.style.setProperty('--iv-icon-color', value);
+            break;
+    }
+});
+
+// 保存按钮
+document.getElementById('iv-editor-save-btn').addEventListener('click', saveInnerVoiceStyles);
+
+// 取消按钮
+document.getElementById('iv-editor-cancel-btn').addEventListener('click', () => {
+    ivEditorModal.classList.remove('visible');
+    // 取消时，重新应用一下保存好的样式，以撤销预览改动
+    applySavedInnerVoiceStyles();
+});
+
+// ▲▲▲ 新增事件监听器结束 ▲▲▲
 
 // ===================================================================
 // 5. 启动！
