@@ -387,15 +387,126 @@ body {
         #load-more-btn { text-align: center; padding: 10px; color: var(--accent-color); font-size: 14px; cursor: pointer; background-color: transparent; border: none; width: 100%; }
         #load-more-btn:hover { text-decoration: underline; }
 
-        .sender-name { font-size: 11px; color: #666; margin-bottom: 3px; }
+/* ▼▼▼ 用这整块【最终修复版】代码，完整替换所有旧的 .sender-name 样式 ▼▼▼ */
 
-.message-wrapper.ai .sender-name {
-    margin-left: 50px; /* 稍微调整，与头像对齐 */
-    margin-bottom: 3px;
-    position: absolute; /* 让它脱离流，避免影响气泡对齐 */
-    top: -16px;       /* 定位到气泡上方 */
-    left: 0;
+/* 1. 这是发送者信息行 (名字+标签) 的总容器 */
+/* ▼▼▼ 【独家定制】昵称/头衔上移修复 ▼▼▼ */
+/* 
+  用这整块代码，完整替换掉你旧的 .group-sender-line 样式。
+  它将把名字和标签整体向上移动一点，避免遮挡气泡。
+*/
+
+.group-sender-line {
+    display: flex;
+    align-items: center; 
+    gap: 8px; 
+    font-size: 11px;
+    color: #666;
+    position: absolute; 
+    
+    /* ★★★ 修改这里：从 -16px 改为 -18px，让它向上移动2像素 ★★★ */
+    /* 你可以根据自己的喜好，继续减小这个值（比如-20px）让它更高 */
+    top: -18px;      
+
+    left: 50px;       
+    white-space: nowrap; 
+
+    /* 【新增】为了保证层级，确保它在气泡之上 */
+    z-index: 1; 
 }
+
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
+/* 2. 我们不再需要针对 .sender-name 的特殊定位了，因为现在都由 .group-sender-line 控制 */
+/* 所以，可以把旧的 .message-wrapper.ai .sender-name 规则删掉，或者用这个空的规则覆盖掉它 */
+.message-wrapper.ai .sender-name {
+    /* 这个规则现在是空的，因为它已经被新的 .group-sender-line 替代了 */
+}
+
+
+/* 3. 【全新】这是聊天界面内，跟在名字后面的身份和头衔标签的专属样式 */
+.group-sender-tags {
+    display: inline-flex; /* 确保它自己也是一个 flex 容器，让内部的标签能水平排列 */
+    align-items: center;
+    gap: 5px; /* 标签之间的间距 */
+}
+
+.group-role-tag, .group-title-tag {
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 8px; /* 圆润的胶囊形状 */
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* 群主和管理员的颜色 */
+.group-role-tag.owner {
+    background-color: #FFF2C2;
+    color: #D98C00;
+    border: 1px solid #FFE89D;
+}
+.group-role-tag.admin {
+    background-color: #D4EDDA;
+    color: #155724;
+    border: 1px solid #C3E6CB;
+}
+
+/* ▼▼▼ 【独家终极修复版】请用这整块代码，完整替换掉所有旧的 .group-title-tag 样式 ▼▼▼ */
+
+/* ▼▼▼ 【最终修复版】请将这整块代码粘贴到 <style> 标签的最末尾 ▼▼▼ */
+
+/* 1. 先为【所有】头衔设置你想要的紫色作为默认值 */
+.group-title-tag {
+    background-color: #E9E7FD !important; /* 淡紫色背景 */
+    color: #5E548E !important;           /* 深紫色文字 */
+    border: 1px solid #D9D5F8 !important; /* 稍深的紫色边框 */
+}
+
+/* 2. 然后，单独为【管理员】的头衔设置绿色 */
+.group-role-tag.admin ~ .group-title-tag {
+    background-color: #D4EDDA !important; /* 复制管理员标签的绿色 */
+    color: #155724 !important;
+    border: 1px solid #C3E6CB !important;
+}
+
+/* 3. 同理，为【群主】的头衔设置黄色 */
+.group-role-tag.owner ~ .group-title-tag {
+    background-color: #FFF2C2 !important; /* 复制群主标签的黄色 */
+    color: #D98C00 !important;
+    border: 1px solid #FFE89D !important;
+}
+
+
+/* === 夜间模式适配 (原理相同) === */
+
+/* 夜间模式下的默认紫色 */
+#phone-screen.dark-mode .group-title-tag {
+    background-color: #3B3355 !important;
+    color: #C3B9E7 !important;
+    border-color: #514777 !important;
+}
+
+/* 夜间模式下的管理员绿色 */
+#phone-screen.dark-mode .group-role-tag.admin ~ .group-title-tag {
+    background-color: #104A3C !important;
+    color: #76DDC4 !important;
+    border-color: #176854 !important;
+}
+
+/* 夜间模式下的群主黄色 */
+#phone-screen.dark-mode .group-role-tag.owner ~ .group-title-tag {
+    background-color: #594200 !important;
+    color: #FFD466 !important;
+    border-color: #795B00 !important;
+}
+
+/* ▲▲▲ 修复结束 ▲▲▲ */
+
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
+
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
 
 /* === 【全新】消息布局与时间戳样式 === */
 
@@ -2831,13 +2942,15 @@ body {
 
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
-/* 【新增】这是我们新加的样式，用于将标题和心形按钮横向排列 */
+/* ▼▼▼ 请用这块代码替换你旧的 #chat-header-main-line 样式 ▼▼▼ */
 #chat-header-main-line {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px; /* 标题和心形按钮之间的间距 */
+    position: relative; /* 让公告按钮可以相对于它定位 */
 }
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
 
 
 /* ▼▼▼ 请用这块【终极修复版】代码，替换掉你旧的 #chat-header-title 样式 ▼▼▼ */
@@ -13856,19 +13969,30 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     background-color: #e67300;
 }
 
-/* --- 3. 私信输入框区域 --- */
+/* ▼▼▼ 用这【一整块】代码，替换掉你旧的 user-dm-input-area 相关样式 ▼▼▼ */
+
+/* --- 1. 私信输入区域的整体背景和边距 (这部分保持不变) --- */
 #user-dm-input-area {
     border-top: 1px solid var(--border-color);
     background-color: #f7f7f7;
     padding: 10px 12px;
     padding-bottom: calc(10px + env(safe-area-inset-bottom));
 }
-#phone-screen.dark-mode #user-dm-input-area {
-    background-color: #1c1c1e;
-    border-top-color: #38383a;
+
+/* --- 2. 核心布局：强制输入框和按钮在同一行 --- */
+/* 我们用一个更精确的选择器，来确保样式能生效 */
+#user-dm-detail-screen .chat-input-main-row {
+    display: flex;         /* 关键：设为flex布局 */
+    flex-direction: row;   /* 关键：强制横向排列 */
+    align-items: flex-end; /* 让多行输入时，按钮和输入框底部对齐，更好看 */
+    gap: 8px;              /* 输入框和按钮组之间的间距 */
 }
+
+/* --- 3. 输入框：让它自动伸展，占满左侧所有空间 --- */
 #user-dm-input-area #user-dm-input {
-    flex-grow: 1;
+    flex-grow: 1; /* 关键！ */
+    
+    /* 下面是输入框的外观，保持不变 */
     border: 1px solid #ddd;
     border-radius: 18px;
     padding: 8px 15px;
@@ -13878,19 +14002,60 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     resize: none;
     background-color: #fff;
 }
+
+/* --- 4. 按钮容器：让所有按钮在里面横向排列 --- */
+#user-dm-input-area #input-actions-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0; /* 防止按钮们被挤压变形 */
+}
+
+/* --- 5. 【你的要求】修改“发送”按钮为圆角矩形 --- */
+#user-dm-input-area #user-dm-send-btn {
+    height: 38px;
+    border-radius: 8px; /* ★★★ 修改点在这里！从 18px 改为 8px ★★★ */
+    background-color: #ff8200;
+    /* --- 以下为补充样式，让按钮更好看 --- */
+    border: none;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 0 15px; /* 让文字不那么拥挤 */
+}
+
+/* --- 6. 其他两个图标按钮的样式 (保持不变) --- */
+#user-dm-input-area .chat-action-icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    padding: 0;
+    font-size: 24px;
+    background-color: rgba(0,0,0,0.05);
+    color: var(--text-primary);
+    border: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* --- 7. 夜间模式适配 (保持不变) --- */
+#phone-screen.dark-mode #user-dm-input-area {
+    background-color: #1c1c1e;
+    border-top-color: #38383a;
+}
 #phone-screen.dark-mode #user-dm-input-area #user-dm-input {
     background-color: #2c2c2e;
     border-color: #38383a;
     color: white;
 }
-#user-dm-input-area #user-dm-send-btn {
-    height: 38px;
-    border-radius: 18px;
-    background-color: #ff8200; /* 发送按钮也用微博橙 */
+#phone-screen.dark-mode #user-dm-input-area .chat-action-icon-btn {
+     background-color: rgba(255,255,255,0.1);
+     border-color: rgba(255,255,255,0.1);
 }
 
-
-/* ▲▲▲ 全新的 User 私信功能样式结束 ▲▲▲ */
+/* ▲▲▲ 替换结束 ▲▲▲ */
 /* ▼▼▼ 【全新】这是为User私信输入框新增的按钮样式 ▼▼▼ */
 
 #user-dm-input-area #input-actions-wrapper {
@@ -14026,6 +14191,232 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     text-shadow: 0 0 5px rgba(255, 152, 0, 0.5); /* 加一点发光效果 */
 }
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
+/* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 的最末尾 ▼▼▼ */
+
+/* --- 【全新】群成员管理列表样式 --- */
+#member-management-list .list-container-title {
+    padding: 10px 15px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    background-color: #f0f2f5;
+}
+#phone-screen.dark-mode #member-management-list .list-container-title {
+    background-color: #1c1c1e;
+}
+
+#member-management-list .member-management-item {
+    background-color: var(--secondary-bg);
+}
+
+/* 单个成员项 */
+.member-management-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.member-management-item .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px; /* 方形圆角头像 */
+    margin-right: 12px;
+}
+
+/* 成员信息（昵称、头衔、身份） */
+.member-management-item .info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.member-management-item .info .name {
+    font-weight: 500;
+}
+.member-management-item .info .tags {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 身份标签（群主/管理员） */
+.member-management-item .role-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    color: white;
+}
+.role-tag.owner { background-color: #ffc107; } /* 黄色 */
+.role-tag.admin { background-color: #28a745; } /* 绿色 */
+
+/* 头衔标签 */
+.member-management-item .title-tag {
+    font-size: 11px;
+    color: var(--text-secondary);
+    background-color: #f0f2f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+#phone-screen.dark-mode .member-management-item .title-tag {
+    background-color: #3a3a3c;
+}
+
+/* 操作按钮 */
+.member-management-item .actions {
+    display: flex;
+    gap: 8px;
+}
+.member-management-item .actions button {
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    background-color: #f8f9fa;
+}
+#phone-screen.dark-mode .member-management-item .actions button {
+    background-color: #3e3e42;
+    border-color: #545458;
+}
+.member-management-item .actions button.danger {
+    border-color: #ff4d4f;
+    color: #ff4d4f;
+}
+
+/* --- 【全新】聊天界面内的身份/头衔标签 --- */
+.group-sender-tags {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+.group-role-tag, .group-title-tag {
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 8px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+.group-role-tag.owner {
+    background-color: #FFF2C2;
+    color: #D98C00;
+    border: 1px solid #FFE89D;
+}
+.group-role-tag.admin {
+    background-color: #D4EDDA;
+    color: #155724;
+    border: 1px solid #C3E6CB;
+}
+.group-title-tag {
+    background-color: #f0f2f5;
+    color: var(--text-secondary);
+}
+
+#phone-screen.dark-mode .group-role-tag.owner { background-color: #594200; color: #FFD466; border-color: #795B00;}
+#phone-screen.dark-mode .group-role-tag.admin { background-color: #104A3C; color: #76DDC4; border-color: #176854;}
+#phone-screen.dark-mode .group-title-tag { background-color: #3a3a3c; }
+
+/* ▲▲▲ 新CSS粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【独家定制】请将这段【全新】的CSS代码，粘贴到<style>标签的末尾 ▼▼▼ */
+
+/* 核心：专门为用户（user）在群聊中的消息行定义样式 */
+.message-wrapper.user .group-sender-line {
+    /* 1. 定位：从左侧定位改为右侧定位，与你的头像对齐 */
+    left: auto;
+    right: 50px; /* 原来是 left: 50px */
+
+    /* 2. 布局翻转：这是实现“标签在左，昵称在右”的关键！*/
+    flex-direction: row-reverse; 
+}
+
+/* ▲▲▲ 粘贴结束 ▲▲▲ */
+/* ▼▼▼ 【全新】群公告功能样式 ▼▼▼ */
+
+/* 这是我们新加的群公告小黑板图标的样式 */
+/* ▼▼▼ 请用这块代码替换你旧的 #group-announcement-btn 样式 ▼▼▼ */
+#group-announcement-btn {
+    display: none; /* JS控制显示，保持不变 */
+    position: absolute; /* 核心修改：绝对定位 */
+    left: 100%; /* 定位在标题的右边 */
+    top: 50%; /* 垂直居中的第一步 */
+    transform: translateY(-50%); /* 垂直居中的第二步 */
+    margin-left: 5px; /* 与标题的间距 */
+
+    /* 保持视觉样式 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    color: var(--accent-color);
+    transition: background-color 0.2s;
+    border-radius: 50%;
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
+#group-announcement-btn:hover {
+    background-color: rgba(0,0,0,0.05); /* 鼠标悬停时给一点反馈 */
+}
+#phone-screen.dark-mode #group-announcement-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+/* 公告弹窗的样式 */
+#group-announcement-modal .modal-content {
+    height: 70%; /* 让弹窗高一些，方便看公告 */
+}
+
+/* 公告内容的显示区域 */
+#group-announcement-modal .modal-body {
+    white-space: pre-wrap; /* 让换行符生效 */
+    word-break: break-word; /* 防止长单词溢出 */
+    line-height: 1.7; /* 增加行高，更易读 */
+    font-size: 15px;
+}
+
+/* 编辑公告时，文本域的样式 */
+#group-announcement-modal textarea {
+    width: 100%;
+    height: 100%; /* 占满整个内容区 */
+    min-height: 300px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 15px;
+    line-height: 1.7;
+    resize: vertical; /* 允许用户垂直拖动调整大小 */
+}
+
+/* ▲▲▲ 新增CSS结束 ▲▲▲ */
+
+/* ▼▼▼ 【独家定制】群聊昵称与标签顺序修复 ▼▼▼ */
+
+/* 1. 全局定义显示顺序：让标签永远在名字前面 */
+.group-sender-line > .group-sender-tags {
+    order: 1;
+}
+.group-sender-line > .sender-name {
+    order: 2;
+}
+
+/* 2. 为【AI/他人消息】设置对齐方式 (靠左) */
+.message-wrapper.ai .group-sender-line {
+    justify-content: flex-start; /* 确保内容从左边开始 */
+}
+
+/* 3. 【核心修复】修正【你的消息】的对齐方式 (靠右) */
+/* 这块代码会覆盖掉旧的、导致顺序错乱的规则 */
+.message-wrapper.user .group-sender-line {
+    left: auto;
+    right: 50px; /* 保持原有的右侧定位 */
+    flex-direction: row; /* 移除旧的“反转”效果 */
+    justify-content: flex-end; /* 让内容块整体靠右，这样名字就能贴近你的头像了 */
+}
+
+/* ▲▲▲ 修复结束 ▲▲▲ */
 
 
     </style>
@@ -14741,6 +15132,14 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         <div id="chat-header-title-wrapper">
             <div id="chat-header-main-line">
                 <span id="chat-header-title">聊天对象</span>
+                    <!-- ▼▼▼ 【全新】群公告按钮 ▼▼▼ -->
+    <span id="group-announcement-btn" title="群公告">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="7" y1="15" x2="17" y2="15"></line>
+        </svg>
+    </span>
+    <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
             </div>
             <div id="chat-header-status">
                 <span class="status-dot"></span>
@@ -19273,6 +19672,21 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 【全新】群公告模态框 ▼▼▼ -->
+<div id="group-announcement-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span>群公告</span>
+        </div>
+        <div class="modal-body" id="announcement-content-area">
+            <!-- 公告内容将显示在这里 -->
+        </div>
+        <div class="modal-footer" id="announcement-footer">
+            <!-- 按钮将由JS动态生成 -->
+        </div>
+    </div>
+</div>
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 
 
 <!-- ▼▼▼ 用这整块代码替换旧的 inner-voice-modal ▼▼▼ -->
@@ -19762,7 +20176,7 @@ const BUILT_IN_SCRIPTS = [
     return [{text: res}];
 }
 
-    function toGeminiRequestData(model, apiKey, systemInstruction, messagesForDecision,isGemini) {
+    function toGeminiRequestData(model, apiKey, systemInstruction, messagesForDecision, isGemini, temperature) {
 
 	if(!isGemini){
 		return undefined
@@ -19796,7 +20210,7 @@ const BUILT_IN_SCRIPTS = [
                         }
                     }),
                     generationConfig: {
-                        temperature: parseFloat(state.apiConfig.temperature) || 0.8,
+                        temperature: parseFloat(temperature) || 0.8,
                     },
                     "systemInstruction": {
                         "parts": [{
@@ -21305,9 +21719,10 @@ function getRandomItem(arr) {
         // 2. 数据库结构定义
         // ===================================================================
 
-// ▼▼▼ 用这块新代码替换你旧的 db.version(...).stores(...) ▼▼▼
-db.version(40).stores({ // 版本号 +1 = 40
-    chats: '&id, isGroup, groupId, isPinned, characterPhoneData, latestInnerVoice, innerVoiceHistory, loversSpaceData.emotionDiaries, settings.summary, settings.weiboNickname',
+// ▼▼▼ 用这块【V42版本】的代码替换你旧的 db.version(...).stores(...) ▼▼▼
+db.version(42).stores({ // 版本号 +1 = 42
+    chats: '&id, isGroup, groupId, ownerId, isPinned, characterPhoneData, latestInnerVoice, innerVoiceHistory, loversSpaceData.emotionDiaries, settings.summary, settings.weiboNickname',
+    // ... 其他表格保持不变 ...
     apiConfig: '&id',
     globalSettings: '&id, activeThemeId', 
     userStickers: '&id, url, name', 
@@ -21344,14 +21759,9 @@ db.version(40).stores({ // 版本号 +1 = 40
     userWalletTransactions: '++id, timestamp' ,
     charPhonePresets: '++id, name',
     ludoQuestionBanks: '++id, name',
-    // ★★★ 核心修改：为问题表增加 type 字段索引 ★★★
     ludoQuestions: '++id, bankId, text, type'
 });
 // ▲▲▲ 替换结束 ▲▲▲
-
-
-
-
 
 window.db = db;
 
@@ -23290,6 +23700,40 @@ if (!chat.settings.streak) {
     console.log(`为角色 "${chat.name}" 的旧火花设置添加了熄灭阈值。`);
 }
 // ▲▲▲ 替换结束 ▲▲▲
+// 兼容旧的群聊数据，为它们添加群主、管理员和头衔属性
+if (chat.isGroup) {
+  if (typeof chat.settings.groupAnnouncement === 'undefined') {
+    chat.settings.groupAnnouncement = '';
+}
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+    // 如果没有ownerId，则默认创建者（也就是你）为群主
+    if (!chat.ownerId) {
+        chat.ownerId = 'user'; // 我们假设用户的ID为 'user'
+    }
+    // 遍历所有成员，为他们添加新属性
+    if (chat.members && Array.isArray(chat.members)) {
+        chat.members.forEach(member => {
+            if (typeof member.isAdmin === 'undefined') {
+                member.isAdmin = false; // 默认不是管理员
+            }
+            if (typeof member.groupTitle === 'undefined') {
+                member.groupTitle = ''; // 默认没有头衔
+            }
+        });
+    }
+    // 【新增】为用户自己也添加管理员和头衔的默认属性
+    if (chat.settings) {
+        if (typeof chat.settings.isUserAdmin === 'undefined') {
+            chat.settings.isUserAdmin = false;
+        }
+        if (typeof chat.settings.myGroupTitle === 'undefined') {
+            chat.settings.myGroupTitle = '';
+        }
+    }
+}
+
+// ▲▲▲ 粘贴结束 ▲▲▲
+
 
 
         // ▲▲▲ 新代码粘贴结束 ▲▲▲
@@ -23983,6 +24427,15 @@ function renderChatInterface(chatId) {
     cleanupWaimaiTimers();
     const chat = state.chats[chatId];
     if (!chat) return;
+        // ▼▼▼ 【全新】群公告图标显示/隐藏逻辑 ▼▼▼
+    const announcementBtn = document.getElementById('group-announcement-btn');
+    if (chat.isGroup) {
+        announcementBtn.style.display = 'inline-flex'; // 在群聊中显示
+    } else {
+        announcementBtn.style.display = 'none'; // 在单聊中隐藏
+    }
+    // ▲▲▲ 新增代码结束 ▲▲▲
+
     exitSelectionMode();
     
     const messagesContainer = document.getElementById('chat-messages');
@@ -24422,21 +24875,99 @@ if (msg.type === 'recalled_message') {
     const isUser = msg.role === 'user';
     const wrapper = document.createElement('div');
     wrapper.className = `message-wrapper ${isUser ? 'user' : 'ai'}`;
-// ★★★【核心重构】★★★
-// 这段逻辑现在用于查找成员对象，并显示其“群昵称”
-if (chat.isGroup && !isUser) {
-    // 1. 使用AI返回的“本名”(`msg.senderName`)去列表里查找成员对象
-    const member = chat.members.find(m => m.originalName === msg.senderName);
+// ▼▼▼ 用这块【已修复】的代码替换旧的 if (chat.isGroup) 代码块 ▼▼▼
+if (chat.isGroup) { 
+    const senderLine = document.createElement('div');
+    senderLine.className = 'group-sender-line';
     
-    // 2. 创建用于显示名字的 div
-    const senderNameDiv = document.createElement('div');
-    senderNameDiv.className = 'sender-name';
+    const tagsContainer = document.createElement('div');
+    tagsContainer.className = 'group-sender-tags';
+
+    let senderDisplayName;
+
+    // --- ★★★ 核心修改在这里 ★★★ ---
+    if (isUser) {
+        // 如果是用户自己
+        senderDisplayName = chat.settings.myNickname || '我';
+        
+        // 检查用户是否是群主
+        if (chat.ownerId === 'user') {
+            const roleTag = document.createElement('span');
+            roleTag.className = 'group-role-tag owner';
+            roleTag.textContent = '群主';
+            tagsContainer.appendChild(roleTag);
+        } 
+        // 检查用户是否被设为管理员
+        else if (chat.settings.isUserAdmin) {
+            const roleTag = document.createElement('span');
+            roleTag.className = 'group-role-tag admin';
+            roleTag.textContent = '管理员';
+            tagsContainer.appendChild(roleTag);
+        }
+        
+        // 检查用户是否有头衔
+        if (chat.settings.myGroupTitle) {
+            const titleTag = document.createElement('span');
+            titleTag.className = 'group-title-tag';
+            titleTag.textContent = chat.settings.myGroupTitle;
+            tagsContainer.appendChild(titleTag);
+        }
+    } else {
+        // 如果是其他成员 (AI/NPC)，这部分逻辑保持不变
+        const member = chat.members.find(m => m.originalName === msg.senderName);
+        senderDisplayName = member ? member.groupNickname : (msg.senderName || '未知成员');
+                // --- ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼ ---
+        // 【核心新增】如果该成员被禁言了，就添加一个禁言标签
+        if (member && member.isMuted) {
+            const muteTag = document.createElement('span');
+            muteTag.className = 'group-title-tag'; // 复用头衔标签的样式
+            muteTag.style.color = '#ff3b30'; // 让它变成红色
+            muteTag.style.backgroundColor = '#ffe5e5'; // 淡红色背景
+            muteTag.textContent = '🚫已禁言';
+            tagsContainer.appendChild(muteTag);
+        }
+        // --- ▲▲▲ 新代码粘贴结束 ▲▲▲
+        if (member && chat.ownerId === member.id) {
+            const roleTag = document.createElement('span');
+            roleTag.className = 'group-role-tag owner';
+            roleTag.textContent = '群主';
+            tagsContainer.appendChild(roleTag);
+        } 
+        else if (member && member.isAdmin) {
+            const roleTag = document.createElement('span');
+            roleTag.className = 'group-role-tag admin';
+            roleTag.textContent = '管理员';
+            tagsContainer.appendChild(roleTag);
+        }
+        
+        if (member && member.groupTitle) {
+            const titleTag = document.createElement('span');
+            titleTag.className = 'group-title-tag';
+            titleTag.textContent = member.groupTitle;
+            tagsContainer.appendChild(titleTag);
+        }
+    }
+    // --- ▲▲▲ 修改结束 ▲▲▲
+
+    const senderNameSpan = document.createElement('span');
+    senderNameSpan.className = 'sender-name';
+    senderNameSpan.textContent = senderDisplayName;
     
-    // 3. 如果找到了成员，就显示他的“群昵称”；如果找不到，就显示AI返回的“本名”作为备用
-    senderNameDiv.textContent = member ? member.groupNickname : (msg.senderName || '未知成员');
+    // 【独家定制】修复用户标签显示在右边的问题
+    if (isUser) {
+        senderLine.appendChild(tagsContainer); // 标签在左
+        senderLine.appendChild(senderNameSpan); // 昵称在右
+    } else {
+        senderLine.appendChild(senderNameSpan); // 昵称在左
+        senderLine.appendChild(tagsContainer); // 标签在右
+    }
     
-    wrapper.appendChild(senderNameDiv);
+    wrapper.appendChild(senderLine);
 }
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+
 
     const bubble = document.createElement('div');
     bubble.className = `message-bubble ${isUser ? 'user' : 'ai'}`;
@@ -25964,11 +26495,29 @@ if (repostMessage) {
 
 const countdownContext = await getCountdownContext(chatId); // <--- 把chatId传进去
 
-const membersList = chat.members.map(m => `- **${m.originalName}**: ${m.persona}`).join('\n');
+// ▼▼▼ 用这行【已添加禁言状态】的代码替换 ▼▼▼
+const membersList = chat.members.map(m => {
+    const muteStatus = m.isMuted ? ' (【状态：已被禁言，禁止让他发言】)' : '';
+    return `- **${m.originalName}**: ${m.persona}${muteStatus}`;
+}).join('\n');
+// ▲▲▲ 替换结束 ▲▲▲
             const myNickname = chat.settings.myNickname || '我';
-            
+            // 1. 获取群公告内容
+const announcement = chat.settings.groupAnnouncement || '';
+let announcementContext = '';
+
+// 2. 如果公告内容不为空，就构建要插入到 Prompt 里的上下文
+if (announcement.trim()) {
+    announcementContext = `
+# 群公告 (【最高优先级规则，必须严格遵守】)
+- 以下是本群的群公告，所有角色在接下来的对话中都必须严格遵守其中的规则和设定：
+- "${announcement}"
+`;
+}
+// ▲▲▲ 【修改结束】 ▲▲▲
             systemPrompt = `你是一个群聊AI，负责扮演【除了用户以外】的所有角色。
             ${summaryContext}
+            ${announcementContext}
 # 核心规则
 1.  **【【【身份铁律】】】**: 用户的身份是【${myNickname}】。你【绝对、永远、在任何情况下都不能】生成 \`name\` 字段为 **"${myNickname}"** 或 **"${chat.name}"(群聊名称本身)** 的消息。你的唯一任务是扮演且仅能扮演下方“群成员列表”中明确列出的角色。任何不属于该列表的名字都不允许出现。
 2.  **【【【输出格式】】】**: 你的回复【必须】是一个JSON数组格式的字符串。数组中的【每一个元素都必须是一个带有 "type" 和 "name" 字段的JSON对象】。
@@ -25982,6 +26531,7 @@ const membersList = chat.members.map(m => `- **${m.originalName}**: ${m.persona}
     - 如果提示是**用户投了票**，你可以根据自己的性格决定是否也使用 "vote" 指令跟票。
     - 如果提示是**投票已结束**，你应该根据投票结果发表你的看法或评论。
     - 你也可以随时主动发起投票。
+8.  **群组管理**: 作为群主，你有责任管理群组。当群聊变得活跃或混乱时，或当你认为某个成员值得信赖时，你可以使用 'set_group_admin' 指令来任命或撤销管理员。 作为群主或管理员，你有责任管理群组。当群聊需要新的规则或通知时，你可以使用 'set_group_announcement' 指令来更新群公告。
 
 ## 你可以使用的操作指令 (JSON数组中的元素):
 -   **发送文本**: \`{"type": "text", "name": "角色名", "message": "文本内容"}\`
@@ -26000,6 +26550,12 @@ const membersList = chat.members.map(m => `- **${m.originalName}**: ${m.persona}
 -   **【【【全新】】】发起投票**: \`{"type": "poll", "name": "你的角色名", "question": "投票的问题", "options": "选项A\\n选项B\\n选项C"}\` (重要提示：options字段是一个用换行符 \\n 分隔的字符串，不是数组！)
 -   **【【【全新】】】参与投票**: \`{"type": "vote", "name": "你的角色名", "poll_timestamp": (投票消息的时间戳), "choice": "你选择的选项文本"}\`
 - **【全新】引用回复**: \`{"type": "quote_reply", "target_timestamp": (你想引用的消息的时间戳), "reply_content": "你的回复内容"}\` (提示：每条历史消息的开头都提供了 \`(Timestamp: ...)\`，请使用它！)
+-   **【新】踢出成员**: \`{"type": "kick_member", "name": "你的角色名", "targetName": "要踢出的成员名"}\` (仅群主可用)
+-   **【新】禁言成员**: \`{"type": "mute_member", "name": "你的角色名", "targetName": "要禁言的成员名"}\` (仅群主或管理员可用)
+-   **【新】解禁成员**: \`{"type": "unmute_member", "name": "你的角色名", "targetName": "要解禁的成员名"}\` (仅群主或管理员可用)
+-   **【新】设置/取消管理员**: \`{"type": "set_group_admin", "name": "你的角色名", "targetName": "目标角色名", "isAdmin": true/false}\`(仅群主可用, true为设置, false为取消)
+-   **【新】设置群头衔**: \`{"type": "set_group_title", "name": "你的角色名", "targetName": "目标角色名", "title": "新头衔"}\` (仅群主或管理员可用)
+-   **【新】修改群公告**: \`{"type": "set_group_announcement", "name": "你的角色名", "content": "新的公告内容..."}\` (仅群主或管理员可用)
 
 # 如何区分图片与表情:
 -   **图片 (ai_image)**: 指的是【模拟真实相机拍摄的照片】，比如风景、自拍、美食等。指令: \`{"type": "ai_image", "description": "图片的详细文字描述..."}\`
@@ -26025,28 +26581,15 @@ ${membersList}
 
 现在，请根据以上所有规则和下方的对话历史，继续这场群聊。`;
             
-// ▼▼▼ 请用这【一整块已修复红包识别】的代码，替换旧的【群组聊天】messagesPayload构建逻辑 ▼▼▼
+// ▼▼▼ 【最终修复版】请用这整块代码，完整替换旧的 messagesPayload 构建逻辑 ▼▼▼
 messagesPayload = historySlice.map((msg, index) => {
-    // 【核心新增】在这里优先处理红包消息
-    if (msg.type === 'red_packet') {
-        let contentForAI = `(Timestamp: ${msg.timestamp}) [${msg.senderName} 发送了一个红包。`;
-        if (msg.packetType === 'direct') {
-            contentForAI += ` 这是一个给“${msg.receiverName}”的专属红包。]`;
-        } else { // 'lucky'
-            contentForAI += ` 这是一个拼手气红包。]`;
-        }
-        return { role: msg.role, content: contentForAI };
-    }
-
-    // 【核心修复】在这里，我们对 isHidden 消息进行特殊处理
     if (msg.isHidden) {
         return { role: 'system', content: msg.content };
     }
 
     if (msg.type === 'share_card') return null;
-    
-    // AI消息的处理逻辑保持不变
     if (msg.role === 'assistant') {
+        // AI消息的处理逻辑保持不变...
         let assistantMsgObject = { type: msg.type || 'text' };
         if (msg.type === 'sticker') {
             assistantMsgObject.url = msg.content;
@@ -26058,30 +26601,35 @@ messagesPayload = historySlice.map((msg, index) => {
             assistantMsgObject.productInfo = msg.productInfo;
             assistantMsgObject.amount = msg.amount;
         } else {
-            if (msg.quote) {
+             if (msg.quote) {
                 assistantMsgObject.quote_reply = {
                     target_sender: msg.quote.senderName,
                     target_content: msg.quote.content,
                     reply_content: msg.content
                 };
             } else {
-                 assistantMsgObject.content = msg.content;
+                assistantMsgObject.content = msg.content;
             }
         }
         const assistantContent = JSON.stringify([assistantMsgObject]);
         return { role: 'assistant', content: `(Timestamp: ${msg.timestamp}) ${assistantContent}` };
     }
 
+    // --- 用户消息处理 ---
+    const myNickname = chat.isGroup ? (chat.settings.myNickname || '我') : '我';
     let contentStr = '';
-    if (index === historySlice.length - 1 && msg.role === 'user') {
-        if (musicState.isActive && musicState.activeChatId === chatId) {
-            const currentTrack = musicState.currentIndex > -1 ? musicState.playlist[musicState.currentIndex] : null;
-            if (currentTrack) {
-                const musicPrefix = `[系统环境提示：用户在听歌曲《${currentTrack.name}》 - ${currentTrack.artist} (播放进度: ${formatMusicTime(audioPlayer.currentTime)} / ${formatMusicTime(audioPlayer.duration)}) 时发送了以下消息]\n\n`;
-                contentStr += musicPrefix;
-            }
-        }
+    
+    // ★★★★★ 这就是我们本次修复的核心！ ★★★★★
+    // 1. 在处理所有用户消息前，优先检查它是不是一个投票
+    if (msg.type === 'poll') {
+        // 2. 如果是，就把它转换成AI能看懂的系统提示文本
+        const pollInfoText = `(Timestamp: ${msg.timestamp}) [系统提示：用户 (${myNickname}) 发起了一个投票。问题：“${msg.question}”, 选项：“${msg.options.join('", "')}”。你可以使用 'vote' 指令参与投票。]`;
+        // 3. 返回一个被AI识别为用户发出的、但内容是指令的消息
+        return { role: 'user', content: pollInfoText }; 
     }
+    // ★★★★★ 修复结束 ★★★★★
+
+    // 如果不是投票，再执行原来的其他消息类型判断
     contentStr += `(Timestamp: ${msg.timestamp}) `;
 
     if (msg.quote) {
@@ -26090,7 +26638,7 @@ messagesPayload = historySlice.map((msg, index) => {
     } else {
         contentStr += msg.content;
     }
-    
+
     if (msg.type === 'user_photo') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [你收到了一张用户描述的照片，内容是：'${msg.content}']` };
     if (msg.type === 'voice_message') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [用户发来一条语音消息，内容是：'${msg.content}']` };
     if (msg.type === 'transfer') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [系统提示：你于时间戳 ${msg.timestamp} 收到了来自用户的转账: ${msg.amount}元, 备注: ${msg.note}。请你决策并使用 'accept_transfer' 或 'decline_transfer' 指令回应。]` };
@@ -26107,6 +26655,7 @@ messagesPayload = historySlice.map((msg, index) => {
 
 }).filter(Boolean);
 // ▲▲▲ 替换结束 ▲▲▲
+
 
 // ▲▲▲ 替换结束 ▲▲▲
          } else { // 单聊的Prompt
@@ -26838,8 +27387,16 @@ if (weiboContext) {
                 console.error(`AI幻觉已被拦截！试图使用群名 ("${chat.name}") 作为角色名。消息内容:`, msgData);
                 continue;
             }
+// ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
 
-// ▼▼▼ 在这里添加下面的代码 ▼▼▼
+// 【核心修正】在群聊中，如果AI返回的消息没有指定发送者，则直接跳过这条消息
+if (chat.isGroup && !msgData.name) {
+    console.error(`AI幻觉已被拦截！试图在群聊中发送一条没有“name”的消息。消息内容:`, msgData);
+    continue; // continue会立即结束本次循环，处理下一条消息
+}
+
+
+
 
 // 【核心修正】在群聊中，如果AI返回的消息没有指定发送者，则直接跳过这条消息
 if (chat.isGroup && !msgData.name) {
@@ -26909,6 +27466,16 @@ if (msgData.type === 'text' && messageText.startsWith('[SEND_LOCATION]')) {
         continue; 
     }
 }
+// 检查消息的发送者是否被禁言了
+if (chat.isGroup && msgData.name) {
+    const senderMember = chat.members.find(m => m.originalName === msgData.name);
+    if (senderMember && senderMember.isMuted) {
+        // 如果被禁言了，就在控制台打印一条日志，然后跳过这条消息，不让它显示出来
+        console.warn(`拦截到被禁言成员 (${msgData.name}) 的发言，内容:`, msgData.content || msgData.message);
+        continue; 
+    }
+}
+// ▲▲▲ 添加结束 ▲▲▲
 // ▲▲▲ 粘贴到这里结束 ▲▲▲
             switch (msgData.type) {
                           // ▼▼▼ 在这里粘贴下面的新代码块 ▼▼▼
@@ -26947,10 +27514,226 @@ if (msgData.type === 'text' && messageText.startsWith('[SEND_LOCATION]')) {
                         originalMsg.paidBy = msgData.status === 'paid' ? msgData.name : null;
                     }
                     continue;
-// ▼▼▼ 在 switch (msgData.type) 结构内粘贴 ▼▼▼
-// ▼▼▼ 在 triggerAiResponse 的 switch (msgData.type) 结构内，用这整块新代码替换旧的 case 'weibo_post' ▼▼▼
-// ▼▼▼ 请用这一整块【已修复评论区不显示问题】的代码，完整替换你旧的 case 'weibo_post' 代码块 ▼▼▼
+// ▼▼▼ 用这块【修复后】的代码替换旧的 case 'set_group_title' 代码块 ▼▼▼
+case 'set_group_title': {
+    const actorName = msgData.name;
+    const targetName = msgData.targetName;
+    const newTitle = msgData.title || '';
+    const myNickname = chat.settings.myNickname || '我';
 
+    // 权限检查：群主或管理员可以设置头衔
+    const actorMember = chat.members.find(m => m.originalName === actorName);
+    const isActorAdmin = actorMember && actorMember.isAdmin;
+    const isActorOwner = actorMember && chat.ownerId === actorMember.id;
+    if (!isActorAdmin && !isActorOwner) {
+        console.warn(`AI "${actorName}" 尝试设置头衔失败，权限不足。`);
+        continue;
+    }
+
+    // --- ★★★ 核心修复逻辑开始 ★★★ ---
+    if (targetName === myNickname) {
+        // 如果目标是你自己
+        chat.settings.myGroupTitle = newTitle.trim();
+        console.log(`管理员/群主将用户 "${myNickname}" 的头衔设置为: "${newTitle.trim()}"`);
+    } else {
+        // 如果目标是其他成员
+        const targetMember = chat.members.find(m => m.groupNickname === targetName);
+        if (targetMember) {
+            targetMember.groupTitle = newTitle.trim();
+            console.log(`管理员/群主将成员 "${targetName}" 的头衔设置为: "${newTitle.trim()}"`);
+        } else {
+            console.warn(`AI "${actorName}" 尝试设置头衔失败，因为找不到目标成员 "${targetName}"。`);
+            continue;
+        }
+    }
+    // --- ★★★ 修复逻辑结束 ★★★ ---
+
+    // 统一发送系统消息通知
+    await logTitleChange(chat.id, actorName, targetName, newTitle.trim());
+
+    // 刷新成员列表UI（如果打开了的话）
+    if(document.getElementById('member-management-screen').classList.contains('active')) {
+        renderMemberManagementList();
+    }
+    
+    continue; // 后台操作，继续处理
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▼▼▼ 用这块【修复后】的代码替换旧的 case 'set_group_admin' 代码块 ▼▼▼
+case 'set_group_admin': {
+    const actorName = msgData.name;
+    const targetName = msgData.targetName;
+    const isAdmin = msgData.isAdmin;
+    const myNickname = chat.settings.myNickname || '我'; // 获取你自己的昵称
+
+    // 权限检查：确认操作者是群主
+    const actorMember = chat.members.find(m => m.originalName === actorName);
+    if (!actorMember || chat.ownerId !== actorMember.id) {
+        console.warn(`AI "${actorName}" 尝试设置管理员失败，因为它不是群主。`);
+        continue; // 如果不是群主，就跳过此指令
+    }
+
+    // --- ★★★ 核心修复逻辑开始 ★★★ ---
+    if (targetName === myNickname) {
+        // 如果AI操作的目标是你自己
+        chat.settings.isUserAdmin = isAdmin;
+        console.log(`群主将用户 "${myNickname}" 设置为管理员: ${isAdmin}`);
+    } else {
+        // 如果AI操作的目标是其他成员
+        const targetMember = chat.members.find(m => m.groupNickname === targetName);
+        if (targetMember) {
+            // 不能对群主进行操作
+            if (targetMember.id === chat.ownerId) {
+                 console.warn(`AI "${actorName}" 尝试修改群主 "${targetName}" 的管理员身份，操作被阻止。`);
+                 continue;
+            }
+            targetMember.isAdmin = isAdmin;
+            console.log(`群主将成员 "${targetName}" 设置为管理员: ${isAdmin}`);
+        } else {
+            // 如果在成员列表里也找不到目标，就跳过
+            console.warn(`AI "${actorName}" 尝试设置管理员失败，因为找不到目标成员 "${targetName}"。`);
+            continue; 
+        }
+    }
+    // --- ★★★ 修复逻辑结束 ★★★ ---
+
+    // 统一发送系统消息通知
+    const actionText = isAdmin ? '设为管理员' : '取消了管理员身份';
+    await logSystemMessage(chat.id, `“${actorName}”将“${targetName}”${actionText}。`);
+    
+    // 刷新成员列表UI（如果打开了的话）
+    if(document.getElementById('member-management-screen').classList.contains('active')) {
+        renderMemberManagementList();
+    }
+    
+    continue; // 这是一个后台操作，继续处理AI可能返回的其他消息
+}
+// ▼▼▼ 用这块【修复后】的代码替换旧的 case 'kick_member' 代码块 ▼▼▼
+case 'kick_member': {
+    const actorName = msgData.name;
+    const targetName = msgData.targetName;
+    const actorMember = chat.members.find(m => m.originalName === actorName);
+    
+    // 权限检查：只有群主能执行
+    if (actorMember && chat.ownerId === actorMember.id) {
+        const targetMemberIndex = chat.members.findIndex(m => m.groupNickname === targetName);
+        if (targetMemberIndex > -1) {
+            const removedMember = chat.members.splice(targetMemberIndex, 1)[0];
+
+            // ★★★ 核心修复1：将改动保存到数据库 ★★★
+            await db.chats.put(chat);
+            
+            // ★★★ 核心修复2：发送系统通知（这行代码不变，但位置更合理了） ★★★
+            await logSystemMessage(chat.id, `“${actorName}”将“${removedMember.groupNickname}”移出了群聊。`);
+
+            // ★★★ 核心修复3：如果当前正在成员管理页面，就刷新列表 ★★★
+            if(document.getElementById('member-management-screen').classList.contains('active')) {
+                renderMemberManagementList();
+            }
+        }
+    }
+    continue; // 保持后台操作，继续处理
+}
+// ▲▲▲ 替换结束 ▲▲▲
+// ▼▼▼ 在这里粘贴下面这整块【全新的】代码 ▼▼▼
+case 'set_group_announcement': {
+    const actorName = msgData.name;
+    const newAnnouncement = msgData.content;
+
+    if (!actorName || typeof newAnnouncement === 'undefined') {
+        console.warn("AI尝试修改公告失败，缺少必要参数。");
+        continue; // 指令不完整，跳过
+    }
+
+    // 1. 权限检查：必须确保执行操作的角色是群主或管理员
+    const actorMember = chat.members.find(m => m.originalName === actorName);
+    if (!actorMember) {
+        console.warn(`AI尝试修改公告失败，找不到名为“${actorName}”的成员。`);
+        continue;
+    }
+
+    const isOwner = chat.ownerId === actorMember.id;
+    const isAdmin = actorMember.isAdmin;
+
+    if (!isOwner && !isAdmin) {
+        console.warn(`AI角色“${actorName}”权限不足，尝试修改群公告失败。`);
+        continue; // 没有权限，跳过
+    }
+
+    // 2. 更新公告内容
+    chat.settings.groupAnnouncement = newAnnouncement;
+    await db.chats.put(chat);
+
+    // 3. 发送一条系统消息，通知所有人群公告已更新
+    await logSystemMessage(chat.id, `“${actorMember.groupNickname}”修改了群公告。`);
+
+    // 这是一个后台管理操作，不需要在聊天中生成新的对话气泡，所以我们用 continue
+    continue;
+}
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
+case 'mute_member': {
+    const actorName = msgData.name;
+    const targetName = msgData.targetName;
+    const actorMember = chat.members.find(m => m.originalName === actorName);
+    const targetMember = chat.members.find(m => m.groupNickname === targetName);
+
+    if (actorMember && targetMember) {
+        const isActorOwner = chat.ownerId === actorMember.id;
+        const isActorAdmin = actorMember.isAdmin;
+        const isTargetOwner = chat.ownerId === targetMember.id;
+        const isTargetAdmin = targetMember.isAdmin;
+
+        // 权限检查：群主可以禁言管理员和普通人；管理员只能禁言普通人。
+        if ((isActorOwner && !isTargetOwner) || (isActorAdmin && !isTargetOwner && !isTargetAdmin)) {
+            // 发送系统消息
+            await logSystemMessage(chat.id, `“${actorName}”将“${targetName}”禁言。`);
+            
+        } else {
+            console.warn(`AI (${actorName}) 权限不足，无法禁言 (${targetName})。`);
+        }
+    }
+    continue; // 这也是一个后台管理操作，继续处理AI可能返回的其他消息
+}
+// ▼▼▼ 在这里粘贴下面这一整块全新的代码 ▼▼▼
+
+case 'unmute_member': {
+    const actorName = msgData.name;
+    const targetName = msgData.targetName;
+    const actorMember = chat.members.find(m => m.originalName === actorName);
+    const targetMember = chat.members.find(m => m.groupNickname === targetName);
+
+    // 确保操作者和目标都存在
+    if (actorMember && targetMember) {
+        // 权限检查
+        const isActorOwner = chat.ownerId === actorMember.id;
+        const isActorAdmin = actorMember.isAdmin;
+        const isTargetOwner = chat.ownerId === targetMember.id;
+        const isTargetAdmin = targetMember.isAdmin;
+
+        // 只有群主和管理员有权限解禁
+        if (isActorOwner || isActorAdmin) {
+            // 设置 isMuted 为 false，实现解禁
+            targetMember.isMuted = false;
+            
+            // 发送一条系统消息通知大家
+            await logSystemMessage(chat.id, `“${actorName}”解除了“${targetName}”的禁言。`);
+
+            // 如果当前正在成员管理页面，刷新列表
+            if(document.getElementById('member-management-screen').classList.contains('active')) {
+                renderMemberManagementList();
+            }
+        } else {
+            console.warn(`AI (${actorName}) 权限不足，无法解禁 (${targetName})。`);
+        }
+    }
+    continue; // 这也是一个后台管理操作，继续处理AI可能返回的其他消息
+}
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+
+// ▲▲▲ 粘贴结束 ▲▲▲
 case 'weibo_post': {
     const newPost = {
         authorId: chatId,
@@ -27762,51 +28545,68 @@ const hiddenMessage = {
                         chat.relationship.applicationReason = '';
                     }
                     break;
-                case 'poll':
-                    const pollOptions = typeof msgData.options === 'string'
-                        ? msgData.options.split('\n').filter(opt => opt.trim())
-                        : (Array.isArray(msgData.options) ? msgData.options : []);
-                    
-                    if (pollOptions.length < 2) continue;
+// ▼▼▼ 请用这块【功能完整且已修复】的代码，完整替换你旧的 case 'poll' 代码块 ▼▼▼
+case 'poll': {
+    // 【核心修复】在这里，我们同时处理来自AI和用户的投票消息
+    let pollInfoText = '';
+    
+    // 判断这条投票消息是谁发的
+    if (msg.role === 'user') {
+        const myNickname = chat.isGroup ? (chat.settings.myNickname || '我') : '我';
+        pollInfoText = `[系统提示：用户 (${myNickname}) 发起了一个投票。问题：“${msg.question}”, 选项：“${msg.options.join('", "')}”。你可以使用 'vote' 指令参与投票。]`;
+    } else { // 如果是AI发的
+        pollInfoText = `[系统提示：${msg.senderName} 发起了一个投票。问题：“${msg.question}”, 选项：“${msg.options.join('", "')}”。]`;
+    }
 
-                    aiMessage = {
-                        ...baseMessage,
-                        type: 'poll',
-                        question: msgData.question,
-                        options: pollOptions,
-                        votes: {},
-                        isClosed: false,
-                    };
-                    break;
-                
-                case 'vote':
-                    const pollToVote = chat.history.find(m => m.timestamp === msgData.poll_timestamp);
-                    if (pollToVote && !pollToVote.isClosed) {
-                        Object.keys(pollToVote.votes).forEach(option => {
-                            const voterIndex = pollToVote.votes[option].indexOf(msgData.name);
-                            if (voterIndex > -1) {
-                                pollToVote.votes[option].splice(voterIndex, 1);
-                            }
-                        });
-                        if (!pollToVote.votes[msgData.choice]) {
-                            pollToVote.votes[msgData.choice] = [];
-                        }
+    // 最终，我们把这条格式化好的文本作为系统消息发送给AI
+    // 注意：这里我们返回的是一个新对象，而不是修改原始的aiMessage
+    // 因此，我们将它放在了messagesPayload的构建循环里
+    aiMessage = { role: 'system', content: pollInfoText, isHidden: true };
+    break; // break不能少
+}
+// ▲▲▲ 替换结束 ▲▲▲      
+// ▼▼▼ 请用这块【功能完整且已修复】的代码，完整替换你旧的 case 'vote' 代码块 ▼▼▼
+case 'vote': { // 使用大括号创建独立的块级作用域
+    const pollToVote = chat.history.find(m => m.timestamp === msgData.poll_timestamp);
+    
+    // 安全检查：如果投票不存在或已关闭，则不处理
+    if (pollToVote && !pollToVote.isClosed) {
+        
+        // --- 核心修复逻辑从这里开始 ---
 
-// ▼▼▼ 在这里添加新代码 ▼▼▼
-const member = chat.members.find(m => m.originalName === msgData.name);
-const displayName = member ? member.groupNickname : msgData.name;
-// ▲▲▲ 添加结束 ▲▲▲
+        // 1. 【首先】根据AI的“本名”，找到其成员对象，并获取正确的“群昵称”
+        const member = chat.members.find(m => m.originalName === msgData.name);
+        const displayName = member ? member.groupNickname : msgData.name;
 
-if (!pollToVote.votes[msgData.choice].includes(displayName)) { // 【核心修改】
-    pollToVote.votes[msgData.choice].push(displayName); // 【核心修改】
-}                     
-                        
-                        if (isViewingThisChat) {
-                            renderChatInterface(chatId);
-                        }
-                    }
-                    continue;
+        // 2. 【然后】使用正确的“群昵称”去移除该角色之前的所有投票
+        Object.keys(pollToVote.votes).forEach(option => {
+            const voterIndex = pollToVote.votes[option].indexOf(displayName); // 使用 displayName
+            if (voterIndex > -1) {
+                pollToVote.votes[option].splice(voterIndex, 1);
+            }
+        });
 
+        // 3. 【最后】将“群昵称”添加到新的选项中
+        if (!pollToVote.votes[msgData.choice]) {
+            pollToVote.votes[msgData.choice] = [];
+        }
+        
+        // （可选但推荐）再次检查，避免意外重复添加
+        if (!pollToVote.votes[msgData.choice].includes(displayName)) {
+            pollToVote.votes[msgData.choice].push(displayName);
+        }
+
+        // --- 核心修复逻辑结束 ---
+        
+        // 如果用户正在看这个聊天，就刷新界面让他们看到变化
+        if (isViewingThisChat) {
+            renderChatInterface(chatId);
+        }
+    }
+    // 这是一个后台操作，不需要生成新的消息，所以用 continue
+    continue;
+}
+// ▲▲▲ 替换结束 ▲▲▲
     case 'red_packet':
         aiMessage = {
             ...baseMessage,
@@ -30289,6 +31089,7 @@ function updateContactPickerConfirmButton() {
     btn.disabled = selectedContacts.size < 2; // 至少需要2个人才能创建群聊
 }
 
+// ▼▼▼ 用这块【功能增强版】的代码，完整替换你旧的 handleCreateGroup 函数 ▼▼▼
 /**
  * 【重构版】处理创建群聊的最终逻辑
  */
@@ -30304,19 +31105,19 @@ async function handleCreateGroup() {
     const newChatId = 'group_' + Date.now();
     const members = [];
     
-    // 遍历选中的联系人ID
     for (const contactId of selectedContacts) {
         const contactChat = state.chats[contactId];
         if (contactChat) {
-            // ★★★【核心重构】★★★
-            // 我们现在同时存储角色的“本名”和“群昵称”
             members.push({
                 id: contactId, 
-                originalName: contactChat.name,   // 角色的“本名”，用于AI识别
-                groupNickname: contactChat.name, // 角色的“群昵称”，用于显示和修改，初始值和本名相同
+                originalName: contactChat.name,
+                groupNickname: contactChat.name,
                 avatar: contactChat.settings.aiAvatar || defaultAvatar,
                 persona: contactChat.settings.aiPersona,
-                avatarFrame: contactChat.settings.aiAvatarFrame || ''
+                avatarFrame: contactChat.settings.aiAvatarFrame || '',
+                // ★★★ 核心新增：为新成员添加管理员和头衔的默认值 ★★★
+                isAdmin: false, 
+                groupTitle: ''
             });
         }
     }
@@ -30325,6 +31126,8 @@ async function handleCreateGroup() {
         id: newChatId,
         name: groupName.trim(),
         isGroup: true,
+        // ★★★ 核心新增：设置群主为当前用户 ★★★
+        ownerId: 'user', 
         members: members,
         settings: {
             myPersona: '我是谁呀。',
@@ -30332,13 +31135,17 @@ async function handleCreateGroup() {
             maxMemory: 10,
             groupAvatar: defaultGroupAvatar,
             myAvatar: defaultMyGroupAvatar,
+            myAvatarFrame: '', // 别忘了自己的头像框
             background: '',
             theme: 'default',
             fontSize: 13,
             customCss: '',
             linkedWorldBookIds: [],
-            stickerLibrary: [], // <--- 新增这一行，为新群聊初始化专属表情库
-            linkedMemories: []
+            stickerLibrary: [],
+            linkedMemories: [],
+            // ★★★ 核心新增：为用户自己也加上管理员和头衔的初始设置 ★★★
+            isUserAdmin: false,
+            myGroupTitle: '',
         },
         history: [],
         musicData: { totalTime: 0 }
@@ -30347,10 +31154,16 @@ async function handleCreateGroup() {
     state.chats[newChatId] = newGroupChat;
     await db.chats.put(newGroupChat);
     
+    // ★★★ 核心新增：创建群聊后，发送一条系统通知 ★★★
+    await logSystemMessage(newChatId, `你创建了群聊，并邀请了 ${members.map(m => `“${m.groupNickname}”`).join('、')} 加入群聊。`);
+
+    // 后续逻辑不变
     await renderChatList();
     showScreen('chat-list-screen');
     openChat(newChatId); 
 }
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 // ▼▼▼ 【全新】群成员管理核心函数 ▼▼▼
 
@@ -30363,41 +31176,324 @@ function openMemberManagementScreen() {
     showScreen('member-management-screen');
 }
 
+// ▼▼▼ 用这块【V2 - 修复版】代码，完整替换掉你旧的 renderMemberManagementList 函数 ▼▼▼
+/**
+ * 【V2 - 修复版】渲染群成员管理列表
+ */
 function renderMemberManagementList() {
     const listEl = document.getElementById('member-management-list');
     const chat = state.chats[state.activeChatId];
-    listEl.innerHTML = '';
+    if (!chat || !chat.isGroup) {
+        listEl.innerHTML = '<p>错误：非群聊无法管理成员。</p>';
+        return;
+    }
+    listEl.innerHTML = ''; // 清空
 
-    chat.members.forEach(member => {
-        const item = document.createElement('div');
-        item.className = 'member-management-item';
-        // 【核心修正】在这里，我们将显示的名称从 member.name 改为 member.groupNickname
-        item.innerHTML = `
-            <img src="${member.avatar}" class="avatar">
-            <span class="name">${member.groupNickname}</span>
-            <button class="remove-member-btn" data-member-id="${member.id}" title="移出群聊">-</button>
-        `;
-        listEl.appendChild(item);
+    // 1. 【核心改造】创建一个包含所有人的完整列表
+    const allParticipants = [
+        // 把你自己(user)作为一个普通参与者对象放进去
+        {
+            id: 'user',
+            avatar: chat.settings.myAvatar || defaultMyGroupAvatar,
+            groupNickname: chat.settings.myNickname || '我',
+            // 修复Bug 1：在这里正确地读取你自己的群头衔
+            groupTitle: chat.settings.myGroupTitle || '', 
+        },
+        // 使用展开运算符(...)，把其他所有成员也加到这个列表里
+        ...(chat.members || [])
+    ];
+
+    // 2. (可选但推荐) 对列表进行排序，确保群主永远在最上面，其次是管理员
+    allParticipants.sort((a, b) => {
+        const isAOwner = a.id === chat.ownerId;
+        const isBOwner = b.id === chat.ownerId;
+        // 修复Bug 2：在这里正确地判断自己是不是管理员
+        const isAAdmin = a.id === 'user' ? chat.settings.isUserAdmin : a.isAdmin;
+        const isBAdmin = b.id === 'user' ? chat.settings.isUserAdmin : b.isAdmin;
+        
+        if (isAOwner) return -1; // a是群主，排最前
+        if (isBOwner) return 1;  // b是群主，排最前
+        if (isAAdmin && !isBAdmin) return -1; // a是管理员但b不是，a排前
+        if (!isAAdmin && isBAdmin) return 1;  // b是管理员但a不是，b排前
+        return 0; // 其他情况保持原顺序
     });
+
+    // 3. 【核心改造】遍历这个统一的列表，并渲染每一项
+    const isCurrentUserOwner = chat.ownerId === 'user';
+    allParticipants.forEach(participant => {
+        const participantItem = createMemberManagementItem(participant, chat, isCurrentUserOwner);
+        listEl.appendChild(participantItem);
+    });
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+// ▼▼▼ 用这块【V3最终权限修复版】的代码，完整替换旧的 createMemberManagementItem 函数 ▼▼▼
+/**
+ * 【V3 - 最终权限修复版】创建一个成员管理列表项
+ * @param {object} member - 成员对象数据
+ * @param {object} chat - 当前群聊对象
+ * @returns {HTMLElement} - 创建好的DOM元素
+ */
+function createMemberManagementItem(member, chat) {
+    const item = document.createElement('div');
+    item.className = 'member-management-item';
+    
+    // --- 权限判断 ---
+    const isCurrentUserOwner = chat.ownerId === 'user';
+    const isCurrentUserAdmin = chat.settings.isUserAdmin;
+    const isThisMemberOwner = member.id === chat.ownerId;
+    const isThisMemberAdmin = (member.id === 'user' && chat.settings.isUserAdmin) || member.isAdmin;
+    
+    // 权限计算：我能对TA做什么？
+    const canManageAdmin = isCurrentUserOwner && !isThisMemberOwner; // 只有群主能设置/取消管理员
+    const canManageTitle = isCurrentUserOwner || isCurrentUserAdmin; // 管理员和群主都能设置头衔
+    const canKick = (isCurrentUserOwner && member.id !== 'user') || (isCurrentUserAdmin && !isThisMemberOwner && !isThisMemberAdmin && member.id !== 'user');
+    const canMute = (isCurrentUserOwner && member.id !== 'user') || (isCurrentUserAdmin && !isThisMemberOwner && !isThisMemberAdmin && member.id !== 'user');
+    
+    // --- 标签显示 ---
+    let roleTag = '';
+    if (isThisMemberOwner) {
+        roleTag = '<span class="role-tag owner">群主</span>';
+    } else if (isThisMemberAdmin) {
+        roleTag = '<span class="role-tag admin">管理员</span>';
+    }
+    const titleText = (member.id === 'user') ? (chat.settings.myGroupTitle || '') : (member.groupTitle || '');
+    const titleTag = titleText ? `<span class="title-tag">${titleText}</span>` : '';
+    // ★★★ 如果被禁言，显示一个特殊的标签 ★★★
+    const muteTag = member.isMuted ? '<span class="group-title-tag" style="color: #ff3b30; background-color: #ffe5e5;">🚫已禁言</span>' : '';
+
+    // --- 动态生成按钮HTML ---
+    let actionsHtml = '';
+    
+    // 用户自己的按钮
+    if (member.id === 'user') {
+        actionsHtml += `<button class="action-btn" data-action="set-nickname" data-member-id="user">改名</button>`;
+        // ★★★ 用户被禁言时，显示“解除禁言”按钮 ★★★
+        if (member.isMuted) {
+             actionsHtml += `<button class="action-btn" data-action="unmute-self" data-member-id="user">解除禁言</button>`;
+        }
+    }
+
+    // 管理员和群主的操作按钮
+    if (canManageTitle) {
+        actionsHtml += `<button class="action-btn" data-action="set-title" data-member-id="${member.id}">头衔</button>`;
+    }
+    if (canManageAdmin) {
+        const adminActionText = isThisMemberAdmin ? '取消管理' : '设为管理';
+        actionsHtml += `<button class="action-btn" data-action="toggle-admin" data-member-id="${member.id}">${adminActionText}</button>`;
+    }
+    if (isCurrentUserOwner && member.id !== 'user') {
+        actionsHtml += `<button class="action-btn" data-action="transfer-owner" data-member-id="${member.id}">转让</button>`;
+    }
+    // ★★★ 禁言/解禁按钮 ★★★
+    if (canMute) {
+        const muteButtonText = member.isMuted ? '解禁' : '禁言';
+        actionsHtml += `<button class="action-btn" data-action="mute-member" data-member-id="${member.id}">${muteButtonText}</button>`;
+    }
+    if (canKick) {
+        actionsHtml += `<button class="action-btn danger" data-action="remove-member" data-member-id="${member.id}">踢出</button>`;
+    }
+    
+    // 最终拼接
+    item.innerHTML = `
+        <img src="${member.avatar}" class="avatar">
+        <div class="info">
+            <span class="name">${member.groupNickname}</span>
+            <div class="tags">
+                ${roleTag}
+                ${titleTag}
+                ${muteTag}
+            </div>
+        </div>
+        <div class="actions">${actionsHtml}</div>
+    `;
+    return item;
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+// ▼▼▼ 用这块【V2 - 修复版 | 支持解禁】的代码，完整替换掉你旧的 handleMuteMember 函数 ▼▼▼
+/**
+ * 【V2 - 核心修复版 | 支持解禁】处理禁言/解禁群成员
+ * @param {string} memberId - 要操作的成员ID
+ */
+async function handleMuteMember(memberId) {
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.isGroup) return;
+
+    // --- 权限检查 (和之前保持一致) ---
+    const isOwner = chat.ownerId === 'user';
+    const isAdmin = chat.settings.isUserAdmin;
+    let targetMember, targetIsOwner, targetIsAdmin;
+
+    // 判断操作目标是普通成员还是用户自己
+    if (memberId === 'user') {
+        targetMember = { id: 'user', ...chat.settings }; // 构造一个临时的“成员”对象代表用户
+        targetIsOwner = isOwner;
+        targetIsAdmin = isAdmin;
+    } else {
+        targetMember = chat.members.find(m => m.id === memberId);
+        if (!targetMember) return;
+        targetIsOwner = chat.ownerId === memberId;
+        targetIsAdmin = targetMember.isAdmin;
+    }
+
+    const canMute = (isOwner && !targetIsOwner) || (isAdmin && !targetIsOwner && !targetIsAdmin);
+
+    if (!canMute) {
+        alert("你没有权限操作该成员！");
+        return;
+    }
+
+    // --- ★★★ 核心修改：切换禁言状态 ★★★ ---
+    if (memberId === 'user') {
+        // 如果操作的是用户自己，就更新 chat.settings.isUserMuted
+        if (typeof chat.settings.isUserMuted === 'undefined') chat.settings.isUserMuted = false;
+        chat.settings.isUserMuted = !chat.settings.isUserMuted;
+    } else {
+        // 如果操作的是其他成员，就更新成员对象
+        if (typeof targetMember.isMuted === 'undefined') targetMember.isMuted = false;
+        targetMember.isMuted = !targetMember.isMuted;
+    }
+
+    // ★★★ 保存更新后的群聊数据到数据库 ★★★
+    await db.chats.put(chat); 
+
+    // ★★★ 重新渲染成员管理列表，按钮文字会立刻更新 ★★★
+    renderMemberManagementList();
+
+    // ★★★ 发送系统通知 ★★★
+    const myNickname = chat.settings.myNickname || '我';
+    const targetNickname = (memberId === 'user' ? (chat.settings.myNickname || '我') : targetMember.groupNickname);
+    const actionText = (memberId === 'user' ? chat.settings.isUserMuted : targetMember.isMuted) ? '禁言' : '解除禁言';
+    await logSystemMessage(chat.id, `“${myNickname}”将“${targetNickname}”${actionText}。`);
+}
+// ▲▲▲ 替换结束 ▲▲▲
+/**
+ * 【全新】处理用户自己解除禁言
+ */
+async function handleUserUnmute() {
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.settings.isUserMuted) return;
+
+    const confirmed = await showCustomConfirm('解除禁言', '确定要为自己解除禁言吗？');
+    if (confirmed) {
+        chat.settings.isUserMuted = false;
+        await db.chats.put(chat);
+        
+        await logSystemMessage(chat.id, `“${chat.settings.myNickname || '我'}”为自己解除了禁言。`);
+        
+        renderMemberManagementList(); // 刷新列表
+    }
+}
+
+
+
+
+/**
+ * 【全新】处理拉人入群的逻辑（已添加系统消息）
+ */
+async function handleAddMembersToGroup() {
+    if (selectedContacts.size === 0) {
+        alert("请至少选择一个要添加的联系人。");
+        return;
+    }
+    
+    const chat = state.chats[state.activeChatId];
+    const addedNames = [];
+
+    for (const contactId of selectedContacts) {
+        const contactChat = state.chats[contactId];
+        if (contactChat) {
+            chat.members.push({
+                id: contactId,
+                originalName: contactChat.name,
+                groupNickname: contactChat.name,
+                avatar: contactChat.settings.aiAvatar || defaultAvatar,
+                persona: contactChat.settings.aiPersona,
+                avatarFrame: contactChat.settings.aiAvatarFrame || '',
+                isAdmin: false,
+                groupTitle: ''
+            });
+            addedNames.push(`“${contactChat.name}”`);
+        }
+    }
+
+    await db.chats.put(chat);
+
+    // 发送一条系统消息通知
+    const myNickname = chat.settings.myNickname || '我';
+    await logSystemMessage(chat.id, `“${myNickname}”邀请 ${addedNames.join('、')} 加入了群聊。`);
+
+    // 返回到群成员管理界面并刷新
+    openMemberManagementScreen();
+    renderGroupMemberSettings(chat.members); // 同时更新聊天设置里的头像
+}
+
+
+
+// ▼▼▼ 在这里粘贴下面的新函数 ▼▼▼
+
+/**
+ * 【全新】处理设置用户自己的群昵称
+ */
+async function handleSetUserNickname() {
+    const chat = state.chats[state.activeChatId];
+    const oldNickname = chat.settings.myNickname || '我';
+    
+    const newNickname = await showCustomPrompt('修改我的群昵称', '请输入新的昵称', oldNickname);
+    if (newNickname !== null && newNickname.trim()) {
+        chat.settings.myNickname = newNickname.trim();
+        await db.chats.put(chat);
+        
+        // 发送一条系统消息通知群友
+        await logSystemMessage(chat.id, `“${oldNickname}”将群昵称修改为“${newNickname.trim()}”`);
+        
+        renderMemberManagementList(); // 刷新成员管理列表
+    }
 }
 
 /**
- * 从群聊中移除一个成员
+ * 【全新】处理设置用户自己的群头衔
+ */
+async function handleSetUserTitle() {
+    const chat = state.chats[state.activeChatId];
+    const oldTitle = chat.settings.myGroupTitle || '';
+
+    const newTitle = await showCustomPrompt('修改我的群头衔', '留空则为取消头衔', oldTitle);
+    if (newTitle !== null) {
+        chat.settings.myGroupTitle = newTitle.trim();
+        await db.chats.put(chat);
+
+        // 调用你已有的函数来发送系统通知
+        const myNickname = chat.settings.myNickname || '我';
+        await logTitleChange(chat.id, myNickname, myNickname, newTitle.trim());
+
+        renderMemberManagementList();
+    }
+}
+// ▲▲▲ 新函数粘贴结束 ▲▲▲
+/**
+ * 【全新 | 权限修复版 | 踢人无消息】从群聊中移除一个成员
  * @param {string} memberId - 要移除的成员ID
  */
 async function removeMemberFromGroup(memberId) {
     const chat = state.chats[state.activeChatId];
-    const memberIndex = chat.members.findIndex(m => m.id === memberId);
+    const isOwner = chat.ownerId === 'user';
+    const isAdmin = chat.settings.isUserAdmin;
+    const memberToRemove = chat.members.find(m => m.id === memberId);
     
-    if (memberIndex === -1) return;
-    
-    // 安全检查，群聊至少保留2人
-    if (chat.members.length <= 2) {
-        alert("群聊人数不能少于2人。");
+    // 权限检查
+    if (!isOwner && !(isAdmin && !memberToRemove.isAdmin && memberToRemove.id !== chat.ownerId)) {
+        alert("你没有权限移出该成员！");
         return;
     }
     
-const memberName = chat.members[memberIndex].groupNickname; // <-- 修复：使用 groupNickname
+    const memberIndex = chat.members.findIndex(m => m.id === memberId);
+    if (memberIndex === -1) return;
+    
+    const memberName = memberToRemove.groupNickname;
     const confirmed = await showCustomConfirm(
         '移出成员',
         `确定要将“${memberName}”移出群聊吗？`,
@@ -30407,8 +31503,11 @@ const memberName = chat.members[memberIndex].groupNickname; // <-- 修复：使�
     if (confirmed) {
         chat.members.splice(memberIndex, 1);
         await db.chats.put(chat);
-        renderMemberManagementList(); // 刷新成员管理列表
-        document.getElementById('chat-settings-btn').click(); // 【核心修正】模拟点击设置按钮，强制刷新整个弹窗
+
+        const myNickname = chat.settings.myNickname || '我';
+        await logSystemMessage(chat.id, `“${myNickname}”将“${memberName}”移出了群聊。`);
+
+        renderMemberManagementList();
     }
 }
 
@@ -30447,36 +31546,6 @@ async function openContactPickerForAddMember() {
     // 更新按钮状态并显示屏幕
     updateContactPickerConfirmButton();
     showScreen('contact-picker-screen');
-}
-
-/**
- * 处理将选中的联系人加入群聊的逻辑
- */
-async function handleAddMembersToGroup() {
-    if (selectedContacts.size === 0) {
-        alert("请至少选择一个要添加的联系人。");
-        return;
-    }
-    
-    const chat = state.chats[state.activeChatId];
-
-    for (const contactId of selectedContacts) {
-        const contactChat = state.chats[contactId];
-        if (contactChat) {
-chat.members.push({
-    id: contactId,
-    originalName: contactChat.name,  // <-- 修复1：使用 'originalName' 存储本名
-    groupNickname: contactChat.name, // <-- 修复2：同时创建一个初始的 'groupNickname'
-    avatar: contactChat.settings.aiAvatar || defaultAvatar,
-    persona: contactChat.settings.aiPersona,
-    avatarFrame: contactChat.settings.aiAvatarFrame || ''
-});
-        }
-    }
-
-    await db.chats.put(chat);
-    openMemberManagementScreen(); // 返回到群成员管理界面
-    renderGroupMemberSettings(chat.members); // 同时更新聊天设置里的头像
 }
 
 /**
@@ -30623,7 +31692,13 @@ async function handleInitiateCall() {
     }
     document.querySelector('#outgoing-call-screen .caller-text').textContent = chat.isGroup ? "正在呼叫所有成员..." : "正在呼叫...";
     showScreen('outgoing-call-screen');
-    
+        // 【核心修改1】在构建成员列表时，同时检查禁言状态
+    const membersList = chat.members.map(m => {
+        const muteStatus = m.isMuted ? ' (【状态：已被禁言】)' : ''; // 如果被禁言，就加上标记
+        return `- **${m.originalName}**: ${m.persona}${muteStatus}`;
+    }).join('\n');
+            
+    const myNickname = chat.settings.myNickname || '我';
     // 2. 【核心修复】重新构建一个信息更丰富、指令更明确的API请求
     try {
         const { proxyUrl, apiKey, model } = state.apiConfig;
@@ -37038,7 +38113,7 @@ ${npcList}
             ];
         }
         
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
 
         console.log("【NPC评论-诊断】: 3. 即将发送API请求... 请求地址:", isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`);
         console.log("【NPC评论-诊断】: 3.1 请求体 (Body) 内容:", isGemini ? geminiConfig.data.body : JSON.stringify({ model, messages: messagesForApi, temperature: parseFloat(state.apiConfig.temperature) || 0.8, response_format: { type: "json_object" } }));
@@ -37175,7 +38250,7 @@ ${publicFiguresContext}
     try {
         let isGemini = proxyUrl === GEMINI_API_URL;
         let messagesForApi = [{ role: 'user', content: systemPrompt }];
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
         const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
             method: 'POST',
             headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
@@ -37301,7 +38376,7 @@ ${JSON.stringify(allPeople, null, 2)}
     try {
         let isGemini = proxyUrl === GEMINI_API_URL;
         let messagesForApi = [{ role: 'user', content: systemPrompt }];
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
         
         const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
             method: 'POST',
@@ -37410,7 +38485,7 @@ ${publicFiguresContext}
     try {
         let isGemini = proxyUrl === GEMINI_API_URL;
         let messagesForApi = [{ role: 'user', content: systemPrompt }];
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
         const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
             method: 'POST',
             headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
@@ -38386,7 +39461,8 @@ ${commenterContext}
     try {
         let isGemini = proxyUrl === GEMINI_API_URL;
         let messagesForApi = [{ role: 'user', content: systemPrompt }];
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
 
         const response = isGemini 
             ? await fetch(geminiConfig.url, geminiConfig.data) 
@@ -38950,7 +40026,8 @@ ${extraContext}
         }
 
         let isGemini = proxyUrl === GEMINI_API_URL;
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
 
         const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
             method: 'POST',
@@ -44112,7 +45189,8 @@ ${jsonFormat}
     try {
         const messagesForApi = [{ role: 'user', content: systemPrompt }];
         let isGemini = proxyUrl === GEMINI_API_URL;
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
         const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, isGemini ? geminiConfig.data : {
             method: 'POST',
             headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
@@ -44311,7 +45389,8 @@ async function generateSeaTurtleRiddle(provider, riddleType) {
     try {
         const messagesForApi = [{ role: 'user', content: systemPrompt }];
         let isGemini = proxyUrl === GEMINI_API_URL;
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
 
         const response = isGemini 
             ? await fetch(geminiConfig.url, geminiConfig.data) 
@@ -44633,7 +45712,8 @@ ${gameLogText}
         try {
             const messagesForApi = [{ role: 'user', content: "请根据你在系统指令中读到的规则，立即开始你的行动。" }];
             let isGemini = proxyUrl === GEMINI_API_URL;
-            let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+            let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
     
             const response = isGemini 
                 ? await fetch(geminiConfig.url, geminiConfig.data) 
@@ -45596,7 +46676,8 @@ case 'reveal_clue':
     try {
         let isGemini = proxyUrl === GEMINI_API_URL;
         let messagesForApi = [{ role: 'user', content: systemPrompt }];
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+      let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
         
         const response = isGemini 
             ? await fetch(geminiConfig.url, geminiConfig.data) 
@@ -46297,7 +47378,8 @@ const systemPrompt = `
         const { proxyUrl, apiKey, model } = state.apiConfig;
         let isGemini = proxyUrl === GEMINI_API_URL;
         let messagesForApi = [{ role: 'user', content: systemPrompt }];
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
         
         const response = isGemini 
             ? await fetch(geminiConfig.url, geminiConfig.data) 
@@ -47395,7 +48477,8 @@ ${historyForPet}
     try {
         const messagesForApi = [{ role: 'user', content: "请根据你在系统指令中读到的规则，立即开始你的行动。" }];
         let isGemini = proxyUrl === GEMINI_API_URL;
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
         
         const response = isGemini ? await fetch(geminiConfig.url, geminiConfig.data) : await fetch(`${proxyUrl}/v1/chat/completions`, {
             method: 'POST',
@@ -47840,7 +48923,8 @@ ${existingDmsContext}
     try {
         const messagesForApi = [{ role: 'user', content: systemPrompt }];
         let isGemini = proxyUrl === GEMINI_API_URL;
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
         
         const response = isGemini 
             ? await fetch(geminiConfig.url, geminiConfig.data) 
@@ -51725,7 +52809,8 @@ ${eventPrompt}
         const { proxyUrl, apiKey, model } = state.apiConfig;
         let isGemini = proxyUrl === GEMINI_API_URL;
         let messagesForApi = [{ role: 'user', content: systemPrompt }];
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
         
         const response = isGemini 
             ? await fetch(geminiConfig.url, geminiConfig.data) 
@@ -52951,7 +54036,8 @@ ${jsonFormat}
     try {
         const messagesForApi = [{ role: 'user', content: systemPrompt }];
         let isGemini = proxyUrl === GEMINI_API_URL;
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
         
         const response = isGemini 
             ? await fetch(geminiConfig.url, geminiConfig.data) 
@@ -53605,7 +54691,8 @@ ${existingDmsContext}
     try {
         const messagesForApi = [{ role: 'user', content: systemPrompt }];
         let isGemini = proxyUrl === GEMINI_API_URL;
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
         
         const response = isGemini 
             ? await fetch(geminiConfig.url, geminiConfig.data) 
@@ -53953,7 +55040,8 @@ ${conversation.messages.slice(-5).map(m => `- ${m.sender === 'fan' ? conversatio
     try {
         const messagesForApi = [{ role: 'user', content: systemPrompt }];
         let isGemini = proxyUrl === GEMINI_API_URL;
-        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini, state.apiConfig.temperature);
+
 
         const response = isGemini 
             ? await fetch(geminiConfig.url, geminiConfig.data)
@@ -54105,6 +55193,316 @@ async function updateStreak(chatId) {
     return changed; // 返回是否发生了变化
 }
 // ▲▲▲ 新函数粘贴结束 ▲▲▲
+// ▼▼▼ 【全新】将这几块功能函数粘贴到你的JS功能区 ▼▼▼
+
+// ▼▼▼ 用这块【修复后】的代码替换旧的 handleToggleAdmin 函数 ▼▼▼
+/**
+ * 【全新 | 权限修复版】处理设置/取消管理员
+ */
+async function handleToggleAdmin(memberId) {
+    const chat = state.chats[state.activeChatId];
+    // 权限检查：确保操作者是群主
+    if (!chat || chat.ownerId !== 'user') {
+        alert("你不是群主，没有权限执行此操作！");
+        return;
+    }
+
+    let targetNickname;
+    let isAdminNow;
+
+    // --- ★★★ 核心修改在这里 ★★★ ---
+    // 1. 判断操作目标是不是用户自己
+    if (memberId === 'user') {
+        // 如果是用户，就修改 chat.settings 里的专属标志
+        // 我们使用 isUserAdmin 属性来记录用户是否是管理员
+        chat.settings.isUserAdmin = !chat.settings.isUserAdmin;
+        targetNickname = chat.settings.myNickname || '我';
+        isAdminNow = chat.settings.isUserAdmin;
+    } else {
+        // 如果是其他成员，保持原有逻辑不变
+        const member = chat.members.find(m => m.id === memberId);
+        if (!member) return;
+
+        // 【重要】不能将群主设为管理员或取消其管理员身份
+        if (member.id === chat.ownerId) {
+            alert("不能对群主进行此操作。");
+            return;
+        }
+        
+        member.isAdmin = !member.isAdmin;
+        targetNickname = member.groupNickname;
+        isAdminNow = member.isAdmin;
+    }
+    // --- ▲▲▲ 修改结束 ▲▲▲
+
+    await db.chats.put(chat);
+    
+    // 准备并发送系统通知消息
+    const actionText = isAdminNow ? '设为管理员' : '取消了管理员身份';
+    const myNickname = chat.settings.myNickname || '我';
+    // 这里我们用 logSystemMessage 函数来发送通知，它会自动刷新UI
+    await logSystemMessage(chat.id, `“${myNickname}”将“${targetNickname}”${actionText}。`);
+
+    // 刷新成员管理列表的显示
+    renderMemberManagementList(); 
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▼▼▼ 用这块【修复后】的代码替换旧的 handleSetMemberTitle 函数 ▼▼▼
+/**
+ * 【全新 | 权限修复版】处理设置群成员头衔
+ */
+async function handleSetMemberTitle(memberId) {
+    const chat = state.chats[state.activeChatId];
+    // 权限检查：群主或管理员才能设置
+    const isOwner = chat.ownerId === 'user';
+    const isAdmin = chat.settings.isUserAdmin;
+
+    if (!chat || (!isOwner && !isAdmin)) {
+        alert("你不是群主或管理员，没有权限执行此操作！");
+        return;
+    }
+    
+    let targetNickname;
+    let oldTitle;
+    
+    // --- ★★★ 核心修改在这里 ★★★ ---
+    if (memberId === 'user') {
+        targetNickname = chat.settings.myNickname || '我';
+        oldTitle = chat.settings.myGroupTitle || '';
+    } else {
+        const member = chat.members.find(m => m.id === memberId);
+        if (!member) return;
+        targetNickname = member.groupNickname;
+        oldTitle = member.groupTitle || '';
+    }
+    // --- ▲▲▲ 修改结束 ▲▲▲
+
+    const newTitle = await showCustomPrompt(`为“${targetNickname}”设置头衔`, '留空则为取消头衔', oldTitle);
+    
+    if (newTitle !== null) {
+        const trimmedTitle = newTitle.trim();
+        // --- ★★★ 核心修改在这里 ★★★ ---
+        if (memberId === 'user') {
+            chat.settings.myGroupTitle = trimmedTitle;
+        } else {
+            const member = chat.members.find(m => m.id === memberId);
+            if (member) member.groupTitle = trimmedTitle;
+        }
+        // --- ▲▲▲ 修改结束 ▲▲▲
+
+        await db.chats.put(chat);
+        
+        const myNickname = chat.settings.myNickname || '我';
+        await logTitleChange(chat.id, myNickname, targetNickname, trimmedTitle);
+
+        renderMemberManagementList();
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+
+
+// ▼▼▼ 请用这块【功能增强版】的代码，完整替换你旧的 handleTransferOwnership 函数 ▼▼▼
+/**
+ * 【全新】处理转让群主 (已添加系统消息通知)
+ */
+async function handleTransferOwnership(memberId) {
+    const chat = state.chats[state.activeChatId];
+    const newOwner = chat.members.find(m => m.id === memberId);
+    if (!newOwner) return;
+
+    // 【新增】获取旧群主的昵称，也就是你自己的昵称
+    const oldOwnerNickname = chat.settings.myNickname || '我';
+
+    const confirmed = await showCustomConfirm(
+        '转让群主',
+        `你确定要将群主身份转让给“${newOwner.groupNickname}”吗？\n此操作不可撤销，你将失去群主权限。`,
+        { confirmButtonClass: 'btn-danger' }
+    );
+
+    if (confirmed) {
+        // 更新群主ID
+        chat.ownerId = newOwner.id;
+        
+        // 将新群主设为管理员（如果他之前不是）
+        newOwner.isAdmin = true;
+
+        // ★★★★★ 这就是我们本次唯一需要添加的核心代码！ ★★★★★
+        // 1. 构建系统消息的内容
+        const message = `“${oldOwnerNickname}”已将群主转让给“${newOwner.groupNickname}”`;
+        
+        // 2. 调用你已有的函数来发送这条系统消息
+        //    这个函数会自动保存数据并刷新聊天列表，非常方便！
+        await logSystemMessage(chat.id, message);
+        // ★★★★★ 添加结束 ★★★★★
+
+        // 刷新成员管理列表的显示
+        renderMemberManagementList(); 
+        
+        // 给出成功提示
+        await showCustomAlert('操作成功', `群主已成功转让给“${newOwner.groupNickname}”。`);
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 【全新】发送一条居中显示的系统消息到当前聊天
+ * @param {string} chatId - 目标聊天的ID
+ * @param {string} messageContent - 要显示的消息内容
+ */
+async function logSystemMessage(chatId, messageContent) {
+    const chat = state.chats[chatId];
+    if (!chat) return;
+
+    // 1. 创建系统消息对象
+    const systemMessage = {
+        role: 'system',       // 这是一个系统角色的消息
+        type: 'pat_message',  // 复用“拍一拍”的居中灰色气泡样式
+        content: messageContent,
+        timestamp: Date.now()
+    };
+
+    // 2. 将消息添加到聊天记录并保存
+    chat.history.push(systemMessage);
+    await db.chats.put(chat);
+
+    // 3. 如果用户正在查看此聊天，则立即显示新消息
+    if (state.activeChatId === chatId && document.getElementById('chat-interface-screen').classList.contains('active')) {
+        appendMessage(systemMessage, chat);
+    }
+    
+    // 4. 刷新聊天列表以更新预览
+    await renderChatList();
+
+    console.log(`系统消息已记录: ${messageContent}`);
+}
+
+
+/**
+ * 【V2 - 重构版】记录并发送群头衔变更的系统消息
+ * @param {string} chatId - 发生变更的群聊ID
+ * @param {string} actorName - 执行操作的人的昵称
+ * @param {string} targetName - 被修改头衔的人的昵称
+ * @param {string} newTitle - 新的头衔
+ */
+async function logTitleChange(chatId, actorName, targetName, newTitle) {
+    // 1. 构造消息内容
+    const messageContent = newTitle 
+        ? `${actorName} 将“${targetName}”的群头衔修改为“${newTitle}”`
+        : `${actorName} 取消了“${targetName}”的群头衔`;
+        
+    // 2. 调用通用的系统消息函数
+    await logSystemMessage(chatId, messageContent);
+}
+/* ▼▼▼ 【全新】群公告功能核心函数 ▼▼▼ */
+
+/* ▼▼▼ 【全新 | 已修复】群公告功能核心函数 ▼▼▼ */
+
+/**
+ * 打开群公告弹窗并渲染内容
+ */
+function openGroupAnnouncementModal() {
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.isGroup) return;
+
+    const modal = document.getElementById('group-announcement-modal');
+    const contentArea = document.getElementById('announcement-content-area');
+    const footer = document.getElementById('announcement-footer');
+
+    const announcement = chat.settings.groupAnnouncement || '暂无公告';
+    contentArea.innerHTML = announcement.replace(/\n/g, '<br>');
+    
+    const canEdit = chat.ownerId === 'user' || chat.settings.isUserAdmin;
+    
+    footer.innerHTML = ''; 
+    if (canEdit) {
+        const editBtn = document.createElement('button');
+        editBtn.className = 'cancel';
+        editBtn.textContent = '编辑';
+        // 【核心修复1】改用 addEventListener 来绑定事件，更安全可靠
+        editBtn.addEventListener('click', editGroupAnnouncement); 
+        footer.appendChild(editBtn);
+    }
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'save'; 
+    closeBtn.textContent = '关闭';
+    // 【核心修复2】同样改用 addEventListener
+    closeBtn.addEventListener('click', closeGroupAnnouncementModal); 
+    footer.appendChild(closeBtn);
+
+    modal.classList.add('visible');
+}
+
+/**
+ * 进入公告编辑模式
+ */
+function editGroupAnnouncement() {
+    const chat = state.chats[state.activeChatId];
+    const contentArea = document.getElementById('announcement-content-area');
+    const footer = document.getElementById('announcement-footer');
+
+    const currentContent = chat.settings.groupAnnouncement || '';
+    contentArea.innerHTML = `<textarea id="announcement-editor">${currentContent}</textarea>`;
+    
+    // 【核心修复3】这里也全部改用 addEventListener 的方式绑定
+    footer.innerHTML = ''; // 先清空
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'cancel';
+    cancelBtn.textContent = '取消';
+    cancelBtn.addEventListener('click', closeGroupAnnouncementModal); // 直接调用函数
+    
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'save';
+    saveBtn.textContent = '保存';
+    saveBtn.addEventListener('click', saveGroupAnnouncement); // 直接调用函数
+
+    footer.appendChild(cancelBtn);
+    footer.appendChild(saveBtn);
+    
+    document.getElementById('announcement-editor').focus();
+}
+
+/**
+ * 保存新的群公告
+ */
+async function saveGroupAnnouncement() {
+    const chat = state.chats[state.activeChatId];
+    const newContent = document.getElementById('announcement-editor').value.trim();
+
+    chat.settings.groupAnnouncement = newContent;
+    await db.chats.put(chat);
+    
+    const myNickname = chat.settings.myNickname || '我';
+    await logSystemMessage(chat.id, `“${myNickname}”修改了群公告。`);
+
+    closeGroupAnnouncementModal();
+    alert('群公告已更新！');
+}
+
+/**
+ * 关闭群公告弹窗
+ */
+function closeGroupAnnouncementModal() {
+    // 关闭后，重新渲染一次查看状态，以防用户取消了编辑
+    const modal = document.getElementById('group-announcement-modal');
+    modal.classList.remove('visible');
+    // 延迟一点点再打开，可以避免视觉上的冲突
+    setTimeout(() => {
+        if(modal.classList.contains('visible')) { // 做个检查，万一用户快速操作
+           openGroupAnnouncementModal();
+        }
+    }, 10);
+    // 直接关闭，不再重新打开
+    document.getElementById('group-announcement-modal').classList.remove('visible');
+}
+
+/* ▲▲▲ 新功能函数结束 ▲▲▲ */
+
+
 
         // ===================================================================
         // 4. 初始化函数 init()
@@ -54655,7 +56053,12 @@ document.getElementById('send-btn').addEventListener('click', async () => {
     }
     // --- ▲▲▲【修复代码结束】▲▲▲ ---
     const chat = state.chats[state.activeChatId]; 
-    
+        // 1. 如果是群聊，并且你被禁言了
+    if (chat && chat.isGroup && chat.settings.isUserMuted) {
+        alert('你已被禁言，无法发言！');
+        return; // 阻止发送
+    }
+    // ▲▲▲ 新代码粘贴结束 ▲▲▲
     // --- 【核心修改】在这里添加 ---
     const msg = { 
         role: 'user', 
@@ -55496,6 +56899,10 @@ function openMemberEditor(memberId) {
     editingMemberId = memberId; 
     const chat = state.chats[state.activeChatId]; 
     const member = chat.members.find(m => m.id === memberId); 
+        if (typeof member.isMuted === 'undefined') {
+        member.isMuted = false; // 为旧数据兼容，默认设置为“未禁言”
+    }
+    // ▲▲▲ 添加结束 ▲▲▲
     document.getElementById('member-name-input').value = member.groupNickname; 
     document.getElementById('member-persona-input').value = member.persona; 
     document.getElementById('member-avatar-preview').src = member.avatar; 
@@ -56805,13 +58212,6 @@ document.getElementById('back-from-member-management').addEventListener('click',
     document.getElementById('chat-settings-btn').click();
 });
 // ▲▲▲ 替换结束 ▲▲▲
-
-document.getElementById('member-management-list').addEventListener('click', (e) => {
-    // 【已恢复】移除成员的事件
-    if (e.target.classList.contains('remove-member-btn')) {
-        removeMemberFromGroup(e.target.dataset.memberId);
-    }
-});
 
 document.getElementById('add-existing-contact-btn').addEventListener('click', async () => {
     // 【已恢复】从好友列表添加的事件
@@ -61152,7 +62552,52 @@ document.getElementById('user-dm-reroll-btn').addEventListener('click', handleUs
         });
 
         // ▲▲▲ User私信删除功能事件监听结束 ▲▲▲
+// ▼▼▼ 在 init() 函数的事件监听器区域末尾，粘贴下面这块新代码 ▼▼▼
 
+// ▼▼▼ 请用这块【功能增强版】的代码，完整替换你旧的 'member-management-list' 事件监听器 ▼▼▼
+document.getElementById('member-management-list').addEventListener('click', (e) => {
+    const button = e.target.closest('.action-btn');
+    if (!button) return;
+
+    const action = button.dataset.action;
+    const memberId = button.dataset.memberId;
+
+    if (!action || !memberId) return;
+
+    // --- 处理用户自己的按钮 ---
+    if (memberId === 'user') {
+        if (action === 'set-nickname') handleSetUserNickname();
+        if (action === 'set-title') handleSetUserTitle();
+        // ★★★ 【核心新增】用户点击自己的“解禁”按钮 ★★★
+        if (action === 'unmute-self') { 
+            handleUserUnmute();
+        }
+        return;
+    }
+
+    // --- 处理其他成员的按钮 ---
+    switch (action) {
+        case 'toggle-admin':
+            handleToggleAdmin(memberId);
+            break;
+        case 'set-title':
+            handleSetMemberTitle(memberId);
+            break;
+        case 'transfer-owner':
+            handleTransferOwnership(memberId);
+            break;
+        case 'remove-member':
+            removeMemberFromGroup(memberId);
+            break;
+        case 'mute-member': // ★★★ 禁言/解禁统一走这里 ★★★
+            handleMuteMember(memberId);
+            break;
+    }
+});
+// ▲▲▲ 替换结束 ▲▲▲
+// ▼▼▼ 【全新】群公告功能事件绑定 ▼▼▼
+document.getElementById('group-announcement-btn').addEventListener('click', openGroupAnnouncementModal);
+// ▲▲▲ 事件绑定结束 ▲▲▲
 // ===================================================================
 // 5. 启动！
 
