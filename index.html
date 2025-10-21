@@ -14597,6 +14597,12 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     stroke: var(--iv-icon-color);
 }
 /* ▲▲▲ 新增样式结束 ▲▲▲ */
+/* ▼▼▼ 【全新】AI生成群成员按钮样式 ▼▼▼ */
+#member-management-actions #ai-generate-members-btn {
+    background-color: #007bff; /* 一个醒目的蓝色 */
+    color: white;
+}
+/* ▲▲▲ 新增CSS结束 ▲▲▲ */
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -16200,6 +16206,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     <div id="member-management-actions">
         <button id="add-existing-contact-btn">从好友列表添加</button>
         <button id="create-new-member-btn">创建群内新成员</button>
+        <button id="ai-generate-members-btn">✨ AI 生成成员</button>
     </div>
 </div>
 <!-- ▲▲▲ 新HTML粘贴结束 ▲▲▲ -->
@@ -19950,6 +19957,32 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+<!-- ▼▼▼ 把这一整块全新的HTML代码，粘贴到 </body> 标签的正上方 ▼▼▼ -->
+
+<!-- 【全新】AI生成群成员模态框 -->
+<div id="ai-generate-members-modal" class="modal">
+    <div class="modal-content" style="height: auto;">
+        <div class="modal-header">
+            <span>AI 生成群成员</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="ai-member-count-input">生成人数 (1-20)</label>
+                <input type="number" id="ai-member-count-input" value="3" min="1" max="20">
+            </div>
+            <div class="form-group">
+                <label for="ai-member-prompt-input">要求 (可选，AI会参考)</label>
+                <textarea id="ai-member-prompt-input" rows="4" placeholder="例如：一群喜欢户外探险的大学生，性格各异..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel" id="cancel-ai-generate-members-btn">取消</button>
+            <button class="save" id="confirm-ai-generate-members-btn">开始生成</button>
+        </div>
+    </div>
+</div>
+
+<!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 
 
 <!-- ▼▼▼ 用这整块代码替换旧的 inner-voice-modal ▼▼▼ -->
@@ -20278,6 +20311,31 @@ const BUILT_IN_SCRIPTS = [
 ];
 
 // ▲▲▲ 剧本库粘贴结束 ▲▲▲
+// ▼▼▼ 在这里粘贴下面这一整块新代码 ▼▼▼
+
+/**
+ * 【全新】从一个已领完的红包中找出“手气王”
+ * @param {object} packet - 已领完的红包消息对象
+ * @returns {object|null} - 返回手气王的信息 { name, amount }，或 null
+ */
+function findLuckyKing(packet) {
+    const claimedBy = packet.claimedBy || {};
+    const claimedEntries = Object.entries(claimedBy);
+    
+    // 如果红包是“拼手气”类型，并且有超过1个人领取
+    if (packet.packetType === 'lucky' && claimedEntries.length > 1) {
+        let luckyKing = { name: '', amount: -1 };
+        claimedEntries.forEach(([name, amount]) => {
+            if (amount > luckyKing.amount) {
+                luckyKing = { name, amount };
+            }
+        });
+        return luckyKing;
+    }
+    return null; // 如果不满足条件，则没有手气王
+}
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 
         const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models'
         // gemini如果是多个密钥, 那么随机获取一个
@@ -26694,6 +26752,50 @@ let geminiConfig = toGeminiRequestData(model,apiKey,'', messagesForDecision,isGe
 
 // ▼▼▼ 从这里开始，用这一整块【已修复时间感知】的代码，替换掉你之前修改过的那块时间代码 ▼▼▼
 const historySlice = chat.history.filter(msg => !msg.isTemporary).slice(-chat.settings.maxMemory); // 1. 【修复】把这行加回来！
+// ▼▼▼ 在 historySlice ... 的下一行，粘贴下面这一整块新代码 ▼▼▼
+
+// --- 【全新】红包状态实时播报模块 ---
+let redPacketContext = '';
+// 1. 从最近的聊天记录中，找出所有红包消息
+const recentPackets = historySlice.filter(m => m.type === 'red_packet');
+
+if (recentPackets.length > 0) {
+    // 2. 如果找到了红包，就开始构建我们的“战报”
+    redPacketContext = '\n# 当前红包状态 (重要情报)\n';
+    
+    recentPackets.forEach(packet => {
+        const claimedBy = packet.claimedBy || {};
+        const claimedCount = Object.keys(claimedBy).length;
+        
+        redPacketContext += `- (时间戳: ${packet.timestamp}) 由 **${packet.senderName}** 发送的红包:\n`;
+        
+        if (packet.isFullyClaimed) {
+            // 如果红包已领完
+            redPacketContext += `  - **状态**: 已被领完。\n`;
+            
+            // 调用我们的小助手函数，寻找手气王
+            const luckyKing = findLuckyKing(packet);
+            if (luckyKing && luckyKing.name) {
+                 redPacketContext += `  - **手气王**: ${luckyKing.name} (抢到了 ${luckyKing.amount.toFixed(2)} 元)\n`;
+            }
+
+        } else {
+            // 如果红包还能领
+             redPacketContext += `  - **状态**: 可领取 (${claimedCount}/${packet.count})。\n`;
+        }
+
+        // 无论如何，都显示已领取的人员列表
+        if (claimedCount > 0) {
+            const claimedList = Object.entries(claimedBy).map(([name, amount]) => `${name}(${amount.toFixed(2)}元)`).join('、');
+            redPacketContext += `  - **已领取**: ${claimedList}\n`;
+        } else {
+            redPacketContext += `  - **已领取**: 暂无\n`;
+        }
+    });
+}
+// --- 红包状态播报模块结束 ---
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 
 let now;
 // 2. 检查时间感知开关是否打开 (北京时间转换逻辑)
@@ -26919,23 +27021,45 @@ if (announcement.trim()) {
 `;
 }
 // ▲▲▲ 【修改结束】 ▲▲▲
-            systemPrompt = `你是一个群聊AI，负责扮演【除了用户以外】的所有角色。
-            ${summaryContext}
-            ${announcementContext}
-# 核心规则
-1.  **【【【身份铁律】】】**: 用户的身份是【${myNickname}】。你【绝对、永远、在任何情况下都不能】生成 \`name\` 字段为 **"${myNickname}"** 或 **"${chat.name}"(群聊名称本身)** 的消息。你的唯一任务是扮演且仅能扮演下方“群成员列表”中明确列出的角色。任何不属于该列表的名字都不允许出现。
-2.  **【【【输出格式】】】**: 你的回复【必须】是一个JSON数组格式的字符串。数组中的【每一个元素都必须是一个带有 "type" 和 "name" 字段的JSON对象】。
-3.  **角色扮演**: 严格遵守下方“群成员列表及人设”中的每一个角色的设定。
+            systemPrompt =     systemPrompt = `
+# 角色
+你是一个群聊AI，负责扮演【除了用户以外】的所有角色。
+
+# 【【【身份铁律：这是最高指令，必须严格遵守】】】
+1.  **核心任务**: 你的唯一任务是扮演且仅能扮演下方“群成员列表”中明确列出的角色。
+2.  **用户识别**: 用户的身份是【${myNickname}】。你【绝对、永远、在任何情况下都不能】生成 \`name\` 字段为 **"${myNickname}"** 的消息。
+3.  **禁止杜撰**: 【绝对禁止】扮演任何未在“群成员列表”中出现的角色。
+4.  **【【【格式铁律：这是你的生命线，违者生成失败】】】**:
+    -   你的回复【必须且只能】是一个严格的JSON数组格式的字符串。
+    -   数组中的【每一个元素都必须是一个JSON对象】。
+    -   每一个JSON对象都【必须包含一个 "name" 字段】，其值【必须是】下方列表中角色的【【本名】】(originalName)。
+    -   缺少 "name" 字段的回复是无效的，会被系统拒绝。
+    # 群成员列表及人设 (name字段是你要使用的【本名】)
+${chat.members.map(m => `- **${m.originalName}**: (群昵称为: ${m.groupNickname}) 人设: ${m.persona}`).join('\n')}
+5.  **角色扮演**: 严格遵守下方“群成员列表及人设”中的每一个角色的设定。
 4.  **禁止出戏**: 绝不能透露你是AI、模型，或提及“扮演”、“生成”等词语。并且不能一直要求和用户见面，这是线上聊天，决不允许出现或者发展线下剧情！！
-5.  **情景感知**: 注意当前时间是 ${currentTime}。
-6.  **红包互动**:
+6.  **情景感知**: 注意当前时间是 ${currentTime}。
+7.  **红包互动**:
     - **抢红包**: 当群里出现红包时，你可以根据自己的性格决定是否使用 \`open_red_packet\` 指令去抢。在这个世界里，发红包的人自己也可以参与抢红包，这是一种活跃气氛的有趣行为！
     - **【【【重要：对结果做出反应】】】**: 当你执行抢红包指令后，系统会通过一条隐藏的 \`[系统提示：你抢到了XX元...]\` 来告诉你结果。你【必须】根据你抢到的金额、以及系统是否告知你“手气王”是谁，来发表符合你人设的评论。例如，抢得少可以自嘲，抢得多可以炫耀，看到别人是手气王可以祝贺或嫉妒。
-7.  **【【【投票规则】】】**: 对话历史中可能会出现 \`[系统提示：...]\` 这样的消息，这是刚刚发生的事件。
+8.  **【【【投票规则】】】**: 对话历史中可能会出现 \`[系统提示：...]\` 这样的消息，这是刚刚发生的事件。
     - 如果提示是**用户投了票**，你可以根据自己的性格决定是否也使用 "vote" 指令跟票。
     - 如果提示是**投票已结束**，你应该根据投票结果发表你的看法或评论。
     - 你也可以随时主动发起投票。
-8.  **群组管理**: 作为群主，你有责任管理群组。当群聊变得活跃或混乱时，或当你认为某个成员值得信赖时，你可以使用 'set_group_admin' 指令来任命或撤销管理员。 作为群主或管理员，你有责任管理群组。当群聊需要新的规则或通知时，你可以使用 'set_group_announcement' 指令来更新群公告。
+9.  **群组管理**: 作为群主，你有责任管理群组。当群聊变得活跃或混乱时，或当你认为某个成员值得信赖时，你可以使用 'set_group_admin' 指令来任命或撤销管理员。 作为群主或管理员，你有责任管理群组。当群聊需要新的规则或通知时，你可以使用 'set_group_announcement' 指令来更新群公告。
+**10. 标准输出格式示例:**
+[
+    {
+      "type": "text",
+      "name": "角色名", 
+      "content": ""
+    },
+    {
+      "type": "sticker",
+      "name": "角色名", 
+      "sticker_name": ""
+    }
+  ]
 
 ## 你可以使用的操作指令 (JSON数组中的元素):
 -   **发送文本**: \`{"type": "text", "name": "角色名", "message": "文本内容"}\`
@@ -26949,7 +27073,7 @@ if (announcement.trim()) {
 -   **拍一拍用户**: \`{"type": "pat_user", "name": "你的角色名", "suffix": "(可选)你想加的后缀"}\`
 -   **发拼手气红包**: \`{"type": "red_packet", "packetType": "lucky", "name": "你的角色名", "amount": 8.88, "count": 5, "greeting": "祝大家天天开心！"}\`
 -   **发专属红包**: \`{"type": "red_packet", "packetType": "direct", "name": "你的角色名", "amount": 5.20, "receiver": "接收者角色名", "greeting": "给你的~"}\`
--   **打开红包**: \`{"type": "open_red_packet", "name": "你的角色名", "packet_timestamp": (你想打开的红包消息的时间戳)}\`
+-   **打开红包**: \`{"type": "open_red_packet", "name": "你的角色名", "packet_timestamp": (你想打开的红包消息的时间戳)}\`(注意: 打开前请先查看下方的红包状态，如果已领过或已领完则不要使用此指令。)
 -   **【新】发送系统消息**: \`{"type": "system_message", "content": "你想在聊天中显示的系统文本"}\` 
 -   **【【【全新】】】发起投票**: \`{"type": "poll", "name": "你的角色名", "question": "投票的问题", "options": "选项A\\n选项B\\n选项C"}\` (重要提示：options字段是一个用换行符 \\n 分隔的字符串，不是数组！)
 -   **【【【全新】】】参与投票**: \`{"type": "vote", "name": "你的角色名", "poll_timestamp": (投票消息的时间戳), "choice": "你选择的选项文本"}\`
@@ -26970,7 +27094,9 @@ if (announcement.trim()) {
 2.  **响应请求**: 当历史记录中出现【其他成员】发起的 "waimai_request" 请求时，你可以根据自己扮演的角色的性格和与发起人的关系，决定是否为Ta买单。
 3.  **响应方式**: 如果你决定买单，你【必须】使用以下指令：\`{"type": "waimai_response", "name": "你的角色名", "status": "paid", "for_timestamp": (被代付请求的原始时间戳)}\`
 4.  **【【【至关重要】】】**: 一旦历史记录中出现了针对某个代付请求的【任何一个】"status": "paid" 的响应（无论是用户支付还是其他角色支付），就意味着该订单【已经完成】。你【绝对不能】再对【同一个】订单发起支付。你可以选择对此事发表评论，但不能再次支付。
-
+${summaryContext}
+${announcementContext}
+${redPacketContext}
 ${worldBookContent}
 ${musicContext}
 ${countdownContext} // <--- 把备忘录加在这里
@@ -27036,12 +27162,17 @@ messagesPayload = historySlice.map((msg, index) => {
     // 如果不是投票，再执行原来的其他消息类型判断
     contentStr += `(Timestamp: ${msg.timestamp}) `;
 
-    if (msg.quote) {
-        const quotedSnippet = String(msg.quote.content || '').substring(0, 50);
-        contentStr += `(回复 "${quotedSnippet}..."): ${msg.content}`;
-    } else {
-        contentStr += msg.content;
-    }
+if (msg.quote) {
+    // 1. 获取被引用者的名字
+    const quotedSender = msg.quote.senderName || '未知用户';
+    // 2. 获取完整的被引用内容 (移除了截断)
+    const fullQuotedContent = String(msg.quote.content || '');
+    // 3. 构造成AI能理解的、清晰的上下文
+    contentStr += `(回复 ${quotedSender} 的消息: "${fullQuotedContent}"): ${msg.content}`;
+} else {
+    contentStr += msg.content;
+}
+
 
     if (msg.type === 'user_photo') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [你收到了一张用户描述的照片，内容是：'${msg.content}']` };
     if (msg.type === 'voice_message') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [用户发来一条语音消息，内容是：'${msg.content}']` };
@@ -27365,12 +27496,17 @@ ${commonStickerContext}
                 let contentStr = '';
                 contentStr += `(Timestamp: ${msg.timestamp}) `;
 
-                if (msg.quote) {
-                    const quotedSnippet = String(msg.quote.content || '').substring(0, 50);
-                    contentStr += `(回复 "${quotedSnippet}..."): ${msg.content}`;
-                } else {
-                    contentStr += msg.content;
-                }
+if (msg.quote) {
+    // 1. 获取被引用者的名字
+    const quotedSender = msg.quote.senderName || '未知用户';
+    // 2. 获取完整的被引用内容 (移除了截断)
+    const fullQuotedContent = String(msg.quote.content || '');
+    // 3. 构造成AI能理解的、清晰的上下文
+    contentStr += `(回复 ${quotedSender} 的消息: "${fullQuotedContent}"): ${msg.content}`;
+} else {
+    contentStr += msg.content;
+}
+
                 
                 if (msg.type === 'user_photo') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [你收到了一张用户描述的照片，内容是：'${msg.content}']` };
                 if (msg.type === 'voice_message') return { role: 'user', content: `(Timestamp: ${msg.timestamp}) [用户发来一条语音消息，内容是：'${msg.content}']` };
@@ -27798,17 +27934,6 @@ if (chat.isGroup && !msgData.name) {
     console.error(`AI幻觉已被拦截！试图在群聊中发送一条没有“name”的消息。消息内容:`, msgData);
     continue; // continue会立即结束本次循环，处理下一条消息
 }
-
-
-
-
-// 【核心修正】在群聊中，如果AI返回的消息没有指定发送者，则直接跳过这条消息
-if (chat.isGroup && !msgData.name) {
-    console.error(`AI幻觉已被拦截！试图在群聊中发送一条没有“name”的消息。消息内容:`, msgData);
-    continue; // continue会立即结束本次循环，处理下一条消息
-}
-
-// ▲▲▲ 添加结束 ▲▲▲
 
             let aiMessage = null;
             const baseMessage = { role: 'assistant', senderName: msgData.name || chat.name, timestamp: messageTimestamp++ };
@@ -29029,15 +29154,14 @@ case 'vote': { // 使用大括号创建独立的块级作用域
         await updateCharacterBankBalance(chatId, -msgData.amount, rpDescription);
         // ▲▲▲ 新代码粘贴结束 ▲▲▲
         break;
-// ▼▼▼ 在 triggerAiResponse 的 switch 语句中，用这块新代码替换旧的 case 'open_red_packet' ▼▼▼
+// ▼▼▼ 用这整块【最终修复版】代码，完整替换掉你旧的 case 'open_red_packet' 代码块 ▼▼▼
 case 'open_red_packet': { // 使用大括号创建独立的块级作用域
     const packetToOpen = chat.history.find(m => m.timestamp === msgData.packet_timestamp);
     // 检查红包是否存在、是否没被领完、以及这个AI角色是否还没领过
     if (packetToOpen && !packetToOpen.isFullyClaimed && !(packetToOpen.claimedBy && packetToOpen.claimedBy[msgData.name])) {
 
-        // 1. 根据AI的本名(msgData.name)去成员列表里找到完整的成员对象
+        // 1. 【核心修复】根据AI的本名(msgData.name)，从成员列表找到其正确的群昵称
         const member = chat.members.find(m => m.originalName === msgData.name);
-        // 2. 获取该成员当前的群昵称，如果找不到（异常情况），则备用其本名
         const displayName = member ? member.groupNickname : msgData.name;
         
         let claimedAmountAI = 0;
@@ -29045,29 +29169,25 @@ case 'open_red_packet': { // 使用大括号创建独立的块级作用域
         const remainingCount = packetToOpen.count - Object.keys(packetToOpen.claimedBy || {}).length;
 
         if (remainingCount > 0) {
-            if (remainingCount === 1) { claimedAmountAI = remainingAmount; } 
-            else {
+            if (remainingCount === 1) { // 如果是最后一个
+                claimedAmountAI = remainingAmount;
+            } else { // 如果不是最后一个，随机分配
                 const min = 0.01;
                 const max = remainingAmount - (remainingCount - 1) * min;
                 claimedAmountAI = Math.random() * (max - min) + min;
             }
             claimedAmountAI = parseFloat(claimedAmountAI.toFixed(2));
             
+            // 2. 确保 claimedBy 对象存在
             if (!packetToOpen.claimedBy) packetToOpen.claimedBy = {};
-            // 3. 【核心修改】使用我们刚刚查找到的 displayName 作为记录的key
+            // 3. 【核心修复】使用我们刚刚查找到的 displayName 作为记录的key
             packetToOpen.claimedBy[displayName] = claimedAmountAI;
-                        // 【全新】同步到角色钱包（收入）
-            const openRpDescription = `领取了 ${packetToOpen.senderName} 的红包`;
-            // 这里的 AI 角色可能不是当前聊天的 `chatId`（因为是在群里抢红包），所以要精确找到是谁抢的
-            const openerChar = Object.values(state.chats).find(c => c.name === displayName);
-            if (openerChar) {
-                 await updateCharacterBankBalance(openerChar.id, claimedAmountAI, openRpDescription);
-            }
             
+            // 4. 发送对用户可见的系统消息
             const aiClaimedMessage = {
                 role: 'system',
                 type: 'pat_message',
-                // 【核心修改】系统消息里也使用 displayName
+                // 【核心修复】系统消息里也使用 displayName
                 content: `${displayName} 领取了 ${packetToOpen.senderName} 的红包`,
                 timestamp: Date.now()
             };
@@ -29075,9 +29195,11 @@ case 'open_red_packet': { // 使用大括号创建独立的块级作用域
 
             let hiddenContentForAI = `[系统提示：你 (${displayName}) 成功抢到了 ${claimedAmountAI.toFixed(2)} 元。`;
 
+            // 5. 【【【这就是最关键的部分！】】】检查红包是否被领完
             if (Object.keys(packetToOpen.claimedBy).length >= packetToOpen.count) {
-                packetToOpen.isFullyClaimed = true;
+                packetToOpen.isFullyClaimed = true; // 标记为已领完
                 
+                // 发送对用户可见的“已领完”通知
                 const finishedMessage = {
                     role: 'system',
                     type: 'pat_message',
@@ -29086,6 +29208,10 @@ case 'open_red_packet': { // 使用大括号创建独立的块级作用域
                 };
                 chat.history.push(finishedMessage);
                 
+                // 开始构建给AI看的“战报”
+                hiddenContentForAI += ` 红包已被领完。`;
+
+                // 如果是拼手气红包，找出谁是手气王
                 let luckyKing = { name: '', amount: -1 };
                 if (packetToOpen.packetType === 'lucky' && packetToOpen.count > 1) {
                     Object.entries(packetToOpen.claimedBy).forEach(([name, amount]) => {
@@ -29094,30 +29220,32 @@ case 'open_red_packet': { // 使用大括号创建独立的块级作用域
                         }
                     });
                 }
+                // 把手气王信息也加到“战报”里
                 if (luckyKing.name) {
-                     hiddenContentForAI += ` 红包已被领完，手气王是 ${luckyKing.name}！`;
-                } else {
-                     hiddenContentForAI += ` 红包已被领完。`;
+                     hiddenContentForAI += ` 手气王是 ${luckyKing.name}！`;
                 }
             }
             hiddenContentForAI += ' 请根据这个结果发表你的评论。]';
 
+            // 6. 创建并添加给AI看的隐藏消息
             const hiddenMessageForAI = {
                 role: 'system',
                 content: hiddenContentForAI,
-                timestamp: Date.now() + 2,
+                timestamp: Date.now() + 2, // 确保时间戳在后
                 isHidden: true
             };
             chat.history.push(hiddenMessageForAI);
         }
         
+        // 7. 刷新UI（如果用户正在看的话）
         if (isViewingThisChat) {
             renderChatInterface(chatId);
         }
     }
-    continue; // 处理完后，继续处理AI返回的其他消息
+    continue; // 这是一个后台操作，继续处理AI可能返回的其他消息
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
 
 case 'change_avatar':
     const avatarName = msgData.name;
@@ -29219,26 +29347,24 @@ case 'change_avatar':
 
 // ▲▲▲ 添加结束 ▲▲▲
 
-// ▼▼▼ 在 triggerAiResponse 的 switch (msgData.type) 语句中，添加这个新的 case ▼▼▼
 case 'quote_reply':
     const originalMessage = chat.history.find(m => m.timestamp === msgData.target_timestamp);
     if (originalMessage) {
         const quoteContext = {
             timestamp: originalMessage.timestamp,
             senderName: originalMessage.senderName || (originalMessage.role === 'user' ? (chat.settings.myNickname || '我') : chat.name),
-            content: String(originalMessage.content || '').substring(0, 50),
+            content: String(originalMessage.content || ''), // 核心修复：移除了 .substring(0, 50)
         };
         aiMessage = { 
             ...baseMessage, 
             content: msgData.reply_content,
-            quote: quoteContext // 核心：在这里附加引用对象
+            quote: quoteContext
         };
     } else {
-        // 如果找不到被引用的消息，就当作普通消息发送
         aiMessage = { ...baseMessage, content: msgData.reply_content };
     }
     break;
-// ▲▲▲ 新增 case 结束 ▲▲▲
+
 
 case 'location':
     aiMessage = {
@@ -33334,6 +33460,7 @@ async function handlePacketClick(timestamp) {
 }
 // ▲▲▲ 替换结束 ▲▲▲
 
+// ▼▼▼ 用这整块【功能增强版】代码，完整替换掉你旧的 handleOpenRedPacket 函数 ▼▼▼
 /**
  * 【核心】处理用户打开红包的逻辑 (V5 - 专注于数据更新)
  */
@@ -33372,14 +33499,47 @@ async function handleOpenRedPacket(packet) {
         packet.isFullyClaimed = true;
     }
 
-    // 4. 构建系统消息和AI指令
-    let hiddenMessageContent = isNowFullyClaimed
-        ? `[系统提示：用户 (${myNickname}) 领取了最后一个红包，现在 ${packet.senderName} 的红包已被领完。请对此事件发表评论。]`
-        : `[系统提示：用户 (${myNickname}) 刚刚领取了红包 (时间戳: ${packet.timestamp})。红包还未领完，你现在可以使用 'open_red_packet' 指令来尝试领取。]`;
+    // 4. 【【【这就是最关键的部分！】】】构建系统消息和AI指令
+    let hiddenMessageContent = '';
 
-    const visibleMessage = { role: 'system', type: 'pat_message', content: `你领取了 ${packet.senderName} 的红包`, timestamp: Date.now() };
-    const hiddenMessage = { role: 'system', content: hiddenMessageContent, timestamp: Date.now() + 1, isHidden: true };
-    chat.history.push(visibleMessage, hiddenMessage);
+    // 如果红包被领完了，就准备“战报”
+    if (isNowFullyClaimed) {
+        const finishedMessage = {
+            role: 'system',
+            type: 'pat_message',
+            content: `${packet.senderName} 的红包已被领完`,
+            timestamp: Date.now() + 1
+        };
+        chat.history.push(finishedMessage);
+        
+        hiddenMessageContent = `[系统提示：用户 (${myNickname}) 领取了最后一个红包，现在 ${packet.senderName} 的红包已被领完。`;
+
+        let luckyKing = { name: '', amount: -1 };
+        if (packet.packetType === 'lucky' && packet.count > 1) {
+            Object.entries(packet.claimedBy).forEach(([name, amount]) => {
+                if (amount > luckyKing.amount) {
+                    luckyKing = { name, amount };
+                }
+            });
+        }
+        if (luckyKing.name) {
+             hiddenMessageContent += ` 手气王是 ${luckyKing.name}！`;
+        }
+        hiddenMessageContent += ' 请对此事件发表评论。]';
+    } 
+    // 如果还没被领完
+    else {
+        hiddenMessageContent = `[系统提示：用户 (${myNickname}) 刚刚领取了红包 (时间戳: ${packet.timestamp})。红包还未领完。]`;
+    }
+
+    // 创建并添加给AI看的隐藏消息
+    const hiddenMessage = {
+        role: 'system',
+        content: hiddenMessageContent,
+        timestamp: Date.now() + 2,
+        isHidden: true
+    };
+    chat.history.push(hiddenMessage);
 
     // 5. 保存到数据库
     await db.chats.put(chat);
@@ -33388,6 +33548,7 @@ async function handleOpenRedPacket(packet) {
     return claimedAmount;
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
 
 /**
  * 【全新】显示红包领取详情的模态框 (V4 - 已修复参数错误)
@@ -56408,6 +56569,125 @@ async function saveInnerVoiceStyles() {
 }
 
 /* ▲▲▲ 新功能函数结束 ▲▲▲ */
+// ▼▼▼ 把这一整块全新的功能函数，粘贴到 init() 函数的【正上方】 ▼▼▼
+
+/**
+ * 【全新】打开AI生成群成员的模态框
+ */
+function openAiGenerateMembersModal() {
+    // 清空上次的输入
+    document.getElementById('ai-member-count-input').value = '3';
+    document.getElementById('ai-member-prompt-input').value = '';
+    // 显示弹窗
+    document.getElementById('ai-generate-members-modal').classList.add('visible');
+}
+
+// ▼▼▼ 用这整块【已修复】的代码，完整替换你旧的 handleGenerateMembers 函数 ▼▼▼
+/**
+ * 【全新 | AI核心】处理用户点击“开始生成”按钮的逻辑 (已修复)
+ */
+async function handleGenerateMembers() {
+    if (!state.activeChatId) return;
+    const chat = state.chats[state.activeChatId];
+    if (!chat || !chat.isGroup) return;
+
+    const count = parseInt(document.getElementById('ai-member-count-input').value);
+    const requirements = document.getElementById('ai-member-prompt-input').value.trim();
+
+    if (isNaN(count) || count < 1 || count > 20) {
+        alert('请输入1到20之间的有效人数！');
+        return;
+    }
+
+    document.getElementById('ai-generate-members-modal').classList.remove('visible');
+    await showCustomAlert("请稍候...", `AI正在为“${chat.name}”创造 ${count} 位新朋友...`);
+
+    const systemPrompt = `
+# 任务
+你是一个群聊成员生成器。请根据用户的要求，为群聊“${chat.name}”创建${count}个新成员。
+
+# 用户要求:
+${requirements || '无特殊要求，请自由发挥。'}
+
+# 核心规则
+1.  你生成的每个成员都必须有独特的名字(name)和鲜明的性格人设(persona)。
+2.  人设描述要生动、具体，能体现出角色的特点。
+3.  【格式铁律】: 你的回复【必须且只能】是一个严格的JSON数组，直接以'['开头, 以']'结尾。数组中的每个元素都是一个代表成员的JSON对象。
+
+# JSON输出格式示例:
+[
+  {
+    "name": "林风",
+    "persona": "一个阳光开朗的运动系少年，热爱篮球，性格直爽，是团队里的气氛担当。"
+  },
+  {
+    "name": "陈雪",
+    "persona": "文静内向的学霸少女，喜欢读书和画画，心思细腻，不善言辞但观察力敏锐。"
+  }
+]
+`;
+
+    try {
+        const { proxyUrl, apiKey, model } = state.apiConfig;
+        let isGemini = proxyUrl === GEMINI_API_URL;
+        let messagesForApi = [{ role: 'user', content: systemPrompt }];
+        let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+        
+        const response = isGemini 
+            ? await fetch(geminiConfig.url, geminiConfig.data) 
+            : await fetch(`${proxyUrl}/v1/chat/completions`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+                body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 1.0, response_format: { type: "json_object" } })
+            });
+
+        if (!response.ok) throw new Error(`API请求失败: ${response.status} - ${await response.text()}`);
+
+        const data = await response.json();
+        const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(/^```json\s*|```$/g, '').trim();
+        const newMembersData = JSON.parse(rawContent);
+
+        if (Array.isArray(newMembersData) && newMembersData.length > 0) {
+            const addedNames = [];
+            newMembersData.forEach((memberData, index) => {
+                if (memberData.name && memberData.persona) {
+                    const newMember = {
+                        id: 'npc_' + (Date.now() + index),
+                        originalName: memberData.name.trim(),
+                        groupNickname: memberData.name.trim(),
+                        avatar: defaultGroupMemberAvatar,
+                        persona: memberData.persona.trim(),
+                        avatarFrame: '',
+                        isAdmin: false,
+                        groupTitle: ''
+                    };
+                    chat.members.push(newMember);
+                    addedNames.push(`“${newMember.groupNickname}”`);
+                }
+            });
+
+            if (addedNames.length > 0) {
+                await db.chats.put(chat);
+                await logSystemMessage(chat.id, `邀请了 ${addedNames.length} 位新成员: ${addedNames.join('、')}加入了群聊。`);
+                await showCustomAlert("生成成功！", `${addedNames.length} 位新成员已加入群聊！`);
+                renderMemberManagementList(); // 刷新成员管理列表
+
+                // ★★★★★ 核心修复：就是删除了下面这一行！ ★★★★★
+                // renderGroupMemberSettings(chat.members); 
+
+            } else {
+                throw new Error("AI返回的数据格式不正确，缺少name或persona字段。");
+            }
+        } else {
+            throw new Error("AI返回的数据不是有效的数组。");
+        }
+    } catch (error) {
+        console.error("AI生成群成员失败:", error);
+        await showCustomAlert('生成失败', `发生了一个错误：\n${error.message}`);
+    }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 
 
@@ -63603,6 +63883,16 @@ document.getElementById('iv-editor-cancel-btn').addEventListener('click', () => 
 });
 
 // ▲▲▲ 新增事件监听器结束 ▲▲▲
+// ▼▼▼ 在 init() 的事件监听器区域粘贴这段新代码 ▼▼▼
+
+// 【全新】AI生成群成员功能事件绑定
+document.getElementById('ai-generate-members-btn').addEventListener('click', openAiGenerateMembersModal);
+document.getElementById('cancel-ai-generate-members-btn').addEventListener('click', () => {
+    document.getElementById('ai-generate-members-modal').classList.remove('visible');
+});
+document.getElementById('confirm-ai-generate-members-btn').addEventListener('click', handleGenerateMembers);
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
 
 // ===================================================================
 // 5. 启动！
