@@ -35922,7 +35922,8 @@ const appLabels = {
     'lovers-space': '情侣空间',
     'game-hall': '游戏大厅',
     'x-social': 'X社交',
-    'taobao': '桃宝'
+    'taobao': '桃宝',
+    'date-a-live':'约会大作战'
 };
 // ▲▲▲ 替换结束 ▲▲▲
 
@@ -53522,70 +53523,130 @@ async function renderDatingPresetSelector() {
     });
 }
 
+// ▼▼▼ 【约会大作战 | 预设功能修复版】请用这整块代码，替换旧的 handleDatingPresetSelect 函数 ▼▼▼
 async function handleDatingPresetSelect() {
     const select = document.getElementById('dating-preset-select');
     const presetId = parseInt(select.value);
-    if (presetId) {
-        const preset = await db.datingPresets.get(presetId);
-        if (preset) {
-            // 加载预设到当前设置并刷新UI
-            currentDatingUISettings = preset.settings;
-            // 重新填充弹窗内容
-            document.getElementById('dating-prompt-input').value = currentDatingUISettings.prompt;
-            document.getElementById('dating-style-input').value = currentDatingUISettings.style;
-            document.getElementById('dating-bg-url-input').value = currentDatingUISettings.backgroundUrl;
-            document.getElementById('dating-sprite-url-input').value = currentDatingUISettings.sprite.url;
-            document.getElementById('sprite-x-slider').value = currentDatingUISettings.sprite.x;
-            document.getElementById('sprite-y-slider').value = currentDatingUISettings.sprite.y;
-            document.getElementById('sprite-size-slider').value = currentDatingUISettings.sprite.size;
-            // 实时应用预览
-            applyDatingUISettings();
+
+    // 如果用户选择的是“-- 自定义 --”（即没有 presetId），则清空输入框，让用户可以自由编辑
+    if (!presetId) {
+        document.getElementById('dating-prompt-input').value = '';
+        document.getElementById('dating-style-input').value = '';
+        document.getElementById('dating-bg-url-input').value = '';
+        document.getElementById('dating-sprite-group-select').value = '';
+        
+        // 同样重置临时的设置对象
+        if (currentDatingUISettings) {
+            currentDatingUISettings.prompt = '';
+            currentDatingUISettings.style = '';
+            currentDatingUISettings.backgroundUrl = '';
+            currentDatingUISettings.spriteGroupId = null;
         }
+        // 应用空的背景进行预览
+        applyDatingUISettings();
+        return;
+    }
+
+    // 根据ID从数据库获取预设
+    const preset = await db.datingPresets.get(presetId);
+    if (preset && preset.settings) {
+        const loadedSettings = preset.settings;
+
+        // 确保临时的UI设置对象存在，防止后续操作出错
+        if (!currentDatingUISettings) {
+            currentDatingUISettings = {
+                prompt: '', style: '', backgroundUrl: '', spriteGroupId: null,
+                sprite: { url: '', x: 50, y: 100, size: 80 }
+            };
+        }
+        
+        // 【核心修复】用加载的预设值，安全地更新当前设置对象，而不是整个替换它
+        currentDatingUISettings.prompt = loadedSettings.prompt || '';
+        currentDatingUISettings.style = loadedSettings.style || '';
+        currentDatingUISettings.backgroundUrl = loadedSettings.backgroundUrl || '';
+        currentDatingUISettings.spriteGroupId = loadedSettings.spriteGroupId || null;
+        
+        // 将新值同步更新到弹窗的UI控件上
+        document.getElementById('dating-prompt-input').value = currentDatingUISettings.prompt;
+        document.getElementById('dating-style-input').value = currentDatingUISettings.style;
+        document.getElementById('dating-bg-url-input').value = currentDatingUISettings.backgroundUrl;
+        document.getElementById('dating-sprite-group-select').value = currentDatingUISettings.spriteGroupId || '';
+
+        // 实时应用背景预览。因为我们保留了.sprite结构，所以这里不会再报错。
+        applyDatingUISettings();
     }
 }
+// ▲▲▲ 替换结束 ▲▲▲
 
+
+/**
+ * 【全新修复版】打开并管理约会场景预设
+ */
 async function openDatingPresetManager() {
+    // 1. 获取当前下拉框选中的预设ID
     const select = document.getElementById('dating-preset-select');
+    if (!select) {
+        alert("错误：在HTML中找不到ID为 'dating-preset-select' 的元素。");
+        return;
+    }
     const selectedId = select.value ? parseInt(select.value) : null;
 
+    // 2. 弹出操作选择菜单
     const choice = await showChoiceModal("管理场景预设", [
         { text: '💾 保存当前为新预设', value: 'save' },
         { text: '🔄 更新选中预设', value: 'update', disabled: !selectedId },
         { text: '🗑️ 删除选中预设', value: 'delete', disabled: !selectedId }
     ]);
+    
+    hidePresetActions(); // 这是你已有的函数，用于关闭选择菜单
 
+    // 3. 根据用户的选择，执行正确的操作
     if (choice === 'save') {
         const name = await showCustomPrompt("保存预设", "请输入预设名称：");
         if (name && name.trim()) {
+            // 从UI收集当前的设置
             const currentSettings = {
                 prompt: document.getElementById('dating-prompt-input').value.trim(),
                 style: document.getElementById('dating-style-input').value.trim(),
                 backgroundUrl: document.getElementById('dating-bg-url-input').value.trim(),
-                sprite: {
-                    url: document.getElementById('dating-sprite-url-input').value.trim(),
-                    x: parseInt(document.getElementById('sprite-x-slider').value),
-                    y: parseInt(document.getElementById('sprite-y-slider').value),
-                    size: parseInt(document.getElementById('sprite-size-slider').value)
-                }
+                spriteGroupId: document.getElementById('dating-sprite-group-select').value ? parseInt(document.getElementById('dating-sprite-group-select').value) : null
             };
+            // 保存到数据库
             await db.datingPresets.add({ name: name.trim(), settings: currentSettings });
-            await renderDatingPresetSelector();
+            await renderDatingPresetSelector(); // 刷新下拉框
             alert('预设已保存！');
         }
-    } else if (choice === 'update' && selectedId) {
-        const currentSettings = { /* ... (同上) ... */ };
-        await db.datingPresets.update(selectedId, { settings: currentSettings });
-        alert('预设已更新！');
-    } else if (choice === 'delete' && selectedId) {
-        const confirmed = await showCustomConfirm("确认删除", "确定要删除这个预设吗？");
-        if(confirmed) {
-            await db.datingPresets.delete(selectedId);
-            await renderDatingPresetSelector();
-            alert('预设已删除。');
+    } else if (choice === 'update') {
+        if (selectedId) {
+            // 收集当前设置
+            const currentSettings = {
+                prompt: document.getElementById('dating-prompt-input').value.trim(),
+                style: document.getElementById('dating-style-input').value.trim(),
+                backgroundUrl: document.getElementById('dating-bg-url-input').value.trim(),
+                spriteGroupId: document.getElementById('dating-sprite-group-select').value ? parseInt(document.getElementById('dating-sprite-group-select').value) : null
+            };
+            // 更新数据库中的预设
+            await db.datingPresets.update(selectedId, { settings: currentSettings });
+            alert('预设已更新！');
+        }
+    } else if (choice === 'delete') {
+        if (selectedId) {
+            const presetToDelete = await db.datingPresets.get(selectedId);
+            const confirmed = await showCustomConfirm("确认删除", `确定要删除预设 "${presetToDelete.name}" 吗？`, { confirmButtonClass: 'btn-danger' });
+            if (confirmed) {
+                await db.datingPresets.delete(selectedId);
+                await renderDatingPresetSelector(); // 刷新下拉框
+                // 删除后清空输入框
+                document.getElementById('dating-prompt-input').value = '';
+                document.getElementById('dating-style-input').value = '';
+                document.getElementById('dating-bg-url-input').value = '';
+                document.getElementById('dating-sprite-group-select').value = '';
+                alert('预设已删除。');
+            }
         }
     }
 }
-// ▲▲▲ 新功能函数粘贴结束 ▲▲▲
+
 /* ▼▼▼ 【全新】约会立绘功能核心函数 ▼▼▼ */
 
 /**
@@ -54125,19 +54186,67 @@ function createDatingHistoryCard(record) {
 }
 
 /* --- 【全新】约会历史记录功能函数结束 --- */
+// ▼▼▼ 把这一整块全新的函数，粘贴到 handleSaveCustomDatingScene 函数的上方 ▼▼▼
 
-// ▼▼▼ 【全新 | V2 - 支持AI生成】用这整块代码，完整替换旧的 handleSaveCustomDatingScene 函数 ▼▼▼
+// ▼▼▼ 用这块【V2 - 场景重写版】代码，完整替换旧的 getSceneTypeKeywords 函数 ▼▼▼
+
 /**
- * 【全新 | V2】处理用户保存自定义约会场景的逻辑
- * - 如果用户提供了URL，则直接使用。
- * - 如果用户未提供URL，则根据场景名称生成一个imagePrompt，交由后续流程处理。
+ * 【V2 - 场景重写版】根据场景名称，智能判断并返回重写后的场景描述和风格关键词
+ * @param {string} sceneName - 用户输入的场景名称
+ * @returns {{scenePrompt: string, styleKeywords: string}} - 返回包含场景描述和风格词的对象
  */
+function getSceneTypeKeywords(sceneName) {
+    const name = sceneName.toLowerCase(); // 转换为小写，方便匹配
+
+    const outdoorKeywords = ['公园', '海滩', '山', '森林', '湖', '花园', '夜市', '路边', '街头', 'park', 'beach', 'mountain', 'forest', 'lake', 'garden', 'street'];
+    const indoorPublicKeywords = ['咖啡', '书店', '博物馆', '美术馆', '水族馆', '影院', '酒吧', 'cafe', 'bookstore', 'museum', 'gallery', 'aquarium', 'cinema', 'bar'];
+    const loveHotelKeywords = ['情趣', 'love hotel', '主题酒店', 'lovers hotel', '成人旅馆'];
+
+    // 1. 【核心修改】优先判断是否为特殊的情趣酒店
+    if (loveHotelKeywords.some(keyword => name.includes(keyword))) {
+        console.log("场景识别为：情趣酒店（已激活特殊重写模式）");
+        // 我们不再使用用户输入的 "情趣酒店" 这个词
+        // 而是直接把它“翻译”成一个纯粹的、描述性的场景
+        return {
+            scenePrompt: 'an empty luxurious romantic hotel room interior, with a heart-shaped bed or a round bed, mirrors on the ceiling, neon mood lighting, Jacuzzi in room, sensual and intimate atmosphere',
+            styleKeywords: 'romantic, luxurious, intimate, playful'
+        };
+    }
+
+    // 2. 对于其他场景，保持原来的逻辑，直接使用用户输入的名称
+    if (outdoorKeywords.some(keyword => name.includes(keyword))) {
+        console.log("场景识别为：户外");
+        return {
+            scenePrompt: sceneName,
+            styleKeywords: 'natural lighting, golden hour, beautiful scenery, serene atmosphere, epic sky, wide angle'
+        };
+    }
+
+    if (indoorPublicKeywords.some(keyword => name.includes(keyword))) {
+        console.log("场景识别为：室内公共场所");
+        return {
+            scenePrompt: sceneName,
+            styleKeywords: 'cozy interior, ambient lighting, warm and inviting, charming decor, detailed background'
+        };
+    }
+
+    // 4. 默认情况，也直接使用用户输入的名称
+    console.log("场景识别为：通用/现代酒店");
+    return {
+        scenePrompt: sceneName,
+        styleKeywords: 'modern aesthetic, elegant decor, luxurious interior, clean, bright'
+    };
+}
+
+// ▲▲▲ 替换结束 ▲▲▲
+
+
+// ▼▼▼ 用这块【已适配】的代码，完整替换旧的 handleSaveCustomDatingScene 函数 ▼▼▼
 async function handleSaveCustomDatingScene() {
     const name = document.getElementById('scene-name-input').value.trim();
     const imageUrl = document.getElementById('scene-image-url-input').value.trim();
     const costStr = document.getElementById('scene-cost-input').value.trim();
 
-    // 1. 【核心修改】验证逻辑调整，现在图片URL不再是必填项
     if (!name || !costStr) {
         alert("场景名称和花费为必填项！");
         return;
@@ -54149,40 +54258,40 @@ async function handleSaveCustomDatingScene() {
         return;
     }
     
-    // 准备一个基础的场景对象
     const newScene = {
         name: name,
         cost: cost,
-        uid: 'scene_user_' + Date.now() // 创建一个独特的ID
+        uid: 'scene_user_' + Date.now()
     };
 
-    // 2. 【核心修改】根据用户是否输入了URL，来决定如何处理图片信息
     if (imageUrl) {
-        // --- 用户提供了URL ---
-        // 验证链接有效性
         if (!imageUrl.startsWith('http') && !imageUrl.startsWith('data:image')) {
             alert("请输入一个有效的网络图片URL！");
             return;
         }
         newScene.imageUrl = imageUrl;
-        newScene.imagePrompt = 'User-provided image'; // 给一个占位符
+        newScene.imagePrompt = 'User-provided image';
     } else {
-        // --- 用户没有提供URL，我们将为AI准备好“作画指令” ---
-        newScene.imageUrl = ''; // 明确设置为空字符串
-        // 根据场景名称，生成一个高质量的、用于文生图的英文Prompt
-        newScene.imagePrompt = `${name}, vertical, phone wallpaper, cinematic lighting, masterpiece, best quality, beautiful anime style art, vibrant colors`;
+        // --- 【核心修改在这里】 ---
+
+        // 1. 这是我们强力的通用指令，确保高质量和【绝对不要人物】
+        const universalStyle = "photorealistic, 4k, hyperrealistic, cinematic lighting, masterpiece, best quality, ultra detailed, no dark elements, romantic, (no humans:1.5), no people, no characters, empty room, no one";
+        
+        // 2. 调用我们升级后的辅助函数，它会返回一个包含 scenePrompt 和 styleKeywords 的对象
+        const promptParts = getSceneTypeKeywords(name);
+        
+        // 3. 将【重写后的场景描述】、【智能风格】和【通用风格】组合成最终的提示词
+        newScene.imageUrl = '';
+        newScene.imagePrompt = `${promptParts.scenePrompt}, ${promptParts.styleKeywords}, ${universalStyle}`;
+        
+        console.log("【终极版】生成的Image Prompt:", newScene.imagePrompt); 
     }
 
     try {
-        // 3. 后续的保存和渲染逻辑完全不需要改变！
         await db.datingScenes.add(newScene);
         currentDatingScenes.push(newScene);
-        
         document.getElementById('create-dating-scene-modal').classList.remove('visible');
-        
-        // 重新渲染列表。对于需要AI生成的卡片，它会自动显示加载动画。
         renderDatingScenes();
-
         alert('自定义约会场景已成功创建！');
     } catch (error) {
         console.error("保存自定义约会场景失败:", error);
@@ -54190,6 +54299,8 @@ async function handleSaveCustomDatingScene() {
     }
 }
 // ▲▲▲ 替换结束 ▲▲▲
+
+
 
 
         // ===================================================================
