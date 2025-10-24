@@ -5,6 +5,7 @@
 // 与主聊天、动态、设置等功能完全分离。
 
 document.addEventListener('DOMContentLoaded', () => {
+  const LUDO_BOARD_SIZE = 42; // 总格子数，可以根据你的棋盘布局调整
   // ▼▼▼ 游戏状态管理器 ▼▼▼
   // ▼▼▼ 【全新】这是狼人杀游戏的状态管理器 ▼▼▼
   let werewolfGameState = {
@@ -90,6 +91,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ▲▲▲ 替换结束 ▲▲▲
   // ▼▼▼ 【全新】万能Markdown渲染函数 (带安全过滤和遮挡效果) ▼▼▼
+  function addLongPressListener(element, callback) {
+    let pressTimer;
+    const startPress = e => {
+      if (isSelectionMode) return;
+      e.preventDefault();
+      pressTimer = window.setTimeout(() => callback(e), 500);
+    };
+    const cancelPress = () => clearTimeout(pressTimer);
+    element.addEventListener('mousedown', startPress);
+    element.addEventListener('mouseup', cancelPress);
+    element.addEventListener('mouseleave', cancelPress);
+    element.addEventListener('touchstart', startPress, { passive: true });
+    element.addEventListener('touchend', cancelPress);
+    element.addEventListener('touchmove', cancelPress);
+  }
 
   /**
    * 将Markdown文本安全地渲染为HTML
@@ -947,19 +963,16 @@ ${formattedLog}
       if (chat) {
         // ▼▼▼ 核心修改就在这里 ▼▼▼
         // 1. 创建对用户可见的【复盘卡片】消息
-// 创建对用户可见的复盘消息
-const visibleMessage = {
-    role: 'user',
-    type: 'share_link',
-    timestamp: Date.now(),
-    title: '狼人杀 - 游戏复盘',
-    description: '点击查看详细复盘记录',
-    source_name: '游戏中心',
-    content: summaryText
-};
-
-
-
+        // 创建对用户可见的复盘消息
+        const visibleMessage = {
+          role: 'user',
+          type: 'share_link',
+          timestamp: Date.now(),
+          title: '狼人杀 - 游戏复盘',
+          description: '点击查看详细复盘记录',
+          source_name: '游戏中心',
+          content: summaryText,
+        };
 
         // 2. 创建对AI可见的【隐藏指令】
         const hiddenInstruction = {
@@ -2094,16 +2107,15 @@ ${gameLogText}
       const chat = state.chats[chatId];
       if (chat) {
         // 创建对用户可见的复盘卡片消息
-const visibleMessage = {
-    role: 'user',
-    type: 'share_link',
-    timestamp: Date.now(),
-    title: '海龟汤 - 游戏复盘',
-    description: '点击查看详细复盘记录',
-    source_name: '游戏中心',
-    content: summaryText
-};
-
+        const visibleMessage = {
+          role: 'user',
+          type: 'share_link',
+          timestamp: Date.now(),
+          title: '海龟汤 - 游戏复盘',
+          description: '点击查看详细复盘记录',
+          source_name: '游戏中心',
+          content: summaryText,
+        };
 
         // 创建对AI可见的隐藏指令
         const hiddenInstruction = {
@@ -3504,16 +3516,15 @@ ${formattedLog}
     for (const chatId of targetIds) {
       const chat = state.chats[chatId];
       if (chat) {
-const visibleMessage = {
-    role: 'user',
-    type: 'share_link',
-    timestamp: Date.now(),
-    title: '剧本杀 - 游戏复盘',
-    description: '点击查看详细复盘记录',
-    source_name: '游戏中心',
-    content: summaryText
-};
-
+        const visibleMessage = {
+          role: 'user',
+          type: 'share_link',
+          timestamp: Date.now(),
+          title: '剧本杀 - 游戏复盘',
+          description: '点击查看详细复盘记录',
+          source_name: '游戏中心',
+          content: summaryText,
+        };
 
         const hiddenInstruction = {
           role: 'system',
@@ -4206,17 +4217,16 @@ const visibleMessage = {
     document.getElementById('guess-what-summary-modal').classList.remove('visible');
 
     // 创建对用户可见的复盘消息
-// 创建对用户可见的复盘消息
-const visibleMessage = {
-    role: 'user',
-    type: 'share_link',
-    timestamp: Date.now(),
-    title: '你说我猜 - 游戏复盘',
-    description: '点击查看详细复盘记录',
-    source_name: '游戏中心',
-    content: summaryText 
-};
-
+    // 创建对用户可见的复盘消息
+    const visibleMessage = {
+      role: 'user',
+      type: 'share_link',
+      timestamp: Date.now(),
+      title: '你说我猜 - 游戏复盘',
+      description: '点击查看详细复盘记录',
+      source_name: '游戏中心',
+      content: summaryText,
+    };
 
     // 创建给AI看的隐藏指令
     const aiContext = `[系统指令：刚刚结束了一局“你说我猜”，这是游戏复盘。请根据这个复盘内容，以你的角色人设，和用户聊聊刚才的游戏。]\n\n${summaryText}`;
@@ -5485,16 +5495,15 @@ ${eventPrompt}
     }
 
     // 创建对用户可见的复盘消息
-const visibleMessage = {
-    role: 'user',
-    type: 'share_link',
-    timestamp: Date.now(),
-    title: '心动飞行棋 - 游戏复盘',
-    description: '点击查看详细复盘记录',
-    source_name: '游戏中心',
-    content: summaryText
-};
-
+    const visibleMessage = {
+      role: 'user',
+      type: 'share_link',
+      timestamp: Date.now(),
+      title: '心动飞行棋 - 游戏复盘',
+      description: '点击查看详细复盘记录',
+      source_name: '游戏中心',
+      content: summaryText,
+    };
 
     // 创建给AI看的隐藏指令，让它可以就游戏结果发表感想
     const aiContext = `[系统指令：刚刚结束了一局飞行棋。重要：本次游戏的胜利者是【${winnerName}】。这是游戏复盘，请根据这个结果，以你的角色人设，和用户聊聊刚才的游戏。]\n\n${summaryText}`;
@@ -6377,15 +6386,15 @@ ${jsonFormat}
     for (const chatId of targetIds) {
       const chat = state.chats[chatId];
       if (chat) {
-const visibleMessage = {
-    role: 'user',
-    type: 'share_link',
-    timestamp: Date.now(),
-    title: '谁是卧底 - 游戏复盘',
-    description: '点击查看详细复盘记录',
-    source_name: '游戏中心',
-    content: summaryText
-};
+        const visibleMessage = {
+          role: 'user',
+          type: 'share_link',
+          timestamp: Date.now(),
+          title: '谁是卧底 - 游戏复盘',
+          description: '点击查看详细复盘记录',
+          source_name: '游戏中心',
+          content: summaryText,
+        };
 
         const hiddenInstruction = {
           role: 'system',
