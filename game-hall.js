@@ -6,6 +6,16 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   const LUDO_BOARD_SIZE = 42; // 总格子数，可以根据你的棋盘布局调整
+  // =======================================================================
+  // ===                 通用UI元素及状态变量                         ===
+  // =======================================================================
+  const modalOverlay = document.getElementById('custom-modal-overlay');
+  const modalTitle = document.getElementById('custom-modal-title');
+  const modalBody = document.getElementById('custom-modal-body');
+  const modalConfirmBtn = document.getElementById('custom-modal-confirm');
+  const modalCancelBtn = document - getElementById('custom-modal-cancel');
+  let modalResolve = null; // 用于处理Promise的resolve函数
+
   // ▼▼▼ 游戏状态管理器 ▼▼▼
   // ▼▼▼ 【全新】这是狼人杀游戏的状态管理器 ▼▼▼
   let werewolfGameState = {
@@ -2207,22 +2217,12 @@ ${gameLogText}
       selectionEl.appendChild(item);
     });
   }
-  // ▼▼▼ 在这里开始粘贴 ▼▼▼
-
-  /**
-   * 【剧本杀】显示角色选择弹窗，让用户选择角色
-   * @param {string} title - 弹窗标题
-   * @param {Array<object>} options - 角色选项数组 [{text, value}]
-   * @returns {Promise<number|null>} - 返回用户选择的角色的索引，如果取消则返回null
-   */
   async function showRoleSelectionModal(title, options) {
     return new Promise(resolve => {
-      const modal = document.getElementById('custom-modal-overlay');
-      const modalTitle = document.getElementById('custom-modal-title');
-      const modalBody = document.getElementById('custom-modal-body');
-      const modalConfirmBtn = document.getElementById('custom-modal-confirm');
-      const modalCancelBtn = document.getElementById('custom-modal-cancel');
+      // 保存 resolve 函数，以便其他函数可以调用它
+      modalResolve = resolve;
 
+      // 直接使用我们在顶层定义的变量
       modalTitle.textContent = title;
 
       let optionsHtml = '<div style="text-align: left; max-height: 400px; overflow-y: auto;">';
@@ -2240,20 +2240,26 @@ ${gameLogText}
       modalConfirmBtn.textContent = '确认选择';
       modalCancelBtn.style.display = 'block';
 
-      modal.classList.add('visible');
+      // 使用新的全局变量 modalOverlay
+      modalOverlay.classList.add('visible');
 
-      modalConfirmBtn.onclick = () => {
+      // 使用 cloneNode 防止事件重复绑定
+      const newConfirmBtn = modalConfirmBtn.cloneNode(true);
+      modalConfirmBtn.parentNode.replaceChild(newConfirmBtn, modalConfirmBtn);
+      newConfirmBtn.onclick = () => {
         const selectedRadio = document.querySelector('input[name="role_selection"]:checked');
         if (selectedRadio) {
-          modal.classList.remove('visible');
+          hideCustomModal(); // 调用我们统一的关闭函数
           resolve(parseInt(selectedRadio.value));
         } else {
           alert('请选择一个角色！');
         }
       };
 
-      modalCancelBtn.onclick = () => {
-        modal.classList.remove('visible');
+      const newCancelBtn = modalCancelBtn.cloneNode(true);
+      modalCancelBtn.parentNode.replaceChild(newCancelBtn, modalCancelBtn);
+      newCancelBtn.onclick = () => {
+        hideCustomModal(); // 调用我们统一的关闭函数
         resolve(null);
       };
     });
@@ -5098,15 +5104,19 @@ ${eventPrompt}
 
   // ▼▼▼ 用这整块新代码，替换掉所有旧的飞行棋问题库核心函数 ▼▼▼
 
-  /* --- 【全新 | V2分类版】飞行棋问题库功能核心函数 --- */
-
   let activeQuestionBankId = null; // 用于追踪正在编辑的问题库ID
   let editingQuestionId = null; // 用于追踪正在编辑的问题ID
   function hideCustomModal() {
+    if (!modalOverlay) return; // 安全检查
     modalOverlay.classList.remove('visible');
-    modalConfirmBtn.classList.remove('btn-danger');
-    if (modalResolve) modalResolve(null);
+    modalConfirmBtn.classList.remove('btn-danger'); // 恢复按钮样式
+    // 如果是通过Promise打开的，则解决Promise
+    if (modalResolve) {
+      modalResolve(null); // 以 null 值解决 Promise，表示取消或关闭
+      modalResolve = null; // 重置，防止下次误调用
+    }
   }
+
   // ▼▼▼ 用这块【已修复】的代码，完整替换你旧的 migrateDefaultLudoQuestions 函数 ▼▼▼
   /**
    * 【数据迁移】在首次加载时，将旧的硬编码问题迁移到数据库
