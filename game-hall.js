@@ -26,6 +26,20 @@ document.addEventListener('DOMContentLoaded', () => {
     gameConfig: {}, // 游戏配置
   };
   // ▲▲▲ 新增变量结束 ▲▲▲
+  // ▼▼▼ 【全局修复】获取所有通用模态框的DOM元素，并声明一个全局的Promise解决器 ▼▼▼
+  // （请将此代码块粘贴到所有 gameState 变量定义的正下方）
+  let modalOverlay,
+    modalConfirmBtn,
+    modalCancelBtn,
+    modalResolve = null;
+  // 假设你的通用模态框ID是 'custom-modal-overlay'
+  // 如果不是，请修改成你HTML里正确的ID
+  modalOverlay = document.getElementById('custom-modal-overlay');
+  modalConfirmBtn = document.getElementById('custom-modal-confirm');
+  modalCancelBtn = document.getElementById('custom-modal-cancel');
+
+  // ▲▲▲ 全局修复代码结束 ▲▲▲
+
   // ▼▼▼ 【全新】这是海龟汤游戏的状态管理器 ▼▼▼
   let seaTurtleSoupState = {
     isActive: false, // 游戏是否正在进行
@@ -61,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentTurn: 'user', // 当前轮到谁: 'user' 或 'ai'
   };
   // ▲▲▲ 新代码粘贴结束 ▲▲▲
+
   // ▼▼▼ 在这里粘贴下面这一整块新代码 ▼▼▼
 
   let ludoGameState = {
@@ -87,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
     tiedPlayers: [],
   };
   // ▲▲▲ 替换结束 ▲▲▲
-
   // ...（上面是 undercoverGameState 的定义）...
 
   // ▲▲▲ 替换结束 ▲▲▲
