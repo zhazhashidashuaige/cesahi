@@ -22576,7 +22576,7 @@ let editingSpriteGroupId = null;
 let activeMessageTimestamp = null;
 
 
-const LUDO_BOARD_SIZE = 42; // 总格子数，可以根据你的棋盘布局调整
+
 
 
 let currentReplyContext = null; // <--- 新增这行，用来存储当前正在引用的消息信息
@@ -31986,7 +31986,59 @@ function stopBackgroundSimulation() {
     }
 }
 // ▲▲▲ 粘贴结束 ▲▲▲
+// ▼▼▼ 用这块【已修复】的代码，完整替换你旧的 migrateDefaultLudoQuestions 函数 ▼▼▼
+  /**
+   * 【数据迁移】在首次加载时，将旧的硬编码问题迁移到数据库
+   */
+  async function migrateDefaultLudoQuestions() {
+    const defaultBankName = '默认题库';
+    const existingBank = await db.ludoQuestionBanks.where('name').equals(defaultBankName).first();
+    // 如果“默认题库”已经存在，就说明迁移过了，直接返回
+    if (existingBank) return;
 
+    console.log('正在迁移飞行棋默认问题到数据库...');
+
+    // 创建默认题库
+    const bankId = await db.ludoQuestionBanks.add({ name: defaultBankName });
+
+    // ★★★ 核心修改：将问题库改为对象数组，并为每个问题添加类型 ★★★
+    const defaultQuestions = [
+      // --- 类型1: 共同回答 (双方都需要回答) ---
+      { type: 'both_answer', text: '如果我们一起去旅行，你最想去哪里，为什么？' },
+      { type: 'both_answer', text: '你认为一段完美的关系中，最不可或缺的三个要素是什么？' },
+      { type: 'both_answer', text: '分享一件最近因为我而让你感到心动或开心的小事。' },
+      { type: 'both_answer', text: '回忆一下，我们第一次见面时，你对我的第一印象是什么？' },
+      { type: 'both_answer', text: '如果我们可以一起学习一项新技能，你希望是什么？' },
+      { type: 'both_answer', text: '描述一个你最希望和我一起度过的完美周末。' },
+      { type: 'both_answer', text: '你觉得我们之间最有默契的一件事是什么？' },
+      { type: 'both_answer', text: '如果用一种动物来形容我，你觉得是什么？为什么？' },
+      { type: 'both_answer', text: '在未来的一年里，你最想和我一起完成的一件事是什么？' },
+      { type: 'both_answer', text: '分享一部你最近很喜欢、并且想推荐给我一起看的电影或剧。' },
+      { type: 'both_answer', text: '我们下次约会，你希望穿什么风格的衣服？' },
+
+      // --- 类型2: 一人回答，对方评价 ---
+      { type: 'single_answer', text: '描述一下我最让你心动的一个瞬间。' },
+      { type: 'single_answer', text: '诚实地说，我做的哪件事曾经让你偷偷生过气？' },
+      { type: 'single_answer', text: '如果我有一种超能力，你希望是什么？' },
+      { type: 'single_answer', text: '给我三个最贴切的标签。' },
+      { type: 'single_answer', text: '在你心里，我的形象和你的理想型有多接近？' },
+      { type: 'single_answer', text: '分享一个你觉得我可能不知道的，关于你的小秘密。' },
+      { type: 'single_answer', text: '如果我们的故事是一首歌，你觉得歌名应该叫什么？' },
+      { type: 'single_answer', text: '说一件你觉得我做得比你好/更擅长的事情。' },
+      { type: 'single_answer', text: '如果可以回到我们认识的任意一天，你会选择哪一天，想做什么？' },
+      { type: 'single_answer', text: '用三个词来形容你眼中的我们的关系。' },
+    ];
+
+    const questionsToAdd = defaultQuestions.map(q => ({
+      bankId: bankId,
+      text: q.text,
+      type: q.type, // <-- 关键修复：把类型也存进去！
+    }));
+
+    await db.ludoQuestions.bulkAdd(questionsToAdd);
+    console.log(`成功迁移了 ${questionsToAdd.length} 条默认问题。`);
+  }
+  // ▲▲▲ 替换结束 ▲▲▲
 /**
  * 这是模拟器的“心跳”，每次定时器触发时运行
  */
@@ -54191,6 +54243,7 @@ if (typeof state.globalSettings.notificationSoundUrl === 'undefined') {
             // ▲▲▲ 粘贴结束 ▲▲▲
             applyHomeIconWidgetTextColor(state.globalSettings.homeIconWidgetTextColor);
             await loadAllFontPresetsOnStartup(); // <---- 在这里添加这一行新代码
+            await migrateDefaultLudoQuestions();
             await addDefaultDarkModeThemeIfNeeded();
             applyWidgetData();
 
