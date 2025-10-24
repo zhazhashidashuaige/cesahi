@@ -15252,8 +15252,9 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     background: linear-gradient(135deg, #ff8fab, #fb6f92); /* 粉色渐变 */
 }
 .card-front.passionate {
-    background: linear-gradient(135deg, #ffda79, #ffb142); /* 黄色渐变 */
+    background: linear-gradient(135deg, #FFF9C4, #FFF176); /* 全新修改：这是一个非常漂亮的淡黄色渐变 */
 }
+
 /* ▼▼▼ 这是为你定制的“完美之夜”薰衣草色，请用它替换旧的 .card-front.perfect 样式 ▼▼▼ */
 .card-front.perfect {
     /* 核心修改：这里使用了从淡紫到略深紫色的优雅渐变，营造出浪漫梦幻的感觉 */
@@ -15400,23 +15401,41 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* --- 【全新】约会历史记录功能样式 --- */
 
-/* 历史记录页面的主容器 */
+/* --- 【全新 | 已修复布局】约会历史记录功能样式 --- */
+
+/* 历史记录页面的主容器，现在负责滚动和布局 */
 #dating-history-list {
-    background-color: #f0f2f5;
+    background-color: #f0f2f5; /* 保持原有的背景色 */
+    
+    /* ▼▼▼ 这是解决拥挤和重叠问题的核心代码 ▼▼▼ */
+    display: flex;             /* 1. 使用 Flex 布局，让卡片们听话地排列 */
+    flex-direction: column;    /* 2. 设置为垂直方向，从上到下堆叠 */
+    gap: 15px;                 /* 3. 在每张卡片之间创建 15px 的垂直间距 */
+    padding: 20px 15px;        /* 4. 在列表的上下(20px)和左右(15px)都加上内边距，让整体不拥挤 */
+    box-sizing: border-box;    /* (推荐) 确保内边距不会影响布局计算 */
+    
+    /* 
+       滚动条的功能由它的父容器 .list-container 提供，
+       我们在这里正确地设置了布局，父容器就能正常滚动了！
+    */
 }
+
 #phone-screen.dark-mode #dating-history-list {
-    background-color: #1c1c1e;
+    background-color: #1c1c1e; /* 夜间模式的背景色 */
 }
 
 /* 历史列表中的卡片，我们让它更适合列表显示 */
 #dating-history-list .dating-summary-card {
-    width: 100%; /* 卡片宽度撑满 */
-    height: 180px; /* 给一个固定的高度，让列表更整齐 */
+    width: 100%; /* 卡片宽度撑满 (保持不变) */
+    height: 180px; /* 给一个固定的高度，让列表更整齐 (保持不变) */
     position: relative; 
     transform: none;
     left: auto;
     top: auto;
-    margin: 0; /* 移除模态框的居中外边距 */
+    margin: 0; /* (保持不变) */
+    
+    /* 【新增】防止卡片在 Flex 布局中被意外压缩变形 */
+    flex-shrink: 0; 
 }
 
 /* 历史列表中的卡片，正面样式微调 */
@@ -15456,7 +15475,70 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
 /* ▲▲▲ 新增CSS样式结束 ▲▲▲ */
 
+/* ▼▼▼ 请用这块【最终修复版】代码，替换掉你旧的 .sticker-item 样式 ▼▼▼ */
 
+/* 
+   核心修改：现在 .sticker-item 变成了一个 flex 容器，
+   负责让里面的“图片”和“文字”垂直排列，它自己不再是图片背景。
+*/
+.sticker-item {
+    display: flex;
+    flex-direction: column; /* 让图片和文字垂直排列 */
+    align-items: center;    /* 水平居中 */
+    gap: 5px;               /* 图片和文字之间的间距 */
+    cursor: pointer;
+}
+
+/* 
+   新增：这是一个新的 div，专门用来显示表情包图片。
+   我们把旧 .sticker-item 的所有外观样式（背景、尺寸、圆角、阴影等）都搬到了这里。
+*/
+.sticker-image-container {
+    width: 80px;            /* 明确指定宽度 */
+    height: 80px;           /* 明确指定高度 */
+    position: relative;
+    background-color: white;
+    border-radius: 10px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* 
+   新增：这是表情包下方描述文字的样式。
+*/
+.sticker-name {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+    width: 80px; /* 和图片宽度保持一致 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 
+   旧的 .delete-btn 样式保持不变，因为它的定位是相对于 .sticker-image-container 的，
+   所以我们把它的父级选择器从 .sticker-item 改为 .sticker-image-container。
+*/
+.sticker-image-container .delete-btn {
+    display: none;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 20px;
+    height: 20px;
+    background-color: #ff3b30;
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 2px solid white;
+}
+/* ▲▲▲ CSS 替换结束 ▲▲▲ */
 
     </style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -15647,7 +15729,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
 <!-- ▼▼▼ 在这里粘贴下面这块新代码 ▼▼▼ -->
 <!-- 这是我们新增的“约会大作战”App图标 -->
-<div style="position: absolute; bottom: 75px; left: 105px;">
+<div style="position: absolute; bottom: 75px; left: 120px;">
     <div class="desktop-app-icon" id="date-a-live-app-icon">
         <div class="icon-bg-desktop"><img id="icon-img-date-a-live" src="https://i.postimg.cc/W36mYgP5/DAL-icon.jpg" alt="约会大作战"></div>
         <span class="label" style="color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">约会大作战</span>
@@ -20940,7 +21022,8 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     <div class="dating-game-ui-overlay">
 <!-- ▼▼▼ 请用这块【已添加心形UI】的代码，完整替换掉你旧的 id="dating-game-screen" 里的那个 .header ▼▼▼ -->
 <div class="header">
-    <span class="back-btn" id="end-date-btn">结束约会</span>
+    <span class="back-btn" id="end-date-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+
     <span id="dating-game-char-name"></span>
     <div class="header-actions">
 
@@ -20970,7 +21053,10 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         <div class="dating-game-textbox">
             <p id="dating-game-text-content">约会即将开始...</p>
         </div>
-
+<div id="dating-completion-bar-container">
+    <div id="dating-completion-bar-fill"></div>
+    <span id="dating-completion-text">0%</span>
+</div>
         <!-- 3c. 玩家操作区 -->
         <div id="dating-game-choices" class="dating-game-choices">
             <!-- 选项按钮将由JS动态生成在这里 -->
@@ -20978,10 +21064,7 @@ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     </div>
 </div>
 <!-- ▲▲▲ 替换结束 ▲▲▲ -->
-    <div id="dating-completion-bar-container">
-        <div id="dating-completion-bar-fill"></div>
-        <span id="dating-completion-text">0%</span>
-    </div>
+
 
 
 <!-- ▼▼▼ 【全新】借钱对象选择弹窗（带滚动和头像）▼▼▼ -->
@@ -26609,7 +26692,7 @@ async function openWorldBookEditor(bookId) {
     showScreen('world-book-editor-screen');
 }
 
-// ▼▼▼ 用这块【增强版】代码，完整替换旧的 renderStickerPanel 函数 ▼▼▼
+// ▼▼▼ 请用这块【最终修复版】的代码，完整替换旧的 renderStickerPanel 函数 ▼▼▼
 function renderStickerPanel() {
     const grid = document.getElementById('sticker-grid');
     grid.innerHTML = '';
@@ -26620,20 +26703,32 @@ function renderStickerPanel() {
     }
 
     state.userStickers.forEach(sticker => {
-        const item = document.createElement('div');
-        item.className = 'sticker-item';
-        item.style.backgroundImage = `url(${sticker.url})`;
-        item.title = sticker.name;
+        // --- 核心修改从这里开始 ---
+
+        // 1. 创建总容器 .sticker-item，它现在是 Flex 布局
+        const itemContainer = document.createElement('div');
+        itemContainer.className = 'sticker-item';
+
+        // 2. 创建专门显示图片的容器 .sticker-image-container
+        const imageContainer = document.createElement('div');
+        imageContainer.className = 'sticker-image-container';
+        imageContainer.style.backgroundImage = `url(${sticker.url})`;
+        imageContainer.title = sticker.name;
+
+        // 3. 创建显示描述的 .sticker-name
+        const nameEl = document.createElement('span');
+        nameEl.className = 'sticker-name';
+        nameEl.textContent = sticker.name;
         
+        // --- 这部分是原来的事件绑定逻辑，现在绑定在 imageContainer 上 ---
         if (isUserStickerSelectionMode) {
-            // 【选择模式】下的逻辑
-            item.classList.add('in-selection-mode');
+            imageContainer.classList.add('in-selection-mode');
             if (selectedUserStickers.has(sticker.id)) {
-                item.classList.add('selected');
+                imageContainer.classList.add('selected');
             }
-            
-            item.addEventListener('click', () => {
-                item.classList.toggle('selected');
+            // 注意：点击事件绑定在整个 itemContainer 上，提供更大的点击区域
+            itemContainer.addEventListener('click', () => {
+                imageContainer.classList.toggle('selected');
                 if (selectedUserStickers.has(sticker.id)) {
                     selectedUserStickers.delete(sticker.id);
                 } else {
@@ -26645,11 +26740,12 @@ function renderStickerPanel() {
             });
 
         } else {
-            // 【正常模式】下的逻辑（发送和长按删除）
-            item.addEventListener('click', () => sendSticker(sticker));
+            // 发送表情的点击事件也绑定在整个容器上
+            itemContainer.addEventListener('click', () => sendSticker(sticker));
             
-            addLongPressListener(item, () => {
-                const existingDeleteBtn = item.querySelector('.delete-btn');
+            // 长按删除逻辑绑定在图片上
+            addLongPressListener(imageContainer, () => {
+                const existingDeleteBtn = imageContainer.querySelector('.delete-btn');
                 if (existingDeleteBtn) return;
                 
                 const deleteBtn = document.createElement('div');
@@ -26664,16 +26760,28 @@ function renderStickerPanel() {
                         renderStickerPanel();
                     }
                 };
-                item.appendChild(deleteBtn);
+                imageContainer.appendChild(deleteBtn);
                 deleteBtn.style.display = 'block';
-                setTimeout(() => item.addEventListener('mouseleave', () => deleteBtn.remove(), { once: true }), 3000);
+                // 鼠标移开时自动移除删除按钮
+                const removeDeleteBtn = () => {
+                    if(deleteBtn) deleteBtn.remove();
+                    imageContainer.removeEventListener('mouseleave', removeDeleteBtn);
+                };
+                imageContainer.addEventListener('mouseleave', removeDeleteBtn);
             });
         }
-        grid.appendChild(item);
+        
+        // 4. 按正确的结构组装
+        itemContainer.appendChild(imageContainer);
+        itemContainer.appendChild(nameEl);
+
+        // 5. 将整个容器添加到网格中
+        grid.appendChild(itemContainer);
+
+        // --- 核心修改到这里结束 ---
     });
 }
-// ▲▲▲ 替换结束 ▲▲▲
-// ▼▼▼ 在 renderStickerPanel 函数后，粘贴这个新函数 ▼▼▼
+// ▲▲▲ 替换结束 ▲▲▲// ▼▼▼ 在 renderStickerPanel 函数后，粘贴这个新函数 ▼▼▼
 /**
  * 处理批量删除选中的用户表情
  */
@@ -26932,7 +27040,32 @@ if (chat.isGroup) {
             </div>
         `;
     }
+// ... 其他 case ...
+else if (msg.type === 'dating_summary_card') {
+    bubble.classList.add('is-dating-summary');
+    const payload = msg.payload;
+    let cardClass = '';
 
+    if (payload.ratingType === 'romantic') {
+        cardClass = 'romantic';
+    } else if (payload.ratingType === 'passionate') {
+        cardClass = 'passionate';
+    } else if (payload.ratingType === 'perfect') {
+        cardClass = 'perfect';
+    }
+
+    // ▼▼▼【核心修复】我们不再存储复杂的JSON字符串 ▼▼▼
+    contentHtml = `
+        <div class="dating-summary-chat-card ${cardClass}" data-timestamp="${msg.timestamp}">
+            <div class="rating">${payload.rating}</div>
+            <div class="tip">点击查看详情</div>
+        </div>
+    `;
+}
+// ... 其他 case ...
+
+
+    // ▲▲▲ 新代码粘贴结束 ▲▲▲
 else if (msg.type === 'share_card') {
     bubble.classList.add('is-link-share'); // 复用链接分享的卡片样式
     // 【核心】把时间戳加到卡片上，方便后面点击时识别
@@ -53188,8 +53321,6 @@ function displayStoryText(storyText, choices) {
     showNextSentence();
 }
 
-// ▼▼▼ 【最终修正版 V3】请用这块代码，完整替换旧的 showNextSentence 函数 ▼▼▼
-
 // ▼▼▼ 【最终决战版】请用这块代码，完整替换旧的 showNextSentence 函数 ▼▼▼
 
 /**
@@ -53206,6 +53337,9 @@ function showNextSentence() {
     const textContentEl = document.getElementById('dating-game-text-content');
     const choicesEl = document.getElementById('dating-game-choices');
     const textboxEl = textContentEl.parentElement;
+    
+    // ★★★ 这就是我们新增的代码，用来获取进度条元素 ★★★
+    const progressBarContainer = document.getElementById('dating-completion-bar-container');
 
     // 句子索引+1
     datingGameState.currentSentenceIndex++;
@@ -53225,32 +53359,34 @@ function showNextSentence() {
         if (nextIndex < sentences.length) {
             const nextSentence = sentences[nextIndex];
             
-            // 【关键修正1】使用textContent进行安全的文本替换，绝对不会累积
+            // 使用textContent进行安全的文本替换，绝对不会累积
             textContentEl.textContent = nextSentence;
             
             // 如果这不是最后一句...
             if (nextIndex < sentences.length - 1) {
-                // 【关键修正2】用安全的方式创建并添加“点击继续”的提示，不会再破坏现有内容
+                // ★★★ 因为只显示文字，所以我们在这里【显示】进度条 ★★★
+                if (progressBarContainer) progressBarContainer.style.display = 'block';
+
+                // 创建并添加“点击继续”的提示
                 const indicator = document.createElement('div');
                 indicator.className = 'continue-indicator';
                 indicator.textContent = '▼';
                 textboxEl.appendChild(indicator);
             } else {
-                 // 如果是最后一句了，才显示选项
+                 // 如果是最后一句了，准备显示选项，所以我们在这里【隐藏】进度条
+                if (progressBarContainer) progressBarContainer.style.display = 'none';
+                
                 choices.forEach(choiceText => {
                     const choiceBtn = document.createElement('button');
                     choiceBtn.className = 'dating-game-choice-btn';
                     choiceBtn.textContent = choiceText;
-                                    // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
-                // ★★★ 核心修改：根据是否在NSFW模式，调用不同的函数 ★★★
-                choiceBtn.onclick = () => {
-                    if (datingGameState.isNsfwMode) {
-                        triggerNsfwScene(choiceText);
-                    } else {
-                        triggerDatingStory(choiceText);
-                    }
-                };
-                // ▲▲▲ 新代码粘贴结束 ▲▲▲
+                    choiceBtn.onclick = () => {
+                        if (datingGameState.isNsfwMode) {
+                            triggerNsfwScene(choiceText);
+                        } else {
+                            triggerDatingStory(choiceText);
+                        }
+                    };
                     choicesEl.appendChild(choiceBtn);
                 });
 
@@ -53258,19 +53394,16 @@ function showNextSentence() {
                 const inputBtn = document.createElement('button');
                 inputBtn.className = 'dating-game-choice-btn input-action';
                 inputBtn.textContent = '自定义行动...';
-            // ▼▼▼ 用下面这段新的 onclick 代码替换旧的 ▼▼▼
-            // ★★★ 核心修改：同样根据模式调用不同函数 ★★★
-            inputBtn.onclick = async () => {
-                const userInput = await showCustomPrompt("你的行动", "请输入你想说的话或想做的事：");
-                if (userInput && userInput.trim()) {
-                    if (datingGameState.isNsfwMode) {
-                        triggerNsfwScene(userInput.trim());
-                    } else {
-                        triggerDatingStory(userInput.trim());
+                inputBtn.onclick = async () => {
+                    const userInput = await showCustomPrompt("你的行动", "请输入你想说的话或想做的事：");
+                    if (userInput && userInput.trim()) {
+                        if (datingGameState.isNsfwMode) {
+                            triggerNsfwScene(userInput.trim());
+                        } else {
+                            triggerDatingStory(userInput.trim());
+                        }
                     }
-                }
-            };
-            // ▲▲▲ 替换结束 ▲▲▲
+                };
                 choicesEl.appendChild(inputBtn);
             }
         }
@@ -53281,8 +53414,11 @@ function showNextSentence() {
         // 所有操作完成后，解锁，允许下一次点击
         datingGameState.isSwitchingSentence = false; 
 
-    }, 250); // 稍微增加一点时间，确保动画流畅
+    }, 250);
 }
+
+// ▲▲▲ 替换结束 ▲▲▲
+
 
 // ▲▲▲ 替换结束 ▲▲▲
 
@@ -53950,7 +54086,6 @@ async function showDatingSummaryCard(finalStory = "") { // <--- 关键：将函�
 
     card.classList.remove('is-flipped');
     cardFront.classList.remove('romantic', 'passionate', 'perfect');
-    cardFront.style.background = 'linear-gradient(135deg, #a8b2c5, #8e9eab)';
 
     const romance = datingGameState.romance;
     const lust = datingGameState.lust;
@@ -53959,22 +54094,26 @@ async function showDatingSummaryCard(finalStory = "") { // <--- 关键：将函�
     let cardClass = '';
     let finalRatingType = 'anticipation';
 
+// ▼▼▼ 从这里开始复制，替换你的旧代码 ▼▼▼
+
     if (romance >= 100 && lust >= 100 && completion >= 100) {
-        ratingText = '完美之夜';
+        ratingText = '完美之夜 🎊'; // 修改点：添加了庆祝的 emoji
         cardClass = 'perfect';
         finalRatingType = 'perfect';
     } else if (romance >= 100) {
-        ratingText = '浪漫之夜';
+        ratingText = '浪漫之夜 ❤️'; // 修改点：添加了爱心 emoji
         cardClass = 'romantic';
         finalRatingType = 'romantic';
     } else if (lust >= 100) {
-        ratingText = '激情之夜';
+        ratingText = '激情之夜 ⭐'; // 修改点：添加了星星 emoji
         cardClass = 'passionate';
         finalRatingType = 'passionate';
     } else {
-        ratingText = '期待之夜';
+        ratingText = '期待之夜'; // 保持不变
     }
     
+// ▲▲▲ 复制替换到这里结束 ▲▲▲
+
     const character = state.chats[datingGameState.characterId];
     avatarEl.src = character.settings.aiAvatar || defaultAvatar;
     ratingEl.textContent = ratingText;
@@ -54015,19 +54154,17 @@ async function showDatingSummaryCard(finalStory = "") { // <--- 关键：将函�
 // ▲▲▲ 替换结束 ▲▲▲
 
 
-// ▼▼▼ 【V2 | 编辑内容增强版】用这块新代码替换旧的 shareDatingSummary 函数 ▼▼▼
 /**
- * 【全新V2】将结算卡片分享到与角色的聊天中 (包含完整记录用于编辑)
+ * 【全新V2版】将结算卡片分享到与角色的聊天中 (包含完整记录用于编辑)
  */
 async function shareDatingSummary() {
+    // 安全检查，确保有结算数据
     if (!currentDatingSummary) return;
 
     const chat = state.chats[currentDatingSummary.characterId];
     if (!chat) return;
 
-    // --- ★★★ 这就是本次修改的核心！ ★★★ ---
-
-    // 1. 构建一个包含所有详细信息的、用于编辑的文本内容
+    // 1. 准备一个用于【编辑时】显示的、包含完整约会过程的详细文本
     const storyForEdit = [...currentDatingSummary.storyHistory, `【旁白】: ${currentDatingSummary.finalStory}`].join('\n');
     const contentForEditing = `
 [约会记录]
@@ -54037,74 +54174,80 @@ async function shareDatingSummary() {
 ${storyForEdit}
     `.trim();
 
-    // 2. 创建消息对象
+    // 2. 创建一个特殊的消息对象，它将作为聊天记录被保存
     const summaryMessage = {
-        role: 'user', // 用户发出的分享
-        type: 'dating_summary_card',
+        role: 'user', // 标记为用户发出的消息
+        type: 'dating_summary_card', // 这是我们自定义的新消息类型，用于识别
         timestamp: Date.now(),
-        // 【核心】将我们刚刚构建的详细文本，作为这条消息的 content
+        
+        // 【核心】这个 content 字段就是你想要的，当编辑这条消息时，就会显示这里的文本
         content: contentForEditing, 
-        // payload 依然保留，它负责渲染出漂亮的卡片UI
+        
+        // payload 字段用于存储渲染UI所需的所有数据
         payload: {
             rating: currentDatingSummary.rating,
             ratingType: currentDatingSummary.ratingType,
             avatarUrl: currentDatingSummary.avatarUrl,
-            // 为了安全，payload里也存一份，确保数据完整
             storyHistory: currentDatingSummary.storyHistory,
             finalStory: currentDatingSummary.finalStory,
-            sceneName: currentDatingSummary.sceneName
+            sceneName: currentDatingSummary.sceneName,
+            characterName: chat.name // 把角色名字也存进去，方便卡片背面显示
         }
     };
-    // --- ★★★ 修改结束 ★★★ ---
 
+    // 3. 将这条新消息添加到聊天记录并保存到数据库
     chat.history.push(summaryMessage);
     await db.chats.put(chat);
     
+    // 4. 给出成功提示，并关闭结算卡片、结束约会
     await showCustomAlert('分享成功', '你们的约会记录已发送给Ta！');
     
-    // 分享后，关闭结算卡片并结束约会
     document.getElementById('dating-summary-overlay').classList.remove('visible');
-    finalizeAndExitDate();
-    currentDatingSummary = null;
+    finalizeAndExitDate(); // 这个函数会处理后续的清理工作
+    currentDatingSummary = null; // 清理临时数据
 }
-// ▲▲▲ 替换结束 ▲▲▲
 
-// ▼▼▼ 【V2 | 评级样式修复版】用这块新代码替换旧的 reopenDatingSummary 函数 ▼▼▼
+
 /**
- * 【全新V2】点击聊天记录里的卡片时，重新打开结算详情
- * @param {object} payload - 消息中保存的结算数据
+ * 【全新】重新打开约会结算详情卡片
+ * @param {object} payload - 从聊天记录消息中解析出的卡片数据
  */
 function reopenDatingSummary(payload) {
     const overlay = document.getElementById('dating-summary-overlay');
     const card = document.querySelector('.dating-summary-card');
+    const cardInner = document.querySelector('.dating-summary-card-inner');
     const cardFront = document.querySelector('.card-front');
     const avatarEl = document.getElementById('summary-card-avatar');
     const ratingEl = document.getElementById('summary-card-rating');
     const historyEl = document.getElementById('summary-card-history');
 
+    // 重置卡片状态
     card.classList.remove('is-flipped');
     cardFront.classList.remove('romantic', 'passionate', 'perfect');
-    // 恢复默认背景，防止颜色残留
-    cardFront.style.background = 'linear-gradient(135deg, #a8b2c5, #8e9eab)';
+    cardFront.style.background = '';
     
-    // 从 payload 中恢复数据
+    // 从 payload 中恢复数据并填充到UI元素中
     avatarEl.src = payload.avatarUrl;
     ratingEl.textContent = payload.rating;
-    if(payload.ratingType !== 'anticipation') {
+    if (payload.ratingType && payload.ratingType !== 'anticipation') {
         cardFront.classList.add(payload.ratingType);
     }
     
     const fullHistory = [...payload.storyHistory, `【旁白】: ${payload.finalStory}`].join('\n\n').replace(/\n/g, '<br>');
     historyEl.innerHTML = `<p>${fullHistory}</p>`;
 
-    // 查看记录时，不应再提供“分享”功能
+    // 设置卡片背面的标题
+    const cardBackHeader = document.querySelector('.card-back .card-back-header span');
+    if (cardBackHeader) {
+        cardBackHeader.textContent = `${payload.characterName} - ${payload.sceneName}`;
+    }
+
+    // 因为只是查看，所以隐藏“分享”按钮
     document.getElementById('summary-share-btn').style.display = 'none';
 
     overlay.classList.add('visible');
-    // 注意：这里不需要调用 endDate，因为只是查看记录
 }
-// ▲▲▲ 替换结束 ▲▲▲
-// ▼▼▼ 把这一整块全新的代码，粘贴到 init() 函数的上方 ▼▼▼
+
 
 /* --- 【全新】约会历史记录功能核心函数 --- */
 
@@ -55278,6 +55421,21 @@ document.getElementById('chat-messages').addEventListener('click', async (e) => 
             }
         }
     }
+        // ▼▼▼ 在这个函数的逻辑块内，添加下面这段新代码 ▼▼▼
+    const chatCard = e.target.closest('.dating-summary-chat-card');
+    if (chatCard && chatCard.dataset.summaryPayload) {
+        try {
+            // 读取并解析存储在 data-* 属性中的卡片数据
+            const payloadString = chatCard.dataset.summaryPayload.replace(/&apos;/g, "'").replace(/"/g, '&quot;');
+            const payload = JSON.parse(payloadString);
+            // 调用我们新写的函数，打开详情卡片
+            reopenDatingSummary(payload);
+        } catch (error) {
+            console.error("解析分享的约会记录失败:", error);
+            alert("无法打开这个约会记录。");
+        }
+    }
+    // ▲▲▲ 新代码添加结束 ▲▲▲
 });
 // ▲▲▲ 替换结束 ▲▲▲
             const chatSettingsModal = document.getElementById('chat-settings-modal');
@@ -61201,38 +61359,59 @@ summaryCardBackBtn.addEventListener('click', (e) => {
 // 2. 分享按钮
 document.getElementById('summary-share-btn').addEventListener('click', shareDatingSummary);
 
-// ▼▼▼ 【修复版】用这块新代码替换旧的 'summary-close-btn' 事件监听器 ▼▼▼
-// 3. 关闭按钮
+// 3. 关闭按钮 (已修复，支持不同场景)
 document.getElementById('summary-close-btn').addEventListener('click', async () => {
-    const confirmed = await showCustomConfirm(
-        '确认关闭',
-        '确定要关闭结算卡片吗？关闭后约会即告结束。',
-        { confirmButtonClass: 'btn-danger' } // 使用更醒目的红色按钮
-    );
-    if (confirmed) {
-        // 调用我们新的、真正的结束函数
-        finalizeAndExitDate();
+    // ▼▼▼ 核心修改在这里 ▼▼▼
+    if (datingGameState.isActive) {
+        // 如果在约会中，走原来的确认并结束约会的流程
+        const confirmed = await showCustomConfirm(
+            '确认关闭',
+            '确定要关闭结算卡片吗？关闭后约会即告结束。',
+            { confirmButtonClass: 'btn-danger' }
+        );
+        if (confirmed) {
+            finalizeAndExitDate();
+        }
+    } else {
+        // 如果只是在单聊里查看分享，直接关闭弹窗即可
+        document.getElementById('dating-summary-overlay').classList.remove('visible');
+        // 同时重置卡片翻转状态，以防下次打开有问题
+        const card = document.querySelector('.dating-summary-card');
+        if (card) {
+            card.classList.remove('is-flipped');
+        }
     }
+    // ▲▲▲ 修改结束 ▲▲▲
 });
-// ▲▲▲ 替换结束 ▲▲▲
+
 
 
 // 4. 聊天记录中的卡片点击事件（事件委托）
 document.getElementById('chat-messages').addEventListener('click', (e) => {
     const chatCard = e.target.closest('.dating-summary-chat-card');
-    if (chatCard && chatCard.dataset.summaryPayload) {
+    // ▼▼▼【核心修复】我们现在检查 data-timestamp ▼▼▼
+    if (chatCard && chatCard.dataset.timestamp) {
         try {
-            // 读取并解析存储的payload数据
-            const payloadString = chatCard.dataset.summaryPayload.replace(/&apos;/g, "'").replace(/&quot;/g, '"');
-            const payload = JSON.parse(payloadString);
-            reopenDatingSummary(payload);
+            const timestamp = parseInt(chatCard.dataset.timestamp);
+            const chat = state.chats[state.activeChatId];
+            
+            // 用时间戳从聊天记录里找到那条原始消息
+            const message = chat.history.find(m => m.timestamp === timestamp);
+            
+            // 如果找到了，直接用它的 payload
+            if (message && message.payload) {
+                reopenDatingSummary(message.payload);
+            } else {
+                // 如果因为某种原因没找到，再给一个提示
+                alert("无法找到对应的约会记录数据。");
+            }
         } catch (error) {
-            console.error("解析分享的约会记录失败:", error);
-            alert("无法打开这个约会记录。");
+            // 这个catch现在几乎不会触发了，但保留着以防万一
+            console.error("打开分享的约会记录失败:", error);
+            alert("打开约会记录时发生未知错误。");
         }
     }
 });
-// 在 init() 函数的事件监听器区域末尾，粘贴下面这整块代码
 
 // ▼▼▼ 【全新】约会历史记录功能事件绑定 ▼▼▼
 
