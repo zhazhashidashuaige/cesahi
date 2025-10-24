@@ -5102,7 +5102,11 @@ ${eventPrompt}
 
   let activeQuestionBankId = null; // 用于追踪正在编辑的问题库ID
   let editingQuestionId = null; // 用于追踪正在编辑的问题ID
-
+  function hideCustomModal() {
+    modalOverlay.classList.remove('visible');
+    modalConfirmBtn.classList.remove('btn-danger');
+    if (modalResolve) modalResolve(null);
+  }
   // ▼▼▼ 用这块【已修复】的代码，完整替换你旧的 migrateDefaultLudoQuestions 函数 ▼▼▼
   /**
    * 【数据迁移】在首次加载时，将旧的硬编码问题迁移到数据库
