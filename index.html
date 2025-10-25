@@ -55996,31 +55996,6 @@ document.getElementById('import-bubble-preset-input').addEventListener('change',
 });
 // ▲▲▲ 新事件绑定结束 ▲▲▲
 
-// --- 全新视频通话功能事件绑定 (V2 修正版) ---
-
-// 绑定新界面的挂断按钮
-document.getElementById('hang-up-btn-visual').addEventListener('click', endVideoCall);
-
-// 【新增】绑定新界面的发言按钮
-document.getElementById('user-speak-btn-visual').addEventListener('click', async () => {
-    if (!videoCallState.isActive) return;
-    const userInput = await showCustomPrompt('你说', '请输入你想说的话...');
-    if (userInput && userInput.trim()) {
-        triggerAiInCallAction(userInput.trim());
-    }
-});
-
-// 绑定切换镜头按钮 (也是小窗本身)
-document.getElementById('switch-camera-btn').addEventListener('click', switchVideoViews);
-document.getElementById('video-pip-view').addEventListener('click', switchVideoViews);
-
-// 【修正】绑定两个界面的重roll按钮
-document.getElementById('reroll-call-btn').addEventListener('click', handleVideoCallReroll);
-document.getElementById('reroll-call-btn-text').addEventListener('click', handleVideoCallReroll);
-
-// ▲▲▲ 替换结束 ▲▲▲
-
-
 
     document.getElementById('chat-name-group').style.display = 'block';
     document.getElementById('minimax-voice-id-group').style.display = isGroup ? 'none' : 'block';
