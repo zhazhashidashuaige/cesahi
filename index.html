@@ -2754,20 +2754,25 @@ body {
 }
 #video-call-messages-visual::-webkit-scrollbar { display: none; }
 
-/* 5. 【核心重构】底部控制栏：不再是绝对定位，而是Flex布局的一部分！*/
+/* ▼▼▼ 这是你要替换的代码块 ▼▼▼ */
+
+/* 【核心重构】底部控制栏：现在它是一个带z-index的Flex布局项 */
 .video-call-controls {
-    /* ★ 核心修改：移除了 position: absolute; 和 bottom: 0; */
-    flex-shrink: 0; /* ★ 关键：确保控制栏高度固定，不会被压缩 */
+    position: relative; /* ★★★ 核心修复：就是加上这一行！ ★★★ */
+    z-index: 10;        /* 现在这个 z-index 就会生效了 */
+    flex-shrink: 0; 
     width: 100%;
-    z-index: 10;
     box-sizing: border-box;
     display: flex;
     justify-content: space-around;
     align-items: center;
     padding: 20px;
-    padding-bottom: calc(20px + env(safe-area-inset-bottom)); /* 适配底部小黑条 */
-    background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.3)); /* 背景可以更实一点 */
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+    pointer-events: all; 
 }
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
 
 /* 6. 其他元素样式保持不变 */
 #participant-avatars-grid { display: flex; justify-content: center; align-items: center; gap: 20px; }
