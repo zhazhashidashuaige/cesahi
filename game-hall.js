@@ -691,7 +691,47 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   // ▲▲▲ 新引擎代码结束 ▲▲▲
+  // ▼▼▼ 【全新】这是狼人杀的重roll功能核心函数 ▼▼▼
+  /**
+   * 【狼人杀】处理AI发言的重roll请求
+   * @param {number} logIndex - 要重roll的发言在gameLog中的索引
+   */
+  async function handleWerewolfReroll(logIndex) {
+    const logEntry = werewolfGameState.gameLog[logIndex];
+    if (!logEntry || logEntry.type !== 'speech' || logEntry.message.player.isUser) {
+      return; // 安全检查，确保我们操作的是AI的发言
+    }
 
+    const playerToReroll = logEntry.message.player;
+
+    // 给用户一个即时反馈
+    const speechTextElement = document
+      .querySelector(`button[data-log-index="${logIndex}"]`)
+      .closest('.speech-content')
+      .querySelector('.speech-text');
+    if (speechTextElement) {
+      speechTextElement.innerHTML = '<i>正在重新思考...</i>';
+    }
+
+    try {
+      // 重新调用AI生成新的发言
+      const newSpeech = await triggerWerewolfAiAction(playerToReroll.id, 'speak');
+
+      // 用新的发言内容替换掉旧的
+      werewolfGameState.gameLog[logIndex].message.speech = newSpeech;
+
+      // 重新渲染整个游戏界面以显示更新
+      renderWerewolfGameScreen();
+    } catch (error) {
+      console.error('狼人杀发言重roll失败:', error);
+      if (speechTextElement) {
+        speechTextElement.innerHTML = `<i style="color:red;">重新生成失败，请检查网络或API设置。</i>`;
+      }
+    }
+  }
+  // ▲▲▲ 新增函数结束 ▲▲▲
+
+  // ▼▼▼ 请用这块【已添加重roll按钮】的代码，完整替换旧的 renderWerewolfGameScreen 函数 ▼▼▼
   /**
    * 【狼人杀】渲染游戏主界面
    */
@@ -725,11 +765,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 渲染游戏日志
     logContainer.innerHTML = werewolfGameState.gameLog
-      .map(log => {
-        // 判断是否为发言类型的日志
-        if (log.type === 'speech' && typeof log.message === 'object') {
+      .map((log, index) => {
+        // ★ 核心修改1：增加了index参数
+        // 判断是否为AI的发言
+        if (log.type === 'speech' && typeof log.message === 'object' && !log.message.player.isUser) {
           const { player, speech } = log.message;
-          // 如果是，就渲染带有头像的新结构
+          // ★ 核心修改2：在AI发言的DOM结构中，加入一个带有特殊data属性的重roll按钮
+          return `
+            <div class="log-entry speech">
+                <img src="${player.avatar}" class="speech-avatar">
+                <div class="speech-content">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="speaker">${player.name}</span>
+                        <button class="werewolf-reroll-btn" data-log-index="${index}" title="重新生成发言" style="background:none; border:none; cursor:pointer; padding:0; color:var(--text-secondary);">
+                            <svg class="reroll-btn-icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        </button>
+                    </div>
+                    <span class="speech-text">${speech.replace(/\n/g, '<br>')}</span>
+                </div>
+            </div>
+        `;
+        }
+        // 用户发言或其他系统消息保持原样
+        else if (log.type === 'speech' && typeof log.message === 'object') {
+          const { player, speech } = log.message;
           return `
             <div class="log-entry speech">
                 <img src="${player.avatar}" class="speech-avatar">
@@ -740,13 +799,13 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         } else {
-          // 否则，保持原来的系统消息样式
           return `<div class="log-entry ${log.type}">${String(log.message).replace(/\n/g, '<br>')}</div>`;
         }
       })
       .join('');
     logContainer.scrollTop = logContainer.scrollHeight;
   }
+  // ▲▲▲ 替换结束 ▲▲▲
 
   /**
    * 【狼人杀】等待用户投票
@@ -1064,7 +1123,9 @@ ${formattedLog}
    */
   function waitForUserAction(prompt, actionType, context = {}) {
     const me = werewolfGameState.players.find(p => p.isUser);
-    if (me && !me.isAlive) {
+
+    // ★★★ 核心修复：当用户死亡时，允许'hunter_shoot'动作继续执行 ★★★
+    if (me && !me.isAlive && actionType !== 'hunter_shoot') {
       const actionArea = document.getElementById('werewolf-action-area');
       actionArea.innerHTML = `<h5>您已淘汰，正在观战...</h5>`;
       return new Promise(async resolve => {
@@ -1073,6 +1134,7 @@ ${formattedLog}
         resolve(null);
       });
     }
+    // ★★★ 修复结束 ★★★
 
     return new Promise(resolve => {
       const actionArea = document.getElementById('werewolf-action-area');
@@ -1159,6 +1221,12 @@ ${formattedLog}
         targets = werewolfGameState.players.filter(p => p.isAlive);
       }
 
+      // ★★★ 针对猎人开枪的特殊目标筛选 ★★★
+      // 如果是猎人开枪，目标不应该包括自己
+      if (actionType === 'hunter_shoot') {
+        targets = targets.filter(p => p.id !== me.id);
+      }
+
       targets.forEach(player => {
         const btn = document.createElement('button');
         btn.className = 'form-button-secondary vote-target-btn';
@@ -1183,7 +1251,6 @@ ${formattedLog}
       actionArea.appendChild(grid);
     });
   }
-  // ▲▲▲ 替换结束 ▲▲▲
 
   /**
    * 【狼人杀AI核心 V3 - 终极修复版】
@@ -1664,6 +1731,7 @@ ${jsonFormat}
     renderSeaTurtleGameScreen();
   }
 
+  // ▼▼▼ 用这块【已添加重roll按钮】的代码，完整替换旧的 handleStsUserQuestion 函数 ▼▼▼
   /**
    * 【海龟汤】处理用户提问
    */
@@ -1677,9 +1745,14 @@ ${jsonFormat}
     logToStsGame(question, 'question', userPlayer);
     input.value = '';
 
+    // ★ 核心修改：在用户提问后，先移除可能存在的重roll按钮
+    const oldRerollBtn = document.getElementById('sts-reroll-ai-turn-btn');
+    if (oldRerollBtn) oldRerollBtn.remove();
+
     // 将控制权交给游戏主循环，并告知是用户在提问
     await processStsTurn(question, userPlayer);
   }
+  // ▲▲▲ 替换结束 ▲▲▲
 
   // ▼▼▼ 把这一整块全新的函数，粘贴到 handleStsUserQuestion 函数的后面 ▼▼▼
 
@@ -1720,6 +1793,51 @@ ${jsonFormat}
       await processStsTurn();
     }
   }
+  // ▼▼▼ 【全新】这是海龟汤的重roll功能核心函数 ▼▼▼
+  /**
+   * 【海龟汤】处理重roll整个AI回合的请求
+   */
+  async function handleStsReroll() {
+    // 1. 找到最后一次用户的发言（提问或猜测）
+    const lastUserActionIndex = findLastIndex(seaTurtleSoupState.gameLog, log => log.speakerObj.isUser);
+
+    if (lastUserActionIndex === -1) {
+      alert('还没有你的发言记录，无法重roll。');
+      return;
+    }
+
+    // 2. 移除那之后的所有日志（也就是所有AI的行动记录）
+    const removedLogs = seaTurtleSoupState.gameLog.splice(lastUserActionIndex + 1);
+
+    if (removedLogs.length === 0) {
+      alert('AI还没有行动，无需重roll。');
+      return;
+    }
+
+    console.log(`海龟汤：移除了 ${removedLogs.length} 条AI行动日志，准备重roll。`);
+
+    // 3. 重新渲染UI，界面会立刻回滚
+    renderSeaTurtleGameScreen();
+
+    // 4. 给用户一个提示
+    await showCustomAlert('请稍候...', '正在让AI们重新组织语言...');
+
+    // 5. 重新调用游戏主循环，它会自动执行AI的回合
+    await processStsTurn();
+  }
+
+  /**
+   * 辅助函数：从后往前查找数组中满足条件的第一个元素的索引
+   */
+  function findLastIndex(array, predicate) {
+    for (let i = array.length - 1; i >= 0; i--) {
+      if (predicate(array[i], i, array)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+  // ▲▲▲ 新增函数结束 ▲▲▲
 
   /**
    * 【海龟汤】游戏主循环/引擎
@@ -1818,6 +1936,27 @@ ${jsonFormat}
     }
 
     renderSeaTurtleGameScreen({ activePlayerId: 'user' });
+    // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
+    // ★ 核心修改：AI回合结束后，在操作区添加重roll按钮
+    const actionArea = document.getElementById('sts-action-area');
+    const mainRow = actionArea.querySelector('.chat-input-main-row');
+    if (mainRow) {
+      // 先检查是否已经存在，避免重复添加
+      if (!document.getElementById('sts-reroll-ai-turn-btn')) {
+        const rerollBtn = document.createElement('button');
+        rerollBtn.id = 'sts-reroll-ai-turn-btn';
+        rerollBtn.className = 'action-button';
+        rerollBtn.title = '让AI们重新提问或猜测';
+        rerollBtn.style.backgroundColor = '#ff9800'; // 给它一个醒目的橙色
+        rerollBtn.style.width = '40px';
+        rerollBtn.style.height = '40px';
+        rerollBtn.innerHTML = `<svg class="reroll-btn-icon" viewBox="0 0 24 24" style="stroke:white;"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>`;
+
+        // 将按钮插入到“提问”按钮的前面
+        mainRow.insertBefore(rerollBtn, document.getElementById('send-sts-question-btn'));
+      }
+    }
+    // ▲▲▲ 新增代码结束 ▲▲▲
   }
 
   /**
@@ -2601,12 +2740,62 @@ ${gameLogText}
     }
   }
   // ▲▲▲ 替换结束 ▲▲▲
+  // ▼▼▼ 【全新】这是剧本杀的重roll功能核心函数 ▼▼▼
+  /**
+   * 【剧本杀】处理AI发言的重roll请求
+   * @param {number} logIndex - 要重roll的发言在gameLog中的索引
+   */
+  async function handleScriptKillReroll(logIndex) {
+    const logEntry = scriptKillGameState.gameLog[logIndex];
+    if (!logEntry || logEntry.type !== 'speech' || !logEntry.message.player || logEntry.message.player.isUser) {
+      return; // 安全检查，确保操作的是AI的发言
+    }
 
+    const playerToReroll = logEntry.message.player;
+
+    // 给用户一个即时反馈
+    const speechTextElement = document
+      .querySelector(`button.sk-reroll-btn[data-log-index="${logIndex}"]`)
+      .closest('.speech-content')
+      .querySelector('.speech-text');
+    if (speechTextElement) {
+      speechTextElement.innerHTML = '<i>正在重新思考...</i>';
+    }
+
+    try {
+      // 根据游戏阶段智能判断AI应该执行哪个动作
+      let actionType;
+      const currentPhase = scriptKillGameState.gamePhase;
+      if (currentPhase === 'introduction') {
+        actionType = 'introduce';
+      } else if (currentPhase === 'timeline_discussion') {
+        actionType = 'discuss_timeline';
+      } else {
+        actionType = 'discuss'; // 默认为自由讨论
+      }
+
+      // 重新调用AI生成新的发言
+      const newSpeech = await triggerScriptKillAiAction(playerToReroll.id, actionType);
+
+      // 用新的发言内容替换掉旧的
+      scriptKillGameState.gameLog[logIndex].message.speech = newSpeech;
+
+      // 重新渲染整个游戏界面以显示更新
+      renderScriptKillGameScreen();
+    } catch (error) {
+      console.error('剧本杀发言重roll失败:', error);
+      if (speechTextElement) {
+        speechTextElement.innerHTML = `<i style="color:red;">重新生成失败，请检查网络或API设置。</i>`;
+      }
+    }
+  }
+  // ▲▲▲ 新增函数结束 ▲▲▲
+
+  // ▼▼▼ 【剧本杀】用这块【已添加重roll按钮】的代码，完整替换旧的 renderScriptKillGameScreen 函数 ▼▼▼
   /**
    * 【剧本杀】渲染游戏主界面
    */
   function renderScriptKillGameScreen(options = {}) {
-    // 这部分和狼人杀的渲染函数非常相似，我们直接复用
     const playersGrid = document.getElementById('script-kill-players-grid');
     const logContainer = document.getElementById('script-kill-game-log');
 
@@ -2624,19 +2813,40 @@ ${gameLogText}
     });
 
     logContainer.innerHTML = '';
-    scriptKillGameState.gameLog.forEach(log => {
+    scriptKillGameState.gameLog.forEach((log, index) => {
+      // ★ 核心修改1：增加了index参数
       const logEl = document.createElement('div');
-      if (log.type === 'speech') {
+      // ★ 核心修改2：判断是否是AI的发言
+      if (log.type === 'speech' && typeof log.message === 'object' && !log.message.player.isUser) {
+        logEl.className = 'log-entry speech';
+        const { player, speech } = log.message;
+
+        // ★ 核心修改3：为AI发言添加重roll按钮
+        logEl.innerHTML = `
+            <img src="${player.avatar}" class="speech-avatar">
+            <div class="speech-content">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="speaker">${player.role.name} (${player.name})</span>
+                    <button class="sk-reroll-btn" data-log-index="${index}" title="重新生成发言" style="background:none; border:none; cursor:pointer; padding:0; color:var(--text-secondary);">
+                        <svg class="reroll-btn-icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    </button>
+                </div>
+                <span class="speech-text">${speech.replace(/\n/g, '<br>')}</span>
+            </div>
+        `;
+      } else if (log.type === 'speech') {
+        // 用户的发言保持原样
         logEl.className = 'log-entry speech';
         const { player, speech } = log.message;
         logEl.innerHTML = `
-                <img src="${player.avatar}" class="speech-avatar">
-                <div class="speech-content">
-                    <span class="speaker">${player.role.name} (${player.name})</span>
-                    <span class="speech-text">${speech.replace(/\n/g, '<br>')}</span>
-                </div>
-            `;
+            <img src="${player.avatar}" class="speech-avatar">
+            <div class="speech-content">
+                <span class="speaker">${player.role.name} (${player.name})</span>
+                <span class="speech-text">${speech.replace(/\n/g, '<br>')}</span>
+            </div>
+        `;
       } else {
+        // 其他系统消息也保持原样
         logEl.className = `log-entry ${log.type}`;
         logEl.innerHTML = String(log.message).replace(/\n/g, '<br>');
       }
@@ -2644,6 +2854,7 @@ ${gameLogText}
     });
     logContainer.scrollTop = logContainer.scrollHeight;
   }
+  // ▲▲▲ 替换结束 ▲▲▲
 
   /**
    * 【剧本杀】添加一条游戏日志
@@ -3000,6 +3211,7 @@ ${extraContext}
             <div class="item-title">${script.name}</div>
             <div class="item-content">${(script.storyBackground || '暂无简介').substring(0, 50)}...</div>
         `;
+      // ▼▼▼ 将其修改为 ▼▼▼
       // 为整个列表项添加点击事件，用于编辑
       item.addEventListener('click', () => openScriptEditorForEdit(script.id));
       // 为列表项添加长按事件，用于删除
@@ -3873,7 +4085,42 @@ ${formattedLog}
     const actionArea = document.getElementById('guess-what-action-area');
     if (actionArea) actionArea.style.display = 'flex';
   }
+  // ▼▼▼ 【全新】这是“你说我猜”的重roll功能核心函数 ▼▼▼
+  /**
+   * 【你说我猜】处理AI发言的重roll请求
+   * @param {number} logIndex - 要重roll的AI发言在gameLog中的索引
+   */
+  async function handleGuessWhatReroll(logIndex) {
+    // 1. 找到AI的发言和触发它的那条用户发言
+    const aiLogIndex = logIndex;
+    const userLogIndex = logIndex - 1;
 
+    // 安全检查
+    if (
+      userLogIndex < 0 ||
+      !guessWhatGameState.gameLog[userLogIndex] ||
+      guessWhatGameState.gameLog[userLogIndex].type !== 'user-turn'
+    ) {
+      alert('无法重roll，找不到触发此回应的用户消息。');
+      return;
+    }
+
+    // 2. 提取用户原始的输入内容
+    const originalUserInput = guessWhatGameState.gameLog[userLogIndex].message.text;
+
+    // 3. 从日志中移除这两条记录，实现“时间倒流”
+    guessWhatGameState.gameLog.splice(userLogIndex, 2);
+
+    // 4. 立即刷新界面，让用户看到消息消失了
+    renderGuessWhatGameScreen();
+    await showCustomAlert('请稍候...', 'AI正在换个思路...');
+
+    // 5. 使用用户原始的输入，重新调用游戏主流程
+    await processGuessWhatTurn(originalUserInput);
+  }
+  // ▲▲▲ 新增函数结束 ▲▲▲
+
+  // ▼▼▼ 【你说我猜】用这块【已添加重roll按钮】的代码，完整替换旧的 renderGuessWhatGameScreen 函数 ▼▼▼
   /**
    * 【你说我猜】渲染游戏主界面
    */
@@ -3881,13 +4128,31 @@ ${formattedLog}
     const logContainer = document.getElementById('guess-what-game-log');
     logContainer.innerHTML = '';
 
-    guessWhatGameState.gameLog.forEach(log => {
+    guessWhatGameState.gameLog.forEach((log, index) => {
+      // ★ 核心修改1：增加了index参数
       const logEl = document.createElement('div');
       logEl.className = `guess-log-entry ${log.type}`;
 
       if (log.type === 'system') {
         logEl.textContent = log.message;
+      } else if (log.type === 'ai-turn') {
+        // ★ 核心修改2：定位到AI的发言
+        const avatarUrl = log.message.player.avatar;
+        // ★ 核心修改3：为AI发言添加重roll按钮
+        logEl.innerHTML = `
+                <img src="${avatarUrl}" class="avatar">
+                <div class="bubble">
+                    <div class="name" style="display: flex; align-items: center; gap: 8px;">
+                        ${log.message.player.name}
+                        <button class="gw-reroll-btn" data-log-index="${index}" title="让Ta换个说法" style="background:none; border:none; cursor:pointer; padding:0; color:var(--text-secondary);">
+                           <svg class="reroll-btn-icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        </button>
+                    </div>
+                    <div>${log.message.text.replace(/\n/g, '<br>')}</div>
+                </div>
+            `;
       } else {
+        // 用户的发言保持原样
         const avatarUrl = log.message.player.isUser
           ? state.qzoneSettings.avatar || defaultAvatar
           : log.message.player.avatar;
@@ -3904,6 +4169,7 @@ ${formattedLog}
 
     logContainer.scrollTop = logContainer.scrollHeight;
   }
+  // ▲▲▲ 替换结束 ▲▲▲
 
   /**
    * 【你说我猜】添加一条游戏日志
@@ -4512,8 +4778,28 @@ ${formattedLog}
     await sleep(1000);
     await processLudoTurn();
   }
+  // ▼▼▼ 【全新】这是飞行棋的重roll功能核心函数 ▼▼▼
+  /**
+   * 【飞行棋】处理AI发言的重roll请求
+   * @param {number} logIndex - 要重roll的发言在gameLog中的索引
+   */
+  async function handleLudoReroll(logIndex) {
+    const logEntry = ludoGameState.gameLog[logIndex];
+    if (!logEntry || logEntry.type !== 'char') return;
 
-  // 【已修复】请用下面这个函数完整替换你旧的 renderLudoGameScreen 函数
+    // 提取原始发言内容
+    const originalSpeech = logEntry.message.replace(/<strong>.*?<\/strong>:\s*/, '');
+
+    // 重新调用AI，让它换个说法
+    const newSpeech = await triggerLudoAiAction('reroll_comment', { originalSpeech: originalSpeech });
+
+    // 更新日志并重新渲染
+    ludoGameState.gameLog[logIndex].message = `<strong>${ludoGameState.opponent.name}:</strong> ${newSpeech}`;
+    renderLudoGameScreen();
+  }
+  // ▲▲▲ 新增函数结束 ▲▲▲
+
+  // ▼▼▼ 【飞行棋】用这块【已添加重roll按钮】的代码，完整替换旧的 renderLudoGameScreen 函数 ▼▼▼
   function renderLudoGameScreen(options = {}) {
     if (!ludoGameState.isActive) return;
 
@@ -4529,17 +4815,13 @@ ${formattedLog}
       const pos = player.piecePosition;
 
       if (pos === -1) {
-        // 在起点
         const startCell = document.querySelector('.ludo-cell.start');
-        // ▼▼▼ 核心修复1：加上 if (startCell) 的安全检查 ▼▼▼
         if (startCell) {
           pieceEl.style.left = `${startCell.offsetLeft + (player.isUser ? 0 : 5)}px`;
           pieceEl.style.top = `${startCell.offsetTop + (player.isUser ? 0 : 5)}px`;
         }
       } else if (pos >= LUDO_BOARD_SIZE) {
-        // 已到终点
         const endCell = document.querySelector('.ludo-cell.end');
-        // ▼▼▼ 核心修复2：加上 if (endCell) 的安全检查 ▼▼▼
         if (endCell) {
           pieceEl.style.left = `${endCell.offsetLeft + (player.isUser ? 0 : 5)}px`;
           pieceEl.style.top = `${endCell.offsetTop + (player.isUser ? 0 : 5)}px`;
@@ -4554,11 +4836,30 @@ ${formattedLog}
     });
 
     const logContainer = document.getElementById('ludo-game-log');
+    // ★ 核心修改：在map函数中加入 index 参数
     logContainer.innerHTML = ludoGameState.gameLog
-      .map(log => `<div class="log-entry ${log.type}">${log.message.replace(/\n/g, '<br>')}</div>`)
+      .map((log, index) => {
+        // ★ 核心修改：判断是否为AI发言
+        if (log.type === 'char') {
+          // ★ 核心修改：为AI发言添加重roll按钮
+          return `
+                <div class="log-entry char">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span>${log.message.replace(/\n/g, '<br>')}</span>
+                        <button class="ludo-reroll-btn" data-log-index="${index}" title="让Ta换个说法" style="background:none; border:none; cursor:pointer; padding:0 5px; color:var(--text-secondary);">
+                           <svg class="reroll-btn-icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        // 其他类型的日志保持原样
+        return `<div class="log-entry ${log.type}">${log.message.replace(/\n/g, '<br>')}</div>`;
+      })
       .join('');
     logContainer.scrollTop = logContainer.scrollHeight;
   }
+  // ▲▲▲ 替换结束 ▲▲▲
 
   /**
    * 【全新】飞行棋专用的用户输入函数
@@ -4891,7 +5192,11 @@ ${formattedLog}
     } else if (eventType === 'evaluate_answer') {
       eventPrompt = `对于问题“${context.question}”，对方的回答是：“${context.answer}”。现在请你以你的角色身份，对这个回答详细地发表一下看法或感受。`;
     }
-
+    // ★★★ 在这里粘贴下面的新代码 ★★★
+    else if (eventType === 'reroll_comment') {
+      eventPrompt = `你之前说了：“${context.originalSpeech}”。请换一种说法，但表达类似的情绪或意思。`;
+    }
+    // ★★★ 粘贴结束 ★★★
     const systemPrompt = `
 # 角色扮演指令
 你正在和你的伴侣(${userPlayer.name})玩一场心动的线上飞行棋游戏。
@@ -4947,7 +5252,12 @@ ${eventPrompt}
         '',
       );
       const aiResponse = JSON.parse(content);
-
+      // ★★★ 在这里粘贴下面的新代码 ★★★
+      // 如果是重roll请求，直接返回新的发言内容
+      if (eventType === 'reroll_comment') {
+        return aiResponse.speech || '嗯...好吧。';
+      }
+      // ★★★ 粘贴结束 ★★★
       if (eventType === 'answer_question' || eventType === 'evaluate_answer') {
         return aiResponse.speech || '嗯...让我想想。';
       }
@@ -5977,7 +6287,44 @@ ${eventPrompt}
     }
   }
   // ▲▲▲ 替换结束 ▲▲▲
+  // ▼▼▼ 【全新】这是“谁是卧底”的重roll功能核心函数 ▼▼▼
+  /**
+   * 【卧底】处理AI发言的重roll请求
+   * @param {number} logIndex - 要重roll的发言在gameLog中的索引
+   */
+  async function handleUndercoverReroll(logIndex) {
+    const logEntry = undercoverGameState.gameLog[logIndex];
+    if (!logEntry || logEntry.type !== 'speech' || !logEntry.message.player || logEntry.message.player.isUser) {
+      return;
+    }
 
+    const playerToReroll = logEntry.message.player;
+
+    const speechTextElement = document
+      .querySelector(`button.uc-reroll-btn[data-log-index="${logIndex}"]`)
+      .closest('.speech-content')
+      .querySelector('.speech-text');
+    if (speechTextElement) {
+      speechTextElement.innerHTML = '<i>重新描述中...</i>';
+    }
+
+    try {
+      // 判断当前游戏阶段来决定AI的行动
+      const actionType = undercoverGameState.gamePhase === 'tie_vote_speech' ? 'tie_speak' : 'describe';
+
+      const newSpeech = await triggerUndercoverAiAction(playerToReroll.id, actionType);
+      undercoverGameState.gameLog[logIndex].message.speech = newSpeech;
+      renderUndercoverGameScreen();
+    } catch (error) {
+      console.error('卧底发言重roll失败:', error);
+      if (speechTextElement) {
+        speechTextElement.innerHTML = `<i style="color:red;">重新生成失败，请检查网络或API设置。</i>`;
+      }
+    }
+  }
+  // ▲▲▲ 新增函数结束 ▲▲▲
+
+  // ▼▼▼ 【谁是卧底】用这块【已添加重roll按钮】的代码，完整替换旧的 renderUndercoverGameScreen 函数 ▼▼▼
   /**
    * 【卧底】渲染游戏主界面
    */
@@ -6001,9 +6348,29 @@ ${eventPrompt}
     });
 
     logContainer.innerHTML = '';
-    undercoverGameState.gameLog.forEach(log => {
+    undercoverGameState.gameLog.forEach((log, index) => {
+      // ★ 核心修改1：增加了index参数
       const logEl = document.createElement('div');
-      if (log.type === 'speech') {
+      // ★ 核心修改2：判断是否是AI的发言
+      if (log.type === 'speech' && typeof log.message === 'object' && !log.message.player.isUser) {
+        logEl.className = 'log-entry speech';
+        const { player, speech } = log.message;
+
+        // ★ 核心修改3：为AI发言添加重roll按钮
+        logEl.innerHTML = `
+            <img src="${player.avatar}" class="speech-avatar">
+            <div class="speech-content">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="speaker">${player.name}</span>
+                    <button class="uc-reroll-btn" data-log-index="${index}" title="重新生成发言" style="background:none; border:none; cursor:pointer; padding:0; color:var(--text-secondary);">
+                        <svg class="reroll-btn-icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    </button>
+                </div>
+                <span class="speech-text">${speech.replace(/\n/g, '<br>')}</span>
+            </div>
+        `;
+      } else if (log.type === 'speech') {
+        // 用户发言保持原样
         logEl.className = 'log-entry speech';
         logEl.innerHTML = `
                 <img src="${log.message.player.avatar}" class="speech-avatar">
@@ -6013,6 +6380,7 @@ ${eventPrompt}
                 </div>
             `;
       } else {
+        // 其他系统消息也保持原样
         logEl.className = `log-entry ${log.type}`;
         logEl.innerHTML = String(log.message).replace(/\n/g, '<br>');
       }
@@ -6020,6 +6388,7 @@ ${eventPrompt}
     });
     logContainer.scrollTop = logContainer.scrollHeight;
   }
+  // ▲▲▲ 替换结束 ▲▲▲
 
   /**
    * 【卧底】添加一条游戏日志
@@ -7017,4 +7386,71 @@ ${jsonFormat}
     }
   });
   // ▲▲▲ 新增事件监听器结束 ▲▲▲
+  // ▼▼▼ 在init()的事件监听区添加 ▼▼▼
+  document.getElementById('werewolf-game-log').addEventListener('click', e => {
+    const rerollBtn = e.target.closest('.werewolf-reroll-btn');
+    if (rerollBtn) {
+      const logIndex = parseInt(rerollBtn.dataset.logIndex);
+      if (!isNaN(logIndex)) {
+        handleWerewolfReroll(logIndex);
+      }
+    }
+  });
+  // ▲▲▲ 添加结束 ▲▲▲
+  // ▼▼▼ 在init()的事件监听区添加 ▼▼▼
+  document.getElementById('sts-action-area').addEventListener('click', e => {
+    const rerollBtn = e.target.closest('#sts-reroll-ai-turn-btn');
+    if (rerollBtn) {
+      handleStsReroll();
+    }
+  });
+  // ▲▲▲ 添加结束 ▲▲▲
+  // ▼▼▼ 在init()的事件监听区添加 ▼▼▼
+  // 剧本杀重roll事件
+  document.getElementById('script-kill-game-log').addEventListener('click', e => {
+    const rerollBtn = e.target.closest('.sk-reroll-btn');
+    if (rerollBtn) {
+      const logIndex = parseInt(rerollBtn.dataset.logIndex);
+      if (!isNaN(logIndex)) {
+        handleScriptKillReroll(logIndex);
+      }
+    }
+  });
+  // ▲▲▲ 添加结束 ▲▲▲
+  // ▼▼▼ 在init()的事件监听区添加 ▼▼▼
+  // “你说我猜”重roll事件
+  document.getElementById('guess-what-game-log').addEventListener('click', e => {
+    const rerollBtn = e.target.closest('.gw-reroll-btn');
+    if (rerollBtn) {
+      const logIndex = parseInt(rerollBtn.dataset.logIndex);
+      if (!isNaN(logIndex)) {
+        handleGuessWhatReroll(logIndex);
+      }
+    }
+  });
+  // ▲▲▲ 添加结束 ▲▲▲
+  // ▼▼▼ 在init()的事件监听区添加 ▼▼▼
+  // 飞行棋重roll事件
+  document.getElementById('ludo-game-log').addEventListener('click', e => {
+    const rerollBtn = e.target.closest('.ludo-reroll-btn');
+    if (rerollBtn) {
+      const logIndex = parseInt(rerollBtn.dataset.logIndex);
+      if (!isNaN(logIndex)) {
+        handleLudoReroll(logIndex);
+      }
+    }
+  });
+  // ▲▲▲ 添加结束 ▲▲▲
+  // ▼▼▼ 在init()的事件监听区添加 ▼▼▼
+  // “谁是卧底”重roll事件
+  document.getElementById('undercover-game-log').addEventListener('click', e => {
+    const rerollBtn = e.target.closest('.uc-reroll-btn');
+    if (rerollBtn) {
+      const logIndex = parseInt(rerollBtn.dataset.logIndex);
+      if (!isNaN(logIndex)) {
+        handleUndercoverReroll(logIndex);
+      }
+    }
+  });
+  // ▲▲▲ 添加结束 ▲▲▲
 });
