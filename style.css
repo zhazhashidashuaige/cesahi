@@ -17295,38 +17295,35 @@ body {
 }
 /* --- ▼▼▼ 在这里粘贴下面的新样式 ▼▼▼ --- */
 
-/* 分类标签上的删除按钮 "×" */
+/* ▼▼▼ 用这块【美化版】代码替换旧的 .sticker-category-delete-btn 样式 ▼▼▼ */
 .sticker-category-delete-btn {
-  display: inline-block;
+  display: none;
   position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 18px;
-  height: 18px;
-  background-color: rgba(255, 59, 48, 0.9); /* 醒目的红色 */
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  /* ★ 核心修改1：背景色从红色改为半透明的深灰色，更有质感 */
+  background-color: rgba(0, 0, 0, 0.4); 
   color: white;
   border-radius: 50%;
   font-size: 14px;
-  line-height: 18px;
-  text-align: center;
   font-weight: bold;
+  line-height: 20px;
+  text-align: center;
   cursor: pointer;
-  transform: scale(0); /* 默认隐藏 */
-  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease, background-color 0.2s; /* 添加背景色过渡 */
   z-index: 1;
 }
 
-/* 当进入编辑模式时，让删除按钮显示出来 */
-.selection-mode .sticker-category-btn:not(:first-child) .sticker-category-delete-btn {
-  transform: scale(1);
-}
-
-/* 当鼠标悬浮在删除按钮上时，给一个反馈效果 */
+/* ★ 核心修改2：鼠标悬停时，背景色加深，而不是变红 */
 .sticker-category-delete-btn:hover {
-  background-color: #ff3b30;
+  background-color: rgba(0, 0, 0, 0.6);
+  transform: scale(1.1);
 }
+/* ▲▲▲ 替换结束 ▲▲▲ */
 
-/* --- ▲▲▲ 新样式粘贴结束 ▲▲▲ --- */
 
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
 /* ▼▼▼ 【全新】为角色表情面板单独设置更小的尺寸 ▼▼▼ */
@@ -17497,3 +17494,63 @@ body {
 .delete-transaction-btn:hover {
   background-color: #ffc2d1;
 }
+#send-location-btn {
+  display: flex !important; /* 确保按钮本身是可见的 */
+  background-image: url('data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>');
+  background-size: 60%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* ▼▼▼ 这是为“表情分类删除”功能新增的CSS ▼▼▼ */
+
+/* 1. 让每个分类按钮成为删除按钮的定位参考点 */
+.sticker-category-btn {
+  position: relative; /* 关键！*/
+  display: inline-flex; /* 让按钮内部的文字和删除图标能对齐 */
+  align-items: center;
+  padding-right: 10px; /* 为右侧的删除按钮留出一点空间 */
+}
+
+/* 2. 编辑模式下，为分类按钮添加一个视觉提示 */
+#sticker-panel.selection-mode .sticker-category-btn:not(:first-child):hover {
+    background-color: #ffe5e5;
+    border-color: #ffc2d1;
+}
+
+/* ▼▼▼ 用这块【美化版】代码替换旧的 .sticker-category-delete-btn 样式 ▼▼▼ */
+.sticker-category-delete-btn {
+  display: none;
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  /* ★ 核心修改1：背景色从红色改为半透明的深灰色，更有质感 */
+  background-color: rgba(0, 0, 0, 0.4); 
+  color: white;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease, background-color 0.2s; /* 添加背景色过渡 */
+  z-index: 1;
+}
+
+/* ★ 核心修改2：鼠标悬停时，背景色加深，而不是变红 */
+.sticker-category-delete-btn:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+  transform: scale(1.1);
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
+
+/* 4. 【核心】当表情面板处于编辑模式时，才显示删除按钮 */
+#sticker-panel.selection-mode .sticker-category-btn:not(:first-child) .sticker-category-delete-btn {
+  display: block; /* 在编辑模式下显示 */
+}
+
+/* ▲▲▲ 新增CSS结束 ▲▲▲ */
+
