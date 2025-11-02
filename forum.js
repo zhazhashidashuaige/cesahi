@@ -157,16 +157,16 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('group-screen');
   }
   // ▲▲▲ 替换结束 ▲▲▲
+  // forum.js
 
   /**
-   * 渲染小组内的帖子列表及其分类（已支持筛选）
+   * 【已修复】渲染小组内的帖子列表及其分类（已支持筛选）
    */
   async function renderGroupPosts(groupId) {
     const listEl = document.getElementById('group-post-list');
     const allPosts = await db.forumPosts.where('groupId').equals(groupId).reverse().sortBy('timestamp');
     listEl.innerHTML = '';
 
-    // --- ▼▼▼ 【核心新增】筛选逻辑 ▼▼▼ ---
     const groupFilters = activeForumFilters.group[groupId];
     let postsToRender = allPosts;
 
@@ -175,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
         post => post.categories && post.categories.some(cat => groupFilters.includes(cat)),
       );
     }
-    // --- ▲▲▲ 新增结束 ▲▲▲ ---
 
     if (postsToRender.length === 0) {
       const message = groupFilters && groupFilters.length > 0 ? '没有找到符合筛选条件的帖子哦' : '这个小组还没有帖子哦';
@@ -184,7 +183,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     for (const post of postsToRender) {
-      const commentCount = await db.forumComments.where('postId').equals(post.id).count();
+      // ★★★★★ 这就是唯一的、核心的修复！ ★★★★★
+      // 在使用 post.id 查询前，先用 parseInt() 确保它一定是数字类型。
+      const commentCount = await db.forumComments.where('postId').equals(parseInt(post.id)).count();
+      // ★★★★★ 修复结束 ★★★★★
+
       const item = document.createElement('div');
       item.className = 'forum-post-item';
       item.dataset.postId = post.id;
@@ -215,15 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filterBtn) {
       filterBtn.classList.toggle('active', groupFilters && groupFilters.length > 0);
     }
-  }
-
-  /**
-   * 【关键修复】打开一个帖子，显示详情和评论
-   */
-  async function openPost(postId) {
-    activeForumPostId = postId;
-    await renderPostDetails(postId);
-    showScreen('post-screen');
   }
 
   // ▼▼▼ 用这块【功能增强版】的代码，完整替换掉你旧的 renderPostDetails 函数 ▼▼▼

@@ -44,6 +44,7 @@
     <script src="forum.js" defer></script>
     <script src="lovers-space.js" defer></script>
     <script src="taobao.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/darkreader@4.9.84/darkreader.min.js"></script>
 
 
 
@@ -1173,6 +1174,13 @@
     </label>
 </div>
 <!-- ▲▲▲ 新代码粘贴结束 ▲▲▲ -->
+<div class="form-group">
+    <label for="dark-mode-toggle" class="toggle-switch-label">
+        <span class="toggle-switch-text">夜间模式</span>
+        <input type="checkbox" id="dark-mode-toggle">
+        <span class="toggle-switch-slider"></span>
+    </label>
+</div>
 
 
         <button class="form-button" onclick="document.getElementById('wallpaper-upload-input').click();">上传壁纸</button>
@@ -6768,12 +6776,13 @@ let currentDatingSummary = null; // 用于暂存当前结算卡片的数据
                 },
                 body: JSON.stringify({
                     contents: messagesForDecision.map((item) => {
-                        let  includesImages = false;
-                        if(Array.isArray(item.content) && item.content.length === 2){
-                              includesImages =  item.content.some((sub)=>{
-                                return sub.type === 'image_url' && sub.image_url.url
-                            })
-                        }
+// ▼▼▼ 【修复后的代码】 ▼▼▼
+let includesImages = false;
+if (Array.isArray(item.content)) {
+    includesImages = item.content.some((sub) => {
+        return sub.type === 'image_url' && sub.image_url.url;
+    });
+}
                         return {
                             role: roleType[item.role], // 现在 'system' 会被正确转换为 'user'
                             parts: includesImages ? isImage(item.content[0],item.content[1]) : transformChatData(item)
@@ -14627,6 +14636,7 @@ ${chat.settings.aiAvatarLibrary && chat.settings.aiAvatarLibrary.length > 0
 
 **3. 微博互动铁律:**
    - 当“# 最近的微博互动”出现内容时，你【**必须**】作出回应。
+   - **【【【回复禁令】】】**: 如果一条用户评论被标记为 `[你已回复]`，你【绝对不能】再次回复它。请选择其他未回复的评论，或执行其他操作。
    - **评论用户微博**: 使用 \`weibo_comment\` 指令。评论内容【**必须**】是正常文字。
    - **回复用户评论**: 使用 \`weibo_reply\` 指令。回复内容【**必须**】是正常文字。
    - **主动发布微博**: 微博是公开平台，内容需符合你的“微博职业”和“微博指令”。发布时，你必须自己编造真实的\`baseLikesCount\`和 \`baseCommentsCount\`，并生成 **20条** 虚拟路人评论。
@@ -36982,7 +36992,38 @@ async function resetAppNamesToDefault() {
         await showCustomAlert('操作成功', '所有App名称已恢复为默认。');
     }
 }
+  // ▼▼▼ 用这个【V2版】替换旧的 handleCreateForumPost 函数 ▼▼▼
+  /**
+   * 处理用户点击“发布”按钮，创建新帖子的逻辑
+   */
+  async function handleCreateForumPost() {
+    const title = document.getElementById('forum-post-title-input').value.trim();
+    const content = document.getElementById('post-public-text').value.trim();
+    if (!title || !content) {
+      alert('帖子标题和内容都不能为空哦！');
+      return;
+    }
 
+    // --- ▼▼▼ 【核心新增】获取并解析分类 ▼▼▼ ---
+    const categoryInput = document.getElementById('forum-post-category-input').value.trim();
+    const categories = categoryInput ? categoryInput.match(/#(\S+)/g)?.map(tag => tag.substring(1)) || [] : [];
+    // --- ▲▲▲ 新增结束 ▲▲▲ ---
+
+    const newPost = {
+      groupId: activeGroupId,
+      title: title,
+      content: content,
+      author: state.qzoneSettings.nickname || '我',
+      timestamp: Date.now(),
+      categories: categories, // 保存解析后的分类数组
+    };
+
+    await db.forumPosts.add(newPost);
+    document.getElementById('create-post-modal').classList.remove('visible');
+    await renderGroupPosts(activeGroupId);
+    alert('帖子发布成功！');
+  }
+  // ▲▲▲ 替换结束 ▲▲▲
 
 
         // ===================================================================
@@ -43241,7 +43282,37 @@ document.getElementById('compress-all-images-btn').addEventListener('click', com
 document.getElementById('export-data-stream-btn').addEventListener('click', exportDataStream);
 // 在 init() 函数的事件监听器区域末尾，粘贴下面这行代码
 document.getElementById('reset-app-names-btn').addEventListener('click', resetAppNamesToDefault);
-
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleCheckbox = document.getElementById("dark-mode-toggle");
+    const storageKey = 'darkModeManualPref'; 
+    const darkReaderOptions = {
+        brightness: 100,
+        contrast: 90,
+        sepia: 10
+    };
+    const manualPref = localStorage.getItem(storageKey);
+    if (manualPref === 'true') {
+        DarkReader.enable(darkReaderOptions);
+        toggleCheckbox.checked = true;
+    } else if (manualPref === 'false') {
+        DarkReader.disable();
+        toggleCheckbox.checked = false;
+    } else {
+        DarkReader.auto(darkReaderOptions);
+        setTimeout(() => {
+            toggleCheckbox.checked = DarkReader.isEnabled();
+        }, 100); 
+    }
+    toggleCheckbox.addEventListener("change", function () {  
+        if (this.checked) {
+            DarkReader.enable(darkReaderOptions);
+            localStorage.setItem(storageKey, 'true');
+        } else {
+            DarkReader.disable();
+            localStorage.setItem(storageKey, 'false');
+        }
+    });
+});
 initLoversSpace();
 initTaobao();
 
