@@ -954,15 +954,20 @@ body {
   display: block;
   object-fit: contain;
 }
-.message-bubble.is-sticker .content,
-.message-bubble.is-voice-message .content {
+/* ▼▼▼ 请用这整块代码替换 ▼▼▼ */
+
+.message-bubble.is-sticker,
+.message-bubble.is-voice-message,
+.message-bubble.is-ai-image,
+.message-bubble.has-image:has(img:only-child) {
   padding: 0;
-  background-color: transparent;
-  box-shadow: none;
+  background: transparent;
   border: none;
+  box-shadow: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
+
 #chat-input-actions-top {
   display: flex;
   gap: 8px;
@@ -1039,7 +1044,6 @@ body {
 .sticker-item {
   position: relative;
   aspect-ratio: 1 / 1;
-  background-color: white;
   border-radius: 10px;
   background-size: contain;
   background-repeat: no-repeat;
@@ -17153,7 +17157,6 @@ body {
   background-repeat: no-repeat;
   background-position: center;
   border-radius: 10px;
-  background-color: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
@@ -17304,7 +17307,7 @@ body {
   width: 20px;
   height: 20px;
   /* ★ 核心修改1：背景色从红色改为半透明的深灰色，更有质感 */
-  background-color: rgba(0, 0, 0, 0.4); 
+  background-color: rgba(0, 0, 0, 0.4);
   color: white;
   border-radius: 50%;
   font-size: 14px;
@@ -17312,7 +17315,7 @@ body {
   line-height: 20px;
   text-align: center;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s ease, background-color 0.2s; /* 添加背景色过渡 */
   z-index: 1;
 }
@@ -17323,7 +17326,6 @@ body {
   transform: scale(1.1);
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
-
 
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
 /* ▼▼▼ 【全新】为角色表情面板单独设置更小的尺寸 ▼▼▼ */
@@ -17513,8 +17515,8 @@ body {
 
 /* 2. 编辑模式下，为分类按钮添加一个视觉提示 */
 #sticker-panel.selection-mode .sticker-category-btn:not(:first-child):hover {
-    background-color: #ffe5e5;
-    border-color: #ffc2d1;
+  background-color: #ffe5e5;
+  border-color: #ffc2d1;
 }
 
 /* ▼▼▼ 用这块【美化版】代码替换旧的 .sticker-category-delete-btn 样式 ▼▼▼ */
@@ -17526,7 +17528,7 @@ body {
   width: 20px;
   height: 20px;
   /* ★ 核心修改1：背景色从红色改为半透明的深灰色，更有质感 */
-  background-color: rgba(0, 0, 0, 0.4); 
+  background-color: rgba(0, 0, 0, 0.4);
   color: white;
   border-radius: 50%;
   font-size: 14px;
@@ -17534,7 +17536,7 @@ body {
   line-height: 20px;
   text-align: center;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s ease, background-color 0.2s; /* 添加背景色过渡 */
   z-index: 1;
 }
@@ -17546,11 +17548,710 @@ body {
 }
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
-
 /* 4. 【核心】当表情面板处于编辑模式时，才显示删除按钮 */
 #sticker-panel.selection-mode .sticker-category-btn:not(:first-child) .sticker-category-delete-btn {
   display: block; /* 在编辑模式下显示 */
 }
 
 /* ▲▲▲ 新增CSS结束 ▲▲▲ */
+/* 1. 亲密记录按钮 ✨ */
+.intimacy-panel-btn {
+  font-size: 14px; /* 图标大小 */
+  margin-left: 6px; /* 和火花图标的间距 */
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  vertical-align: middle; /* 确保和火花图标垂直对齐 */
+  display: inline-block; /* 允许 transform */
+}
+.intimacy-panel-btn:hover {
+  opacity: 1;
+  transform: scale(1.3) rotate(20deg); /* 悬浮时放大并旋转，增加趣味性 */
+}
 
+/* 2. 亲密记录面板整体 */
+#intimacy-panel .modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* 各个区块之间的间距 */
+  padding: 15px 20px;
+}
+
+/* 3. 面板内的各个区块 */
+.intimacy-summary {
+  text-align: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.intimacy-summary h3 {
+  margin: 0 0 5px 0;
+  color: var(--accent-color); /* 使用你的主题色 */
+  font-size: 24px;
+}
+.intimacy-summary p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+.intimacy-section h4 {
+  margin-bottom: 15px;
+  border-left: 4px solid var(--accent-color);
+  padding-left: 10px;
+  font-size: 16px;
+}
+
+/* 4. 每日互动记录列表 */
+#intimacy-daily-log {
+  background-color: var(--secondary-bg);
+  border-radius: 8px;
+}
+#intimacy-daily-log .log-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+#intimacy-daily-log .log-item:last-child {
+  border-bottom: none;
+}
+#intimacy-daily-log .date {
+  color: var(--text-secondary);
+}
+#intimacy-daily-log .count {
+  font-weight: 500;
+}
+
+/* 5. 成就徽章网格 */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+  gap: 20px;
+  text-align: center;
+}
+.achievement-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.achievement-item .icon {
+  font-size: 36px;
+  line-height: 1;
+}
+.achievement-item .name {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+/* 给未获得的成就一个置灰效果 */
+.achievement-item.locked {
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+/* ▼▼▼ 【全新】亲密值系统相关CSS样式 ▼▼▼ */
+
+/* 聊天列表里的亲密值按钮 */
+.intimacy-btn {
+  font-size: 14px; /* 图标大小 */
+  margin-left: 8px; /* 和火花图标拉开一点距离 */
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  filter: grayscale(0.5); /* 默认是灰色，看起来不突兀 */
+}
+.intimacy-btn:hover {
+  transform: scale(1.2);
+  filter: grayscale(0); /* 悬浮时变彩色 */
+}
+
+/* 亲密值面板整体样式 */
+#intimacy-panel .modal-content {
+  background-color: #f7f3f8; /* 温柔的淡紫色背景 */
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 100%);
+  border: 1px solid #e1dbe6;
+  max-width: 340px;
+  width: 90%;
+  height: auto;
+  max-height: 85vh;
+}
+#intimacy-panel .modal-header span {
+  font-weight: 600;
+  color: #6a4c95;
+}
+#intimacy-panel .modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+#intimacy-panel hr {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #e1dbe6;
+  margin: 5px 0;
+}
+#intimacy-panel h3 {
+  font-size: 16px;
+  color: #6a4c95;
+  margin: 0 0 10px 0;
+  border-left: 3px solid #8e6ac5;
+  padding-left: 8px;
+}
+
+/* 亲密值分数显示区域 */
+#intimacy-display {
+  text-align: center;
+  padding: 10px 0;
+}
+#intimacy-display p {
+  margin: 0;
+  font-size: 14px;
+  color: #8a8a8a;
+}
+#intimacy-score-display {
+  font-size: 48px;
+  font-weight: 700;
+  color: #ff69b4; /* 浪漫的粉红色 */
+  text-shadow: 0 2px 8px rgba(255, 105, 180, 0.4);
+  margin: 5px 0;
+}
+
+/* 详细数据展示区域 */
+#intimacy-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.detail-item span:last-child {
+  font-weight: 500;
+  color: #4a4a4a;
+}
+
+/* 徽章列表区域 */
+#symbol-list-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+.symbol-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60px;
+}
+.symbol-icon {
+  font-size: 32px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: #e9e4ed;
+  color: #a9a9a9;
+  transition: all 0.3s ease;
+  margin-bottom: 5px;
+}
+.symbol-item.unlocked .symbol-icon {
+  background-color: #ffeff7;
+  color: #ff69b4;
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
+}
+.symbol-name {
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+}
+.symbol-item.unlocked .symbol-name {
+  color: #333;
+  font-weight: 500;
+}
+.symbol-level {
+  font-size: 10px;
+  color: #aaa;
+}
+
+/* 解锁记录区域 */
+#unlocked-symbols-record {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 10px;
+  border-radius: 8px;
+}
+.record-item {
+  font-size: 13px;
+  color: #555;
+}
+.record-item .symbol {
+  margin-right: 8px;
+}
+.record-item .date {
+  float: right;
+  color: #999;
+  font-size: 12px;
+}
+
+/* ▲▲▲ 新增CSS样式结束 ▲▲▲ */
+/* ▼▼▼ 【全新】亲密值徽章系统 v2.1 (尺寸调整版) CSS样式 ▼▼▼ */
+
+/* 聊天列表里佩戴的徽章图片 - 基础样式 */
+.intimacy-badge-display img {
+  height: 1.1em; /* 默认大小，适用于“星光闪烁”和“热情如火” */
+  vertical-align: middle;
+  margin-left: 5px;
+}
+
+/* ★★★ 这就是我们本次新增的核心代码 ★★★ */
+/* 为需要缩小的徽章设置一个更小的高度 */
+.intimacy-badge-display img.first_heartbeat,
+.intimacy-badge-display img.only_crown,
+.intimacy-badge-display img.eternal_diamond {
+  height: 0.9em; /* 你可以调整这个值，比如 0.95em 或 1em */
+}
+/* ★★★ 新增代码结束 ★★★ */
+
+/* 亲密值面板 - 徽章列表容器 */
+#symbol-list-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+/* 亲密值面板 - 单个徽章项目 */
+.symbol-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.symbol-item:hover {
+  transform: translateY(-3px);
+}
+
+/* 亲密值面板 - 徽章图标容器 */
+.symbol-icon {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: #e9e4ed;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  margin-bottom: 5px;
+  overflow: hidden;
+}
+.symbol-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.symbol-icon.not-unlocked img {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+/* 解锁后的徽章样式 */
+.symbol-item.unlocked .symbol-icon {
+  background-color: #ffeff7;
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
+}
+.symbol-item.unlocked .symbol-icon img {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+/* 被佩戴的徽章的特殊样式 */
+.symbol-item.selected .symbol-icon {
+  border-color: #ff69b4;
+  box-shadow: 0 0 15px rgba(255, 105, 180, 0.7);
+}
+
+/* 徽章名称 */
+.symbol-name {
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+}
+.symbol-item.unlocked .symbol-name {
+  color: #333;
+  font-weight: 500;
+}
+
+/* 解锁等级 */
+.symbol-level {
+  font-size: 10px;
+  color: #aaa;
+}
+
+/* "不佩戴" 按钮的特殊样式 */
+.symbol-icon.no-badge {
+  font-size: 32px;
+  background: #ddd;
+  color: #fff;
+}
+/* ▲▲▲ 新增CSS样式结束 ▲▲▲ */
+/* 让“饿了么”的美食卡片在鼠标悬浮时有交互效果 */
+.eleme-food-card {
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.eleme-food-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+/* ▼▼▼ 在 <style> 标签内粘贴 ▼▼▼ */
+
+/* 这是外卖卡片专属的透明气泡样式 */
+.message-bubble.is-waimai-gift-from-char {
+  background-color: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  max-width: 250px; /* 让卡片宽度适中 */
+}
+
+
+
+/* ▲▲▲ 粘贴结束 ▲▲▲ */
+/* 这是为异步加载图片新增的容器样式 */
+.product-card .product-image-container {
+  width: 100%;
+  /* 我们让高度等于宽度，实现1:1的正方形比例 */
+  padding-bottom: 100%;
+  position: relative;
+  background-color: #f0f2f5; /* 加载时的占位背景色 */
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 加载动画样式 (你可以复用其他地方的) */
+.product-card .loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--accent-color, #007bff);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* 确保图片能正确填充容器 */
+.product-card .product-image-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ▼▼▼ 【表情包白底/边框终极修复】请将这块代码粘贴到样式末尾 ▼▼▼ */
+
+/* 
+  核心原理：
+  这个选择器非常精确地指向了“作为表情包的气泡”内部的“内容区域”，
+  并用 !important 强制覆盖掉所有可能的主题样式，让它彻底“消失”。
+*/
+.message-bubble.is-sticker .content {
+  padding: 0 !important; /* 强制移除内边距 */
+  background: transparent !important; /* 强制移除背景 */
+  border: none !important; /* 强制移除边框 */
+  box-shadow: none !important; /* 强制移除阴影 */
+}
+
+/* ▲▲▲ 修复结束 ▲▲▲ */
+/* 外卖卡片备注样式 */
+.waimai-remark {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+    font-size: 13px;
+    text-align: left;
+}
+.waimai-remark .remark-label {
+    font-weight: 600;
+    color: #007bff; /* 饿了么蓝 */
+    margin-right: 5px;
+}
+.waimai-remark .remark-text {
+    color: #333;
+}
+/* ▼▼▼ 这是为“首页”搜索栏新增的美化代码 ▼▼▼ */
+
+/* 1. 把首页的搜索栏容器变成一个圆润的白色“胶囊” */
+#products-view .taobao-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: white;
+  padding: 6px 8px;
+  border-radius: 25px; /* 大圆角，形成胶囊形状 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* 加一点淡淡的阴影 */
+  /* 移除旧的边框和内边距，以新样式为准 */
+  border: none;
+  margin-bottom: 15px; /* 和下方的分类保持一点距离 */
+}
+
+/* 2. 美化首页的输入框，让它“融入”白色胶囊背景 */
+#products-view #product-search-input {
+  flex-grow: 1; /* 占据所有可用空间 */
+  border: none; /* 去掉它自己的边框 */
+  background: transparent; /* 背景透明 */
+  outline: none; /* 去掉点击时的轮廓线 */
+  padding: 8px; /* 给文字一点呼吸的空间 */
+  font-size: 15px;
+  color: #333;
+}
+
+/* 3. 美化首页的“搜索”按钮 */
+#products-view #product-search-btn {
+  background-color: #FF5722; /* 淘宝橙色 */
+  color: white;
+  border: none;
+  border-radius: 18px; /* 让按钮也变圆润 */
+  padding: 8px 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* ▲▲▲ 粘贴到这里结束 ▲▲▲ */
+/* ▼▼▼ 这是为“饿了么”搜索栏新增的布局和美化代码 ▼▼▼ */
+
+/* 1. 将饿了么的搜索总容器改为垂直排列，让两组按钮上下堆叠 */
+#eleme-view .taobao-search-bar {
+  display: flex;
+  flex-direction: column; /* 改为垂直排列 */
+  gap: 12px; /* 设置两行之间的垂直间距 */
+  background-color: transparent; /* 移除容器本身的背景和边框 */
+  padding: 0;
+  box-shadow: none;
+  border: none;
+}
+
+/* 2. 为第一行（搜索框+搜索按钮）设置和首页一样的“胶囊”样式 */
+.eleme-search-group {
+  display: flex;
+  background-color: white;
+  padding: 5px;
+  border-radius: 25px; /* 圆润的胶囊形状 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.eleme-search-group #eleme-search-input {
+  flex-grow: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 8px;
+  font-size: 15px;
+}
+
+.eleme-search-group #eleme-search-btn {
+  background-color: #FF5722; /* 淘宝橙 */
+  color: white;
+  border: none;
+  border-radius: 18px; /* 按钮也变圆润 */
+  padding: 8px 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* 3. 为第二行（三个功能按钮）设置布局，让它们居中并排 */
+.eleme-actions-group {
+  display: flex; /* 使用flex布局 */
+  justify-content: center; /* 整体居中 */
+  gap: 10px; /* 按钮之间的间距 */
+}
+
+/* 4. 美化第二行的三个功能按钮 */
+.eleme-actions-group button {
+  flex: 1; /* 让三个按钮平分宽度，排列更整齐 */
+  padding: 10px; /* 增加按钮的高度 */
+  border-radius: 12px; /* 可爱的圆角 */
+  border: 1px solid #e0e0e0;
+  background-color: white;
+  font-size: 16px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 为按钮添加一个漂亮的点击效果 */
+.eleme-actions-group button:active {
+  transform: scale(0.95);
+  background-color: #f0f0f0;
+}
+
+/* 适配夜间模式 */
+#phone-screen.dark-mode .eleme-search-group {
+  background-color: #2c2c2e;
+}
+#phone-screen.dark-mode .eleme-search-group #eleme-search-input {
+  color: white;
+}
+#phone-screen.dark-mode .eleme-actions-group button {
+  background-color: #2c2c2e;
+  border-color: #38383a;
+  color: white;
+}
+
+/* ▲▲▲ 新增代码结束 ▲▲▲ */
+/* ▼▼▼ 这是为你设计的“饿了么”功能按钮美化样式 v3.0 (小巧版) ▼▼▼ */
+
+/* 1. 为按钮的容器增加一个下边距 */
+.eleme-actions-group {
+  margin-bottom: 15px;
+}
+
+/* 2. 重新定义按钮的样式，让它变小 */
+.eleme-actions-group button {
+  /* --- 核心修改在这里 --- */
+  width: 90px;                  /* 新增：给按钮一个固定的、小巧的宽度 */
+  padding: 6px 0;               /* 修改：减少了上下的内边距，让按钮变矮 */
+  font-size: 15px;              /* 修改：稍微缩小字体 */
+  
+  background-color: transparent;
+  border: 1.5px solid #ff9a69;
+  color: #ff5722;
+  border-radius: 20px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  
+  /* 移除之前让按钮自动拉伸的属性 */
+  flex: none; /* 或者直接删除 flex: 1 那一行 */
+}
+
+/* 3. 单独微调 "+" 按钮，让它看起来更舒服 */
+#eleme-add-manual-btn {
+  font-size: 22px; /* 把加号本身放大一点，视觉上更平衡 */
+  line-height: 1;  /* 辅助垂直居中 */
+}
+
+/* 4. 交互效果保持不变 */
+.eleme-actions-group button:hover {
+  background-color: #ff5722;
+  color: white;
+  border-color: #ff5722;
+}
+
+.eleme-actions-group button:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
+/* 5. 适配夜间模式 */
+#phone-screen.dark-mode .eleme-actions-group button {
+  background-color: transparent;
+  border-color: #ff9a69;
+  color: #ff9a69;
+}
+
+#phone-screen.dark-mode .eleme-actions-group button:hover {
+  background-color: #ff5722;
+  color: white;
+}
+
+/* ▲▲▲ 新增代码结束 ▲▲▲ */
+/* ▼▼▼ 用这整块代码，替换掉所有旧的 waimai-meituan-card 和 waimai-gift-card 样式 ▼▼▼ */
+
+/* ======================================= */
+/* === 【全新 | 统一风格】外卖卡片样式 === */
+/* ======================================= */
+
+/* 1. 将两个卡片的样式合并，确保宽度一致 */
+.waimai-meituan-card,
+.waimai-gift-card {
+  width: 240px; /* 统一宽度为240px */
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 2. 统一设置头部的样式（美团黄！） */
+.waimai-meituan-card .gift-card-header,
+.waimai-gift-card .header { /* 兼容两种不同的头部class名 */
+  background-color: #FFD100; /* 美团黄 */
+  color: #333333;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.waimai-meituan-card .gift-card-header .icon,
+.waimai-gift-card .header .icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+/* 3. 【核心修复】让标题可以自动换行 */
+.waimai-meituan-card .gift-card-header .title,
+.waimai-gift-card .header .title {
+  font-weight: 600;
+  font-size: 15px;
+  flex-grow: 1; /* 允许标题占据剩余空间 */
+  min-width: 0;  /* flex布局下换行的关键 */
+  white-space: normal; /* 允许换行 */
+}
+
+/* 4. 统一内容区域的样式 */
+.waimai-meituan-card .gift-card-body,
+.waimai-gift-card .body {
+  padding: 15px;
+}
+
+.waimai-meituan-card .greeting,
+.waimai-gift-card .body .food-name {
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+  margin: 0 0 4px 0;
+}
+
+.waimai-meituan-card .gift-card-body p:not(.greeting),
+.waimai-gift-card .body .restaurant {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+}
+
+.waimai-meituan-card .waimai-remark,
+.waimai-gift-card .footer {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px dashed #e0e0e0;
+    font-size: 13px;
+    text-align: left;
+    color: #555;
+}
+.waimai-meituan-card .waimai-remark .remark-label {
+    font-weight: 600;
+    color: #8a8a8a;
+    margin-right: 5px;
+}
+
+/* ▲▲▲ 替换结束 ▲▲▲ */

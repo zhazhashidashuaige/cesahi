@@ -160,6 +160,53 @@ document.addEventListener('DOMContentLoaded', () => {
   // forum.js
 
   /**
+   * 【全新】将一个新创建的帖子元素添加到列表的顶部
+   * @param {object} post - 包含ID的完整帖子对象
+   */
+  function prependNewPostElement(post) {
+    const listEl = document.getElementById('group-post-list');
+
+    // 检查列表当前是否显示“空空如也”的消息，如果是，就清空它
+    const emptyMessage = listEl.querySelector('p');
+    if (
+      emptyMessage &&
+      (emptyMessage.textContent.includes('还没有帖子') || emptyMessage.textContent.includes('没有找到符合'))
+    ) {
+      listEl.innerHTML = '';
+    }
+
+    // 创建新帖子的DOM元素（这段代码与renderGroupPosts中的逻辑几乎一样）
+    const commentCount = 0; // 新帖子的评论数永远是0
+    const item = document.createElement('div');
+    item.className = 'forum-post-item';
+    item.dataset.postId = post.id;
+
+    let categoriesHtml = '';
+    if (post.categories && post.categories.length > 0) {
+      categoriesHtml = `
+      <div class="category-tag-container">
+          ${post.categories.map(cat => `<span class="category-tag">#${cat}</span>`).join('')}
+      </div>
+    `;
+    }
+
+    item.innerHTML = `
+      <div class="post-item-title">${post.title}</div>
+      ${categoriesHtml}
+      <div class="post-item-meta">
+          <span>作者: ${post.author}</span>
+          <span>评论: ${commentCount}</span>
+      </div>
+      <button class="forum-post-delete-btn" title="删除帖子">×</button>
+  `;
+
+    // 使用 prepend() 将新帖子添加到列表的【最前面】
+    listEl.prepend(item);
+  }
+
+  // forum.js
+
+  /**
    * 【已修复】渲染小组内的帖子列表及其分类（已支持筛选）
    */
   async function renderGroupPosts(groupId) {
@@ -218,6 +265,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filterBtn) {
       filterBtn.classList.toggle('active', groupFilters && groupFilters.length > 0);
     }
+  }
+
+  /**
+   * 【关键修复】打开一个帖子，显示详情和评论
+   */
+  async function openPost(postId) {
+    activeForumPostId = postId;
+    await renderPostDetails(postId);
+    showScreen('post-screen');
   }
 
   // ▼▼▼ 用这块【功能增强版】的代码，完整替换掉你旧的 renderPostDetails 函数 ▼▼▼
@@ -863,9 +919,12 @@ ${worldviewContext}
   }
   // ▲▲▲ 替换结束 ▲▲▲
 
-  // ▼▼▼ 用这个【V2版】替换旧的 handleCreateForumPost 函数 ▼▼▼
+  // forum.js
+
+  // ▼▼▼ 用这个【已修复时序问题】的版本，完整替换你旧的 handleCreateForumPost 函数 ▼▼▼
+
   /**
-   * 处理用户点击“发布”按钮，创建新帖子的逻辑
+   * 【已修复】处理用户点击“发布”按钮，创建新帖子的逻辑
    */
   async function handleCreateForumPost() {
     const title = document.getElementById('forum-post-title-input').value.trim();
@@ -875,10 +934,8 @@ ${worldviewContext}
       return;
     }
 
-    // --- ▼▼▼ 【核心新增】获取并解析分类 ▼▼▼ ---
     const categoryInput = document.getElementById('forum-post-category-input').value.trim();
     const categories = categoryInput ? categoryInput.match(/#(\S+)/g)?.map(tag => tag.substring(1)) || [] : [];
-    // --- ▲▲▲ 新增结束 ▲▲▲ ---
 
     const newPost = {
       groupId: activeGroupId,
@@ -886,13 +943,26 @@ ${worldviewContext}
       content: content,
       author: state.qzoneSettings.nickname || '我',
       timestamp: Date.now(),
-      categories: categories, // 保存解析后的分类数组
+      categories: categories,
     };
 
-    await db.forumPosts.add(newPost);
+    // ★★★★★ 这就是本次修复的核心逻辑 ★★★★★
+
+    // 1. 将数据库 add() 操作返回的【ID】捕获到一个变量中。
+    const postId = await db.forumPosts.add(newPost);
+    // 2. 将这个ID赋值回我们的 newPost 对象，现在它是一个完整的、包含ID的对象了。
+    newPost.id = postId;
+
+    // 3. 关闭发帖弹窗。
     document.getElementById('create-post-modal').classList.remove('visible');
-    await renderGroupPosts(activeGroupId);
+
+    // 4. 【关键】不再调用可能出错的 renderGroupPosts，而是调用我们新的、可靠的 prependNewPostElement 函数。
+    prependNewPostElement(newPost);
+
+    // 5. 给出成功提示。
     alert('帖子发布成功！');
+
+    // ★★★★★ 修复结束 ★★★★★
   }
   // ▲▲▲ 替换结束 ▲▲▲
 

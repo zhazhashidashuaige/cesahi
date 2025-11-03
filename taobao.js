@@ -1,7 +1,10 @@
 let currentEditingProductId = null; // 用于追踪正在编辑的商品ID
+let currentEditingFoodId = null;
 let logisticsUpdateTimers = [];
 let isSelectionMode = false;
 let notificationTimeout;
+let imageGenerationQueue = []; // 全局的图片生成任务队列
+let isProcessingImage = false; // 一个开关，防止队列被重复处理
 // 物流时间线模板 (delay单位是毫秒)
 // 你可以随意修改这里的文本和延迟时间，打造你自己的物流故事！
 const logisticsTimelineTemplate = [
@@ -23,9 +26,372 @@ const productSearchInput = document.getElementById('product-search-input');
 const productSearchBtn = document.getElementById('product-search-btn');
 const STICKER_REGEX =
   /^(https:\/\/i\.postimg\.cc\/.+|https:\/\/i\.ibb\.co\/.+|https:\/\/files\.catbox\.moe\/.+|data:image)/;
-// ▲▲▲ 新增变量结束 ▲▲▲
-// ▲▲▲ 粘贴结束 ▲▲▲
-// ▼▼▼ 请用这个【全新修正版】替换旧的 renderChatList 函数 ▼▼▼
+// ▼▼▼ 在这里粘贴下面这整块新代码 ▼▼▼
+
+// ▼▼▼ 用这块【新代码】替换旧的 GENERIC_PRODUCT_PROMPTS 数组 ▼▼▼
+
+// ▼▼▼ 用这块【新代码】替换旧的 GENERIC_PRODUCT_PROMPTS 数组 ▼▼▼
+
+// 全局的、通用的商品图片提示词模板库
+// 我们会根据商品名称的关键词来智能匹配这些模板
+const GENERIC_PRODUCT_PROMPTS = [
+  {
+    keywords: ['衣', '裙', '裤', 'T恤', '衬衫', '外套', '卫衣', '毛衣', '服', '装'],
+    englishCategory: 'a piece of fashion clothing', // 新增的英文品类名
+    prompt:
+      'A piece of modern clothing, {productName}, elegantly displayed on a mannequin or lying flat, clean minimalist studio shot, professional product photography, soft shadows, solid color background, high detail, photorealistic, 8k',
+  },
+  {
+    keywords: ['鞋', '靴', 'sneaker', 'boot'],
+    englishCategory: 'a modern sneaker',
+    prompt:
+      'A single modern shoe, {productName}, studio product shot, minimalist, on a solid color platform, detailed, photorealistic, commercial photography, soft studio lighting',
+  },
+  {
+    keywords: ['包', '袋', 'backpack', 'handbag'],
+    englishCategory: 'a stylish modern bag',
+    prompt:
+      'A stylish modern bag, {productName}, professional product photography, minimalist, clean background, studio lighting, high fashion, high detail, 8k, hyperrealistic',
+  },
+  {
+    keywords: ['手机', '耳机', '键盘', '鼠标', '数据线', '充电', '数码', '电子'],
+    englishCategory: 'a sleek electronic gadget',
+    prompt:
+      'A sleek electronic gadget, {productName}, on a clean modern desk, minimalist product shot, tech aesthetic, studio lighting, photorealistic, octane render, 8k',
+  },
+  {
+    keywords: [
+      '零食',
+      '饼干',
+      '薯片',
+      '糖',
+      '巧克力',
+      '水',
+      '饮料',
+      '茶',
+      '咖啡',
+      'food',
+      'snack',
+      '面',
+      '饭',
+      '汉堡',
+      '奶茶',
+    ],
+    englishCategory: 'a delicious-looking food or drink product',
+    prompt:
+      'Delicious-looking {productName}, professional product shot, appetizing, packaging or food itself displayed, minimalist setup, vibrant colors, solid color background, high detail, food photography',
+  },
+  {
+    keywords: ['杯', '碗', '盘', '锅', '灯', '毯', '枕', '家居', '摆件', '装饰'],
+    englishCategory: 'a modern home decor item',
+    prompt:
+      'A modern home decor item, {productName}, in a cozy and minimalist living room setting, soft lighting, professional product shot, high detail, photorealistic, interior design magazine style',
+  },
+  {
+    keywords: ['化妆', '护肤', '口红', '眼影', '香水', '面膜'],
+    englishCategory: 'a cosmetic product package',
+    prompt:
+      'A bottle or package of a cosmetic product, {productName}, clean product shot, on a podium with simple geometric shapes, minimalist, beauty photography, high detail, solid color background, soft shadows',
+  },
+  {
+    keywords: ['玩具', '玩偶', '模型', '手办', 'toy', 'figure'],
+    englishCategory: 'a cute or cool toy figure',
+    prompt:
+      'A cute or cool toy figure, {productName}, product shot, on a simple stand, plain background, studio lighting, detailed, collectible, anime style, 8k',
+  },
+  {
+    keywords: ['书', '本', '笔', '文具'],
+    englishCategory: 'a book or stationery item',
+    prompt:
+      'A book or stationery item, {productName}, neatly arranged on a clean desk, minimalist, flat lay photography, high detail, studio lighting, soft shadows',
+  },
+  {
+    // 这是默认的备用模板，如果上面的关键词都匹配不上，就用这个
+    keywords: [],
+    englishCategory: 'a modern product', // 默认的英文品类名
+    // ★★★ 全面优化的备用提示词 ★★★
+    prompt:
+      'Commercial product photography of {productName}. Professional studio shot, clean minimalist aesthetic, displayed on a podium or flat surface. Soft, even lighting, subtle soft shadows. Shot on a high-end camera, 8k, hyperrealistic, high detail.',
+  },
+];
+
+// ▲▲▲ 替换结束 ▲▲▲
+/**
+ * 【全新】顺序处理图片生成队列
+ * 这个函数会一个接一个地为队列中的商品/美食生成图片，避免并发请求。
+ */
+async function processImageQueue() {
+  // 如果当前有其他任务正在处理，就直接返回，让它处理完再说
+  if (isProcessingImage) return;
+
+  // 标记为“正在处理中”，锁上开关
+  isProcessingImage = true;
+  console.log(`队列开始处理，当前有 ${imageGenerationQueue.length} 个图片生成任务。`);
+
+  // 只要队列里还有任务，就一直循环
+  while (imageGenerationQueue.length > 0) {
+    // 从队列的头部取出一个任务
+    const task = imageGenerationQueue.shift();
+
+    console.log(`正在为 "${task.item.name}" 生成图片...`);
+
+    try {
+      // 根据任务类型，调用对应的图片处理函数
+      // 这里我们等待 (await) 每个图片生成函数执行完毕
+      if (task.type === 'taobao') {
+        await processProductImage(task.item);
+      } else if (task.type === 'eleme') {
+        await processFoodImage(task.item);
+      }
+    } catch (error) {
+      // 即使单个任务失败，也要打印错误并继续处理下一个任务
+      console.error(`生成 "${task.item.name}" 的图片时发生意外错误:`, error);
+    }
+  }
+
+  // 所有任务都处理完了，标记为“已完成”，解开开关，等待下一次任务
+  isProcessingImage = false;
+  console.log('图片生成队列已处理完毕。');
+}
+
+// ▲▲▲ 新代码粘贴结束 ▲▲▲
+// ▼▼▼ 用这块【新代码】替换旧的 selectGenericImagePrompt 函数 ▼▼▼
+
+/**
+ * 【V2 | 英文转译版】根据商品名智能选择一个通用的图片提示词
+ * @param {string} productName - 商品的中文名
+ * @returns {string} - 拼接好的、纯英文的提示词
+ */
+function selectGenericImagePrompt(productName) {
+  const lowerCaseName = productName.toLowerCase();
+
+  let matchedTemplate = null;
+
+  // 1. 寻找最匹配的模板
+  for (const template of GENERIC_PRODUCT_PROMPTS) {
+    if (template.keywords.length > 0 && template.keywords.some(kw => lowerCaseName.includes(kw))) {
+      matchedTemplate = template;
+      break; // 找到第一个匹配的就跳出循环
+    }
+  }
+
+  // 2. 如果没有找到匹配的，则使用默认的备用模板
+  if (!matchedTemplate) {
+    matchedTemplate = GENERIC_PRODUCT_PROMPTS[GENERIC_PRODUCT_PROMPTS.length - 1];
+  }
+
+  console.log(`为“${productName}”匹配到分类: ${matchedTemplate.englishCategory}`);
+
+  // 3. 【核心修改】使用模板中预设的 "englishCategory" 替换占位符，而不是直接用中文名
+  const finalPrompt = matchedTemplate.prompt.replace('{productName}', matchedTemplate.englishCategory);
+
+  return finalPrompt;
+}
+
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▼▼▼ 用这块【V2 | 无限重试版】代码替换旧的 generateAndLoadImage 函数 ▼▼▼
+/**
+ * 【V2 | 无限重试版】为Prompt生成并加载图片
+ * @param {string} prompt - 用于生成图片的英文提示词
+ * @returns {Promise<string>} - 返回一个Promise，它最终会resolve为一个有效的图片URL
+ */
+async function generateAndLoadImage(prompt) {
+  while (true) {
+    // ★★★ 核心修改：这是一个无限循环 ★★★
+    try {
+      const encodedPrompt = encodeURIComponent(prompt);
+      const seed = Math.floor(Math.random() * 100000);
+
+      // 尝试主域名
+      const primaryUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=640&seed=${seed}`;
+
+      const loadImage = url =>
+        new Promise((resolve, reject) => {
+          const img = new Image();
+          img.src = url;
+          img.onload = () => resolve(url);
+          img.onerror = () => reject(new Error(`URL加载失败: ${url}`));
+        });
+
+      const imageUrl = await loadImage(primaryUrl).catch(async () => {
+        console.warn(`主URL加载失败，尝试备用URL for: ${prompt}`);
+        const fallbackUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=640&seed=${seed}`;
+        return await loadImage(fallbackUrl);
+      });
+
+      // 如果任何一个URL成功加载，就返回结果，并跳出循环
+      return imageUrl;
+    } catch (error) {
+      // 如果主域名和备用域名都失败了...
+      console.error(`图片生成彻底失败，将在5秒后重试。错误: ${error.message}`);
+      // 等待5秒钟，然后循环会继续，开始下一次尝试
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 【V2 | 无限重试版】为Prompt生成并加载图片
+ * @param {string} prompt - 用于生成图片的英文提示词
+ * @returns {Promise<string>} - 返回一个Promise，它最终会resolve为一个有效的图片URL
+ */
+async function generateAndLoadImage(prompt) {
+  while (true) {
+    // ★★★ 核心修改：这是一个无限循环 ★★★
+    try {
+      const encodedPrompt = encodeURIComponent(prompt);
+      const seed = Math.floor(Math.random() * 100000);
+
+      // 尝试主域名
+      const primaryUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=640&seed=${seed}`;
+
+      const loadImage = url =>
+        new Promise((resolve, reject) => {
+          const img = new Image();
+          img.src = url;
+          img.onload = () => resolve(url);
+          img.onerror = () => reject(new Error(`URL加载失败: ${url}`));
+        });
+
+      const imageUrl = await loadImage(primaryUrl).catch(async () => {
+        console.warn(`主URL加载失败，尝试备用URL for: ${prompt}`);
+        const fallbackUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=640&seed=${seed}`;
+        return await loadImage(fallbackUrl);
+      });
+
+      // 如果任何一个URL成功加载，就返回结果，并跳出循环
+      return imageUrl;
+    } catch (error) {
+      // 如果主域名和备用域名都失败了...
+      console.error(`图片生成彻底失败，将在5秒后重试。错误: ${error.message}`);
+      // 等待5秒钟，然后循环会继续，开始下一次尝试
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  }
+}
+
+// ▼▼▼ 用这块【V2 | 智能决策版】代码，替换旧的 processProductImage 函数 ▼▼▼
+
+/**
+ * 【全新 | V2】异步处理单个商品图片的生成和保存
+ * @param {object} product - 商品对象
+ */
+async function processProductImage(product) {
+  try {
+    // ★★★ 核心修改：智能决策，决定使用哪个提示词 ★★★
+    let imagePrompt;
+    if (product.imagePrompt && product.imagePrompt.trim() !== '') {
+      // 如果这个商品数据中自带了专属的 imagePrompt (通常来自AI生成)，就优先使用它！
+      imagePrompt = product.imagePrompt;
+      console.log(`正在为桃宝商品“${product.name}”使用AI提供的专属提示词进行生图...`);
+    } else {
+      // 否则（比如是手动添加的、或者旧数据），就回退到通用模板匹配方案
+      imagePrompt = selectGenericImagePrompt(product.name);
+      console.log(`正在为桃宝商品“${product.name}”匹配通用提示词进行生图...`);
+    }
+
+    // 2. 调用我们那个“永不放弃”的核心生图函数
+    const imageUrl = await generateAndLoadImage(imagePrompt);
+
+    // 3. 将生成好的图片URL保存回“桃宝”的数据库，实现持久化
+    await db.taobaoProducts.update(product.id, { imageUrl: imageUrl });
+
+    // 4. 更新界面上对应卡片的显示，用图片替换加载动画
+    const cardElement = document.querySelector(`.product-card[data-product-id="${product.id}"]`);
+    if (cardElement) {
+      const imageContainer = cardElement.querySelector('.product-image-container');
+      if (imageContainer) {
+        imageContainer.innerHTML = `<img src="${imageUrl}" class="product-image" alt="${product.name}">`;
+      }
+    }
+  } catch (error) {
+    console.error(`处理商品 "${product.name}" 图片时失败:`, error);
+    const cardElement = document.querySelector(`.product-card[data-product-id="${product.id}"]`);
+    if (cardElement) {
+      const imageContainer = cardElement.querySelector('.product-image-container');
+      if (imageContainer) {
+        imageContainer.innerHTML = `<span>图片<br>加载失败</span>`;
+      }
+    }
+  }
+}
+
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▼▼▼ 用这块【V2 | 智能选择提示词版】新代码，替换旧的 processFoodImage 函数 ▼▼▼
+
+/**
+ * 【全新 | V2】异步处理单个美食图片的生成和保存
+ * @param {object} food - 美食对象
+ */
+async function processFoodImage(food) {
+  try {
+    // 1. ★★★ 智能决策：决定使用哪个提示词 ★★★
+    let imagePrompt;
+    if (food.imagePrompt && food.imagePrompt.trim() !== '') {
+      // 如果这个美食数据中自带了专属的 imagePrompt，就优先使用它！
+      imagePrompt = food.imagePrompt;
+      console.log(`正在为“${food.name}”使用AI提供的专属提示词进行生图...`);
+    } else {
+      // 否则（比如是手动添加的、或者旧数据），就回退到通用模板匹配方案
+      imagePrompt = selectGenericImagePrompt(food.name);
+      console.log(`正在为“${food.name}”匹配通用提示词进行生图...`);
+    }
+
+    // 2. 调用我们那个“永不放弃”的核心生图函数
+    const imageUrl = await generateAndLoadImage(imagePrompt);
+
+    // 3. 将生成好的图片URL保存回“饿了么”的数据库，实现持久化
+    await db.elemeFoods.update(food.id, { imageUrl: imageUrl });
+
+    // 4. 更新界面上对应卡片的显示，用图片替换加载动画
+    const cardElement = document.querySelector(`.product-card[data-food-id="${food.id}"]`);
+    if (cardElement) {
+      const imageContainer = cardElement.querySelector('.product-image-container');
+      if (imageContainer) {
+        imageContainer.innerHTML = `<img src="${imageUrl}" class="product-image" alt="${food.name}">`;
+      }
+    }
+  } catch (error) {
+    // 理论上很难触发，但作为保险
+    console.error(`处理美食 "${food.name}" 图片时失败:`, error);
+    const cardElement = document.querySelector(`.product-card[data-food-id="${food.id}"]`);
+    if (cardElement) {
+      const imageContainer = cardElement.querySelector('.product-image-container');
+      if (imageContainer) {
+        imageContainer.innerHTML = `<span>图片<br>加载失败</span>`;
+      }
+    }
+  }
+}
+
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 【最终版 | 无API调用 & 无限重试】为商品名称生成图片
+ * @param {string} productName - 商品的中文名称
+ * @returns {Promise<string>} - 返回一个Promise，它最终会resolve为一个有效的图片URL
+ */
+async function generateImageForProduct(productName) {
+  // 1. 调用我们的新函数，根据商品名智能选择一个提示词（不再需要API！）
+  const imagePrompt = selectGenericImagePrompt(productName);
+  console.log(`为“${productName}”选定的提示词:`, imagePrompt);
+
+  // 2. 调用我们已具备“无限重试”功能的核心图片生成函数
+  // 这个函数会一直尝试，直到成功返回一个图片URL
+  try {
+    const imageUrl = await generateAndLoadImage(imagePrompt);
+    return imageUrl;
+  } catch (error) {
+    // 理论上，由于 generateAndLoadImage 是无限循环，代码不会执行到这里。
+    // 但为了代码健壮性，我们仍然保留一个最终的备用方案。
+    console.error(`[终极捕获] 为 "${productName}" 生成图片时发生不可预知的错误:`, error);
+    return getRandomDefaultProductImage();
+  }
+}
+
 async function renderChatList() {
   const chatListEl = document.getElementById('chat-list');
   chatListEl.innerHTML = '';
@@ -271,6 +637,7 @@ function createChatListItem(chat) {
 
   return container;
 }
+
 /**
  * 【全新】根据时间戳，格式化聊天列表右侧的日期/时间显示
  * @param {number} timestamp - 消息的时间戳
@@ -386,6 +753,21 @@ function playNotificationSound() {
   }
 }
 // ▲▲▲ 替换结束 ▲▲▲
+/**
+ * 【全新】获取一张随机的外卖默认图片
+ * @returns {string} - 返回一张随机图片的URL
+ */
+function getRandomWaimaiImage() {
+  const defaultImages = [
+    'https://i.postimg.cc/mD8DB9Q7/food1.jpg',
+    'https://i.postimg.cc/W12WqgJp/food2.jpg',
+    'https://i.postimg.cc/KzA1df4y/food3.jpg',
+  ];
+  return defaultImages[Math.floor(Math.random() * defaultImages.length)];
+}
+
+// 在这里找到你原来的 getRandomDefaultProductImage 函数...
+
 /**
  * 【全新】获取一张随机的淘宝宝贝默认图片
  * @returns {string} - 返回一张随机图片的URL
@@ -512,11 +894,561 @@ async function openTaobaoApp() {
   renderBalanceDetails(); // 刷新余额显示
 }
 
-// ▼▼▼ 请将这一整块全新的功能函数，完整地粘贴到 // 桃宝 App 功能函数区的末尾 ▼▼▼
+// ▼▼▼ 用这块【修改后】的代码，替换旧的 renderElemeFoods 函数 ▼▼▼
 
 /**
- * 【全新】切换“桃宝”App内的不同视图（首页、购物车、订单、我的）
+ * 【V3 | 顺序生图版】渲染“饿了么”页面的美食列表
  */
+async function renderElemeFoods() {
+  const gridEl = document.getElementById('eleme-grid');
+  gridEl.innerHTML = '';
+  const foods = await db.elemeFoods.toArray();
+
+  if (foods.length === 0) {
+    gridEl.innerHTML =
+      '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary);">还没有美食哦，点击右上角“✨”或“+”来发现美味吧！</p>';
+    return;
+  }
+
+  foods.forEach(food => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.style.cursor = 'pointer';
+    card.dataset.foodId = food.id;
+
+    card.innerHTML = `
+        <div class="product-image-container">
+            <!-- 图片或加载动画将在这里 -->
+        </div>
+        <div class="product-info">
+            <div class="product-name" title="${food.name} · ${food.restaurant}">${food.name}</div>
+            <div class="product-price">¥${food.price.toFixed(2)}</div>
+        </div>
+    `;
+
+    const imageContainer = card.querySelector('.product-image-container');
+
+    if (food.imageUrl) {
+      imageContainer.innerHTML = `<img src="${food.imageUrl}" class="product-image" alt="${food.name}">`;
+    } else {
+      imageContainer.innerHTML = `<div class="loading-spinner"></div>`;
+      // ★★★ 核心修改1：不再直接调用，而是将任务添加到队列 ★★★
+      imageGenerationQueue.push({ type: 'eleme', item: food });
+    }
+
+    addLongPressListener(card, () => showFoodActions(food.id));
+    gridEl.appendChild(card);
+  });
+
+  // ★★★ 核心修改2：渲染完所有卡片后，触发一次队列处理器 ★★★
+  processImageQueue();
+}
+
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 【全新】打开美食详情弹窗
+ * @param {number} foodId - 美食的ID
+ */
+async function openFoodDetail(foodId) {
+  const food = await db.elemeFoods.get(foodId);
+  if (!food) return;
+
+  const modal = document.getElementById('product-detail-modal');
+  const bodyEl = document.getElementById('product-detail-body');
+  const reviewsSection = document.getElementById('product-reviews-section');
+  const closeBtn = document.getElementById('close-product-detail-btn');
+  const actionBtn = document.getElementById('detail-add-to-cart-btn');
+
+  // 1. 渲染美食基本信息
+  bodyEl.innerHTML = `
+        <img src="${food.imageUrl}" class="product-image" alt="${food.name}">
+        <h2 class="product-name">${food.name}</h2>
+        <p class="product-price">¥${food.price.toFixed(2)}</p>
+        <p style="color: #888; font-size: 13px;">店铺: ${food.restaurant || '精选商家'}</p>
+    `;
+
+  // 2. 隐藏不相关的“宝贝评价”区域
+  reviewsSection.style.display = 'none';
+
+  // 3. 改造底部按钮
+  const newActionBtn = actionBtn.cloneNode(true);
+  newActionBtn.textContent = '给Ta点单'; // 修改按钮文字
+  actionBtn.parentNode.replaceChild(newActionBtn, actionBtn);
+
+  // 为新按钮绑定“点单”逻辑
+  newActionBtn.onclick = async () => {
+    modal.classList.remove('visible'); // 先关闭弹窗
+    await handleOrderForChar(foodId); // 再执行点单流程
+  };
+
+  // 绑定关闭按钮
+  closeBtn.onclick = () => modal.classList.remove('visible');
+
+  // 显示弹窗
+  modal.classList.add('visible');
+}
+/**
+ * 【全新】清空饿了么的所有美食
+ */
+async function clearElemeFoods() {
+  const confirmed = await showCustomConfirm('确认清空', '确定要清空饿了么的所有美食吗？此操作无法恢复。', {
+    confirmButtonClass: 'btn-danger',
+  });
+
+  if (confirmed) {
+    try {
+      await db.elemeFoods.clear(); // 清空美食数据库
+      await renderElemeFoods(); // 重新渲染UI，显示空状态
+      await showCustomAlert('操作成功', '所有美食已被清空！');
+    } catch (error) {
+      console.error('清空饿了么美食时出错:', error);
+      await showCustomAlert('操作失败', `发生错误: ${error.message}`);
+    }
+  }
+}
+
+// ▼▼▼ 用这块【V3-多品类版】代码，完整替换旧的 handleGenerateFoodsAI 函数 ▼▼▼
+/**
+ * 【AI核心 | V3多品类版】为“饿了么”随机生成商品
+ */
+async function handleGenerateFoodsAI() {
+  await showCustomAlert('请稍候...', 'AI正在搜罗全城好物...');
+  const { proxyUrl, apiKey, model } = state.apiConfig;
+  if (!proxyUrl || !apiKey || !model) {
+    alert('请先在API设置中配置好才能使用AI功能哦！');
+    return;
+  }
+
+  const prompt = `
+# 任务
+你是一个外卖App“饿了么”的编辑。请为我随机推荐5-8款外卖商品。
+
+# 核心规则
+1.  **商品多样性**: 商品类型必须多样化，可以包含【美食、零食、饮料、药品、日用品】等。
+2.  **名称诱人**: 商品名称要听起来就很好。
+3.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，每个对象代表一款商品，并包含以下字段:
+    -   \`"name"\`: 商品名称 (字符串)
+    -   \`"price"\`: 价格 (数字)
+    -   \`"restaurant"\`: 虚拟的店铺名称 (字符串)
+    -   \`"category"\`: 商品分类 (字符串, 例如: "美食", "饮品", "零食", "药品", "日用")
+    -   \`"imagePrompt"\`: 一个详细的、用于文生图AI的【英文提示词】，用于生成一张关于该商品的【诱人的产品图 (appetizing product shot)】。
+
+# JSON输出格式示例:
+[
+  {
+    "name": "多肉葡萄奶盖茶",
+    "price": 22.0,
+    "restaurant": "奈雪的茶",
+    "category": "饮品",
+    "imagePrompt": "A cup of grape cheese foam tea, with fresh grape pulp, product shot, minimalist, vibrant, delicious and appetizing, commercial photography"
+  },
+  {
+    "name": "布洛芬缓释胶囊",
+    "price": 15.5,
+    "restaurant": "家门口药房",
+    "category": "药品",
+    "imagePrompt": "A box of Ibuprofen sustained-release capsules, clean medical product shot, minimalist, on a white background, professional photography"
+  }
+]`;
+
+  try {
+    const messagesForApi = [{ role: 'user', content: prompt }];
+    const isGemini = proxyUrl === GEMINI_API_URL;
+    const requestData = isGemini
+      ? toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini)
+      : {
+          url: `${proxyUrl}/v1/chat/completions`,
+          options: {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+            body: JSON.stringify({
+              model: model,
+              messages: messagesForApi,
+              temperature: 1.1,
+              response_format: { type: 'json_object' },
+            }),
+          },
+        };
+    const response = await fetch(requestData.url, requestData.options);
+    if (!response.ok) throw new Error(`API请求失败: ${await response.text()}`);
+    const data = await response.json();
+    const rawContent = isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content;
+    let newFoods;
+    try {
+      newFoods = JSON.parse(rawContent.replace(/^```json\s*|```$/g, '').trim());
+    } catch (e) {
+      throw new Error('AI返回的JSON格式不正确。');
+    }
+
+    if (Array.isArray(newFoods) && newFoods.length > 0) {
+      const foodsToSave = newFoods.map(food => ({ ...food, imageUrl: '' }));
+      await db.elemeFoods.bulkAdd(foodsToSave);
+      await renderElemeFoods(); // 重新渲染饿了么页面
+      await showCustomAlert('生成成功！', `已成功为您推荐 ${newFoods.length} 款商品！`);
+    } else {
+      throw new Error('AI返回的数据格式不正确或为空。');
+    }
+  } catch (error) {
+    console.error('AI生成饿了么商品失败:', error);
+    await showCustomAlert('生成失败', `发生错误: ${error.message}`);
+  }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+// ▼▼▼ 用这块【V3-多品类版】代码，完整替换旧的 handleSearchFoodsAI 函数 ▼▼▼
+/**
+ * 【AI核心 | V3多品类版】根据关键词搜索商品
+ */
+async function handleSearchFoodsAI() {
+  const searchTerm = document.getElementById('eleme-search-input').value.trim();
+  if (!searchTerm) {
+    alert('请输入你想搜索的商品关键词！');
+    return;
+  }
+
+  await showCustomAlert('请稍候...', `AI正在为你寻找关于“${searchTerm}”的商品...`);
+  const { proxyUrl, apiKey, model } = state.apiConfig;
+  if (!proxyUrl || !apiKey || !model) {
+    alert('请先配置API！');
+    return;
+  }
+
+  const prompt = `
+# 任务
+你是一个外卖App“饿了么”的搜索引擎。请根据用户提供的【搜索关键词】，为Ta创作一个包含5-8件相关外卖商品的列表。
+
+# 用户搜索的关键词:
+"${searchTerm}"
+
+# 核心规则
+1.  **高度相关**: 所有商品都必须与用户的搜索关键词 "${searchTerm}" 紧密相关。
+2.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，每个对象代表一款商品，并包含以下字段:
+    -   \`"name"\`: 商品名称
+    -   \`"price"\`: 价格 (数字)
+    -   \`"restaurant"\`: 虚拟的店铺名称
+    -   \`"category"\`: 商品分类 (例如: "美食", "饮品", "零食", "药品", "日用")
+    -   \`"imagePrompt"\`: 一个详细的、用于文生图AI的【英文提示词】，用于生成一张关于“${searchTerm}”的【诱人的产品图 (appetizing product shot)】。
+
+# JSON输出格式示例:
+[
+  {
+    "name": "经典意式肉酱面",
+    "price": 42.0,
+    "restaurant": "街角意面馆",
+    "category": "美食",
+    "imagePrompt": "A bowl of classic Italian bolognese pasta, food photography, close-up, delicious and appetizing, garnished with basil leaves, high detail"
+  }
+]`;
+
+  try {
+    const messagesForApi = [{ role: 'user', content: prompt }];
+    const isGemini = proxyUrl === GEMINI_API_URL;
+    const requestData = isGemini
+      ? toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini)
+      : {
+          url: `${proxyUrl}/v1/chat/completions`,
+          options: {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+            body: JSON.stringify({
+              model: model,
+              messages: messagesForApi,
+              temperature: 0.8,
+              response_format: { type: 'json_object' },
+            }),
+          },
+        };
+
+    const response = await fetch(requestData.url, requestData.options);
+    if (!response.ok) throw new Error(`API请求失败: ${await response.text()}`);
+
+    const data = await response.json();
+    const rawContent = isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content;
+    let foundFoods;
+    try {
+      foundFoods = JSON.parse(rawContent.replace(/^```json\s*|```$/g, '').trim());
+    } catch (e) {
+      throw new Error('AI返回的JSON格式不正确。');
+    }
+
+    if (Array.isArray(foundFoods) && foundFoods.length > 0) {
+      const foodsToSave = foundFoods.map(food => ({ ...food, imageUrl: '' }));
+      await db.elemeFoods.bulkAdd(foodsToSave);
+      await renderElemeFoods(); // 刷新列表
+      await showCustomAlert('搜索成功！', `AI找到的 ${foundFoods.length} 款商品已添加到列表！`);
+    } else {
+      throw new Error('AI没有找到相关的商品。');
+    }
+  } catch (error) {
+    console.error('AI搜索饿了么商品失败:', error);
+    await showCustomAlert('搜索失败', `发生错误: ${error.message}`);
+  }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 【修改版】打开美食编辑器（支持添加和编辑）
+ * @param {number|null} foodId - 如果是编辑模式，传入美食ID；否则为null
+ */
+async function openFoodEditor(foodId = null) {
+  currentEditingFoodId = foodId; // 保存正在编辑的美食ID
+  const modal = document.getElementById('product-editor-modal');
+  const titleEl = document.getElementById('product-editor-title');
+
+  // 调整UI和填充数据
+  document.getElementById('product-category-input').placeholder = '店铺名 (选填)';
+  // 确保保存按钮的事件指向美食保存函数
+  const saveBtn = document.getElementById('save-product-btn');
+  const newSaveBtn = saveBtn.cloneNode(true); // 克隆以清除旧事件
+  saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+  newSaveBtn.addEventListener('click', saveFoodItem);
+
+  if (foodId) {
+    // 编辑模式
+    titleEl.textContent = '编辑美食';
+    const food = await db.elemeFoods.get(foodId);
+    if (food) {
+      document.getElementById('product-name-input').value = food.name;
+      document.getElementById('product-price-input').value = food.price;
+      document.getElementById('product-image-input').value = food.imageUrl;
+      document.getElementById('product-category-input').value = food.restaurant || '';
+    }
+  } else {
+    // 添加模式
+    titleEl.textContent = '手动添加美食';
+    // 清空输入框
+    document.getElementById('product-name-input').value = '';
+    document.getElementById('product-price-input').value = '';
+    document.getElementById('product-image-input').value = '';
+    document.getElementById('product-category-input').value = '';
+  }
+
+  modal.classList.add('visible');
+}
+
+/**
+ * 【修改版】保存手动添加或编辑的美食
+ */
+async function saveFoodItem() {
+  const name = document.getElementById('product-name-input').value.trim();
+  const price = parseFloat(document.getElementById('product-price-input').value);
+  let imageUrl = document.getElementById('product-image-input').value.trim();
+  const restaurant = document.getElementById('product-category-input').value.trim();
+
+  if (!name || isNaN(price) || price <= 0) {
+    alert('请填写美食名称和有效价格！');
+    return;
+  }
+
+  // 如果用户没有提供图片链接，则留空，让渲染器去触发AI生图
+  if (!imageUrl) {
+    imageUrl = '';
+  }
+
+  const foodData = { name, price, imageUrl, restaurant: restaurant || '私房小厨' };
+
+  try {
+    if (currentEditingFoodId) {
+      // 更新模式
+      await db.elemeFoods.update(currentEditingFoodId, foodData);
+      await showCustomAlert('保存成功', '美食信息已更新！');
+    } else {
+      // 添加模式
+      await db.elemeFoods.add(foodData);
+      await showCustomAlert('添加成功', '新美食已添加！');
+    }
+
+    // 操作完成后关闭弹窗并刷新列表
+    document.getElementById('product-editor-modal').classList.remove('visible');
+    await renderElemeFoods();
+  } catch (error) {
+    console.error('保存美食失败:', error);
+    await showCustomAlert('保存失败', `发生错误: ${error.message}`);
+  } finally {
+    currentEditingFoodId = null; // 无论成功失败，都重置编辑ID
+  }
+}
+
+// ▼▼▼ 用这块【V2-带备注版】代码，完整替换旧的 handleOrderForChar 函数 ▼▼▼
+/**
+ * 【全新 | V2带备注版】核心函数：处理用户点击“给Ta点单”的完整流程
+ * @param {number} foodId - 被点击的美食的ID
+ */
+async function handleOrderForChar(foodId) {
+  const food = await db.elemeFoods.get(foodId);
+  if (!food) return;
+
+  // 1. 检查用户余额
+  if ((state.globalSettings.userBalance || 0) < food.price) {
+    alert('你的余额不足，无法为Ta点单！');
+    return;
+  }
+
+  // 2. 打开角色选择器，让用户选择为谁点单
+  const targetCharId = await openCharSelectorForEleme();
+  if (!targetCharId) return; // 如果用户取消了选择，则结束流程
+
+  const char = state.chats[targetCharId];
+  if (!char) return;
+
+  // 3. 弹出最终确认框
+  const confirmed = await showCustomConfirm(
+    '确认点单',
+    `确定要花费 ¥${food.price.toFixed(2)} 为“${char.name}”点一份“${food.name}”吗？`,
+    { confirmText: '立即下单' },
+  );
+
+  if (confirmed) {
+    // ★★★★★ 核心新增：在这里弹出备注输入框 ★★★★★
+    const remark = await showCustomPrompt(
+      '外卖备注 (可选)',
+      '有什么想对骑手或商家说的吗？',
+      '无接触配送，谢谢！', // 这是一个友好的默认值
+    );
+    // 如果用户点了取消，remark会是null，但不影响流程
+
+    await showCustomAlert('请稍候...', `正在为“${char.name}”下单...`);
+
+    // 4. 扣除用户余额
+    await updateUserBalanceAndLogTransaction(-food.price, `为 ${char.name} 点外卖: ${food.name}`);
+
+    // 5. 创建外卖订单记录
+    await db.elemeOrders.add({
+      foodId: foodId,
+      quantity: 1,
+      timestamp: Date.now(),
+      status: '已下单',
+      recipientId: targetCharId,
+    });
+
+    // 6. ★★★★★ 核心修改：将备注传给通知函数 ★★★★★
+    await sendElemeOrderNotificationToChar(targetCharId, food, remark);
+
+    await showCustomAlert('下单成功！', `已为“${char.name}”点好外卖，并已通过私信通知对方啦！`);
+    renderChatList();
+  }
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 【全新】辅助函数：打开一个单选的角色选择器
+ * @returns {Promise<string|null>} - 返回选中的角色ID，如果取消则返回null
+ */
+async function openCharSelectorForEleme() {
+  return new Promise(resolve => {
+    const modal = document.getElementById('share-target-modal');
+    const listEl = document.getElementById('share-target-list');
+    const titleEl = document.getElementById('share-target-modal-title');
+    const confirmBtn = document.getElementById('confirm-share-target-btn');
+    const cancelBtn = document.getElementById('cancel-share-target-btn');
+
+    titleEl.textContent = '要为谁点单？';
+    listEl.innerHTML = '';
+
+    const singleChats = Object.values(state.chats).filter(c => !c.isGroup);
+
+    if (singleChats.length === 0) {
+      alert('你还没有任何可以点单的好友哦。');
+      modal.classList.remove('visible');
+      resolve(null);
+      return;
+    }
+
+    singleChats.forEach(chat => {
+      const item = document.createElement('div');
+      item.className = 'contact-picker-item';
+      item.innerHTML = `
+                <input type="radio" name="eleme-target" value="${chat.id}" id="target-${
+        chat.id
+      }" style="margin-right: 15px;">
+                <label for="target-${chat.id}" style="display:flex; align-items:center; width:100%; cursor:pointer;">
+                    <img src="${chat.settings.aiAvatar || defaultAvatar}" class="avatar">
+                    <span class="name">${chat.name}</span>
+                </label>
+            `;
+      listEl.appendChild(item);
+    });
+
+    modal.classList.add('visible');
+
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+    const cleanup = () => modal.classList.remove('visible');
+
+    newConfirmBtn.onclick = () => {
+      const selectedRadio = document.querySelector('input[name="eleme-target"]:checked');
+      if (selectedRadio) {
+        cleanup();
+        resolve(selectedRadio.value);
+      } else {
+        alert('请选择一个点单对象！');
+      }
+    };
+
+    newCancelBtn.onclick = () => {
+      cleanup();
+      resolve(null);
+    };
+  });
+}
+
+// ▼▼▼ 用这块【V2-带备注版】代码，完整替换旧的 sendElemeOrderNotificationToChar 函数 ▼▼▼
+/**
+ * 【全新 | V2带备注】发送外卖订单通知到指定角色的聊天
+ */
+async function sendElemeOrderNotificationToChar(targetChatId, food, remark) {
+  const chat = state.chats[targetChatId];
+  if (!chat) return;
+
+  // 准备给AI看的文本，现在包含了备注信息
+  const textContentForAI = `[系统提示：用户给你点了一份来自“${food.restaurant}”的外卖“${food.name}”，并备注说：“${
+    remark || '无'
+  }”。请根据你的人设对此作出回应。]`;
+
+  // 准备要渲染成卡片的数据 (payload)
+  const notificationPayload = {
+    foodName: food.name,
+    foodImageUrl: food.imageUrl,
+    senderName: state.qzoneSettings.nickname || '我',
+    remark: remark || '', // 将备注保存到payload中
+  };
+
+  // 创建消息对象
+  const notificationMessage = {
+    role: 'user', // 由用户发出
+    type: 'eleme_order_notification',
+    timestamp: Date.now(),
+    // content 字段现在用于AI理解上下文，而不是UI渲染
+    content: `我给你点了份外卖：${food.name} `,
+    payload: notificationPayload,
+  };
+  chat.history.push(notificationMessage);
+
+  // 创建给AI看的隐藏指令
+  const hiddenMessage = {
+    role: 'system',
+    content: textContentForAI,
+    timestamp: Date.now() + 1,
+    isHidden: true,
+  };
+  chat.history.push(hiddenMessage);
+
+  chat.unreadCount = (chat.unreadCount || 0) + 1;
+  await db.chats.put(chat);
+
+  if (state.activeChatId !== targetChatId) {
+    showNotification(targetChatId, '你收到了一份外卖！');
+  }
+
+  // 主动触发AI回应
+  openChat(targetChatId);
+}
+// ▲▲▲ 替换结束 ▲▲▲
+
 function switchTaobaoView(viewId) {
   document.querySelectorAll('.taobao-view').forEach(v => v.classList.remove('active'));
   document.getElementById(viewId).classList.add('active');
@@ -525,13 +1457,15 @@ function switchTaobaoView(viewId) {
     t.classList.toggle('active', t.dataset.view === viewId);
   });
 
-  // 根据切换的视图，执行对应的渲染函数
   if (viewId === 'orders-view') {
     renderTaobaoOrders();
   } else if (viewId === 'my-view') {
     renderBalanceDetails();
   } else if (viewId === 'cart-view') {
-    renderTaobaoCart(); // ★★★ 新增：切换到购物车时，渲染购物车内容
+    renderTaobaoCart();
+  } else if (viewId === 'eleme-view') {
+    // <-- 新增的判断
+    renderElemeFoods();
   }
 }
 
@@ -649,9 +1583,8 @@ async function handleRemoveFromCart(cartId) {
   await renderTaobaoCart();
 }
 
-// ▼▼▼ 用这块【已集成评价功能】的代码，完整替换旧的 openProductDetail 函数 ▼▼▼
 /**
- * 【全新】打开商品详情弹窗 (已集成评价功能)
+ * 【全新 | 已修复状态污染问题】打开商品详情弹窗
  */
 async function openProductDetail(productId) {
   const product = await db.taobaoProducts.get(productId);
@@ -662,6 +1595,11 @@ async function openProductDetail(productId) {
   const reviewsSection = document.getElementById('product-reviews-section');
   const reviewsListEl = document.getElementById('product-reviews-list');
   const generateBtn = document.getElementById('generate-reviews-btn');
+  const actionBtn = document.getElementById('detail-add-to-cart-btn');
+
+  // ★★★ 核心修复1：强制重置UI状态 ★★★
+  // 无论上次是什么状态，都确保评价区是可见的
+  reviewsSection.style.display = 'block';
 
   // 渲染商品基本信息
   bodyEl.innerHTML = `
@@ -671,10 +1609,9 @@ async function openProductDetail(productId) {
         <p style="color: #888; font-size: 13px;">店铺: ${product.store || '桃宝自营'}</p>
     `;
 
-  // ★★★ 渲染评价区域 ★★★
+  // 渲染评价区域
   reviewsListEl.innerHTML = '';
   if (product.reviews && product.reviews.length > 0) {
-    // 如果有评价，就渲染它们
     product.reviews.forEach(review => {
       const reviewEl = document.createElement('div');
       reviewEl.className = 'product-review-item';
@@ -684,31 +1621,35 @@ async function openProductDetail(productId) {
             `;
       reviewsListEl.appendChild(reviewEl);
     });
-    generateBtn.style.display = 'none'; // 有评价了就隐藏生成按钮
+    generateBtn.style.display = 'none';
   } else {
-    // 如果没有评价，就显示提示和生成按钮
     reviewsListEl.innerHTML =
       '<p style="text-align: center; color: var(--text-secondary); font-size: 13px;">还没有人评价哦~</p>';
     generateBtn.style.display = 'block';
   }
 
-  // 重新绑定“生成评价”按钮的事件 (使用克隆节点防止重复绑定)
+  // 重新绑定“生成评价”按钮的事件 (防止重复绑定)
   const newGenerateBtn = generateBtn.cloneNode(true);
   generateBtn.parentNode.replaceChild(newGenerateBtn, generateBtn);
   newGenerateBtn.addEventListener('click', () => generateProductReviews(productId));
 
-  // 重新绑定“加入购物车”按钮的事件
-  const addToCartBtn = document.getElementById('detail-add-to-cart-btn');
-  const newAddToCartBtn = addToCartBtn.cloneNode(true);
-  addToCartBtn.parentNode.replaceChild(newAddToCartBtn, addToCartBtn);
+  // ★★★ 核心修复2：强制重置按钮并重新绑定事件 ★★★
+  // 先克隆按钮以清除旧事件监听器
+  const newAddToCartBtn = actionBtn.cloneNode(true);
+  // 【关键】强制把按钮文字改回“加入购物车”
+  newAddToCartBtn.textContent = '加入购物车';
+  // 为新按钮绑定正确的“加入购物车”逻辑
   newAddToCartBtn.onclick = async () => {
     await handleAddToCart(productId);
     modal.classList.remove('visible'); // 添加后自动关闭弹窗
   };
+  // 用焕然一新的按钮替换掉旧的那个
+  actionBtn.parentNode.replaceChild(newAddToCartBtn, actionBtn);
 
   // 绑定关闭按钮
   document.getElementById('close-product-detail-btn').onclick = () => modal.classList.remove('visible');
 
+  // 最后，显示弹窗
   modal.classList.add('visible');
 }
 
@@ -848,29 +1789,20 @@ async function handleCheckout() {
 }
 // ▲▲▲ 替换结束 ▲▲▲
 
-// ▼▼▼ 【最终修复版】请用这整块代码，完整替换旧的 renderTaobaoProducts 函数 ▼▼▼
+// ▼▼▼ 用这块【修改后】的代码，替换旧的 renderTaobaoProducts 函数 ▼▼▼
+
 /**
- * 【最终修复版】渲染商品列表，杜绝重复并移除多余按钮
+ * 【V4 | 顺序生图版】渲染商品列表，按需生成并永久保存图片
  */
 async function renderTaobaoProducts(category = null) {
   const gridEl = document.getElementById('product-grid');
-  const categoryTabsEl = document.getElementById('product-category-tabs');
-
-  // 我们仍然保留清空操作，这是个好习惯
   gridEl.innerHTML = '';
 
   const allProducts = await db.taobaoProducts.orderBy('name').toArray();
   const categories = [...new Set(allProducts.map(p => p.category).filter(Boolean))];
 
-  // 渲染分类页签 (这部分逻辑是正确的，保持不变)
-  categoryTabsEl.innerHTML = `<button class="category-tab-btn ${
-    !category ? 'active' : ''
-  }" data-category="all">全部</button>`;
-  categories.forEach(cat => {
-    categoryTabsEl.innerHTML += `<button class="category-tab-btn ${
-      category === cat ? 'active' : ''
-    }" data-category="${cat}">${cat}</button>`;
-  });
+  // (这部分渲染分类tab的代码保持不变)
+  // ...
 
   const productsToRender = category ? allProducts.filter(p => p.category === category) : allProducts;
 
@@ -881,32 +1813,38 @@ async function renderTaobaoProducts(category = null) {
   }
 
   productsToRender.forEach(product => {
-    // ★★★ 核心修复1：在这里检查商品是否已存在 ★★★
-    // 如果页面上已经有一个带有相同商品ID的卡片了，就直接跳过，不执行后面的添加操作。
-    if (gridEl.querySelector(`[data-product-id="${product.id}"]`)) {
-      console.warn(`检测到重复商品，已跳过渲染: ${product.name}`);
-      return; // 跳过本次循环
-    }
-
     const card = document.createElement('div');
     card.className = 'product-card';
     card.dataset.productId = product.id;
 
-    // ★★★ 核心修复2：移除了您不想要的“加入购物车”按钮 ★★★
     card.innerHTML = `
-            <img src="${product.imageUrl}" class="product-image" alt="${product.name}">
-            <div class="product-info">
-                <div class="product-name">${product.name}</div>
-                <div class="product-price">${product.price.toFixed(2)}</div>
-            </div>
-        `;
-    // 长按删除功能保持不变
-    addLongPressListener(card, () => showProductActions(product.id));
+        <div class="product-image-container">
+            <!-- 图片或加载动画将在这里 -->
+        </div>
+        <div class="product-info">
+            <div class="product-name">${product.name}</div>
+            <div class="product-price">${product.price.toFixed(2)}</div>
+        </div>
+    `;
 
-    // 最终将创建好的卡片添加到页面
+    const imageContainer = card.querySelector('.product-image-container');
+
+    if (product.imageUrl) {
+      imageContainer.innerHTML = `<img src="${product.imageUrl}" class="product-image" alt="${product.name}">`;
+    } else {
+      imageContainer.innerHTML = `<div class="loading-spinner"></div>`;
+      // ★★★ 核心修改1：不再直接调用，而是将任务添加到队列 ★★★
+      imageGenerationQueue.push({ type: 'taobao', item: product });
+    }
+
+    addLongPressListener(card, () => showProductActions(product.id));
     gridEl.appendChild(card);
   });
+
+  // ★★★ 核心修改2：渲染完所有卡片后，触发一次队列处理器 ★★★
+  processImageQueue();
 }
+
 // ▲▲▲ 替换结束 ▲▲▲
 
 /**
@@ -986,26 +1924,28 @@ function openProductEditor(productId = null) {
   modal.classList.add('visible');
 }
 
-// ▼▼▼ 用这块【新代码】替换旧的 saveProduct 函数 ▼▼▼
+// ▼▼▼ 用这两块【新代码】分别替换旧的 saveProduct 和 saveFoodItem 函数 ▼▼▼
 /**
- * 保存手动添加或编辑的商品
+ * 【V3 | AI生图版】保存手动添加或编辑的商品
  */
 async function saveProduct() {
   const name = document.getElementById('product-name-input').value.trim();
   const price = parseFloat(document.getElementById('product-price-input').value);
-  let imageUrl = document.getElementById('product-image-input').value.trim(); // 核心修改1：使用let
+  let imageUrl = document.getElementById('product-image-input').value.trim();
   const category = document.getElementById('product-category-input').value.trim();
 
-  // 核心修改2：现在图片URL不是必填项了
   if (!name || isNaN(price) || price <= 0) {
     alert('请填写所有必填项（名称、有效价格）！');
     return;
   }
 
-  // 核心修改3：如果图片URL为空，就调用我们的新函数获取一个随机默认图
+  // --- ★★★ 核心修改在这里 ★★★ ---
+  // 如果用户没有提供图片链接，我们就保存一个空字符串。
+  // 新的渲染逻辑会自动检测到空链接并触发AI生图。
   if (!imageUrl) {
-    imageUrl = getRandomDefaultProductImage();
+    imageUrl = ''; // 设置为空，让渲染器去处理
   }
+  // --- ▲▲▲ 修改结束 ▲▲▲
 
   const productData = { name, price, imageUrl, category };
 
@@ -1018,9 +1958,41 @@ async function saveProduct() {
   }
 
   document.getElementById('product-editor-modal').classList.remove('visible');
-  await renderTaobaoProducts(); // 刷新商品列表
+  await renderTaobaoProducts();
   currentEditingProductId = null;
 }
+
+/**
+ * 【AI生图版】保存手动添加的美食
+ */
+async function saveFoodItem() {
+  const name = document.getElementById('product-name-input').value.trim();
+  const price = parseFloat(document.getElementById('product-price-input').value);
+  let imageUrl = document.getElementById('product-image-input').value.trim();
+  const restaurant = document.getElementById('product-category-input').value.trim();
+
+  if (!name || isNaN(price) || price <= 0) {
+    alert('请填写美食名称和有效价格！');
+    return;
+  }
+
+  // ★★★ 核心修改在这里 ★★★
+  // 如果用户没有提供图片链接，我们就保存一个空字符串。
+  // 这样新的渲染逻辑就会自动检测到并触发AI生图。
+  if (!imageUrl) {
+    imageUrl = ''; // 设置为空，让渲染器去处理
+  }
+  // ★★★ 修改结束 ★★★
+
+  const foodData = { name, price, imageUrl, restaurant: restaurant || '私房小厨' };
+
+  await db.elemeFoods.add(foodData);
+  alert('新美食已添加！');
+
+  document.getElementById('product-editor-modal').classList.remove('visible');
+  await renderElemeFoods();
+}
+
 // ▲▲▲ 替换结束 ▲▲▲
 
 /**
@@ -1031,9 +2003,10 @@ function openAddFromLinkModal() {
   document.getElementById('add-from-link-modal').classList.add('visible');
 }
 
-// ▼▼▼ 用这块【新代码】替换旧的 handleAddFromLink 函数 ▼▼▼
+// ▼▼▼ 在 taobao.js 中，用这块【新代码】替换旧的 handleAddFromLink 函数 ▼▼▼
+
 /**
- * 核心功能：处理粘贴的分享文案
+ * 【V2 | AI生图版】核心功能：处理粘贴的分享文案
  */
 async function handleAddFromLink() {
   const text = document.getElementById('link-paste-area').value;
@@ -1045,7 +2018,6 @@ async function handleAddFromLink() {
   }
 
   const name = nameMatch[1];
-
   document.getElementById('add-from-link-modal').classList.remove('visible');
 
   const priceStr = await showCustomPrompt(`商品: ${name}`, '请输入价格 (元):', '', 'number');
@@ -1056,14 +2028,21 @@ async function handleAddFromLink() {
     return;
   }
 
-  // 核心修改1：让图片URL变成可选
-  let imageUrl = await showCustomPrompt(`商品: ${name}`, '请输入图片链接 (URL, 可选):');
-  if (imageUrl === null) return; // 如果用户点取消，则中断操作
+  // --- ★★★ 核心修改在这里 ★★★ ---
+  let imageUrl = await showCustomPrompt(`商品: ${name}`, '请输入图片链接 (URL, 可选，留空则由AI生成):');
+  if (imageUrl === null) return;
 
-  // 核心修改2：如果用户没填图片链接，就使用随机默认图
+  // 1. 如果用户没有输入图片链接
   if (!imageUrl || !imageUrl.trim()) {
-    imageUrl = getRandomDefaultProductImage();
+    try {
+      // 就调用我们的AI生图函数
+      imageUrl = await generateImageForProduct(name);
+    } catch (e) {
+      console.error('调用生图函数时发生意外错误:', e);
+      imageUrl = getRandomDefaultProductImage();
+    }
   }
+  // --- ▲▲▲ 修改结束 ▲▲▲
 
   const category = await showCustomPrompt(`商品: ${name}`, '请输入分类 (可选):');
 
@@ -1071,12 +2050,12 @@ async function handleAddFromLink() {
   await renderTaobaoProducts();
   alert('商品已通过链接添加成功！');
 }
+
 // ▲▲▲ 替换结束 ▲▲▲
 
-// ▼▼▼ 把这一整块全新的功能函数，粘贴到 handleGenerateProductsAI 函数的正上方 ▼▼▼
-
+// ▼▼▼ 在 taobao.js 中，用这块【V2.1 | 修复API调用】的代码替换旧的 handleSearchProductsAI 函数 ▼▼▼
 /**
- * 【全新】核心功能：根据用户搜索触发AI生成商品
+ * 【V2.1 | AI生图版】核心功能：根据用户搜索触发AI生成商品
  */
 async function handleSearchProductsAI() {
   const searchTerm = productSearchInput.value.trim();
@@ -1092,10 +2071,9 @@ async function handleSearchProductsAI() {
     return;
   }
 
-  // 【核心】这是一个全新的Prompt，它告诉AI要根据用户的搜索词来创作
   const prompt = `
 # 任务
-你是一个虚拟购物App“桃宝”的商品策划师。请根据用户提供的【搜索关键词】，为Ta创作一个包含5-8件相关商品的列表。
+你是一个虚拟购物App“桃宝”的搜索引擎。请根据用户提供的【搜索关键词】，为Ta创作一个包含5-8件相关商品的列表。
 
 # 用户搜索的关键词:
 "${searchTerm}"
@@ -1103,39 +2081,44 @@ async function handleSearchProductsAI() {
 # 核心规则
 1.  **高度相关**: 所有商品都必须与用户的搜索关键词 "${searchTerm}" 紧密相关。
 2.  **商品多样性**: 即使是同一个主题，也要尽量展示不同款式、功能或角度的商品。
-3.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，每个对象代表一件商品，并包含以下字段:
+3.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，每个对象代表一件商品，【必须】包含以下字段:
     -   \`"name"\`: 商品名称
-    -   \`"price"\`: 价格
-    -   \`"imageUrl"\`: 从'https://i.postimg.cc/kG7C0gGP/11.jpg'和'https://i.postimg.cc/W4svy4Hm/Image-1760206134285.jpg'中随机挑选一张，禁止自己生成。
+    -   \`"price"\`: 价格 (数字)
     -   \`"category"\`: 商品分类
+    -   \`"imagePrompt"\`: 一个详细的、用于文生图AI的【英文提示词】，描述这张商品的【产品展示图 (product shot)】。风格要求【干净、简约、纯色或渐变背景 (clean, minimalist, solid color background)】。
 
 # JSON输出格式示例:
 [
   {
     "name": "赛博朋克风发光数据线",
     "price": 69.9,
-    "imageUrl": "https://i.postimg.cc/kG7C0gGP/11.jpg",
-    "category": "数码配件"
+    "category": "数码配件",
+    "imagePrompt": "A glowing cyberpunk style data cable, product shot, on a dark tech background, neon lights, high detail"
   }
 ]`;
 
   try {
     const messagesForApi = [{ role: 'user', content: prompt }];
-    let isGemini = proxyUrl === GEMINI_API_URL;
-    let geminiConfig = toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini);
 
-    const response = isGemini
-      ? await fetch(geminiConfig.url, geminiConfig.data)
-      : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({
-            model: model,
-            messages: messagesForApi,
-            temperature: parseFloat(state.apiConfig.temperature) || 0.8,
-            response_format: { type: 'json_object' },
-          }),
-        });
+    // ★★★ 核心修复：恢复对 Gemini 和 OpenAI 的兼容判断逻辑 ★★★
+    const isGemini = proxyUrl === GEMINI_API_URL;
+    const requestData = isGemini
+      ? toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini)
+      : {
+          url: `${proxyUrl}/v1/chat/completions`,
+          options: {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+            body: JSON.stringify({
+              model: model,
+              messages: messagesForApi,
+              temperature: 0.8,
+              response_format: { type: 'json_object' },
+            }),
+          },
+        };
+
+    const response = await fetch(requestData.url, requestData.options);
 
     if (!response.ok) throw new Error(`API请求失败: ${await response.text()}`);
 
@@ -1145,10 +2128,9 @@ async function handleSearchProductsAI() {
     const newProducts = JSON.parse(cleanedContent);
 
     if (Array.isArray(newProducts) && newProducts.length > 0) {
-      // 调用显示函数，并传入一个更具体的标题
       displayAiGeneratedProducts(newProducts, `AI为你找到了关于“${searchTerm}”的宝贝`);
     } else {
-      throw new Error('AI返回的数据格式不正确或内容为空。');
+      throw new Error('AI没有找到相关的商品。');
     }
   } catch (error) {
     console.error('AI搜索商品失败:', error);
@@ -1157,7 +2139,7 @@ async function handleSearchProductsAI() {
 }
 
 /**
- * 【全新】UI函数：在弹窗中显示AI生成的商品列表，并让用户选择添加
+ * 【V2 | AI生图版】UI函数：在弹窗中显示AI生成的商品列表，并异步加载图片
  * @param {Array} products - AI生成的商品对象数组
  * @param {string} title - 弹窗的标题
  */
@@ -1172,27 +2154,75 @@ function displayAiGeneratedProducts(products, title) {
   products.forEach((product, index) => {
     const card = document.createElement('div');
     card.className = 'product-card';
-    // 注意：这里我们给卡片一个临时的唯一ID，方便操作
     card.id = `ai-product-${index}`;
 
+    // ▼▼▼ 在 displayAiGeneratedProducts 函数中 ▼▼▼
+
+    // ★★★ 核心修复：在放入HTML属性前，先对JSON字符串进行转义，防止引号冲突 ★★★
+    // 1. 将商品对象转换为JSON字符串
+    const productJsonString = JSON.stringify(product);
+    // 2. 将字符串中的单引号替换为HTML实体编码
+    const safeProductJsonString = productJsonString.replace(/'/g, '&#39;');
+
     card.innerHTML = `
-            <img src="${product.imageUrl}" class="product-image" alt="${product.name}">
-            <div class="product-info">
-                <div class="product-name">${product.name}</div>
-                <div class="product-price">${product.price.toFixed(2)}</div>
-            </div>
-            <button class="add-to-my-page-btn" data-product='${JSON.stringify(product)}'>+ 添加到我的桃宝</button>
-        `;
+        <div class="product-image-container">
+            <div class="loading-spinner"></div>
+        </div>
+        <div class="product-info">
+            <div class="product-name">${product.name}</div>
+            <div class="product-price">${product.price.toFixed(2)}</div>
+        </div>
+        <button class="add-to-my-page-btn" data-product='${safeProductJsonString}'>+ 添加到我的桃宝</button>
+    `;
     gridEl.appendChild(card);
+
+    // --- ★★★ 核心修改：调用异步函数去加载图片 ★★★ ---
+    // 这个函数会在后台默默生图，成功后再更新这张卡片
+    loadAndDisplayAiProductImage(product, card);
   });
 
   modal.classList.add('visible');
 }
-// ▲▲▲ 新增函数结束 ▲▲▲
 
-// ▼▼▼ 用这块【新代码】替换旧的 handleGenerateProductsAI 函数 ▼▼▼
 /**
- * 核心功能：触发AI【随机】生成商品，并在弹窗中显示
+ * 【全新】辅助函数：为AI生成的单个商品卡片加载图片
+ * @param {object} productData - 商品数据，包含 imagePrompt
+ * @param {HTMLElement} cardElement - 对应的商品卡片DOM元素
+ */
+async function loadAndDisplayAiProductImage(productData, cardElement) {
+  const imageContainer = cardElement.querySelector('.product-image-container');
+  if (!imageContainer) return;
+
+  try {
+    // 1. 【联动】调用我们具备“无限重试”功能的图片生成函数，并传入AI给的专属Prompt
+    const imageUrl = await generateAndLoadImage(productData.imagePrompt);
+
+    // 2. 将生成好的图片URL【回写】到商品数据中，方便“添加到主页”时使用
+    productData.imageUrl = imageUrl;
+    const addButton = cardElement.querySelector('.add-to-my-page-btn');
+    if (addButton) {
+      addButton.dataset.product = JSON.stringify(productData);
+    }
+
+    // 3. 更新卡片UI，用生成的图片替换掉加载动画
+    //    再次检查卡片是否还存在于页面上，防止用户过早关闭弹窗导致错误
+    if (document.body.contains(imageContainer)) {
+      imageContainer.innerHTML = `<img src="${imageUrl}" class="product-image" alt="${productData.name}">`;
+    }
+  } catch (error) {
+    // 理论上，因为 generateAndLoadImage 是无限重试，这里很难被触发
+    // 但为了代码健壮性，我们仍然处理这个万一
+    console.error(`为商品 "${productData.name}" 生成图片失败:`, error);
+    if (document.body.contains(imageContainer)) {
+      imageContainer.innerHTML = `<span>图片加载失败</span>`;
+    }
+  }
+}
+
+// ▲▲▲ 替换结束 ▲▲▲
+
+/**
+ * 【V2.1 | AI生图版】核心功能：触发AI【随机】生成商品，并在弹窗中显示
  */
 async function handleGenerateProductsAI() {
   await showCustomAlert('请稍候...', '正在请求AI生成一批有趣的商品...');
@@ -1209,39 +2239,44 @@ async function handleGenerateProductsAI() {
 # 核心规则
 1.  **商品多样性**: 商品必须有趣、多样，可以包含服装、零食、家居用品、虚拟物品等。
 2.  **分类清晰**: 为每件商品设置一个合理的分类。
-3.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，直接以 '[' 开头，以 ']' 结尾。每个对象代表一件商品，【必须】包含以下字段:
+3.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，每个对象代表一件商品，【必须】包含以下字段:
     -   \`"name"\`: 商品名称 (字符串)
     -   \`"price"\`: 价格 (数字)
-    -   \`"imageUrl"\`: 从'https://i.postimg.cc/kG7C0gGP/11.jpg'和'https://i.postimg.cc/W4svy4Hm/Image-1760206134285.jpg'中随机挑选一张，禁止自己生成。
     -   \`"category"\`: 商品分类 (字符串)
+    -   \`"imagePrompt"\`: 一个详细的、用于文生图AI的【英文提示词】，描述这张商品的【产品展示图 (product shot)】。风格要求【干净、简约、纯色或渐变背景 (clean, minimalist, solid color background)】。
 
 # JSON输出格式示例:
 [
   {
     "name": "会发光的蘑菇小夜灯",
     "price": 49.9,
-    "imageUrl": "https://i.postimg.cc/W4svy4Hm/Image-1760206134285.jpg",
-    "category": "家居"
+    "category": "家居",
+    "imagePrompt": "A glowing mushroom-shaped night light, minimalist, product shot, studio lighting, simple gradient background, high detail, photorealistic"
   }
 ]`;
 
   try {
     const messagesForApi = [{ role: 'user', content: prompt }];
-    let isGemini = proxyUrl === GEMINI_API_URL;
-    let geminiConfig = toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini);
 
-    const response = isGemini
-      ? await fetch(geminiConfig.url, geminiConfig.data)
-      : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({
-            model: model,
-            messages: messagesForApi,
-            temperature: parseFloat(state.apiConfig.temperature) || 0.8,
-            response_format: { type: 'json_object' },
-          }),
-        });
+    // ★★★ 核心修复：恢复对 Gemini 和 OpenAI 的兼容判断逻辑 ★★★
+    const isGemini = proxyUrl === GEMINI_API_URL;
+    const requestData = isGemini
+      ? toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini)
+      : {
+          url: `${proxyUrl}/v1/chat/completions`,
+          options: {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+            body: JSON.stringify({
+              model: model,
+              messages: messagesForApi,
+              temperature: 1.1,
+              response_format: { type: 'json_object' },
+            }),
+          },
+        };
+
+    const response = await fetch(requestData.url, requestData.options);
 
     if (!response.ok) throw new Error(`API请求失败: ${await response.text()}`);
 
@@ -1251,7 +2286,6 @@ async function handleGenerateProductsAI() {
     const newProducts = JSON.parse(cleanedContent);
 
     if (Array.isArray(newProducts) && newProducts.length > 0) {
-      // 【核心修改】不再直接保存，而是调用显示函数
       displayAiGeneratedProducts(newProducts, 'AI随机生成了以下宝贝');
     } else {
       throw new Error('AI返回的数据格式不正确。');
@@ -1261,7 +2295,6 @@ async function handleGenerateProductsAI() {
     await showCustomAlert('生成失败', `发生错误: ${error.message}`);
   }
 }
-// ▲▲▲ 替换结束 ▲▲▲
 
 /**
  * 处理用户点击商品卡片的逻辑（购买）
@@ -1332,6 +2365,32 @@ async function showProductActions(productId) {
   }
 }
 // ▼▼▼ 把这两块全新的函数，粘贴到 init() 函数的上方 ▼▼▼
+/**
+ * 【全新】长按饿了么美食时显示操作菜单
+ * @param {number} foodId - 美食的ID
+ */
+async function showFoodActions(foodId) {
+  const choice = await showChoiceModal('操作', [
+    { text: '✏️ 编辑', value: 'edit' },
+    { text: '🗑️ 删除', value: 'delete' },
+  ]);
+
+  if (choice === 'edit') {
+    // 调用我们即将修改的、支持编辑的函数
+    openFoodEditor(foodId);
+  } else if (choice === 'delete') {
+    const food = await db.elemeFoods.get(foodId);
+    if (!food) return;
+    const confirmed = await showCustomConfirm('确认删除', `确定要删除“${food.name}”吗？`, {
+      confirmButtonClass: 'btn-danger',
+    });
+    if (confirmed) {
+      await db.elemeFoods.delete(foodId);
+      await renderElemeFoods(); // 重新渲染列表
+      await showCustomAlert('删除成功', '该美食已从列表中移除。');
+    }
+  }
+}
 
 /**
  * 【全新】核心函数：更新用户余额并记录一笔交易
@@ -2213,105 +3272,107 @@ function initTaobao() {
     }
   });
 
-  // 2. 使用事件委托，处理商品列表和购物车列表中的所有点击
+  // 使用事件委托，统一处理桃宝所有页面的点击事件
   document.getElementById('taobao-screen').addEventListener('click', async e => {
     const target = e.target;
-    // 【全新】处理“我的”页面中删除交易记录按钮的点击
-    if (target.classList.contains('delete-transaction-btn')) {
-      const transactionId = parseInt(target.dataset.transactionId, 10);
-      if (!isNaN(transactionId)) {
-        // 调用我们刚刚创建的核心删除函数
-        await handleDeleteTransaction(transactionId);
+
+    // --- 桃宝首页 ---
+    if (target.closest('#products-view')) {
+      const productCard = target.closest('.product-card');
+      // 如果点击的是商品卡片本身（而不是添加购物车按钮）
+      if (productCard && !target.classList.contains('add-cart-btn')) {
+        // 调用桃宝的详情函数
+        await openProductDetail(parseInt(productCard.dataset.productId));
       }
-      return; // 处理完后直接返回
-    }
-    // ▲▲▲ 新代码粘贴结束 ▲▲▲
-    // 点击“加入购物车”按钮
-    if (target.classList.contains('add-cart-btn')) {
-      const productId = parseInt(target.dataset.productId);
-      if (!isNaN(productId)) {
-        await handleAddToCart(productId);
+      // 如果点击的是添加购物车按钮
+      else if (target.classList.contains('add-cart-btn')) {
+        await handleAddToCart(parseInt(target.dataset.productId));
       }
-      return;
+      // 如果点击的是分类页签
+      else if (target.closest('.category-tab-btn')) {
+        const category =
+          target.closest('.category-tab-btn').dataset.category === 'all'
+            ? null
+            : target.closest('.category-tab-btn').dataset.category;
+        await renderTaobaoProducts(category);
+      }
     }
 
-    // 点击商品卡片（图片或信息区），打开详情页
-    const productCard = target.closest('.product-card');
-    if (productCard && !target.classList.contains('add-cart-btn')) {
-      const productId = parseInt(productCard.dataset.productId);
-      if (!isNaN(productId)) {
-        await openProductDetail(productId);
+    // --- 饿了么页 (★★★★★ 核心修复在这里 ★★★★★) ---
+    else if (target.closest('#eleme-view')) {
+      // 处理顶部的几个功能按钮
+      if (target.closest('#eleme-search-btn')) {
+        handleSearchFoodsAI();
+      } else if (target.closest('#eleme-add-manual-btn')) {
+        openFoodEditor();
+      } else if (target.closest('#eleme-generate-ai-btn')) {
+        handleGenerateFoodsAI();
       }
-      return;
-    }
-
-    // 点击购物车里的商品（图片或信息区），打开详情页
-    const cartItem = target.closest('.cart-item');
-    if (cartItem && (target.classList.contains('product-image') || target.closest('.cart-item-info'))) {
-      const productId = parseInt(target.dataset.productId);
-      if (!isNaN(productId)) {
-        await openProductDetail(productId);
+      // 【关键修复】处理美食卡片的点击
+      else {
+        const foodCard = target.closest('.product-card');
+        if (foodCard) {
+          const foodId = parseInt(foodCard.dataset.foodId);
+          if (!isNaN(foodId)) {
+            // ★★★ 当在饿了么页面点击卡片时，确保调用的是 openFoodDetail 函数！ ★★★
+            await openFoodDetail(foodId);
+          }
+        }
       }
-      return;
     }
 
-    // 点击购物车数量控制按钮
-    if (target.classList.contains('quantity-increase')) {
-      const cartId = parseInt(target.dataset.cartId);
-      if (!isNaN(cartId)) await handleChangeCartItemQuantity(cartId, 1);
-      return;
-    }
-    if (target.classList.contains('quantity-decrease')) {
-      const cartId = parseInt(target.dataset.cartId);
-      if (!isNaN(cartId)) await handleChangeCartItemQuantity(cartId, -1);
-      return;
-    }
-
-    // 点击购物车删除按钮
-    if (target.classList.contains('delete-cart-item-btn')) {
-      const cartId = parseInt(target.dataset.cartId);
-      if (!isNaN(cartId)) {
+    // --- 购物车页 ---
+    else if (target.closest('#cart-view')) {
+      if (target.closest('.cart-item-info') || target.classList.contains('product-image')) {
+        const cartItem = target.closest('.cart-item');
+        if (cartItem) {
+          // 这里虽然也打开商品详情，但是从购物车点进去是合理的
+          const productId =
+            parseInt(cartItem.querySelector('.delete-cart-item-btn').dataset.productId) ||
+            parseInt(target.dataset.productId);
+          await openProductDetail(productId);
+        }
+      } else if (target.classList.contains('quantity-increase')) {
+        await handleChangeCartItemQuantity(parseInt(target.dataset.cartId), 1);
+      } else if (target.classList.contains('quantity-decrease')) {
+        await handleChangeCartItemQuantity(parseInt(target.dataset.cartId), -1);
+      } else if (target.classList.contains('delete-cart-item-btn')) {
         const confirmed = await showCustomConfirm('移出购物车', '确定要删除这个宝贝吗？');
-        if (confirmed) await handleRemoveFromCart(cartId);
+        if (confirmed) await handleRemoveFromCart(parseInt(target.dataset.cartId));
+      } else if (target.id === 'checkout-btn') {
+        await handleCheckout();
+      } else if (target.id === 'share-cart-to-char-btn') {
+        await handleShareCartRequest();
+      } else if (target.id === 'buy-for-char-btn') {
+        await handleBuyForChar();
       }
-      return;
     }
 
-    // 点击分类页签
-    const categoryTab = target.closest('.category-tab-btn');
-    if (categoryTab) {
-      const category = categoryTab.dataset.category === 'all' ? null : categoryTab.dataset.category;
-      await renderTaobaoProducts(category);
-      return;
+    // --- 订单页 ---
+    else if (target.closest('#orders-view')) {
+      const orderItem = target.closest('.order-item');
+      if (orderItem) await openLogisticsView(parseInt(orderItem.dataset.orderId));
     }
-  });
 
-  // 3. 绑定商品详情弹窗的关闭按钮
-  document.getElementById('close-product-detail-btn').addEventListener('click', () => {
-    document.getElementById('product-detail-modal').classList.remove('visible');
-  });
-
-  // 4. 绑定结算按钮
-  document.getElementById('checkout-btn').addEventListener('click', handleCheckout);
-
-  // ▲▲▲ 新增事件监听结束 ▲▲▲
-
-  // ▼▼▼ 用这块新代码替换旧的 'top-up-btn' 事件监听器 ▼▼▼
-  document.getElementById('top-up-btn').addEventListener('click', async () => {
-    const amountStr = await showCustomPrompt('充值', '请输入要充值的金额 (元):', '', 'number');
-    if (amountStr !== null) {
-      const amount = parseFloat(amountStr);
-      if (!isNaN(amount) && amount > 0) {
-        // 【核心修改】调用我们的新函数来处理充值和记录
-        await updateUserBalanceAndLogTransaction(amount, '充值');
-        await renderBalanceDetails(); // 刷新余额和明细
-        alert(`成功充值 ¥${amount.toFixed(2)}！`);
-      } else {
-        alert('请输入有效的金额！');
+    // --- 我的页面 ---
+    else if (target.closest('#my-view')) {
+      if (target.id === 'top-up-btn') {
+        const amountStr = await showCustomPrompt('充值', '请输入要充值的金额 (元):', '', 'number');
+        if (amountStr !== null) {
+          const amount = parseFloat(amountStr);
+          if (!isNaN(amount) && amount > 0) {
+            await updateUserBalanceAndLogTransaction(amount, '充值');
+            await renderBalanceDetails();
+            alert(`成功充值 ¥${amount.toFixed(2)}！`);
+          } else {
+            alert('请输入有效的金额！');
+          }
+        }
+      } else if (target.classList.contains('delete-transaction-btn')) {
+        await handleDeleteTransaction(parseInt(target.dataset.transactionId));
       }
     }
   });
-  // ▲▲▲ 替换结束 ▲▲▲
 
   // 4. 绑定首页右上角的“+”按钮
   document.getElementById('add-product-btn').addEventListener('click', openAddProductChoiceModal);
@@ -2375,6 +3436,36 @@ function initTaobao() {
     }
   });
   // ▲▲▲ 替换结束 ▲▲▲
+  // ▼▼▼ 饿了么功能的核心事件监听器 ▼▼▼
+  document.getElementById('eleme-view').addEventListener('click', async e => {
+    // AI生成按钮
+    if (e.target.closest('#eleme-generate-ai-btn')) {
+      handleGenerateFoodsAI();
+      return;
+    }
+    // 手动添加按钮
+    if (e.target.closest('#eleme-add-manual-btn')) {
+      openFoodEditor();
+      return;
+    }
+    // 搜索按钮
+    if (e.target.closest('#eleme-search-btn')) {
+      handleSearchFoodsAI();
+      return;
+    }
+    // ★★★ 核心修改：现在监听整个美食卡片的点击 ★★★
+    const foodCard = e.target.closest('.product-card');
+    if (foodCard) {
+      const foodId = parseInt(foodCard.dataset.foodId);
+      if (!isNaN(foodId)) {
+        // 点击卡片后，调用我们新写的函数打开详情页
+        await openFoodDetail(foodId);
+      }
+    }
+  });
+  // ▲▲▲ 饿了么事件监听结束 ▲▲▲
+  // 绑定饿了么的“清空”按钮
+  document.getElementById('eleme-clear-all-btn').addEventListener('click', clearElemeFoods);
 
   // ▼▼▼ 把这一整块全新的事件监听器代码，粘贴到 init() 的事件监听器区域末尾 ▼▼▼
 
@@ -2395,20 +3486,27 @@ function initTaobao() {
     await renderTaobaoProducts();
   });
 
+  // taobao.js -> initTaobao() 函数内
+
   // 3. 使用事件委托，处理结果弹窗内所有“添加”按钮的点击
   document.getElementById('ai-product-results-grid').addEventListener('click', async e => {
     if (e.target.classList.contains('add-to-my-page-btn')) {
       const button = e.target;
       const productData = JSON.parse(button.dataset.product);
-      // ▼▼▼ 在这里粘贴下面这段新代码 ▼▼▼
-      // 【核心修改】如果AI返回的商品数据里没有图片URL
+
+      // ★★★★★ 这就是我们这次唯一的、核心的修改！ ★★★★★
+      // 1. 检查AI返回的商品数据里是否已经成功生成了图片URL
       if (!productData.imageUrl) {
-        // 就调用我们的辅助函数，给它一张随机默认图
-        productData.imageUrl = getRandomDefaultProductImage();
-        console.log(`AI生成的商品 "${productData.name}" 缺少图片，已自动补充默认图。`);
+        // 2. 如果【没有】图片URL（即生图失败了），
+        //    我们就手动将它的imageUrl设置为空字符串''。
+        productData.imageUrl = '';
+        console.log(`AI生成的商品 "${productData.name}" 缺少图片，将添加到主页后继续尝试生成。`);
       }
-      // ▲▲▲ 新增代码粘贴结束 ▲▲▲
-      // 检查商品是否已存在
+      // 3. 如果已经有图片URL了，就什么也不做，直接使用现有的URL。
+      //    我们不再需要那个补充默认图的 else 分支了。
+      // ★★★★★ 修改结束 ★★★★★
+
+      // 检查商品是否已存在（这部分逻辑不变）
       const existingProduct = await db.taobaoProducts.where('name').equals(productData.name).first();
       if (existingProduct) {
         alert('这个商品已经存在于你的桃宝主页啦！');
@@ -2417,15 +3515,12 @@ function initTaobao() {
         return;
       }
 
-      // 添加到数据库
+      // 添加到数据库（现在，生图失败的商品会以 imageUrl: '' 的形式被保存）
       await db.taobaoProducts.add(productData);
 
       // 禁用按钮并更新文本，给用户反馈
       button.textContent = '✓ 已添加';
       button.disabled = true;
-
-      // （可选）给个小提示
-      // await showCustomAlert('添加成功', `“${productData.name}”已添加到你的桃宝！`);
     }
   });
 
