@@ -18255,3 +18255,95 @@ body {
 }
 
 /* ▲▲▲ 替换结束 ▲▲▲ */
+/* ▼▼▼ 【全新】情侣空间 - 今日足迹样式 ▼▼▼ */
+
+/* 生成按钮的容器 */
+.ls-activity-generate-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.ls-activity-generate-container p {
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.ls-activity-generate-container .hint {
+    font-size: 12px;
+    color: #b0b0b0;
+    margin-top: 10px;
+}
+
+#ls-generate-activity-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    transition: all 0.2s ease;
+}
+
+#ls-generate-activity-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+}
+
+/* 活动列表样式 */
+#ls-activity-list {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.ls-activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.activity-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    background-color: #f0f2f5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.activity-content {
+    padding-top: 2px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 20px;
+    flex-grow: 1;
+}
+
+.ls-activity-item:last-child .activity-content {
+    border-bottom: none;
+}
+
+.activity-time {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.activity-description {
+    margin: 4px 0 0 0;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* ▲▲▲ 今日足迹样式结束 ▲▲▲ */

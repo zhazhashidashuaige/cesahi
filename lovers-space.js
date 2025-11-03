@@ -3,6 +3,7 @@ let activeLoveLetter = null; // 用于暂存正在查看或回复的情书
 let activeQuestionId = null; // 用于暂存正在回答的问题ID
 let currentDiaryDate = null; // 用于暂存正在编辑或查看的日记日期
 let tempUploadedPhotos = []; // 暂存待上传的照片
+let lsActivityTimer = null;
 // ▼▼▼ 【全新】这是情侣空间专属音乐播放器的状态管理器 ▼▼▼
 let lsMusicState = {
   playlist: [], // 播放列表
@@ -288,7 +289,8 @@ async function openLoversSpace(charId) {
       loveLetters: [],
       shares: [],
       questions: [],
-      emotionDiaries: {}, // <--- 就是新增了这一行！
+      emotionDiaries: {}, // <--- 就是在这里新增了这一行！
+      dailyActivity: {},
     };
     // ▲▲▲ 替换结束 ▲▲▲
     await db.chats.put(chat);
@@ -355,34 +357,253 @@ async function renderLoversSpace(chat) {
 
 // ▲▲▲ 替换到这里结束 ▲▲▲
 
-// ▼▼▼ 用这块新代码替换旧的 switchLoversSpaceTab 函数 ▼▼▼
 /**
- * 切换情侣空间的页签
+ * 【V2 - 已集成今日足迹】切换情侣空间的页签
  */
 function switchLoversSpaceTab(viewId) {
-  document.querySelectorAll('.ls-view').forEach(v => (v.style.display = 'none')); // 使用style来隐藏
-  const targetView = document.getElementById(viewId);
-  if (targetView) targetView.style.display = 'block'; // 使用style来显示
+  // 1. 清理旧的定时器，防止内存泄漏
+  if (lsActivityTimer) {
+    clearInterval(lsActivityTimer);
+    lsActivityTimer = null;
+  }
 
-  // 【核心修改】根据当前页签，显示对应的浮动按钮
+  // 2. 切换视图显示 (这部分逻辑不变)
+  document.querySelectorAll('.ls-view').forEach(v => (v.style.display = 'none'));
+  const targetView = document.getElementById(viewId);
+  if (targetView) targetView.style.display = 'block';
+
+  // 3. 切换浮动按钮的显示 (这部分逻辑不变)
   const fabMoment = document.getElementById('ls-add-moment-btn');
   const fabAlbum = document.getElementById('ls-add-album-btn');
   const fabLetter = document.getElementById('ls-add-letter-btn');
   const fabQuestion = document.getElementById('ls-add-question-btn');
-
-  // 先隐藏所有
   if (fabMoment) fabMoment.style.display = 'none';
   if (fabAlbum) fabAlbum.style.display = 'none';
   if (fabLetter) fabLetter.style.display = 'none';
   if (fabQuestion) fabQuestion.style.display = 'none';
-
-  // 再根据viewId显示对应的
   if (viewId === 'ls-moments-view' && fabMoment) fabMoment.style.display = 'block';
   else if (viewId === 'ls-album-view' && fabAlbum) fabAlbum.style.display = 'block';
   else if (viewId === 'ls-letters-view' && fabLetter) fabLetter.style.display = 'block';
   else if (viewId === 'ls-questions-view' && fabQuestion) fabQuestion.style.display = 'block';
+
+  // 4. 【核心新增】如果切换到了“今日足迹”页，就调用它的专属渲染函数
+  if (viewId === 'ls-activity-view') {
+    const chat = state.chats[activeLoversSpaceCharId];
+    renderLSDailyActivity(chat);
+  }
 }
-// ▲▲▲ 替换结束 ▲▲▲
+/* =================================================================== */
+/* === 【全新】情侣空间 - 今日足迹功能核心函数 === */
+/* =================================================================== */
+
+/**
+ * 渲染“今日足迹”的主界面
+ * @param {object} chat - 当前角色的聊天对象
+ */
+function renderLSDailyActivity(chat) {
+  const viewEl = document.getElementById('ls-activity-view');
+  viewEl.innerHTML = ''; // 每次渲染都清空
+
+  if (!chat || !chat.loversSpaceData) {
+    viewEl.innerHTML = '<p class="ls-empty-placeholder">数据错误，无法加载今日足迹。</p>';
+    return;
+  }
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayActivities = chat.loversSpaceData.dailyActivity?.[todayStr];
+
+  if (!todayActivities) {
+    // 如果今天还没有生成过，就显示“生成”按钮
+    viewEl.innerHTML = `
+            <div class="ls-activity-generate-container">
+                <p>今天的足迹还是空白的...</p>
+                <button id="ls-generate-activity-btn">生成今天的足迹</button>
+                <p class="hint">（此操作每天只能进行一次）</p>
+            </div>
+        `;
+    document.getElementById('ls-generate-activity-btn').onclick = () => handleGenerateDailyActivity(chat);
+  } else {
+    // 如果已经生成了，就显示活动列表并启动定时器
+    const listContainer = document.createElement('div');
+    listContainer.id = 'ls-activity-list';
+    viewEl.appendChild(listContainer);
+
+    displayDailyActivities(todayActivities); // 先显示一次当前时间前的记录
+
+    // 启动定时器，每分钟刷新一次列表，以解锁新记录
+    lsActivityTimer = setInterval(() => {
+      const hasAllDisplayed = displayDailyActivities(todayActivities);
+      if (hasAllDisplayed) {
+        clearInterval(lsActivityTimer);
+        lsActivityTimer = null;
+        console.log('今日足迹已全部显示，定时器已停止。');
+      }
+    }, 60 * 1000); // 每60秒检查一次
+  }
+}
+
+/**
+ * 【UI渲染】显示当天的活动列表
+ * @param {Array} activities - 当天所有活动的数组
+ * @returns {boolean} - 如果所有活动都已显示，返回 true
+ */
+function displayDailyActivities(activities) {
+  const listEl = document.getElementById('ls-activity-list');
+  listEl.innerHTML = '';
+  const now = Date.now();
+
+  const visibleActivities = activities.filter(act => act.timestamp <= now);
+
+  if (visibleActivities.length === 0) {
+    listEl.innerHTML = '<p class="ls-empty-placeholder">Ta今天还没开始活动呢...</p>';
+  } else {
+    visibleActivities.forEach(activity => {
+      const itemEl = document.createElement('div');
+      itemEl.className = 'ls-activity-item';
+
+      const activityTime = new Date(activity.timestamp);
+      const timeString = `${String(activityTime.getHours()).padStart(2, '0')}:${String(
+        activityTime.getMinutes(),
+      ).padStart(2, '0')}`;
+      const durationText = activity.duration ? ` | ${activity.duration}` : '';
+
+      itemEl.innerHTML = `
+                <div class="activity-icon">${activity.icon}</div>
+                <div class="activity-content">
+                    <span class="activity-time">${timeString}</span>
+                    <p class="activity-description">${activity.description}${durationText}</p>
+                </div>
+            `;
+      listEl.appendChild(itemEl);
+    });
+  }
+
+  // 检查是否所有活动都已显示
+  return visibleActivities.length === activities.length;
+}
+
+/**
+ * 【AI核心】触发AI生成一整天的手机活动记录
+ * @param {object} chat - 当前角色的聊天对象
+ */
+async function handleGenerateDailyActivity(chat) {
+  await showCustomAlert('请稍候...', `AI正在为“${chat.name}”规划一天的生活...`);
+
+  const { proxyUrl, apiKey, model } = state.apiConfig;
+  if (!proxyUrl || !apiKey || !model) {
+    alert('请先配置API！');
+    return;
+  }
+
+  const systemPrompt = `
+# 角色扮演任务
+你是一个手机活动模拟器。你的任务是根据角色“${chat.name}”的人设，为Ta生成一整天（从早上8点到晚上23点）的、详细且真实的手机使用记录。
+
+# 角色人设 (必须严格遵守)
+${chat.settings.aiPersona}
+
+# 核心规则
+1.  **时间连贯性**: 你的活动记录必须按时间顺序排列，覆盖全天。
+2.  **内容多样性**: 活动类型应丰富多样，包括但不限于：
+    -   **应用使用**: 微信、微博、Bilibili、游戏、购物App、音乐App等。
+    -   **手机状态**: 充电、电量低、关机、开机。
+    -   **其他**: 设置闹钟、查看天气、浏览新闻等。
+3.  **符合人设**: 所有活动都必须与角色的性格、职业和兴趣爱好高度相关。例如，一个爱打游戏的角色，游戏App的使用时长应该更长。
+4.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，每个对象代表一条活动记录，包含以下4个字段：
+    -   \`"time"\`: (字符串) 活动发生的时间，格式为 "HH:mm" (例如 "09:15", "22:00")。
+    -   \`"description"\`: (字符串) 对活动的简短描述 (例如: "刷B站", "和朋友微信聊天", "手机开始充电")。
+    -   \`"duration"\`: (字符串, 可选) 活动持续的时长 (例如: "30分钟", "1小时", "直到电量充满")。如果活动是瞬间完成的，则省略此字段。
+    -   \`"icon"\`: (字符串) 代表此活动的单个emoji或svg图标。
+
+# JSON输出格式示例:
+[
+  {
+    "time": "08:00",
+    "description": "关闭闹钟",
+    "icon": "⏰"
+  },
+  {
+    "time": "09:30",
+    "description": "刷微博",
+    "duration": "45分钟",
+    "icon": "📱"
+  },
+  {
+    "time": "18:05",
+    "description": "手机开始充电，当前电量20%",
+    "duration": "约1小时",
+    "icon": "🔌"
+  }
+]
+`;
+
+  try {
+    const messagesForApi = [{ role: 'user', content: systemPrompt }];
+    let isGemini = proxyUrl === GEMINI_API_URL;
+    let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+
+    const response = await fetch(
+      isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`,
+      isGemini
+        ? geminiConfig.data
+        : {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+            body: JSON.stringify({
+              model: model,
+              messages: messagesForApi,
+              temperature: 1.0,
+              response_format: { type: 'json_object' },
+            }),
+          },
+    );
+
+    if (!response.ok) throw new Error(`API请求失败: ${response.status} - ${await response.text()}`);
+
+    const data = await response.json();
+    const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content)
+      .replace(/^```json\s*|```$/g, '')
+      .trim();
+    console.log('【AI每日足迹 - 原始输出】:', rawContent);
+    const generatedActivities = JSON.parse(rawContent);
+
+    if (Array.isArray(generatedActivities)) {
+      const today = new Date();
+      const todayDateStr = today.toISOString().split('T')[0];
+
+      // 将AI返回的时间字符串转换为完整的时间戳
+      const processedActivities = generatedActivities.map(act => {
+        const [hours, minutes] = act.time.split(':').map(Number);
+        const activityDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes);
+        return { ...act, timestamp: activityDate.getTime() };
+      });
+
+      // 保存到数据库
+      if (!chat.loversSpaceData.dailyActivity) {
+        chat.loversSpaceData.dailyActivity = {};
+      }
+      chat.loversSpaceData.dailyActivity[todayDateStr] = processedActivities;
+      await db.chats.put(chat);
+
+      // 重新渲染界面
+      renderLSDailyActivity(chat);
+    } else {
+      throw new Error('AI返回的数据格式不正确。');
+    }
+  } catch (error) {
+    console.error('生成今日足迹失败:', error);
+    await showCustomAlert('生成失败', `发生了一个错误：\n${error.message}`);
+    // 失败时，恢复“生成”按钮的显示
+    const viewEl = document.getElementById('ls-activity-view');
+    viewEl.innerHTML = `
+            <div class="ls-activity-generate-container">
+                <p style="color:red;">生成失败，请重试！</p>
+                <button id="ls-generate-activity-btn">重新生成</button>
+            </div>
+        `;
+    document.getElementById('ls-generate-activity-btn').onclick = () => handleGenerateDailyActivity(chat);
+  }
+}
 
 /**
  * 【全新】处理更换情侣空间背景的逻辑
