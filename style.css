@@ -17929,8 +17929,6 @@ body {
   max-width: 250px; /* 让卡片宽度适中 */
 }
 
-
-
 /* ▲▲▲ 粘贴结束 ▲▲▲ */
 /* 这是为异步加载图片新增的容器样式 */
 .product-card .product-image-container {
@@ -17983,19 +17981,19 @@ body {
 /* ▲▲▲ 修复结束 ▲▲▲ */
 /* 外卖卡片备注样式 */
 .waimai-remark {
-    margin-top: 12px;
-    padding-top: 8px;
-    border-top: 1px dashed rgba(0, 0, 0, 0.1);
-    font-size: 13px;
-    text-align: left;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+  font-size: 13px;
+  text-align: left;
 }
 .waimai-remark .remark-label {
-    font-weight: 600;
-    color: #007bff; /* 饿了么蓝 */
-    margin-right: 5px;
+  font-weight: 600;
+  color: #007bff; /* 饿了么蓝 */
+  margin-right: 5px;
 }
 .waimai-remark .remark-text {
-    color: #333;
+  color: #333;
 }
 /* ▼▼▼ 这是为“首页”搜索栏新增的美化代码 ▼▼▼ */
 
@@ -18026,7 +18024,7 @@ body {
 
 /* 3. 美化首页的“搜索”按钮 */
 #products-view #product-search-btn {
-  background-color: #FF5722; /* 淘宝橙色 */
+  background-color: #ff5722; /* 淘宝橙色 */
   color: white;
   border: none;
   border-radius: 18px; /* 让按钮也变圆润 */
@@ -18068,7 +18066,7 @@ body {
 }
 
 .eleme-search-group #eleme-search-btn {
-  background-color: #FF5722; /* 淘宝橙 */
+  background-color: #ff5722; /* 淘宝橙 */
   color: white;
   border: none;
   border-radius: 18px; /* 按钮也变圆润 */
@@ -18128,17 +18126,17 @@ body {
 /* 2. 重新定义按钮的样式，让它变小 */
 .eleme-actions-group button {
   /* --- 核心修改在这里 --- */
-  width: 90px;                  /* 新增：给按钮一个固定的、小巧的宽度 */
-  padding: 6px 0;               /* 修改：减少了上下的内边距，让按钮变矮 */
-  font-size: 15px;              /* 修改：稍微缩小字体 */
-  
+  width: 90px; /* 新增：给按钮一个固定的、小巧的宽度 */
+  padding: 6px 0; /* 修改：减少了上下的内边距，让按钮变矮 */
+  font-size: 15px; /* 修改：稍微缩小字体 */
+
   background-color: transparent;
   border: 1.5px solid #ff9a69;
   color: #ff5722;
   border-radius: 20px;
   font-weight: 600;
   transition: all 0.2s ease;
-  
+
   /* 移除之前让按钮自动拉伸的属性 */
   flex: none; /* 或者直接删除 flex: 1 那一行 */
 }
@@ -18146,7 +18144,7 @@ body {
 /* 3. 单独微调 "+" 按钮，让它看起来更舒服 */
 #eleme-add-manual-btn {
   font-size: 22px; /* 把加号本身放大一点，视觉上更平衡 */
-  line-height: 1;  /* 辅助垂直居中 */
+  line-height: 1; /* 辅助垂直居中 */
 }
 
 /* 4. 交互效果保持不变 */
@@ -18193,8 +18191,9 @@ body {
 
 /* 2. 统一设置头部的样式（美团黄！） */
 .waimai-meituan-card .gift-card-header,
-.waimai-gift-card .header { /* 兼容两种不同的头部class名 */
-  background-color: #FFD100; /* 美团黄 */
+.waimai-gift-card .header {
+  /* 兼容两种不同的头部class名 */
+  background-color: #ffd100; /* 美团黄 */
   color: #333333;
   padding: 10px 15px;
   display: flex;
@@ -18214,7 +18213,7 @@ body {
   font-weight: 600;
   font-size: 15px;
   flex-grow: 1; /* 允许标题占据剩余空间 */
-  min-width: 0;  /* flex布局下换行的关键 */
+  min-width: 0; /* flex布局下换行的关键 */
   white-space: normal; /* 允许换行 */
 }
 
@@ -18241,17 +18240,17 @@ body {
 
 .waimai-meituan-card .waimai-remark,
 .waimai-gift-card .footer {
-    margin-top: 12px;
-    padding-top: 8px;
-    border-top: 1px dashed #e0e0e0;
-    font-size: 13px;
-    text-align: left;
-    color: #555;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px dashed #e0e0e0;
+  font-size: 13px;
+  text-align: left;
+  color: #555;
 }
 .waimai-meituan-card .waimai-remark .remark-label {
-    font-weight: 600;
-    color: #8a8a8a;
-    margin-right: 5px;
+  font-weight: 600;
+  color: #8a8a8a;
+  margin-right: 5px;
 }
 
 /* ▲▲▲ 替换结束 ▲▲▲ */
@@ -18259,91 +18258,265 @@ body {
 
 /* 生成按钮的容器 */
 .ls-activity-generate-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-    text-align: center;
-    color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  color: var(--text-secondary);
 }
 
 .ls-activity-generate-container p {
-    margin-bottom: 20px;
-    font-size: 16px;
+  margin-bottom: 20px;
+  font-size: 16px;
 }
 
 .ls-activity-generate-container .hint {
-    font-size: 12px;
-    color: #b0b0b0;
-    margin-top: 10px;
+  font-size: 12px;
+  color: #b0b0b0;
+  margin-top: 10px;
 }
 
 #ls-generate-activity-btn {
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
-    transition: all 0.2s ease;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  transition: all 0.2s ease;
 }
 
 #ls-generate-activity-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
 }
 
 /* 活动列表样式 */
 #ls-activity-list {
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .ls-activity-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
 }
 
 .activity-icon {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    background-color: #f0f2f5;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  background-color: #f0f2f5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .activity-content {
-    padding-top: 2px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 20px;
-    flex-grow: 1;
+  padding-top: 2px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 20px;
+  flex-grow: 1;
 }
 
 .ls-activity-item:last-child .activity-content {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .activity-time {
-    font-weight: 600;
-    color: var(--text-primary);
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .activity-description {
-    margin: 4px 0 0 0;
-    color: var(--text-secondary);
-    line-height: 1.5;
+  margin: 4px 0 0 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
 }
 
 /* ▲▲▲ 今日足迹样式结束 ▲▲▲ */
+/* ▼▼▼ 【优化版】这是每日足迹的胶囊气泡样式 ▼▼▼ */
+
+/* 列表总容器样式（保持不变） */
+#ls-activity-list {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ▼▼▼ 这是【玻璃质感修复版】的胶囊气泡样式 ▼▼▼ */
+.ls-activity-item {
+  position: relative; /* 定位基准，保持不变 */
+
+  /* --- 核心修改：实现玻璃质感 --- */
+  background-color: rgba(255, 255, 255, 0.15); /* 1. 半透明的白色背景 */
+  backdrop-filter: blur(10px) saturate(1.5); /* 2. 核心！毛玻璃模糊效果并增加一点饱和度 */
+  -webkit-backdrop-filter: blur(10px) saturate(1.5); /* 兼容 Safari 浏览器 */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* 3. 一个非常微妙的亮色边框，模拟玻璃边缘 */
+  /* --- 修改结束 --- */
+
+  border-radius: 50px; /* 胶囊形状，保持不变 */
+  padding: 12px 20px 12px 75px; /* 内边距，保持不变 */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 38px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 可以保留一个更柔和的阴影 */
+}
+/* ▲▲▲ 替换结束 ▲▲▲ */
+
+/* ★★★ 核心修改 1：调整时间戳的位置和外观 ★★★ */
+.ls-activity-item .activity-time {
+  position: absolute;
+  left: 20px; /* 距离左边缘20px */
+  top: 13px; /* 距离顶部13px，使其在视觉上更协调 */
+  /* 移除了 transform 和垂直居中的代码 */
+
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  /* 移除了背景色，让它更纯净 */
+  padding: 0;
+  background-color: transparent;
+}
+
+/* ★★★ 核心修改 2：确保 Emoji 图标本身没有背景 ★★★ */
+.ls-activity-item .activity-icon {
+  font-size: 20px;
+  background: none; /* 明确设置背景为无，防止意外样式 */
+}
+
+/* 中间主要内容的容器（保持不变） */
+.ls-activity-item .activity-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.4;
+}
+
+/* 描述文字的样式（保持不变） */
+.ls-activity-item .activity-description {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+/* 时长文字的样式（保持不变） */
+.ls-activity-item .activity-duration {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ▲▲▲ 样式替换结束 ▲▲▲ */
+/* ▼▼▼ 【全新】情侣空间 - 今日足迹HTML小剧场样式 ▼▼▼ */
+
+/* 小剧场卡片的通用容器样式 */
+.ls-activity-snippet {
+  width: 85%;
+  max-width: 280px; /* 限制最大宽度，避免在宽屏上太丑 */
+  margin: 10px auto 25px auto; /* 上下边距，左右自动居中 */
+  padding: 15px;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
+    'Helvetica Neue', sans-serif;
+  color: #333;
+}
+
+/* 电影票根的专属样式 */
+.movie-ticket {
+  padding: 0;
+  border: 1px dashed #ccc;
+  position: relative;
+}
+.movie-ticket::before,
+.movie-ticket::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: var(--secondary-bg, #f0f2f5); /* 确保和背景色一致 */
+  border-radius: 50%;
+  border: 1px dashed #ccc;
+}
+.movie-ticket::before {
+  top: 50%;
+  left: -11px;
+  transform: translateY(-50%);
+}
+.movie-ticket::after {
+  top: 50%;
+  right: -11px;
+  transform: translateY(-50%);
+}
+.movie-ticket .ticket-header {
+  background-color: #d82626;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding: 8px;
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
+}
+.movie-ticket .ticket-body {
+  padding: 15px;
+  text-align: center;
+}
+.movie-ticket .ticket-body h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+.movie-ticket .ticket-body p {
+  margin: 0;
+  font-size: 13px;
+  color: #555;
+}
+
+/* 购物小票/收据的专属样式 */
+.receipt {
+  padding: 10px;
+  background-color: #fffaf0; /* 淡黄色背景 */
+  border: 1px solid #eee;
+  font-family: 'Courier New', Courier, monospace; /* 使用等宽字体，更像小票 */
+}
+.receipt .receipt-header {
+  text-align: center;
+  font-weight: bold;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #ccc;
+  margin-bottom: 8px;
+}
+.receipt ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.receipt ul li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.receipt .receipt-total {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #ccc;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+/* ▲▲▲ 样式添加结束 ▲▲▲ */

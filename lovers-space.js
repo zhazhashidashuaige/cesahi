@@ -442,8 +442,9 @@ function renderLSDailyActivity(chat) {
   }
 }
 
+// ▼▼▼ 用这块【已添加HTML小剧场渲染】的代码，替换旧的 displayDailyActivities 函数 ▼▼▼
 /**
- * 【UI渲染】显示当天的活动列表
+ * 【UI渲染 V2 - 支持HTML小剧场】显示当天的活动列表
  * @param {Array} activities - 当天所有活动的数组
  * @returns {boolean} - 如果所有活动都已显示，返回 true
  */
@@ -465,25 +466,65 @@ function displayDailyActivities(activities) {
       const timeString = `${String(activityTime.getHours()).padStart(2, '0')}:${String(
         activityTime.getMinutes(),
       ).padStart(2, '0')}`;
-      const durationText = activity.duration ? ` | ${activity.duration}` : '';
+
+      const durationHtml = activity.duration ? `<span class="activity-duration">${activity.duration}</span>` : '';
 
       itemEl.innerHTML = `
+                <span class="activity-time">${timeString}</span>
                 <div class="activity-icon">${activity.icon}</div>
                 <div class="activity-content">
-                    <span class="activity-time">${timeString}</span>
-                    <p class="activity-description">${activity.description}${durationText}</p>
+                    <p class="activity-description">${activity.description}</p>
+                    ${durationHtml}
                 </div>
             `;
       listEl.appendChild(itemEl);
+
+      // ★★★★★ 这就是本次新增的核心代码！ ★★★★★
+      // 在渲染完主要的活动条目后，检查是否存在 html_snippet
+      if (activity.html_snippet) {
+        // 如果存在，就创建一个新的div来包裹它
+        const snippetEl = document.createElement('div');
+        snippetEl.className = 'ls-activity-snippet'; // 给它一个专属的class，方便我们用CSS美化
+        snippetEl.innerHTML = activity.html_snippet; // 把AI生成的HTML代码直接放进去
+        listEl.appendChild(snippetEl); // 添加到列表末尾
+      }
+      // ★★★★★ 新增代码结束 ★★★★★
     });
   }
 
   // 检查是否所有活动都已显示
   return visibleActivities.length === activities.length;
 }
-
+// ▲▲▲ 替换结束 ▲▲▲
 /**
- * 【AI核心】触发AI生成一整天的手机活动记录
+ * 【全新辅助函数】打开文件选择器，并返回本地图片的Base64编码
+ * @returns {Promise<string|null>} - 返回图片的Base64 Data URL，如果用户取消则返回null
+ */
+function uploadImageLocally() {
+  return new Promise(resolve => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*'; // 只接受图片文件
+
+    input.onchange = e => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = readerEvent => {
+          resolve(readerEvent.target.result); // 返回Base64字符串
+        };
+        reader.readAsDataURL(file);
+      } else {
+        resolve(null); // 用户关闭了文件选择框
+      }
+    };
+
+    input.click();
+  });
+}
+// ▼▼▼ 用这块【已添加HTML小剧场】的代码，完整替换你旧的 handleGenerateDailyActivity 函数 ▼▼▼
+/**
+ * 【AI核心 V2 - 支持HTML小剧场】触发AI生成一整天的手机活动记录
  * @param {object} chat - 当前角色的聊天对象
  */
 async function handleGenerateDailyActivity(chat) {
@@ -495,46 +536,40 @@ async function handleGenerateDailyActivity(chat) {
     return;
   }
 
+  // ★★★★★ 核心修改就在这里！ ★★★★★
   const systemPrompt = `
 # 角色扮演任务
-你是一个手机活动模拟器。你的任务是根据角色“${chat.name}”的人设，为Ta生成一整天（从早上8点到晚上23点）的、详细且真实的手机使用记录。
+你是一个手机活动模拟器。你的任务是根据角色“${chat.name}”的人设，为Ta生成一整天（从午夜0点到晚上23点）的、详细且真实的手机使用记录，根据人设规定起床时间。
 
 # 角色人设 (必须严格遵守)
 ${chat.settings.aiPersona}
 
 # 核心规则
 1.  **时间连贯性**: 你的活动记录必须按时间顺序排列，覆盖全天。
-2.  **内容多样性**: 活动类型应丰富多样，包括但不限于：
-    -   **应用使用**: 微信、微博、Bilibili、游戏、购物App、音乐App等。
-    -   **手机状态**: 充电、电量低、关机、开机。
-    -   **其他**: 设置闹钟、查看天气、浏览新闻等。
-3.  **符合人设**: 所有活动都必须与角色的性格、职业和兴趣爱好高度相关。例如，一个爱打游戏的角色，游戏App的使用时长应该更长。
-4.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，每个对象代表一条活动记录，包含以下4个字段：
-    -   \`"time"\`: (字符串) 活动发生的时间，格式为 "HH:mm" (例如 "09:15", "22:00")。
-    -   \`"description"\`: (字符串) 对活动的简短描述 (例如: "刷B站", "和朋友微信聊天", "手机开始充电")。
-    -   \`"duration"\`: (字符串, 可选) 活动持续的时长 (例如: "30分钟", "1小时", "直到电量充满")。如果活动是瞬间完成的，则省略此字段。
-    -   \`"icon"\`: (字符串) 代表此活动的单个emoji或svg图标。
+2.  **内容多样性**: 活动类型应丰富多样，包括但不限于应用使用、手机状态、其他（设置闹钟、查看天气等）。
+3.  **符合人设**: 所有活动都必须与角色的性格、职业和兴趣爱好高度相关。
+4.  **【【【全新功能：HTML小剧场】】】**:
+    -   对于某些特定的活动（例如看电影、吃饭、购物），你可以【随机且可选地】额外生成一个名为 \`html_snippet\` 的字段。
+    -   这个字段的内容是【一小段HTML代码】，用来展示一个与活动相关的视觉元素，例如电影票根、购物小票等。
+    -   你【不需要】为每个活动都生成这个字段，只需在你认为合适的、有趣的节点上随机加入，以增加趣味性。
+5.  **格式铁律**: 你的回复【必须且只能】是一个严格的JSON数组，每个对象代表一条活动记录。
 
-# JSON输出格式示例:
-[
-  {
-    "time": "08:00",
-    "description": "关闭闹钟",
-    "icon": "⏰"
-  },
-  {
-    "time": "09:30",
-    "description": "刷微博",
-    "duration": "45分钟",
-    "icon": "📱"
-  },
-  {
-    "time": "18:05",
-    "description": "手机开始充电，当前电量20%",
-    "duration": "约1小时",
-    "icon": "🔌"
-  }
-]
+# JSON对象结构 (html_snippet 是可选的！)
+{
+  "time": "HH:mm",
+  "description": "活动描述",
+  "duration": "(可选) 持续时长",
+  "icon": "单个emoji或svg图标",
+  "html_snippet": "(可选) 用于生成小剧场的HTML代码"
+}
+
+# HTML小剧场格式示例 (供你参考，你可以自由创作):
+-   **看电影**:
+    "html_snippet": "<div class='movie-ticket'><div class='ticket-header'>EPHONE影城</div><div class='ticket-body'><h3>《你的名字》</h3><p>场次: 14:30 | 7号厅 8排5座</p></div></div>"
+-   **吃饭**:
+    "html_snippet": "<div class='receipt'><div class='receipt-header'>温馨小馆</div><ul><li><span>拉面 x1</span><span>￥28.00</span></li><li><span>溏心蛋 x1</span><span>￥5.00</span></li></ul><div class='receipt-total'><strong>合计:</strong><strong>￥33.00</strong></div></div>"
+
+现在，请开始为“${chat.name}”生成今天的生活记录。
 `;
 
   try {
@@ -604,6 +639,7 @@ ${chat.settings.aiPersona}
     document.getElementById('ls-generate-activity-btn').onclick = () => handleGenerateDailyActivity(chat);
   }
 }
+// ▲▲▲ 替换结束 ▲▲▲
 
 /**
  * 【全新】处理更换情侣空间背景的逻辑
