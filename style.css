@@ -18560,3 +18560,15 @@ body {
   right: 4px;
   line-height: 1;
 }
+#character-chat-list.list-container {
+  flex-grow: 1;      /* 让它占据所有剩余的垂直空间 */
+  overflow-y: auto;  /* 当内容超出时，自动显示垂直滚动条 */
+  min-height: 0;     /* 解决Flex布局下的滚动兼容性问题，这是这次修复最关键的一行！ */
+  padding: 0;        /* 保持你的内联样式，移除内边距 */
+  background-color: var(--secondary-bg); /* 添加一个背景色，与页面统一 */
+}
+
+/* 夜间模式适配，确保滚动区域的背景色在夜间模式下也正确 */
+#phone-screen.dark-mode #character-chat-list.list-container {
+    background-color: #000000;
+}
