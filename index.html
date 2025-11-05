@@ -18113,7 +18113,7 @@ function returnToChat() {
     });
 }
 
-        function updateListenTogetherIcon(chatId, forceReset = false) { const iconImg = document.querySelector('#listen-together-btn img'); if(!iconImg) return; if(forceReset || !musicState.isActive || musicState.activeChatId !== chatId) { iconImg.src = 'https://chatbotcos.weixin.qq.com/chatbot/30-openaiassets_63e04c67410237fa43bf6fcce542dbff_469401762321466866.png'; iconImg.className = ''; return; } iconImg.src = 'https://chatbotcos.weixin.qq.com/chatbot/30-openaiassets_63e04c67410237fa43bf6fcce542dbff_469401762321466866.png'; iconImg.classList.add('rotating'); if (musicState.isPlaying) iconImg.classList.remove('paused'); else iconImg.classList.add('paused'); }
+        function updateListenTogetherIcon(chatId, forceReset = false) { const iconImg = document.querySelector('#listen-together-btn img'); if(!iconImg) return; if(forceReset || !musicState.isActive || musicState.activeChatId !== chatId) { iconImg.src = 'https://chatbotcos.weixin.qq.com/chatbot/30-openaiassets_63e04c67410237fa43bf6fcce542dbff_469401762321466866.png'; iconImg.className = ''; return; } iconImg.src = 'https://cdn.jsdelivr.net.cn/gh/qdqqd/tc_temp/jli60izy2n.png'; iconImg.classList.add('rotating'); if (musicState.isPlaying) iconImg.classList.remove('paused'); else iconImg.classList.add('paused'); }
         window.updateListenTogetherIconProxy = updateListenTogetherIcon;
 
         function updatePlayerUI() {
