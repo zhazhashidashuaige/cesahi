@@ -1,4 +1,4 @@
-
+  
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -2529,6 +2529,19 @@
             </div>
         </div>
     </div>
+    <!-- ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼ -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+    <span>
+        开启语音接入
+        <p style="font-size: 12px; font-weight: normal; color: #999; margin-top: 5px;">
+            (需已配置Minimax和角色语音ID)
+        </p>
+    </span>
+    <label class="toggle-switch">
+        <input type="checkbox" id="video-call-voice-access-switch">
+        <span class="slider"></span>
+    </label>
+</div>
 </div>
 <!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
 
@@ -9332,6 +9345,7 @@ const newChat = {
         visualVideoCallEnabled: false,
         charVideoImage: '',
         userVideoImage: '',
+        videoCallVoiceAccess: false, 
         petAdopted: false,
         pet: null,
     },
@@ -21412,45 +21426,41 @@ ${worldBookContent}
         const connectingElement = callFeed.querySelector('em');
         if (connectingElement) connectingElement.remove();
 
-        if (isVisualMode) {
-            const aiBubble = document.createElement('div');
-            aiBubble.className = 'visual-call-bubble ai';
-            aiBubble.textContent = sanitizedResponse;
-            callFeed.appendChild(aiBubble);
-            videoCallState.callHistory.push({ role: 'assistant', content: sanitizedResponse });
-        } else {
-            if (videoCallState.isGroupCall) {
-                const speechArray = parseAiResponse(sanitizedResponse); 
-                speechArray.forEach(turn => {
-                    if (!turn.name || turn.name === userNickname || !turn.speech) return;
-                    const aiBubble = document.createElement('div');
-                    aiBubble.className = 'call-message-bubble ai-speech';
-                    aiBubble.innerHTML = `<strong>${turn.name}:</strong> ${turn.speech}`;
-                    callFeed.appendChild(aiBubble);
-                    videoCallState.callHistory.push({ role: 'assistant', content: `${turn.name}: ${turn.speech}` });
-                    
-                    const speaker = videoCallState.participants.find(p => p.originalName === turn.name);
-                    if (speaker) {
-                        const speakingAvatar = document.querySelector(`.participant-avatar-wrapper[data-participant-id="${speaker.id}"] .participant-avatar`);
-                        if(speakingAvatar) {
-                            speakingAvatar.classList.add('speaking');
-                            setTimeout(() => speakingAvatar.classList.remove('speaking'), 2000);
-                        }
-                    }
-                });
-            } else {
-                const aiBubble = document.createElement('div');
-                aiBubble.className = 'call-message-bubble ai-speech';
-                aiBubble.textContent = sanitizedResponse;
-                callFeed.appendChild(aiBubble);
-                videoCallState.callHistory.push({ role: 'assistant', content: sanitizedResponse });
-                const speakingAvatar = document.querySelector(`.participant-avatar-wrapper .participant-avatar`);
-                if(speakingAvatar) {
-                    speakingAvatar.classList.add('speaking');
-                    setTimeout(() => speakingAvatar.classList.remove('speaking'), 2000);
-                }
-            }
-        }
+let bubble; // 先声明一个 bubble 变量
+
+// 根据通话模式创建对应的气泡元素
+if (isVisualMode) {
+    bubble = document.createElement('div');
+    bubble.className = 'visual-call-bubble ai';
+} else {
+    bubble = document.createElement('div');
+    bubble.className = 'call-message-bubble ai-speech';
+    if (videoCallState.isGroupCall && turn.name) {
+        bubble.innerHTML = `<strong>${turn.name}:</strong> `;
+    }
+}
+// 将AI的文本内容填充到气泡中
+bubble.appendChild(document.createTextNode(sanitizedResponse));
+
+// 挂载到通话界面
+callFeed.appendChild(bubble);
+
+// ★★★★★ 这就是我们新增的核心语音逻辑！ ★★★★★
+// 检查：是否是单人通话、语音接入是否开启、Minimax是否配置、角色语音ID是否存在、并且AI确实返回了内容
+if (!chat.isGroup && chat.settings.videoCallVoiceAccess && state.apiConfig.minimaxGroupId && state.apiConfig.minimaxApiKey && chat.settings.minimaxVoiceId && sanitizedResponse) {
+    console.log(`[视频通话] 检测到语音接入已开启，为“${chat.name}”合成语音...`);
+    // 调用你已有的 playMinimaxAudio 函数来播放语音
+    playMinimaxAudio(sanitizedResponse, chat.settings.minimaxVoiceId, [bubble]);
+}
+// ★★★★★ 语音逻辑结束 ★★★★★
+
+// 将这条消息记录到通话历史中，这部分逻辑不变
+if (videoCallState.isGroupCall && turn.name) {
+    videoCallState.callHistory.push({ role: 'assistant', content: `${turn.name}: ${sanitizedResponse}` });
+} else {
+    videoCallState.callHistory.push({ role: 'assistant', content: sanitizedResponse });
+}
+// ▲▲▲ 替换结束 ▲▲▲
         
         callFeed.scrollTop = callFeed.scrollHeight;
 
@@ -39284,6 +39294,8 @@ if (isGroup) {
     imageUploadsDiv.style.display = visualCallSwitch.checked ? 'block' : 'none';
     document.getElementById('char-video-image-preview').src = chat.settings.charVideoImage || 'https://i.postimg.cc/pT2xKzPz/album-cover-placeholder.png';
     document.getElementById('user-video-image-preview').src = chat.settings.userVideoImage || 'https://i.postimg.cc/pT2xKzPz/album-cover-placeholder.png';
+const voiceAccessSwitch = document.getElementById('video-call-voice-access-switch');
+voiceAccessSwitch.checked = chat.settings.videoCallVoiceAccess || false;
 
     // 为开关添加实时交互
     visualCallSwitch.onchange = () => {
@@ -39840,6 +39852,7 @@ chat.settings.coupleAvatarDescription = document.getElementById('couple-avatar-d
 chat.settings.visualVideoCallEnabled = document.getElementById('visual-video-call-switch').checked;
 chat.settings.charVideoImage = document.getElementById('char-video-image-preview').src;
 chat.settings.userVideoImage = document.getElementById('user-video-image-preview').src;
+chat.settings.videoCallVoiceAccess = document.getElementById('video-call-voice-access-switch').checked;
 // ▲▲▲ 粘贴结束 ▲▲▲
 
         // ▼▼▼ 保存NAI出图设置 ▼▼▼
