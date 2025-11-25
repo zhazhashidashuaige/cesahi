@@ -3,19 +3,17 @@ const ACCOUNT_STRUCTURE = {
   普通账户: {
     isAsset: true,
     types: [
-      { name: '现金', iconUrl: 'https://cdn.jsdelivr.net.cn/gh/xxloli/tc/7jfvqjdpga.png' },
-      { name: '储蓄卡', iconUrl: 'https://file.zhuyitai.com/feedback/202511/24/b27789a22d666257026ac97252ef6e91.png' },
+      { name: '现金', iconUrl: 'https://i.postimg.cc/Vs99GyjW/现金钞票.png' },
+      { name: '储蓄卡', iconUrl: 'https://i.postimg.cc/G3PP70kJ/储蓄卡.png' },
       {
         name: '微信钱包',
-        iconUrl:
-          'https://chatbotcos.weixin.qq.com/chatbot/30-openaiassets_b29346f574b2c4eed35f1ec775048f54_469401763966119278.png',
+        iconUrl: 'https://i.postimg.cc/FFbbWtjb/微信钱包.png',
       },
       {
         name: '支付宝',
-        iconUrl:
-          'https://intellcs.sinosafe.com.cn/immessage/api/v1/message/attachment/download?groupName=group1&authorization=EnAfMjUzaQVz&fileName=M00/00/A8/CgNDimkj_NqACA9jAAAGNJQMcNM569.png',
+        iconUrl: 'https://i.postimg.cc/2jddcp4Q/支付宝.png',
       },
-      { name: '其他', iconUrl: 'https://yfupload.hebccw.cn/images/08zygs/wqbs/2025/11/24/1763966218_wqbs.png' },
+      { name: '其他', iconUrl: 'https://i.postimg.cc/MZ00Pkyy/报销_已选中.png' },
     ],
   },
   信用账户: {
@@ -23,21 +21,19 @@ const ACCOUNT_STRUCTURE = {
     types: [
       {
         name: '信用卡',
-        iconUrl: 'https://e3f49eaa46b57.cdn.sohucs.com/2025/11/24/14/37/MTAwMTE0XzE3NjM5NjYyNDgwNDM=.png',
+        iconUrl: 'https://i.postimg.cc/nVKKR8vq/信用卡.png',
       },
       {
         name: '花呗',
-        iconUrl:
-          'https://xiaoiwg.dongfeng-nissan.com.cn/aicc-workbench/res/download/default/temp/images/20251124/541e0ffb8af4b7e545ffaebf48914cc00d844cb9.png',
+        iconUrl: 'https://i.postimg.cc/kMNN1rxS/花呗.png',
       },
       {
         name: '白条',
-        iconUrl: 'https://saas.chatbot.cn/download/minio/standard/2025-11-24/f3a4eb4c923b4c6498e874ac96b4c6be.png',
+        iconUrl: 'https://i.postimg.cc/wx55fKhm/京东_白条.png',
       },
       {
         name: '其他',
-        iconUrl:
-          'https://xiaoiwg.dongfeng-nissan.com.cn/aicc-workbench/res/download/default/temp/images/20251124/7b355b0d38dba219988f0104bf23ee1eddc77ae8.png',
+        iconUrl: 'https://i.postimg.cc/2jddcp4B/7.png',
       },
     ],
   },
@@ -46,14 +42,13 @@ const ACCOUNT_STRUCTURE = {
     types: [
       {
         name: '股票',
-        iconUrl: 'https://help.hemorn.com/static/upload/2025November/03ceb40e0dbb5f332275902db8b24531.png',
+        iconUrl: 'https://i.postimg.cc/sfPP6FpB/股票分析.pngg',
       },
       {
         name: '基金',
-        iconUrl:
-          'https://chatbotcos.weixin.qq.com/chatbot/30-openaiassets_7d94d5850ac517ce891233087a487f9e_469401763966440014.png',
+        iconUrl: 'https://i.postimg.cc/44vvLCz7/基金点击.png',
       },
-      { name: '其他', iconUrl: 'https://static.eeo.cn/upload/file/20251124/1763966464300399.png' },
+      { name: '其他', iconUrl: 'https://i.postimg.cc/wx55fKh1/投资.png' },
     ],
   },
   充值账户: {
@@ -61,15 +56,15 @@ const ACCOUNT_STRUCTURE = {
     types: [
       {
         name: '饭卡',
-        iconUrl: 'https://www.yn12377.cn/jubao/upload/smjb/2025/11/24/abb88f9026d64ed1a630b57e9cf6fe48.png',
+        iconUrl: 'https://i.postimg.cc/gcyyS9vn/饭卡2.png',
       },
       {
         name: '公交卡',
-        iconUrl: 'https://cdncs.ykt.cbern.com.cn/v0.1/download?path=/zxx_feedback/qdqqd/1763966520949.png',
+        iconUrl: 'https://i.postimg.cc/G3PP70k9/公交卡.png',
       },
       {
         name: '其他',
-        iconUrl: 'https://saas.chatbot.cn/download/minio/standard/2025-11-24/65d27b9d514e4b428b8fcc5c6e1363f2.png',
+        iconUrl: 'https://i.postimg.cc/05GGWgpj/补卡.png',
       },
     ],
   },
@@ -78,12 +73,11 @@ const ACCOUNT_STRUCTURE = {
     types: [
       {
         name: '借入',
-        iconUrl: 'https://www.yn12377.cn/jubao/upload/smjb/2025/11/24/591537de446a43e2af6238d8f1600bca.png',
+        iconUrl: 'https://i.postimg.cc/7P11svgL/借入.png',
       },
       {
         name: '借出',
-        iconUrl:
-          'https://xiaoiwg.dongfeng-nissan.com.cn/aicc-workbench/res/download/default/temp/images/20251124/999f3779341fd444090915ef98a6f6e46ad607a8.png',
+        iconUrl: 'https://i.postimg.cc/dQRRHM8s/借出登记.png',
       },
     ],
   },

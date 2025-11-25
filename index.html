@@ -243,13 +243,13 @@
 </div>
 <div style="position: absolute; bottom: 15px; left: 120px;">
     <div class="desktop-app-icon" id="kk-checkin-app-icon">
-        <div class="icon-bg-desktop"><img id="icon-img-kk-checkin" src="https://i.postimg.cc/d11WvjYd/IMG-0504.png" alt="kk查岗"></div>
+        <div class="icon-bg-desktop"><img id="icon-img-kk-checkin" src="https://i.postimg.cc/MGwrL0nf/kitty.png" alt="kk查岗"></div>
         <span class="label" style="color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">kk查岗</span>
     </div>
 </div>
 <div style="position: absolute; bottom: 15px; left: 35px;">
     <div class="desktop-app-icon" id="tukey-accounting-app-icon">
-        <div class="icon-bg-desktop"><img id="icon-img-tukey-accounting" src="https://i.postimg.cc/pT1W3bZ8/accounting-icon.png" alt="兔兔记账"></div>
+        <div class="icon-bg-desktop"><img id="icon-img-tukey-accounting" src="https://i.postimg.cc/k4fZKVXP/tu-tu.png" alt="兔兔记账"></div>
         <span class="label" style="color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">兔兔记账</span>
     </div>
 </div>
@@ -9105,8 +9105,8 @@ const DEFAULT_APP_ICONS = {
     'x-social': 'https://i.postimg.cc/8P1H0vQ8/x-logo.png',
     'taobao': 'https://i.postimg.cc/k47tXg1j/taologo.png',
     'date-a-live': 'https://i.postimg.cc/Kjdss1j9/1761142686734.png' ,
-    'tukey-accounting': 'https://image.uglycat.cc/28nx3q.png',
-    'kk-checkin': 'https://image.uglycat.cc/wqo2yd.png'
+    'tukey-accounting': 'https://i.postimg.cc/k4fZKVXP/tu-tu.png',
+    'kk-checkin': 'https://i.postimg.cc/MGwrL0nf/kitty.png'
 };
 // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
 const DEFAULT_APP_LABELS = {
@@ -37913,7 +37913,7 @@ async function handleImageUploadAndCompress(file) {
 
     return compressedBase64;
 }
-
+window.handleImageUploadAndCompress = handleImageUploadAndCompress;
 /**
  * 【全新】计算Base64字符串的近似文件大小
  * @param {string} base64Str - Base64字符串 (可以带'data:...'前缀)
@@ -39055,24 +39055,24 @@ function openComputer() {
 
     desktop.innerHTML = `
         <div class="kk-desktop-icon" id="kk-browser-icon" title="浏览器">
-            <img src="https://image.uglycat.cc/o0881m.png" alt="Browser">
+            <img src="https://i.postimg.cc/gc7tpbwp/浏览器图标.png" alt="Browser">
             <span>浏览器</span>
         </div>
         
         <div class="kk-desktop-icon" id="kk-movies-icon" title="电影">
-            <img src="https://image.uglycat.cc/j4snz7.png" alt="Movies">
+            <img src="https://i.postimg.cc/gc7tpbwd/电影.png" alt="Movies">
             <span>电影</span>
         </div>
         <div class="kk-desktop-icon" id="kk-files-icon" title="私人文件">
-            <img src="https://image.uglycat.cc/jzatyq.png" alt="Files">
+            <img src="https://i.postimg.cc/9Xkg2H4h/48.png" alt="Files">
             <span>私人文件</span>
         </div>
         <div class="kk-desktop-icon" id="kk-secret-folder-icon" title="隐秘文件夹">
-            <img src="https://image.uglycat.cc/xcwyj5.png" alt="Secret Folder">
+            <img src="https://i.postimg.cc/SQP14bXp/File_Dead_Big_Thumb.png" alt="Secret Folder">
             <span>${secretFolderName}</span>
         </div>
         <div class="kk-desktop-icon" id="kk-steam-icon" title="Steam">
-            <img src="https://image.uglycat.cc/te36se.png" alt="Steam">
+            <img src="https://i.postimg.cc/xjZpQVkD/steam.png" alt="Steam">
             <span>Steam</span>
         </div>
     `;
