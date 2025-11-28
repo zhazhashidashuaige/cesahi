@@ -3206,16 +3206,29 @@ ${extraContext}
 
     scripts.forEach(script => {
       const item = document.createElement('div');
-      item.className = 'list-item'; // 复用现有样式
+      item.className = 'list-item';
       item.innerHTML = `
-            <div class="item-title">${script.name}</div>
-            <div class="item-content">${(script.storyBackground || '暂无简介').substring(0, 50)}...</div>
-        `;
-      // ▼▼▼ 将其修改为 ▼▼▼
-      // 为整个列表项添加点击事件，用于编辑
+        <div class="item-title">${script.name}</div>
+        <div class="item-content">${(script.storyBackground || '暂无简介').substring(0, 50)}...</div>
+    `;
+
       item.addEventListener('click', () => openScriptEditorForEdit(script.id));
-      // 为列表项添加长按事件，用于删除
-      addLongPressListener(item, () => deleteCustomScript(script.id, script.name));
+
+      addLongPressListener(item, async () => {
+        // ▼▼▼ 核心修改：在菜单里增加 'export' 选项 ▼▼▼
+        const choice = await showChoiceModal(`操作《${script.name}》`, [
+          { text: '📤 导出剧本', value: 'export' }, // <-- 新增
+          { text: '🗑️ 删除剧本', value: 'delete', isDanger: true },
+        ]);
+
+        if (choice === 'delete') {
+          deleteCustomScript(script.id, script.name);
+        } else if (choice === 'export') {
+          // <-- 新增处理逻辑
+          await exportCustomScript(script.id);
+        }
+        // ▲▲▲ 修改结束 ▲▲▲
+      });
       listEl.appendChild(item);
     });
   }
@@ -3537,6 +3550,102 @@ ${extraContext}
       await renderScriptManagerList();
       alert('剧本已删除。');
     }
+  }
+  /**
+   * 【全新】导出指定的自定义剧本
+   * @param {number} scriptId - 要导出的剧本ID
+   */
+  async function exportCustomScript(scriptId) {
+    try {
+      const script = await db.scriptKillScripts.get(scriptId);
+      if (!script) {
+        alert('错误：找不到要导出的剧本。');
+        return;
+      }
+
+      // 1. 准备要导出的纯数据结构 (去除本地数据库ID，保留核心内容)
+      const exportData = {
+        type: 'EPhoneScriptKill', // 标记文件类型
+        version: 1,
+        name: script.name,
+        storyBackground: script.storyBackground,
+        truth: script.truth,
+        roles: script.roles,
+        clues: script.clues,
+      };
+
+      // 2. 转换为JSON字符串
+      const jsonString = JSON.stringify(exportData, null, 2);
+
+      // 3. 创建并下载文件
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const dateStr = new Date().toISOString().split('T')[0];
+      // 文件名示例: [剧本杀]古堡之谜-2024-01-01.json
+      link.href = url;
+      link.download = `[剧本杀]${script.name}-${dateStr}.json`;
+      document.body.appendChild(link);
+      link.click();
+
+      // 4. 清理
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      await showCustomAlert('导出成功', `剧本《${script.name}》已成功导出！`);
+    } catch (error) {
+      console.error('导出剧本失败:', error);
+      await showCustomAlert('导出失败', `发生错误: ${error.message}`);
+    }
+  }
+
+  /**
+   * 【全新】导入剧本杀剧本文件
+   * @param {File} file - 用户选择的JSON文件
+   */
+  async function importCustomScript(file) {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async e => {
+      try {
+        const text = e.target.result;
+        const data = JSON.parse(text);
+
+        // 1. 简单的格式验证
+        if (!data.name || !data.roles || !data.clues || !data.truth) {
+          throw new Error('文件格式无效。缺少必要的剧本字段(name, roles, clues, truth)。');
+        }
+
+        // 2. 检查是否重名，如果重名自动重命名
+        let newScriptName = data.name;
+        const existingScript = await db.scriptKillScripts.where('name').equals(newScriptName).first();
+        if (existingScript) {
+          newScriptName = `${newScriptName} (导入)`;
+        }
+
+        // 3. 构建入库数据
+        const scriptToAdd = {
+          name: newScriptName,
+          storyBackground: data.storyBackground || '（无背景介绍）',
+          truth: data.truth,
+          roles: data.roles,
+          clues: data.clues,
+          isBuiltIn: false, // 标记为自定义剧本
+        };
+
+        // 4. 存入数据库
+        await db.scriptKillScripts.add(scriptToAdd);
+
+        // 5. 刷新列表并提示
+        await renderScriptManagerList();
+        await showCustomAlert('导入成功', `剧本《${newScriptName}》已成功导入！`);
+      } catch (error) {
+        console.error('导入剧本失败:', error);
+        await showCustomAlert('导入失败', `解析文件时出错: ${error.message}`);
+      }
+    };
+    reader.readAsText(file, 'UTF-8');
   }
 
   // --- ▲▲▲ 新增功能函数结束 ▲▲▲
@@ -7453,4 +7562,26 @@ ${jsonFormat}
     }
   });
   // ▲▲▲ 添加结束 ▲▲▲
+  // --- 【全新】剧本杀导入功能事件监听 ---
+
+  // 1. 点击“导入”按钮，触发文件选择
+  const importScriptBtn = document.getElementById('import-script-btn');
+  if (importScriptBtn) {
+    importScriptBtn.addEventListener('click', () => {
+      document.getElementById('script-kill-import-input').click();
+    });
+  }
+
+  // 2. 监听文件选择变化，执行导入
+  const importScriptInput = document.getElementById('script-kill-import-input');
+  if (importScriptInput) {
+    importScriptInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        importCustomScript(file);
+      }
+      e.target.value = null; // 清空，以便下次能选择同一个文件
+    });
+  }
+  // --- 事件监听结束 ---
 });
