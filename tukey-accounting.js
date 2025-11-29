@@ -1547,7 +1547,7 @@ function handleReportFilterChange() {
 }
 
 /**
- * 【渲染】每日明细视图
+ * 【渲染 - 美化版】每日明细视图 (精致的删除按钮)
  */
 async function renderDailyDetailView(accountId) {
   const view = document.getElementById('daily-report-view');
@@ -1565,17 +1565,14 @@ async function renderDailyDetailView(accountId) {
     return;
   }
 
-  // 按天分组
   const recordsByDay = records.reduce((acc, rec) => {
     const day = new Date(rec.timestamp).toISOString().split('T')[0];
-    if (!acc[day]) {
-      acc[day] = [];
-    }
+    if (!acc[day]) acc[day] = [];
     acc[day].push(rec);
     return acc;
   }, {});
 
-  view.innerHTML = ''; // 清空加载提示
+  view.innerHTML = '';
 
   for (const day in recordsByDay) {
     const dayRecords = recordsByDay[day];
@@ -1587,7 +1584,6 @@ async function renderDailyDetailView(accountId) {
       if (rec.type === 'income') dailyIncome += rec.amount;
       else dailyExpense += rec.amount;
 
-      // 复用记账群聊里的气泡样式
       const categoryData = ACCOUNTING_CATEGORIES[rec.type].find(c => c.name === rec.category);
       const categoryIcon = categoryData ? categoryData.icon : '';
       const recordTime = new Date(rec.timestamp);
@@ -1596,23 +1592,44 @@ async function renderDailyDetailView(accountId) {
         '0',
       )}`;
 
+      // ▼▼▼ 【美化修改】使用了 Flex 布局容器，加入了 SVG 垃圾桶图标 ▼▼▼
       transactionsHtml += `
-                <div class="tukey-record-bubble ${rec.type}">
-                    <div class="record-header">
-                        <img src="${categoryIcon}" class="record-category-icon" alt="${rec.category}">
-                        <span class="record-category-name">${rec.category}</span>
-                    </div>
-                    <div class="record-body">
-                        <span class="record-remarks">${rec.remarks || '无备注'}</span>
-                        <span class="record-amount">${rec.type === 'expense' ? '-' : '+'} ¥${rec.amount.toFixed(
+                <div class="report-record-item" style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <!-- 气泡主体，设置 flex-grow: 1 让它占满剩余空间 -->
+                    <div class="tukey-record-bubble ${
+                      rec.type
+                    }" style="flex-grow: 1; margin-right: 10px; margin-bottom: 0;"> 
+                        <div class="record-header">
+                            <img src="${categoryIcon}" class="record-category-icon" alt="${rec.category}">
+                            <span class="record-category-name">${rec.category}</span>
+                        </div>
+                        <div class="record-body">
+                            <span class="record-remarks">${rec.remarks || '无备注'}</span>
+                            <span class="record-amount">${rec.type === 'expense' ? '-' : '+'} ¥${rec.amount.toFixed(
         2,
       )}</span>
+                        </div>
+                        <div class="record-footer">
+                            <span>${rec.accountName}</span> · <span>${timeString}</span>
+                        </div>
                     </div>
-                    <div class="record-footer">
-                        <span>${rec.accountName}</span> · <span>${timeString}</span>
-                    </div>
+                    
+                    <!-- 美化后的删除按钮 -->
+                    <button class="delete-record-btn" data-id="${rec.id}" title="删除"
+                            style="flex-shrink: 0; width: 36px; height: 36px; border: none; 
+                                   background-color: rgba(255, 59, 48, 0.08); border-radius: 10px; 
+                                   display: flex; align-items: center; justify-content: center; 
+                                   color: #ff3b30; cursor: pointer; transition: all 0.2s;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                    </button>
                 </div>
             `;
+      // ▲▲▲ 修改结束 ▲▲▲
     });
 
     const dayGroup = document.createElement('div');
@@ -1628,6 +1645,96 @@ async function renderDailyDetailView(accountId) {
             <div class="transaction-list">${transactionsHtml}</div>
         `;
     view.appendChild(dayGroup);
+  }
+}
+
+/**
+ * 【全新】删除一条记账记录并回滚账户余额
+ * @param {number} recordId - 要删除的记录ID
+ */
+async function deleteTukeyAccountingRecord(recordId) {
+  // 1. 获取记录详情
+  const record = await db.tukeyAccountingRecords.get(recordId);
+  if (!record) {
+    alert('找不到该记录，可能已被删除。');
+    return;
+  }
+
+  // 2. 弹出确认框
+  const confirmed = await showCustomConfirm(
+    '确认删除',
+    `确定要删除这笔 ${record.type === 'expense' ? '支出' : '收入'} (¥${
+      record.amount
+    }) 吗？\n删除后，关联账户的余额将自动回滚。`,
+    { confirmButtonClass: 'btn-danger' },
+  );
+  if (!confirmed) return;
+
+  try {
+    // 3. 回滚账户余额
+    const account = await db.tukeyAccounts.get(record.accountId);
+    if (account) {
+      let currentBalance = parseFloat(account.balance);
+
+      // 核心回滚逻辑：
+      // 如果删的是支出(expense)，余额应该加回去 (+ amount)
+      // 如果删的是收入(income)，余额应该减出来 (- amount)
+      if (record.type === 'expense') {
+        // 特殊处理：如果是借入/信用账户，支出意味着欠款增加，删除支出意味着欠款减少（数值逻辑取决于您是如何存储的）
+        // 根据您之前的 saveTukeyRecordFromCard 逻辑：
+        // 资产账户：余额 = 余额 - 支出。 回滚：余额 + 支出
+        // 信用账户：余额 = 余额 + 支出 (欠款变多)。 回滚：余额 - 支出
+
+        const categoryInfo = ACCOUNT_STRUCTURE[account.category];
+        // 检查是否是信用账户(isAsset === false) 或 借入账户
+        if ((categoryInfo && categoryInfo.isAsset === false) || account.type === '借入') {
+          // 信用账户之前是加了金额，现在要减去
+          account.balance = currentBalance - record.amount;
+        } else {
+          // 普通资产账户之前是减了金额，现在要加回
+          account.balance = currentBalance + record.amount;
+        }
+      } else {
+        // 如果删的是收入/还款
+        // 资产账户：余额 = 余额 + 收入。 回滚：余额 - 收入
+        // 信用账户：余额 = 余额 - 收入 (还款)。 回滚：余额 + 收入
+        const categoryInfo = ACCOUNT_STRUCTURE[account.category];
+        if ((categoryInfo && categoryInfo.isAsset === false) || account.type === '借入') {
+          account.balance = currentBalance + record.amount;
+        } else {
+          account.balance = currentBalance - record.amount;
+        }
+      }
+
+      // 保存账户余额更新
+      await db.tukeyAccounts.put(account);
+    }
+
+    // 4. 如果开启了桃宝同步，也要回滚桃宝余额
+    if (tukeyUserSettings.syncWithTaobao) {
+      // 逻辑取反：删支出=加钱，删收入=扣钱
+      const reverseAmount = record.type === 'expense' ? record.amount : -record.amount;
+      await updateUserBalanceAndLogTransaction(reverseAmount, `[撤销记账] ${record.category}`);
+    }
+
+    // 5. 删除记录本身
+    await db.tukeyAccountingRecords.delete(recordId);
+
+    // 6. 删除关联的AI回复 (如果有)
+    const replies = await db.tukeyAccountingReplies.where('recordId').equals(recordId).toArray();
+    if (replies.length > 0) {
+      const replyIds = replies.map(r => r.id);
+      await db.tukeyAccountingReplies.bulkDelete(replyIds);
+    }
+
+    // 7. 刷新界面
+    await renderTukeyReportsView(); // 刷新报表
+    // 如果记账群聊界面也在后台，可能需要标记刷新，这里暂只刷新当前报表
+
+    alert('记录已删除，余额已回滚。');
+  } catch (error) {
+    console.error('删除账单失败:', error);
+    alert(`删除失败: ${error.message}`);
   }
 }
 

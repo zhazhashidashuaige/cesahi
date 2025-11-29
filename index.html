@@ -90,7 +90,11 @@
           <div class="message"></div>
         </div>
       </div>
-
+      <!-- ▼▼▼ 【全新】视频通话悬浮球 ▼▼▼ -->
+      <div id="video-call-floating-bubble" style="display: none">
+        <img id="video-floating-avatar" src="" />
+      </div>
+      <!-- ▲▲▲ 添加结束 ▲▲▲ -->
       <!-- ▼▼▼ 【全新】在这里粘贴悬浮歌词栏的代码 ▼▼▼ -->
       <div id="floating-lyrics-bar">
         <span id="floating-lyric-text">♪</span>
@@ -1510,6 +1514,7 @@
             </div>
             <span id="cancel-reply-btn">×</span>
           </div>
+
           <div id="chat-input-actions-top">
             <button id="open-sticker-panel-btn" class="chat-action-icon-btn action-button" title="表情面板">
               <svg
@@ -1545,6 +1550,27 @@
                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
               </svg>
             </button>
+            <!-- ▼▼▼ 【图标已更换】快捷回复按钮 (气泡文本图标) ▼▼▼ -->
+            <button id="quick-reply-btn" class="chat-action-icon-btn action-button" title="快捷回复">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <!-- 气泡轮廓 -->
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <!-- 里面的两行文字线，代表预设内容 -->
+                <line x1="8" y1="9" x2="16" y2="9"></line>
+                <line x1="8" y1="13" x2="14" y2="13"></line>
+              </svg>
+            </button>
+            <!-- ▲▲▲ 更换结束 ▲▲▲ -->
 
             <button id="send-photo-btn" class="chat-action-icon-btn action-button" title="发送照片">
               <svg
@@ -1725,6 +1751,28 @@
               </svg>
             </button>
             <!-- ▲▲▲ 粘贴结束 ▲▲▲ -->
+            <!-- ▼▼▼ 【修改】时间轴/存档按钮 (放入工具栏) ▼▼▼ -->
+            <button id="timeline-branch-btn" class="chat-action-icon-btn action-button" title="时间轴/存档">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <!-- 这是一个分叉线的图标 -->
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 21v-6"></path>
+                <path d="M12 9V3"></path>
+                <path d="M7 3.3a9.8 9.8 0 0 0-4.7 8.7c0 5.5 4.5 10 10 10s10-4.5 10-10a9.8 9.8 0 0 0-4.7-8.7"></path>
+              </svg>
+            </button>
+            <!-- ▲▲▲ 插入结束 ▲▲▲ -->
+
             <!-- ▼▼▼ 用下面这整块代码，替换你原来的那个 <button id="open-tarot-btn">...</button> ▼▼▼ -->
             <button id="open-tarot-btn" class="chat-action-icon-btn action-button" title="塔罗占卜">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3298,6 +3346,14 @@
 
         <!-- 2. 顶部状态栏 -->
         <div class="video-call-top-bar">
+          <!-- ▼▼▼ 新增最小化按钮 ▼▼▼ -->
+          <button class="video-minimize-btn" onclick="minimizeVideoCall()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="4 14 10 14 10 20"></polyline>
+              <polyline points="20 10 14 10 14 4"></polyline>
+            </svg>
+          </button>
+          <!-- ▲▲▲ -->
           <span id="visual-call-timer">00:00</span>
         </div>
 
@@ -3325,6 +3381,14 @@
       <div id="text-call-interface" style="display: none">
         <!-- 默认隐藏 -->
         <div class="video-call-top-bar">
+          <!-- ▼▼▼ 新增最小化按钮 ▼▼▼ -->
+          <button class="video-minimize-btn" onclick="minimizeVideoCall()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="4 14 10 14 10 20"></polyline>
+              <polyline points="20 10 14 10 14 4"></polyline>
+            </svg>
+          </button>
+          <!-- ▲▲▲ -->
           <span id="call-timer">00:00</span>
         </div>
         <div class="video-call-avatar-area">
@@ -9483,13 +9547,14 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
     </div>
     <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
     <!-- ▼▼▼ 【全新】小剧场功能的所有HTML界面 ▼▼▼ -->
-
-    <!-- 1. 小剧场主屏幕 (剧本列表) -->
     <div id="studio-screen" class="screen">
       <div class="header">
         <span class="back-btn" onclick="showScreen('home-screen')">‹</span>
         <span>小剧场</span>
         <div class="header-actions">
+          <!-- ▼▼▼ 新增：导入按钮 (放在新增剧本前面) ▼▼▼ -->
+          <span class="action-btn" id="import-studio-script-btn" style="font-size: 14px; margin-right: 5px">导入</span>
+          <!-- ▲▲▲ 新增结束 ▲▲▲ -->
           <span class="action-btn" id="add-studio-script-btn">新增剧本</span>
           <span class="action-btn" id="studio-history-btn">故事记录</span>
         </div>
@@ -9497,6 +9562,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       <div id="studio-script-list" class="list-container">
         <!-- 剧本列表将由JS动态生成在这里 -->
       </div>
+
+      <!-- ▼▼▼ 新增：隐藏的文件选择器 (放在列表下面即可) ▼▼▼ -->
+      <input type="file" id="studio-import-input" accept=".json" style="display: none" />
+      <!-- ▲▲▲ 新增结束 ▲▲▲ -->
     </div>
 
     <!-- 2. 小剧场剧本编辑器 -->
@@ -9554,13 +9623,21 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             placeholder="描述人物2的身份、与他人的关系、秘密任务等..."
           ></textarea>
         </div>
-        <button
-          id="delete-studio-script-btn"
-          class="form-button form-button-secondary"
-          style="background-color: #ff3b30; color: white; border-color: #ff3b30; margin-top: 20px"
-        >
-          删除剧本
-        </button>
+        <!-- ▼▼▼ 修改底部按钮区域：添加导出按钮 ▼▼▼ -->
+        <div style="display: flex; gap: 10px; margin-top: 20px">
+          <button id="export-studio-script-btn" class="form-button form-button-secondary" style="flex: 1; margin: 0">
+            导出剧本
+          </button>
+
+          <button
+            id="delete-studio-script-btn"
+            class="form-button form-button-secondary"
+            style="background-color: #ff3b30; color: white; border-color: #ff3b30; flex: 1; margin: 0"
+          >
+            删除剧本
+          </button>
+        </div>
+        <!-- ▲▲▲ 修改结束 ▲▲▲ -->
       </div>
     </div>
 
@@ -9948,8 +10025,67 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       </div>
     </div>
     <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+    <!-- ▼▼▼ 【全新】快捷回复管理模态框 ▼▼▼ -->
+    <div id="quick-reply-modal" class="modal">
+      <div class="modal-content" style="height: 60%">
+        <div class="modal-header">
+          <span>快捷回复</span>
+          <div class="header-actions">
+            <!-- 顶部操作按钮 -->
+            <span class="action-btn" id="import-quick-reply-btn" title="导入" style="font-size: 14px">导入</span>
+            <span class="action-btn" id="export-quick-reply-btn" title="导出" style="font-size: 14px">导出</span>
+            <span class="action-btn" id="add-quick-reply-btn" style="font-size: 24px">+</span>
+          </div>
+        </div>
+        <div class="modal-body" id="quick-reply-list" style="padding: 0; overflow-y: auto">
+          <!-- 列表将由JS动态生成 -->
+        </div>
+        <div class="modal-footer">
+          <button class="save" id="close-quick-reply-btn" style="width: 100%">关闭</button>
+        </div>
+      </div>
+    </div>
+    <!-- 隐藏的文件选择器 -->
+    <input type="file" id="import-quick-reply-input" accept=".json" hidden />
+    <!-- ▲▲▲ 新增结束 ▲▲▲ -->
 
     <!-- ▲▲▲ “kk查岗”功能HTML结束 ▲▲▲ -->
+    <!-- ▼▼▼ 【全新】时间轴/存档管理模态框 ▼▼▼ -->
+    <div id="branching-modal" class="modal">
+      <div class="modal-content" style="height: 70%">
+        <div class="modal-header">
+          <span>时间轴管理</span>
+          <div class="header-actions">
+            <button id="create-branch-btn" class="action-button" style="font-size: 14px">+ 新存档</button>
+          </div>
+        </div>
+        <div class="modal-body" style="padding: 0; display: flex; flex-direction: column">
+          <!-- 顶部操作区 -->
+          <div style="padding: 15px; border-bottom: 1px solid var(--border-color); text-align: center">
+            <button
+              id="restart-chat-btn"
+              class="form-button"
+              style="background-color: #ff9800; color: white; margin-bottom: 0"
+            >
+              🔄 重开新剧情 (清空当前)
+            </button>
+            <p style="font-size: 12px; color: #999; margin-top: 8px; margin-bottom: 0">
+              重开前建议先点击右上角保存当前进度
+            </p>
+          </div>
+
+          <!-- 存档列表 -->
+          <div id="branch-list" class="list-container" style="flex-grow: 1; background-color: var(--secondary-bg)">
+            <!-- 存档项将由JS生成 -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="save" id="close-branching-modal-btn" style="width: 100%">关闭</button>
+        </div>
+      </div>
+    </div>
+    <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
+
     <!-- ▼▼▼ 用这整块代码替换旧的 inner-voice-modal ▼▼▼ -->
     <div id="inner-voice-modal" class="modal">
       <!-- 心声主面板 -->
@@ -13534,6 +13670,12 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           ]);
           state.offlinePresets = offlinePresetsFromDB || [];
           state.chats = chatsArr.reduce((acc, chat) => {
+            // ▼▼▼ 【新增】初始化存档点数组 ▼▼▼
+            if (!chat.checkpoints) {
+              chat.checkpoints = [];
+            }
+            // ▲▲▲ 新增结束 ▲▲▲
+
             // 【全新】为旧的群聊数据兼容专属表情库
             if (chat.isGroup && (!chat.settings || !chat.settings.stickerLibrary)) {
               if (!chat.settings) chat.settings = {}; // 以防万一连settings都没有
@@ -13939,6 +14081,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
           state.globalSettings = globalSettings || {
             id: 'main',
+            quickReplies: ['你好', '继续', '有趣'],
             ringtoneUrl: 'https://files.catbox.moe/3w7gla.mp3',
             notificationSoundUrl: 'https://files.catbox.moe/k369mf.mp3', // <-- 在这里新增这一行
             widgetData: {},
@@ -13990,9 +14133,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             state.globalSettings.imageCompressionQuality = 0.7;
           }
           // ▼▼▼ 在这里添加下面这行代码 ▼▼▼
+
           // 【核心新增】加载歌词栏设置，如果不存在则使用默认值
           lyricsBarSettings = state.globalSettings.lyricsBarSettings || lyricsBarSettings;
-          // ▲▲▲ 添加结束 ▲▲▲
+          // 兼容旧数据：初始化快捷回复 (默认为空)
+          if (!state.globalSettings.quickReplies) {
+            state.globalSettings.quickReplies = [];
+          }
 
           // 【核心修改】合并已保存的图标和默认图标，防止更新后旧数据丢失新图标
           state.globalSettings.appIcons = { ...DEFAULT_APP_ICONS, ...(state.globalSettings.appIcons || {}) };
@@ -24982,7 +25129,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           // ▼▼▼ 在 endVideoCall 函数的【开头】添加这行代码 ▼▼▼
           document.getElementById('visual-call-interface').style.display = 'none';
           // ▲▲▲ 添加结束 ▲▲▲
-
+          document.getElementById('video-call-floating-bubble').style.display = 'none';
           if (!videoCallState.isActive) return;
 
           const duration = Math.floor((Date.now() - videoCallState.startTime) / 1000);
@@ -25075,6 +25222,138 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
         }
         // ▲▲▲ 替换结束 ▲▲▲
+        // ▼▼▼ 【全新】视频通话最小化功能函数 ▼▼▼
+
+        // ▼▼▼ 【修复版】视频通话最小化功能函数 ▼▼▼
+
+        /**
+         * 最小化视频通话
+         */
+        function minimizeVideoCall() {
+          // 访问内部变量 videoCallState
+          if (!videoCallState.isActive) return;
+
+          const chat = state.chats[videoCallState.activeChatId];
+          const bubble = document.getElementById('video-call-floating-bubble');
+          const avatarImg = document.getElementById('video-floating-avatar');
+
+          // 1. 设置悬浮球头像
+          if (chat) {
+            const avatarUrl = chat.isGroup
+              ? chat.settings.groupAvatar || defaultGroupAvatar
+              : chat.settings.aiAvatar || defaultAvatar;
+            avatarImg.src = avatarUrl;
+          }
+
+          // 2. 隐藏视频界面，显示悬浮球
+          document.getElementById('video-call-screen').classList.remove('active');
+          bubble.style.display = 'block';
+
+          // 3. 返回聊天界面
+          showScreen('chat-interface-screen');
+        }
+        // ★★★ 核心修复：把这个函数暴露给 HTML 使用 ★★★
+        window.minimizeVideoCall = minimizeVideoCall;
+
+        /**
+         * 恢复视频通话界面
+         */
+        function restoreVideoCall() {
+          const bubble = document.getElementById('video-call-floating-bubble');
+
+          // 1. 隐藏悬浮球
+          bubble.style.display = 'none';
+
+          // 2. 显示视频界面
+          showScreen('video-call-screen');
+        }
+        // ★★★ 核心修复：把这个函数暴露给 HTML 使用 ★★★
+        window.restoreVideoCall = restoreVideoCall;
+
+        // ... initVideoBubbleDrag 函数保持不变 ...
+
+        /**
+         * 初始化悬浮球的拖拽功能
+         */
+        function initVideoBubbleDrag() {
+          const bubble = document.getElementById('video-call-floating-bubble');
+          let isDragging = false;
+          let startX, startY, initialLeft, initialTop;
+          let hasMoved = false; // 用于区分点击和拖拽
+
+          const onStart = e => {
+            isDragging = true;
+            hasMoved = false;
+
+            // 获取点击坐标
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+
+            startX = clientX;
+            startY = clientY;
+
+            // 获取当前位置
+            const rect = bubble.getBoundingClientRect();
+            initialLeft = rect.left;
+            initialTop = rect.top;
+
+            // 阻止默认事件防止滚动
+            if (e.type === 'touchstart') {
+              // e.preventDefault(); // 可能会阻止点击，视情况而定
+            }
+          };
+
+          const onMove = e => {
+            if (!isDragging) return;
+            e.preventDefault(); // 阻止页面滚动
+
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+
+            const deltaX = clientX - startX;
+            const deltaY = clientY - startY;
+
+            // 如果移动距离超过 5px，视为拖拽
+            if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+              hasMoved = true;
+            }
+
+            let newLeft = initialLeft + deltaX;
+            let newTop = initialTop + deltaY;
+
+            // 边界限制
+            const maxLeft = window.innerWidth - bubble.offsetWidth;
+            const maxTop = window.innerHeight - bubble.offsetHeight;
+
+            newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+            newTop = Math.max(0, Math.min(newTop, maxTop));
+
+            bubble.style.left = `${newLeft}px`;
+            bubble.style.top = `${newTop}px`;
+            bubble.style.right = 'auto'; // 清除 right 属性
+          };
+
+          const onEnd = e => {
+            if (!isDragging) return;
+            isDragging = false;
+
+            // 如果没有移动（是点击），则恢复视频
+            if (!hasMoved) {
+              restoreVideoCall();
+            }
+          };
+
+          // 绑定事件
+          bubble.addEventListener('mousedown', onStart);
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onEnd);
+
+          bubble.addEventListener('touchstart', onStart, { passive: false });
+          document.addEventListener('touchmove', onMove, { passive: false });
+          document.addEventListener('touchend', onEnd);
+        }
+
+        // ▲▲▲ 新增函数结束 ▲▲▲
 
         /**
          * 【全新】更新通话界面的参与者头像网格
@@ -34900,7 +35179,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const langBoost = chat.settings.language_boost; // 如果是null或undefined, 就让它是null/undefined
 
           // ▼▼▼ 在这里添加修改，过滤掉括号里的内容 ▼▼▼
-          const textForTts = text.replace(/\(.*?\)|（.*?）/g, '');
+          const textForTts = text.replace(/\(.*?\)|（.*?）|【.*?】/g, '').trim();
           // ▲▲▲ 修改结束 ▲▲▲
 
           // 2. 构建包含新参数的请求体
@@ -39795,6 +40074,589 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         }
 
         // ▲▲▲ 粘贴到这里结束 ▲▲▲
+        // ▼▼▼ 【全新】快捷回复功能核心逻辑 ▼▼▼
+
+        // ▼▼▼ 【全新】快捷回复功能核心逻辑 (V2 - 支持格式选择) ▼▼▼
+
+        /**
+         * 打开快捷回复弹窗
+         */
+        function openQuickReplyModal() {
+          renderQuickReplyList();
+          document.getElementById('quick-reply-modal').classList.add('visible');
+        }
+
+        /**
+         * 【更新版】渲染快捷回复列表 (带编辑功能)
+         */
+        function renderQuickReplyList() {
+          const listEl = document.getElementById('quick-reply-list');
+          listEl.innerHTML = '';
+
+          const replies = state.globalSettings.quickReplies || [];
+
+          if (replies.length === 0) {
+            listEl.innerHTML =
+              '<p style="text-align:center; color:var(--text-secondary); padding:20px;">列表为空，点击右上角 "+" 添加。</p>';
+            return;
+          }
+
+          replies.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'quick-reply-item';
+
+            // 兼容处理
+            let type = typeof item === 'string' ? 'text' : item.type;
+            let content = typeof item === 'string' ? item : item.content;
+
+            // 标签生成
+            let typeBadge = '';
+            if (type === 'voice_message')
+              typeBadge =
+                '<span style="background:#4CAF50; color:white; padding:2px 6px; border-radius:4px; font-size:12px; margin-right:5px;">语音</span>';
+            else if (type === 'ai_image')
+              typeBadge =
+                '<span style="background:#FF9800; color:white; padding:2px 6px; border-radius:4px; font-size:12px; margin-right:5px;">图片</span>';
+            else if (type === 'transfer')
+              typeBadge =
+                '<span style="background:#E91E63; color:white; padding:2px 6px; border-radius:4px; font-size:12px; margin-right:5px;">转账</span>';
+            else if (type === 'waimai_request')
+              typeBadge =
+                '<span style="background:#2196F3; color:white; padding:2px 6px; border-radius:4px; font-size:12px; margin-right:5px;">外卖</span>';
+
+            div.innerHTML = `
+      <!-- 左侧：点击发送区域 -->
+      <div class="quick-reply-content" style="flex:1; display:flex; align-items:center; overflow:hidden; cursor:pointer;" title="点击发送">
+        ${typeBadge}
+        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${content}</span>
+      </div>
+      
+      <!-- 右侧：操作按钮区域 -->
+      <div class="quick-reply-actions">
+        <!-- 编辑图标 (铅笔) -->
+        <span class="quick-reply-action-btn btn-edit" title="编辑" data-index="${index}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        </span>
+        <!-- 删除图标 (垃圾桶) -->
+        <span class="quick-reply-action-btn btn-delete" title="删除" data-index="${index}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </span>
+      </div>
+    `;
+
+            // 绑定事件：发送
+            div.querySelector('.quick-reply-content').addEventListener('click', () => {
+              sendQuickReply(item);
+            });
+
+            // 绑定事件：编辑
+            div.querySelector('.btn-edit').addEventListener('click', e => {
+              e.stopPropagation(); // 防止触发发送
+              editQuickReply(index);
+            });
+
+            // 绑定事件：删除
+            div.querySelector('.btn-delete').addEventListener('click', e => {
+              e.stopPropagation(); // 防止触发发送
+              deleteQuickReply(index);
+            });
+
+            listEl.appendChild(div);
+          });
+        }
+        /**
+         * 【全新升级】编辑快捷回复 (支持修改类型和内容)
+         */
+        async function editQuickReply(index) {
+          const item = state.globalSettings.quickReplies[index];
+
+          // 1. 获取旧内容，作为默认值填充
+          const oldContent = typeof item === 'string' ? item : item.content;
+
+          // 2. 第一步：让用户重新选择类型 (类似于添加新回复时的逻辑)
+          const newType = await showChoiceModal('编辑 - 选择类型', [
+            { text: '📝 普通文本', value: 'text' },
+            { text: '🎤 语音消息', value: 'voice_message' },
+            { text: '🖼️ 图片描述', value: 'ai_image' },
+            { text: '💸 转账 (备注)', value: 'transfer' },
+            { text: '🍔 外卖 (商品名)', value: 'waimai_request' },
+          ]);
+
+          if (!newType) return; // 如果用户取消选择类型，则停止
+
+          // 3. 根据选择的类型设置提示语
+          let promptTitle = '编辑内容';
+          let promptDesc = '请输入回复内容...';
+
+          if (newType === 'voice_message') {
+            promptTitle = '编辑语音内容';
+            promptDesc = '输入语音转换的文字内容';
+          } else if (newType === 'ai_image') {
+            promptTitle = '编辑图片描述';
+            promptDesc = '输入图片的画面描述';
+          } else if (newType === 'transfer') {
+            promptTitle = '编辑转账备注';
+            promptDesc = '输入转账的备注文字';
+          } else if (newType === 'waimai_request') {
+            promptTitle = '编辑外卖商品';
+            promptDesc = '输入想吃的商品名称';
+          }
+
+          // 4. 第二步：弹出输入框，并填入旧内容供修改
+          const newContent = await showCustomPrompt(promptTitle, promptDesc, oldContent);
+
+          // 5. 保存逻辑
+          if (newContent !== null && newContent.trim()) {
+            // 直接覆盖旧对象
+            state.globalSettings.quickReplies[index] = {
+              type: newType,
+              content: newContent.trim(),
+            };
+
+            await db.globalSettings.put(state.globalSettings);
+            renderQuickReplyList(); // 刷新列表
+            // alert('修改成功！'); // 可选提示
+          }
+        }
+
+        /**
+         * 【修复版】发送快捷回复 (自动识别类型并渲染)
+         */
+        async function sendQuickReply(item) {
+          if (!state.activeChatId) return;
+
+          const chat = state.chats[state.activeChatId];
+          const modal = document.getElementById('quick-reply-modal');
+          const chatInput = document.getElementById('chat-input');
+
+          // 关闭弹窗
+          modal.classList.remove('visible');
+
+          // 1. 解析数据
+          let type = 'text';
+          let content = '';
+
+          if (typeof item === 'string') {
+            content = item;
+          } else {
+            type = item.type;
+            content = item.content;
+          }
+
+          // 2. 如果是普通文本，走标准流程 (填入输入框并点击发送)
+          // 这样可以保留引用回复等文本特有的功能
+          if (type === 'text') {
+            chatInput.value = content;
+            document.getElementById('send-btn').click();
+            return;
+          }
+
+          // 3. 如果是特殊类型，手动构造消息对象并发送
+          // 这样可以避开输入框，直接生成对应的富文本卡片
+
+          const myNickname = chat.isGroup ? chat.settings.myNickname || '我' : '我';
+          const msg = {
+            role: 'user',
+            timestamp: Date.now(),
+          };
+
+          if (type === 'voice_message') {
+            msg.type = 'voice_message';
+            msg.content = content;
+          } else if (type === 'ai_image') {
+            // 用户发送的图片描述，系统内部通常标记为 user_photo
+            msg.type = 'user_photo';
+            msg.content = content;
+          } else if (type === 'transfer') {
+            // 转账逻辑：需要扣款
+            const amount = 52.0; // 快捷转账默认金额，也可改为从 item 中读取更复杂的配置
+            if ((state.globalSettings.userBalance || 0) < amount) {
+              alert('余额不足，无法发送快捷转账！');
+              return;
+            }
+            // 扣款
+            await updateUserBalanceAndLogTransaction(-amount, `快捷转账给 ${chat.name}`);
+
+            msg.type = 'transfer';
+            msg.amount = amount;
+            msg.note = content; // 备注
+            msg.senderName = myNickname;
+            msg.receiverName = chat.isGroup ? '群聊' : chat.name;
+          } else if (type === 'waimai_request') {
+            // 外卖请求
+            msg.type = 'waimai_request';
+            msg.productInfo = content; // 商品名
+            msg.amount = 20; // 默认金额
+            msg.senderName = myNickname;
+            msg.status = 'pending';
+            msg.countdownEndTime = Date.now() + 15 * 60 * 1000;
+          }
+
+          // 4. 保存并渲染
+          chat.history.push(msg);
+          await db.chats.put(chat);
+
+          // 渲染到界面
+          appendMessage(msg, chat);
+          renderChatList();
+
+          // 滚动到底部
+          const messagesContainer = document.getElementById('chat-messages');
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        /**
+         * 添加新的快捷回复 (带类型选择)
+         */
+        async function addNewQuickReply() {
+          // 1. 先让用户选择类型
+          const type = await showChoiceModal('选择消息类型', [
+            { text: '📝 普通文本', value: 'text' },
+            { text: '🎤 语音消息', value: 'voice_message' },
+            { text: '🖼️ 图片描述', value: 'ai_image' },
+            { text: '💸 转账 (备注)', value: 'transfer' },
+            { text: '🍔 外卖 (商品名)', value: 'waimai_request' },
+          ]);
+
+          if (!type) return; // 用户取消
+
+          // 2. 根据类型设置提示语
+          let promptTitle = '输入内容';
+          let promptDesc = '请输入回复内容...';
+
+          if (type === 'voice_message') {
+            promptTitle = '添加语音';
+            promptDesc = '输入语音转换的文字内容';
+          } else if (type === 'ai_image') {
+            promptTitle = '添加图片';
+            promptDesc = '输入图片的画面描述';
+          } else if (type === 'transfer') {
+            promptTitle = '添加转账备注';
+            promptDesc = '输入转账的备注文字 (默认52元)';
+          } else if (type === 'waimai_request') {
+            promptTitle = '添加外卖';
+            promptDesc = '输入想吃的商品名称 (默认20元)';
+          }
+
+          // 3. 弹出输入框
+          const content = await showCustomPrompt(promptTitle, promptDesc);
+
+          if (content && content.trim()) {
+            if (!state.globalSettings.quickReplies) state.globalSettings.quickReplies = [];
+
+            // 保存为对象结构
+            state.globalSettings.quickReplies.push({
+              type: type,
+              content: content.trim(),
+            });
+
+            await db.globalSettings.put(state.globalSettings);
+            renderQuickReplyList();
+          }
+        }
+
+        /**
+         * 删除快捷回复
+         */
+        async function deleteQuickReply(index) {
+          // 不需要弹窗确认，提升操作效率，或者保留确认看你喜好
+          // const confirmed = await showCustomConfirm('确认删除', '确定要删除吗？', {confirmButtonClass: 'btn-danger'});
+          // if (confirmed) { ... }
+
+          state.globalSettings.quickReplies.splice(index, 1);
+          await db.globalSettings.put(state.globalSettings);
+          renderQuickReplyList();
+        }
+
+        /**
+         * 导出快捷回复
+         */
+        function exportQuickReplies() {
+          const replies = state.globalSettings.quickReplies || [];
+          const blob = new Blob([JSON.stringify(replies, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `EPhone-QuickReplies-${new Date().toISOString().split('T')[0]}.json`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }
+
+        /**
+         * 导入快捷回复
+         */
+        function importQuickReplies(file) {
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = async e => {
+            try {
+              const data = JSON.parse(e.target.result);
+              if (Array.isArray(data)) {
+                if (!state.globalSettings.quickReplies) state.globalSettings.quickReplies = [];
+
+                // 简单的数据清洗，兼容旧的字符串数组
+                const cleanedData = data.map(item => {
+                  if (typeof item === 'string') return { type: 'text', content: item };
+                  return item;
+                });
+
+                // 合并
+                state.globalSettings.quickReplies.push(...cleanedData);
+
+                await db.globalSettings.put(state.globalSettings);
+                renderQuickReplyList();
+                alert(`成功导入 ${cleanedData.length} 条快捷回复。`);
+              } else {
+                alert('文件格式不正确。');
+              }
+            } catch (error) {
+              alert('导入失败：' + error.message);
+            }
+          };
+          reader.readAsText(file);
+        }
+        // ▲▲▲ 快捷回复逻辑结束 ▲▲▲
+        /* ▼▼▼ 【全新】时间轴/存档功能核心函数 ▼▼▼ */
+
+        /**
+         * 打开时间轴管理弹窗
+         */
+        function openBranchingModal() {
+          if (!state.activeChatId) return;
+          renderBranchList();
+          document.getElementById('branching-modal').classList.add('visible');
+        }
+
+        /**
+         * 渲染存档列表
+         */
+        function renderBranchList() {
+          const chat = state.chats[state.activeChatId];
+          const listEl = document.getElementById('branch-list');
+          listEl.innerHTML = '';
+
+          if (!chat.checkpoints || chat.checkpoints.length === 0) {
+            listEl.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">暂无存档记录</p>';
+            return;
+          }
+
+          // 按时间倒序排列
+          const sortedCheckpoints = [...chat.checkpoints].sort((a, b) => b.timestamp - a.timestamp);
+
+          sortedCheckpoints.forEach(cp => {
+            const dateStr = new Date(cp.timestamp).toLocaleString();
+            const item = document.createElement('div');
+            item.className = 'branch-item';
+
+            // 获取最后一条消息作为预览
+            const lastMsg = cp.history.length > 0 ? cp.history[cp.history.length - 1].content : '无记录';
+            const previewText = typeof lastMsg === 'string' ? lastMsg.substring(0, 20) : '[特殊消息]';
+
+            item.innerHTML = `
+            <div class="branch-info">
+                <div class="branch-name">${cp.name}</div>
+                <div class="branch-meta">${dateStr} · ${cp.history.length}条记录</div>
+                <div class="branch-meta" style="margin-top:2px;">末句: ${previewText}...</div>
+            </div>
+            <div class="branch-actions">
+                <button class="branch-action-btn branch-load" onclick="loadBranchCheckpoint('${cp.id}')">读取</button>
+                <button class="branch-action-btn branch-delete" onclick="deleteBranchCheckpoint('${cp.id}')">删除</button>
+            </div>
+        `;
+            listEl.appendChild(item);
+          });
+        }
+
+        /* ▼▼▼ 【全新 v2】时间轴/存档功能核心函数 (带心声数据) ▼▼▼ */
+
+        /**
+         * 打开时间轴管理弹窗
+         */
+        function openBranchingModal() {
+          if (!state.activeChatId) return;
+          renderBranchList();
+          document.getElementById('branching-modal').classList.add('visible');
+        }
+
+        /**
+         * 渲染存档列表 (保持不变)
+         */
+        function renderBranchList() {
+          const chat = state.chats[state.activeChatId];
+          const listEl = document.getElementById('branch-list');
+          listEl.innerHTML = '';
+
+          if (!chat.checkpoints || chat.checkpoints.length === 0) {
+            listEl.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">暂无存档记录</p>';
+            return;
+          }
+
+          // 按时间倒序排列
+          const sortedCheckpoints = [...chat.checkpoints].sort((a, b) => b.timestamp - a.timestamp);
+
+          sortedCheckpoints.forEach(cp => {
+            const dateStr = new Date(cp.timestamp).toLocaleString();
+            const item = document.createElement('div');
+            item.className = 'branch-item'; // 确保你的CSS里有这个类
+
+            // 获取最后一条消息作为预览
+            const lastMsg = cp.history.length > 0 ? cp.history[cp.history.length - 1].content : '无记录';
+            let previewText = typeof lastMsg === 'string' ? lastMsg.substring(0, 20) : '[特殊消息]';
+
+            // 获取心声预览 (如果有)
+            if (cp.latestInnerVoice && cp.latestInnerVoice.thoughts) {
+              previewText += ` | 心声: ${cp.latestInnerVoice.thoughts.substring(0, 10)}...`;
+            }
+
+            item.innerHTML = `
+            <div class="branch-info">
+                <div class="branch-name">${cp.name}</div>
+                <div class="branch-meta">${dateStr} · ${cp.history.length}条记录</div>
+                <div class="branch-meta" style="margin-top:2px; color:#aaa;">${previewText}</div>
+            </div>
+            <div class="branch-actions">
+                <button class="branch-action-btn branch-load" onclick="loadBranchCheckpoint('${cp.id}')">读取</button>
+                <button class="branch-action-btn branch-delete" onclick="deleteBranchCheckpoint('${cp.id}')">删除</button>
+            </div>
+        `;
+            listEl.appendChild(item);
+          });
+        }
+
+        /**
+         * 创建当前进度的存档 (已加入心声保存)
+         */
+        async function createBranchCheckpoint() {
+          const chat = state.chats[state.activeChatId];
+          if (!chat) return;
+
+          const defaultName = `存档于 ${new Date().toLocaleTimeString()}`;
+          const name = await showCustomPrompt('新建存档', '给这个节点起个名字吧', defaultName);
+
+          if (name) {
+            const newCheckpoint = {
+              id: 'cp_' + Date.now(),
+              name: name.trim(),
+              timestamp: Date.now(),
+              // 1. 保存聊天历史
+              history: JSON.parse(JSON.stringify(chat.history)),
+              // 2. 【关键】保存心声历史
+              innerVoiceHistory: JSON.parse(JSON.stringify(chat.innerVoiceHistory || [])),
+              // 3. 【关键】保存当前最新的心声状态
+              latestInnerVoice: chat.latestInnerVoice ? JSON.parse(JSON.stringify(chat.latestInnerVoice)) : null,
+            };
+
+            chat.checkpoints.push(newCheckpoint);
+            await db.chats.put(chat);
+            renderBranchList();
+            alert('存档成功！(包含心声)');
+          }
+        }
+
+        /**
+         * 读取存档 (已加入心声恢复)
+         */
+        window.loadBranchCheckpoint = async function (checkpointId) {
+          const chat = state.chats[state.activeChatId];
+          const checkpoint = chat.checkpoints.find(cp => cp.id === checkpointId);
+
+          if (!checkpoint) return;
+
+          const confirmed = await showCustomConfirm(
+            '确认读取',
+            `确定要读取存档“${checkpoint.name}”吗？\n\n⚠️ 注意：读取后，当前的未保存进度将会丢失！`,
+            { confirmButtonClass: 'btn-danger' },
+          );
+
+          if (confirmed) {
+            // 1. 恢复聊天历史
+            chat.history = JSON.parse(JSON.stringify(checkpoint.history));
+
+            // 2. 【关键】恢复心声历史
+            chat.innerVoiceHistory = JSON.parse(JSON.stringify(checkpoint.innerVoiceHistory || []));
+
+            // 3. 【关键】恢复当前心声状态
+            chat.latestInnerVoice = checkpoint.latestInnerVoice
+              ? JSON.parse(JSON.stringify(checkpoint.latestInnerVoice))
+              : null;
+
+            await db.chats.put(chat);
+            renderChatInterface(state.activeChatId); // 刷新聊天界面
+
+            // 这一步很重要：虽然我们更新了数据，但心声面板可能还是显示旧的。
+            // 我们不需要强制打开面板，但如果面板是开着的，我们应该刷新它。
+            // 最简单的方法是关闭并重新打开一下，或者直接更新DOM（如果此时你写了updateInnerVoiceUI函数）
+            // 这里我们不做额外操作，因为用户下次打开面板时会自动读取最新的 chat.latestInnerVoice。
+
+            document.getElementById('branching-modal').classList.remove('visible'); // 关闭弹窗
+            alert(`已回溯至：${checkpoint.name}`);
+          }
+        };
+
+        /**
+         * 删除存档 (保持不变)
+         */
+        window.deleteBranchCheckpoint = async function (checkpointId) {
+          const chat = state.chats[state.activeChatId];
+          const confirmed = await showCustomConfirm('删除存档', '确定要删除这个存档吗？不可恢复。', {
+            confirmButtonClass: 'btn-danger',
+          });
+
+          if (confirmed) {
+            chat.checkpoints = chat.checkpoints.filter(cp => cp.id !== checkpointId);
+            await db.chats.put(chat);
+            renderBranchList();
+          }
+        };
+
+        /**
+         * 重开新剧情 (已加入心声清空)
+         */
+        async function restartChatBranch() {
+          const chat = state.chats[state.activeChatId];
+
+          const confirmed = await showCustomConfirm(
+            '重开新剧情',
+            '确定要清空当前所有聊天记录，开始一条新的故事线吗？\n这也会清空当前的所有心声记录。\n\n⚠️ 建议先点右上角保存当前进度为存档！',
+            { confirmButtonClass: 'btn-danger' },
+          );
+
+          if (confirmed) {
+            // 1. 清空聊天历史
+            chat.history = [];
+
+            // 2. 【关键】清空心声历史
+            chat.innerVoiceHistory = [];
+
+            // 3. 【关键】清空当前心声
+            chat.latestInnerVoice = null;
+
+            await db.chats.put(chat);
+            renderChatInterface(state.activeChatId);
+            document.getElementById('branching-modal').classList.remove('visible');
+
+            alert('已重置，新的故事开始了。');
+          }
+        }
+        /* ▲▲▲ 新增功能函数结束 ▲▲▲ */
+
+        /**
+         * 删除存档
+         */
+        window.deleteBranchCheckpoint = async function (checkpointId) {
+          const chat = state.chats[state.activeChatId];
+          const confirmed = await showCustomConfirm('删除存档', '确定要删除这个存档吗？不可恢复。', {
+            confirmButtonClass: 'btn-danger',
+          });
+
+          if (confirmed) {
+            chat.checkpoints = chat.checkpoints.filter(cp => cp.id !== checkpointId);
+            await db.chats.put(chat);
+            renderBranchList();
+          }
+        };
 
         // ===================================================================
         // 4. 初始化函数 init()
@@ -46056,13 +46918,19 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           // ▲▲▲ 新增事件监听结束 ▲▲▲
           // 在你的 init() 函数的事件监听器区域...
 
-          // ▼▼▼ 添加这段新的报表功能事件监听器 ▼▼▼
-          document.getElementById('tukey-reports-view').addEventListener('change', e => {
-            if (e.target.matches('#report-account-filter, #report-month-filter, #report-type-filter')) {
-              handleReportFilterChange();
+          // ▼▼▼ 【新增】报表页面的点击事件（处理删除） ▼▼▼
+          document.getElementById('tukey-reports-view').addEventListener('click', e => {
+            // 检查是否点击了删除按钮
+            const deleteBtn = e.target.closest('.delete-record-btn');
+            if (deleteBtn) {
+              const recordId = parseInt(deleteBtn.dataset.id);
+              if (!isNaN(recordId)) {
+                deleteTukeyAccountingRecord(recordId);
+              }
             }
           });
-          // ▲▲▲ 添加结束 ▲▲▲
+          // ▲▲▲ 新增结束 ▲▲▲
+
           // ▼▼▼ 【全新】“kk查岗”功能事件监听器 ▼▼▼
           document.getElementById('kk-checkin-app-icon').addEventListener('click', openKkCheckin);
 
@@ -46313,8 +47181,39 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             // 调用生成函数，传入选中的目标（如果是随机则为null）
             generateCharacterPhoneDataSegment('chats', selectedTargets);
           });
-          // ▲▲▲ 新增结束 ▲▲▲
+          // ▼▼▼ 【新增】快捷回复事件绑定 ▼▼▼
+          document.getElementById('quick-reply-btn').addEventListener('click', openQuickReplyModal);
 
+          document.getElementById('add-quick-reply-btn').addEventListener('click', addNewQuickReply);
+
+          document.getElementById('close-quick-reply-btn').addEventListener('click', () => {
+            document.getElementById('quick-reply-modal').classList.remove('visible');
+          });
+
+          document.getElementById('export-quick-reply-btn').addEventListener('click', exportQuickReplies);
+
+          document.getElementById('import-quick-reply-btn').addEventListener('click', () => {
+            document.getElementById('import-quick-reply-input').click();
+          });
+
+          document.getElementById('import-quick-reply-input').addEventListener('change', e => {
+            importQuickReplies(e.target.files[0]);
+            e.target.value = null;
+          });
+          // ▲▲▲ 新增结束 ▲▲▲
+          // ▼▼▼ 时间轴功能事件绑定 (更新版) ▼▼▼
+          // 注意 ID 变成了 timeline-branch-btn
+          document.getElementById('timeline-branch-btn').addEventListener('click', openBranchingModal);
+
+          document.getElementById('create-branch-btn').addEventListener('click', createBranchCheckpoint);
+          document.getElementById('restart-chat-btn').addEventListener('click', restartChatBranch);
+          document.getElementById('close-branching-modal-btn').addEventListener('click', () => {
+            document.getElementById('branching-modal').classList.remove('visible');
+          });
+          // ▲▲▲ 绑定结束 ▲▲▲
+
+          // ▲▲▲ 新增结束 ▲▲▲
+          initVideoBubbleDrag(); // 初始化视频悬浮球拖拽
           initLoversSpace();
           initTaobao();
           initTukeyAccounting();
