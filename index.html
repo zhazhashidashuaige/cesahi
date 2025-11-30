@@ -68,48 +68,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <script src="tukey-accounting.js" defer></script>
 
-    <style>      /* ▼▼▼ 新增：视觉欺骗法 - 既不放大界面，又保持小字体 ▼▼▼ */
-      @media screen and (max-width: 768px) {
-        /* 1. 针对所有文本输入框 */
-        input[type="text"], 
-        input[type="password"], 
-        input[type="number"], 
-        input[type="search"], 
-        textarea, 
-        select {
-          /* 第一步：设为16px，骗过iOS，让它不要放大界面 */
-          font-size: 16px !important; 
-          
-          /* 第二步：使用缩放，视觉上把字变回约 14px 大小 (16 * 0.875 = 14) */
-          transform: scale(0.875); 
-          transform-origin: left center; /* 保证左对齐 */
-          
-          /* 第三步：因为缩放了，宽度会变短，所以要补偿宽度 */
-          width: 114.3% !important; /* 100 / 0.875 ≈ 114.3 */
-          
-          /* 第四步：修正因为变宽导致的布局偏移 */
-          margin-right: -14.3%;
-        }
-
-        /* 2. 特殊修正：聊天底部输入框不需要补偿margin，因为它在flex布局里 */
-        #chat-input {
-           margin-right: 0 !important;
-           /* 如果输入框高度塌陷，适当增加高度补偿 */
-           height: auto; 
-        }
-        
-        /* 3. 排除不需要缩放的控件（如开关、复选框） */
-        input[type="checkbox"], 
-        input[type="radio"],
-        input[type="range"],
-        input[type="color"],
-        input[type="file"] {
-          font-size: initial !important;
-          transform: none !important;
-          width: auto !important;
-        }
-      }
-      /* ▲▲▲ 新增结束 ▲▲▲ */</style>
+    <style></style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
     <style id="custom-theme-style"></style>
   </head>
@@ -366,7 +325,7 @@
               <!-- 我们用一个新的容器把月份和头像包起来 -->
               <div id="new-widget-header">
                 <!-- 加上了 contenteditable 和 class，现在你可以随便改它了，写数字、文字都可以 -->
-<div id="widget-month-display" class="editable-text" contenteditable="true">12</div>
+                <div id="widget-month-display" class="editable-text" contenteditable="true">12</div>
 
                 <img
                   id="new-widget-avatar"
@@ -10624,6 +10583,12 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       };
 
       // ▲▲▲ 新代码粘贴结束 ▲▲▲
+      // ▼▼▼ 【粘贴到这里】把那4个头像变量放在这里，让它们变成全局变量 ▼▼▼
+      const defaultAvatar = 'https://i.postimg.cc/PxZrFFFL/o-o-1.jpg';
+      const defaultMyGroupAvatar = 'https://i.postimg.cc/cLPP10Vm/4.jpg';
+      const defaultGroupMemberAvatar = 'https://i.postimg.cc/VkQfgzGJ/1.jpg';
+      const defaultGroupAvatar = 'https://i.postimg.cc/gc3QYCDy/1-NINE7-Five.jpg';
+      // ▲▲▲ 粘贴结束 ▲▲▲
 
       // ▲▲▲ 新代码粘贴结束 ▲▲▲
       const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
@@ -11452,10 +11417,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
         let currentFrameSelection = { type: null, url: '', target: null };
 
-        const defaultAvatar = 'https://i.postimg.cc/PxZrFFFL/o-o-1.jpg';
-        const defaultMyGroupAvatar = 'https://i.postimg.cc/cLPP10Vm/4.jpg';
-        const defaultGroupMemberAvatar = 'https://i.postimg.cc/VkQfgzGJ/1.jpg';
-        const defaultGroupAvatar = 'https://i.postimg.cc/gc3QYCDy/1-NINE7-Five.jpg';
         let notificationTimeout;
 
         const THEME_CSS_TEMPLATE = `
@@ -15037,52 +14998,52 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         }
         // ▲▲▲ 第十二部分结束 ▲▲▲
 
-              function renderApiSettings() {
+        function renderApiSettings() {
           // 1. 更新 API 相关的输入框
           document.getElementById('proxy-url').value = state.apiConfig.proxyUrl || '';
           document.getElementById('api-key').value = state.apiConfig.apiKey || '';
-          
+
           // --- Minimax 设置 ---
           document.getElementById('minimax-group-id').value = state.apiConfig.minimaxGroupId || '';
           document.getElementById('minimax-api-key').value = state.apiConfig.minimaxApiKey || '';
           document.getElementById('minimax-provider-select').value = state.apiConfig.minimaxProvider || 'cn';
-          
+
           // ★★★ 修复2：Minimax 语音模型下拉框回显 ★★★
           const speechModelSelect = document.getElementById('minimax-speech-model-select');
           if (speechModelSelect) {
             // 获取保存的模型，如果没有则默认为 speech-01-turbo
             const savedSpeechModel = state.apiConfig.minimaxSpeechModel || 'speech-01-turbo';
-            
+
             // 检查下拉框里有没有这个选项
             let optionExists = Array.from(speechModelSelect.options).some(opt => opt.value === savedSpeechModel);
-            
+
             // 如果没有（比如刚刷新完页面），就手动创建一个选项加进去
             if (!optionExists && savedSpeechModel) {
-                const option = document.createElement('option');
-                option.value = savedSpeechModel;
-                option.textContent = savedSpeechModel;
-                speechModelSelect.appendChild(option);
+              const option = document.createElement('option');
+              option.value = savedSpeechModel;
+              option.textContent = savedSpeechModel;
+              speechModelSelect.appendChild(option);
             }
-            
+
             // 选中它
             speechModelSelect.value = savedSpeechModel;
           }
-          
+
           // ★★★ 修复1：主对话模型下拉框回显 (保持之前的修复) ★★★
           const modelSelect = document.getElementById('model-select');
           if (modelSelect) {
             const savedModel = state.apiConfig.model || 'gpt-4';
-            
+
             let optionExists = Array.from(modelSelect.options).some(opt => opt.value === savedModel);
             if (!optionExists && savedModel) {
-                const option = document.createElement('option');
-                option.value = savedModel;
-                option.textContent = savedModel;
-                modelSelect.appendChild(option);
+              const option = document.createElement('option');
+              option.value = savedModel;
+              option.textContent = savedModel;
+              modelSelect.appendChild(option);
             }
             modelSelect.value = savedModel;
           }
-          
+
           // --------------------------------
 
           // 加载NovelAI配置
@@ -15105,7 +15066,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           // 3. 渲染预设和频率的下拉框
           renderApiPresetSelector();
           renderBackgroundFrequencySelector();
-          
+
           // 渲染温度滑块的UI
           const tempSlider = document.getElementById('temperature-slider');
           const tempValueDisplay = document.getElementById('temperature-value');
@@ -15117,7 +15078,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           tempSlider.addEventListener('input', () => {
             tempValueDisplay.textContent = parseFloat(tempSlider.value).toFixed(1);
           });
-          
+
           const qualitySlider = document.getElementById('image-quality-slider');
           const qualityValue = document.getElementById('image-quality-value');
           const currentQuality = state.globalSettings.imageCompressionQuality || 0.7;
@@ -15132,7 +15093,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
           calculateTotalImageSize();
         }
-
 
         // ▼▼▼ 【全新】粘贴这个完整的函数 ▼▼▼
         /**
@@ -37170,29 +37130,36 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               tables: ['taobaoProducts', 'taobaoOrders', 'taobaoCart', 'userWalletTransactions'],
             },
             { id: 'worldBooks', name: '世界书 (全部书籍及分类)', tables: ['worldBooks', 'worldBookCategories'] },
-    // ▼▼▼ 【新增】在这里插入约会大作战的选项 ▼▼▼
-    { 
-        id: 'dateALive', 
-        name: '约会大作战 (场景/预设/立绘/历史)', 
-        tables: ['datingScenes', 'datingPresets', 'datingSpriteGroups', 'datingSprites', 'datingHistory'] 
-    },
-    // ▲▲▲ 新增结束 ▲▲▲
+            // ▼▼▼ 【新增】在这里插入约会大作战的选项 ▼▼▼
+            {
+              id: 'dateALive',
+              name: '约会大作战 (场景/预设/立绘/历史)',
+              tables: ['datingScenes', 'datingPresets', 'datingSpriteGroups', 'datingSprites', 'datingHistory'],
+            },
+            // ▲▲▲ 新增结束 ▲▲▲
 
-    // ▼▼▼ 【新增】在这里插入兔k记账的选项 ▼▼▼
-    { 
-        id: 'tukeyAccounting', 
-        name: '兔k记账 (账户/群聊/账单/设置)', 
-        tables: ['tukeyAccounts', 'tukeyAccountingGroups', 'tukeyAccountingRecords', 'tukeyAccountingReplies', 'tukeyUserSettings', 'tukeyCustomConfig'] 
-    },
-    // ▲▲▲ 新增结束 ▲▲▲
+            // ▼▼▼ 【新增】在这里插入兔k记账的选项 ▼▼▼
+            {
+              id: 'tukeyAccounting',
+              name: '兔k记账 (账户/群聊/账单/设置)',
+              tables: [
+                'tukeyAccounts',
+                'tukeyAccountingGroups',
+                'tukeyAccountingRecords',
+                'tukeyAccountingReplies',
+                'tukeyUserSettings',
+                'tukeyCustomConfig',
+              ],
+            },
+            // ▲▲▲ 新增结束 ▲▲▲
 
-    // ▼▼▼ 【新增】在这里插入小剧场的选项 ▼▼▼
-    { 
-        id: 'studio', 
-        name: '小剧场 (所有剧本/演绎记录)', 
-        tables: ['studioScripts', 'studioHistory'] 
-    },
-    // ▲▲▲ 新增结束 ▲▲▲
+            // ▼▼▼ 【新增】在这里插入小剧场的选项 ▼▼▼
+            {
+              id: 'studio',
+              name: '小剧场 (所有剧本/演绎记录)',
+              tables: ['studioScripts', 'studioHistory'],
+            },
+            // ▲▲▲ 新增结束 ▲▲▲
 
             { id: 'userStickers', name: '我的表情包 (包含分类)', tables: ['userStickers', 'userStickerCategories'] },
             { id: 'charStickers', name: '角色通用表情包', tables: ['charStickers'] },
@@ -37283,23 +37250,32 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               forum: { tables: ['forumGroups', 'forumPosts', 'forumComments', 'forumCategories'] },
               taobao: { tables: ['taobaoProducts', 'taobaoOrders', 'taobaoCart', 'userWalletTransactions'] },
               worldBooks: { tables: ['worldBooks', 'worldBookCategories'] },
-      // ▼▼▼ 【新增】在这里插入约会大作战的表映射 ▼▼▼
-      dateALive: { tables: ['datingScenes', 'datingPresets', 'datingSpriteGroups', 'datingSprites', 'datingHistory'] },
-      // ▲▲▲ 新增结束 ▲▲▲
+              // ▼▼▼ 【新增】在这里插入约会大作战的表映射 ▼▼▼
+              dateALive: {
+                tables: ['datingScenes', 'datingPresets', 'datingSpriteGroups', 'datingSprites', 'datingHistory'],
+              },
+              // ▲▲▲ 新增结束 ▲▲▲
 
-      // ▼▼▼ 【新增】在这里插入兔k记账的表映射 ▼▼▼
-      tukeyAccounting: { 
-          tables: ['tukeyAccounts', 'tukeyAccountingGroups', 'tukeyAccountingRecords', 'tukeyAccountingReplies', 'tukeyUserSettings', 'tukeyCustomConfig'] 
-      },
-      // ▲▲▲ 新增结束 ▲▲▲
+              // ▼▼▼ 【新增】在这里插入兔k记账的表映射 ▼▼▼
+              tukeyAccounting: {
+                tables: [
+                  'tukeyAccounts',
+                  'tukeyAccountingGroups',
+                  'tukeyAccountingRecords',
+                  'tukeyAccountingReplies',
+                  'tukeyUserSettings',
+                  'tukeyCustomConfig',
+                ],
+              },
+              // ▲▲▲ 新增结束 ▲▲▲
 
-      // ▼▼▼ 【新增】在这里插入小剧场的表映射 ▼▼▼
-      studio: { 
-          tables: ['studioScripts', 'studioHistory'] 
-      },
-      // ▲▲▲ 新增结束 ▲▲▲
+              // ▼▼▼ 【新增】在这里插入小剧场的表映射 ▼▼▼
+              studio: {
+                tables: ['studioScripts', 'studioHistory'],
+              },
+              // ▲▲▲ 新增结束 ▲▲▲
 
-               userStickers: { tables: ['userStickers', 'userStickerCategories'] },
+              userStickers: { tables: ['userStickers', 'userStickerCategories'] },
               charStickers: { tables: ['charStickers'] },
               gameData: { tables: ['scriptKillScripts', 'ludoQuestionBanks', 'ludoQuestions'] },
               appearance: {
@@ -37421,16 +37397,15 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 forum: '圈子',
                 taobao: '桃宝',
                 worldBooks: '世界书',
-            // ▼▼▼ 【新增】在这里添加中文映射 ▼▼▼
-            dateALive: '约会大作战数据',
-            // ▲▲▲ 新增结束 ▲▲▲
-            // ▼▼▼ 【新增】在这里添加中文映射 ▼▼▼
-            tukeyAccounting: '兔k记账数据',
-            // ▲▲▲ 新增结束 ▲▲▲
-            // ▼▼▼ 【新增】在这里添加中文映射 ▼▼▼
-            studio: '小剧场数据',
-            // ▲▲▲ 新增结束 ▲▲▲
-
+                // ▼▼▼ 【新增】在这里添加中文映射 ▼▼▼
+                dateALive: '约会大作战数据',
+                // ▲▲▲ 新增结束 ▲▲▲
+                // ▼▼▼ 【新增】在这里添加中文映射 ▼▼▼
+                tukeyAccounting: '兔k记账数据',
+                // ▲▲▲ 新增结束 ▲▲▲
+                // ▼▼▼ 【新增】在这里添加中文映射 ▼▼▼
+                studio: '小剧场数据',
+                // ▲▲▲ 新增结束 ▲▲▲
 
                 userStickers: '我的表情包',
                 charStickers: '角色通用表情包',
