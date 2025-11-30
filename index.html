@@ -15035,25 +15035,42 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         }
         // ▲▲▲ 第十二部分结束 ▲▲▲
 
-        function renderApiSettings() {
+              function renderApiSettings() {
           // 1. 更新 API 相关的输入框
           document.getElementById('proxy-url').value = state.apiConfig.proxyUrl || '';
           document.getElementById('api-key').value = state.apiConfig.apiKey || '';
-          // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
-          // 【核心新增】加载 Minimax 设置
+          
+          // --- Minimax 设置 ---
           document.getElementById('minimax-group-id').value = state.apiConfig.minimaxGroupId || '';
           document.getElementById('minimax-api-key').value = state.apiConfig.minimaxApiKey || '';
           document.getElementById('minimax-provider-select').value = state.apiConfig.minimaxProvider || 'cn';
-          document.getElementById('minimax-speech-model-select').value =
-            state.apiConfig.minimaxSpeechModel || 'speech-01';
-          // ▲▲▲ 粘贴结束 ▲▲▲
-          // 如果你有模型选择，也一并更新
+          
+          // ★★★ 修复2：Minimax 语音模型下拉框回显 ★★★
+          const speechModelSelect = document.getElementById('minimax-speech-model-select');
+          if (speechModelSelect) {
+            // 获取保存的模型，如果没有则默认为 speech-01-turbo
+            const savedSpeechModel = state.apiConfig.minimaxSpeechModel || 'speech-01-turbo';
+            
+            // 检查下拉框里有没有这个选项
+            let optionExists = Array.from(speechModelSelect.options).some(opt => opt.value === savedSpeechModel);
+            
+            // 如果没有（比如刚刷新完页面），就手动创建一个选项加进去
+            if (!optionExists && savedSpeechModel) {
+                const option = document.createElement('option');
+                option.value = savedSpeechModel;
+                option.textContent = savedSpeechModel;
+                speechModelSelect.appendChild(option);
+            }
+            
+            // 选中它
+            speechModelSelect.value = savedSpeechModel;
+          }
+          
+          // ★★★ 修复1：主对话模型下拉框回显 (保持之前的修复) ★★★
           const modelSelect = document.getElementById('model-select');
           if (modelSelect) {
             const savedModel = state.apiConfig.model || 'gpt-4';
             
-            // 核心修复：检查下拉框里有没有这个选项，如果没有，就手动创建一个
-            // 这样即使不点击“拉取模型”，也能显示上次保存的模型名
             let optionExists = Array.from(modelSelect.options).some(opt => opt.value === savedModel);
             if (!optionExists && savedModel) {
                 const option = document.createElement('option');
@@ -15061,10 +15078,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 option.textContent = savedModel;
                 modelSelect.appendChild(option);
             }
-            
             modelSelect.value = savedModel;
           }
-
+          
+          // --------------------------------
 
           // 加载NovelAI配置
           const novelaiEnabled = localStorage.getItem('novelai-enabled') === 'true';
@@ -15076,13 +15093,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           document.getElementById('novelai-details').style.display = novelaiEnabled ? 'block' : 'none';
 
           // 2. 更新后台活动相关的开关和输入框
-
-          // ★★★★★ 这就是我们这次修复的核心 ★★★★★
-          // 使用 !!state.globalSettings.enableBackgroundActivity 这种写法，
-          // 确保当这个设置还不存在时 (比如第一次打开)，开关也能正确地显示为 false (关闭状态)
           document.getElementById('background-activity-switch').checked =
             !!state.globalSettings.enableBackgroundActivity;
-          // ★★★★★ 修复结束 ★★★★★
 
           document.getElementById('background-interval-input').value =
             state.globalSettings.backgroundActivityInterval || 60;
@@ -15091,23 +15103,19 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           // 3. 渲染预设和频率的下拉框
           renderApiPresetSelector();
           renderBackgroundFrequencySelector();
-          // ▼▼▼ 将下面这整块【新代码】粘贴到 renderApiSettings 函数的末尾 ▼▼▼
-
-          // 【核心新增】渲染温度滑块的UI
+          
+          // 渲染温度滑块的UI
           const tempSlider = document.getElementById('temperature-slider');
           const tempValueDisplay = document.getElementById('temperature-value');
 
-          // 从 state 中读取已保存的温度，如果没有则使用默认值 0.8
           const currentTemp = state.apiConfig.temperature || 0.8;
           tempSlider.value = currentTemp;
           tempValueDisplay.textContent = parseFloat(currentTemp).toFixed(1);
 
-          // 添加实时更新显示值的事件
           tempSlider.addEventListener('input', () => {
             tempValueDisplay.textContent = parseFloat(tempSlider.value).toFixed(1);
           });
-          // ▲▲▲ 新代码粘贴结束 ▲▲▲
-          // ▼▼▼ 在函数末尾添加下面这块新代码 ▼▼▼
+          
           const qualitySlider = document.getElementById('image-quality-slider');
           const qualityValue = document.getElementById('image-quality-value');
           const currentQuality = state.globalSettings.imageCompressionQuality || 0.7;
@@ -15116,14 +15124,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             qualitySlider.value = currentQuality;
             qualityValue.textContent = parseFloat(currentQuality).toFixed(1);
 
-            // 添加实时更新显示值的事件
             qualitySlider.addEventListener('input', () => {
               qualityValue.textContent = parseFloat(qualitySlider.value).toFixed(1);
             });
           }
           calculateTotalImageSize();
-          // ▲▲▲ 新代码粘贴结束 ▲▲▲
         }
+
 
         // ▼▼▼ 【全新】粘贴这个完整的函数 ▼▼▼
         /**
