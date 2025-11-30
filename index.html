@@ -15048,9 +15048,23 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             state.apiConfig.minimaxSpeechModel || 'speech-01';
           // ▲▲▲ 粘贴结束 ▲▲▲
           // 如果你有模型选择，也一并更新
-          if (document.getElementById('model-select')) {
-            document.getElementById('model-select').value = state.apiConfig.model || 'gpt-4';
+          const modelSelect = document.getElementById('model-select');
+          if (modelSelect) {
+            const savedModel = state.apiConfig.model || 'gpt-4';
+            
+            // 核心修复：检查下拉框里有没有这个选项，如果没有，就手动创建一个
+            // 这样即使不点击“拉取模型”，也能显示上次保存的模型名
+            let optionExists = Array.from(modelSelect.options).some(opt => opt.value === savedModel);
+            if (!optionExists && savedModel) {
+                const option = document.createElement('option');
+                option.value = savedModel;
+                option.textContent = savedModel;
+                modelSelect.appendChild(option);
+            }
+            
+            modelSelect.value = savedModel;
           }
+
 
           // 加载NovelAI配置
           const novelaiEnabled = localStorage.getItem('novelai-enabled') === 'true';
@@ -37170,14 +37184,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         tables: ['studioScripts', 'studioHistory'] 
     },
     // ▲▲▲ 新增结束 ▲▲▲
-    // ▼▼▼ 【新增】在这里插入 kk查岗的选项 ▼▼▼
-    { 
-        id: 'kkCheckin', 
-        name: 'kk查岗 (仅外观预设)', 
-        // 注意：手机里的具体内容属于角色数据，请在下方勾选对应角色来导出
-        tables: ['charPhonePresets'] 
-    },
-    // ▲▲▲ 新增结束 ▲▲▲
+
             { id: 'userStickers', name: '我的表情包 (包含分类)', tables: ['userStickers', 'userStickerCategories'] },
             { id: 'charStickers', name: '角色通用表情包', tables: ['charStickers'] },
             {
@@ -37283,12 +37290,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       },
       // ▲▲▲ 新增结束 ▲▲▲
 
-      // ▼▼▼ 【新增】在这里插入 kk查岗的表映射 ▼▼▼
-      kkCheckin: { 
-          tables: ['charPhonePresets'] 
-      },
-      // ▲▲▲ 新增结束 ▲▲▲
-              userStickers: { tables: ['userStickers', 'userStickerCategories'] },
+               userStickers: { tables: ['userStickers', 'userStickerCategories'] },
               charStickers: { tables: ['charStickers'] },
               gameData: { tables: ['scriptKillScripts', 'ludoQuestionBanks', 'ludoQuestions'] },
               appearance: {
@@ -37419,9 +37421,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             // ▼▼▼ 【新增】在这里添加中文映射 ▼▼▼
             studio: '小剧场数据',
             // ▲▲▲ 新增结束 ▲▲▲
-            // ▼▼▼ 【新增】在这里添加中文映射 ▼▼▼
-            kkCheckin: 'kk查岗外观预设',
-            // ▲▲▲ 新增结束 ▲▲▲
+
 
                 userStickers: '我的表情包',
                 charStickers: '角色通用表情包',
