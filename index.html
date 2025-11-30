@@ -68,7 +68,48 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <script src="tukey-accounting.js" defer></script>
 
-    <style></style>
+    <style>      /* ▼▼▼ 新增：视觉欺骗法 - 既不放大界面，又保持小字体 ▼▼▼ */
+      @media screen and (max-width: 768px) {
+        /* 1. 针对所有文本输入框 */
+        input[type="text"], 
+        input[type="password"], 
+        input[type="number"], 
+        input[type="search"], 
+        textarea, 
+        select {
+          /* 第一步：设为16px，骗过iOS，让它不要放大界面 */
+          font-size: 16px !important; 
+          
+          /* 第二步：使用缩放，视觉上把字变回约 14px 大小 (16 * 0.875 = 14) */
+          transform: scale(0.875); 
+          transform-origin: left center; /* 保证左对齐 */
+          
+          /* 第三步：因为缩放了，宽度会变短，所以要补偿宽度 */
+          width: 114.3% !important; /* 100 / 0.875 ≈ 114.3 */
+          
+          /* 第四步：修正因为变宽导致的布局偏移 */
+          margin-right: -14.3%;
+        }
+
+        /* 2. 特殊修正：聊天底部输入框不需要补偿margin，因为它在flex布局里 */
+        #chat-input {
+           margin-right: 0 !important;
+           /* 如果输入框高度塌陷，适当增加高度补偿 */
+           height: auto; 
+        }
+        
+        /* 3. 排除不需要缩放的控件（如开关、复选框） */
+        input[type="checkbox"], 
+        input[type="radio"],
+        input[type="range"],
+        input[type="color"],
+        input[type="file"] {
+          font-size: initial !important;
+          transform: none !important;
+          width: auto !important;
+        }
+      }
+      /* ▲▲▲ 新增结束 ▲▲▲ */</style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
     <style id="custom-theme-style"></style>
   </head>
