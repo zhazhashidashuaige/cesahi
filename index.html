@@ -1145,6 +1145,52 @@
             正在计算图片数据大小...
           </p>
           <!-- ▲▲▲ 替换结束 ▲▲▲ -->
+          <!-- ▼▼▼ GitHub 备份设置区域 (插入到 API 设置页) ▼▼▼ -->
+          <hr style="margin: 20px 0; opacity: 0.3" />
+          <div class="form-group">
+            <label style="font-weight: 600; color: var(--accent-color)">☁️ GitHub 云备份</label>
+            <p
+              style="
+                font-size: 12px;
+                color: #666;
+                margin-bottom: 10px;
+                background: #f0f0f0;
+                padding: 8px;
+                border-radius: 6px;
+              "
+            >
+              可以将备份自动上传到你的私有仓库。需要申请 GitHub Token (勾选 repo 权限)。
+            </p>
+
+            <label for="github-token">GitHub Personal Access Token</label>
+            <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxx..." />
+
+            <label for="github-username" style="margin-top: 10px">GitHub 用户名</label>
+            <input type="text" id="github-username" placeholder="例如: yourname" />
+
+            <label for="github-repo" style="margin-top: 10px">仓库名称 (Repository)</label>
+            <input type="text" id="github-repo" placeholder="例如: my-backup-repo" />
+
+            <label for="github-path" style="margin-top: 10px">文件路径 (可选)</label>
+            <input type="text" id="github-path" placeholder="默认为: ephone_backup.json" />
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px">
+              <label for="github-auto-backup-switch" style="margin-bottom: 0"> 开启自动定时备份 (每30分钟) </label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="github-auto-backup-switch" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <button
+              id="manual-github-backup-btn"
+              class="form-button form-button-secondary"
+              style="margin-top: 15px; background-color: #24292e; color: white; border: none"
+            >
+              立即上传备份到 GitHub
+            </button>
+          </div>
+          <!-- ▲▲▲ GitHub 备份设置区域结束 ▲▲▲ -->
 
           <button class="form-button" id="save-api-settings-btn">保存设置</button>
           <hr style="margin: 20px 0; opacity: 0.3" />
@@ -1854,7 +1900,6 @@
               </svg>
             </button>
             <!-- ▲▲▲ 修改结束 ▲▲▲ -->
-
           </div>
           <div id="chat-input-main-row">
             <textarea id="chat-input" rows="1" placeholder="输入消息..."></textarea>
@@ -13779,6 +13824,279 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             await showCustomAlert('导出失败', `发生了一个错误: ${error.message}`);
           }
         }
+        // ▼▼▼ GitHub 备份核心功能 ▼▼▼
+
+        let githubBackupTimer = null;
+
+        /**
+         * 获取完整的备份数据对象 (不触发下载)
+         */
+        async function getFullBackupData() {
+          const backupData = {
+            version: 1,
+            timestamp: Date.now(),
+            deviceCode: getDeviceCode(), // 记录来源设备
+          };
+
+          // 获取所有数据表
+          const [
+            chats,
+            worldBooks,
+            userStickers,
+            charStickers,
+            apiConfig,
+            globalSettings,
+            personaPresets,
+            musicLibrary,
+            qzoneSettings,
+            qzonePosts,
+            qzoneAlbums,
+            qzonePhotos,
+            favorites,
+            qzoneGroups,
+            memories,
+            worldBookCategories,
+            callRecords,
+            customAvatarFrames,
+            themes,
+            apiPresets,
+            bubbleStylePresets,
+            fontPresets,
+            homeScreenPresets,
+            datingScenes,
+            datingPresets,
+            datingSpriteGroups,
+            datingSprites,
+            datingHistory,
+            pomodoroSessions,
+            ludoQuestionBanks,
+            ludoQuestions,
+            scriptKillScripts,
+            taobaoProducts,
+            taobaoOrders,
+            taobaoCart,
+            userWalletTransactions,
+            userStickerCategories,
+          ] = await Promise.all([
+            db.chats.toArray(),
+            db.worldBooks.toArray(),
+            db.userStickers.toArray(),
+            db.charStickers.toArray(),
+            db.apiConfig.get('main'),
+            db.globalSettings.get('main'),
+            db.personaPresets.toArray(),
+            db.musicLibrary.get('main'),
+            db.qzoneSettings.get('main'),
+            db.qzonePosts.toArray(),
+            db.qzoneAlbums.toArray(),
+            db.qzonePhotos.toArray(),
+            db.favorites.toArray(),
+            db.qzoneGroups.toArray(),
+            db.memories.toArray(),
+            db.worldBookCategories.toArray(),
+            db.callRecords.toArray(),
+            db.customAvatarFrames.toArray(),
+            db.themes.toArray(),
+            db.apiPresets.toArray(),
+            db.bubbleStylePresets.toArray(),
+            db.fontPresets.toArray(),
+            db.homeScreenPresets.toArray(),
+            db.datingScenes.toArray(),
+            db.datingPresets.toArray(),
+            db.datingSpriteGroups.toArray(),
+            db.datingSprites.toArray(),
+            db.datingHistory.toArray(),
+            db.pomodoroSessions.toArray(),
+            db.ludoQuestionBanks.toArray(),
+            db.ludoQuestions.toArray(),
+            db.scriptKillScripts.toArray(),
+            db.taobaoProducts.toArray(),
+            db.taobaoOrders.toArray(),
+            db.taobaoCart.toArray(),
+            db.userWalletTransactions.toArray(),
+            db.userStickerCategories.toArray(),
+          ]);
+
+          // 组装数据
+          Object.assign(backupData, {
+            chats,
+            worldBooks,
+            userStickers,
+            charStickers,
+            apiConfig,
+            globalSettings,
+            personaPresets,
+            musicLibrary,
+            qzoneSettings,
+            qzonePosts,
+            qzoneAlbums,
+            qzonePhotos,
+            favorites,
+            qzoneGroups,
+            memories,
+            worldBookCategories,
+            callRecords,
+            customAvatarFrames,
+            themes,
+            apiPresets,
+            bubbleStylePresets,
+            fontPresets,
+            homeScreenPresets,
+            datingScenes,
+            datingPresets,
+            datingSpriteGroups,
+            datingSprites,
+            datingHistory,
+            pomodoroSessions,
+            ludoQuestionBanks,
+            ludoQuestions,
+            scriptKillScripts,
+            taobaoProducts,
+            taobaoOrders,
+            taobaoCart,
+            userWalletTransactions,
+            userStickerCategories,
+          });
+
+          // 这里省略了 homeScreenState 的详细抓取，因为它依赖 DOM 元素，
+          // 自动备份时可能不在主屏幕。为了安全起见，这里仅保存 globalSettings 里的 widgetData。
+          // 如果需要完整还原UI布局，最好只在手动导出时包含 homeScreenState。
+
+          return JSON.stringify(backupData, null, 2);
+        }
+
+        // ▼▼▼ 增强版 GitHub 上传函数 (修复 404 问题) ▼▼▼
+        async function uploadBackupToGitHub(isAuto = false) {
+          let { githubToken, githubUsername, githubRepo, githubPath } = state.apiConfig;
+
+          if (!githubToken || !githubUsername || !githubRepo) {
+            if (!isAuto) alert('请先在 API 设置中填写完整的 GitHub 配置！');
+            return;
+          }
+
+          // --- ★★★ 核心修复 1：自动清洗输入数据 ★★★ ---
+          githubToken = githubToken.trim();
+          githubUsername = githubUsername.trim();
+
+          // 修复仓库名：如果用户填了 "https://github.com/user/repo"，自动提取 "repo"
+          githubRepo = githubRepo.trim().replace(/\/$/, ''); // 去掉末尾斜杠
+          if (githubRepo.includes('/')) {
+            const parts = githubRepo.split('/');
+            githubRepo = parts[parts.length - 1]; // 取最后一部分
+          }
+          if (githubRepo.includes('.git')) {
+            githubRepo = githubRepo.replace('.git', '');
+          }
+
+          // 修复路径：去掉开头的斜杠
+          githubPath = (githubPath || 'ephone_backup.json').trim();
+          if (githubPath.startsWith('/')) {
+            githubPath = githubPath.substring(1);
+          }
+          // --- ★★★ 修复结束 ★★★ ---
+
+          if (!isAuto) {
+            await showCustomAlert('正在上传...', `目标仓库: ${githubUsername}/${githubRepo}\n正在打包数据...`);
+          } else {
+            console.log(`[自动备份] 开始上传到 ${githubUsername}/${githubRepo}...`);
+          }
+
+          try {
+            const jsonContent = await getFullBackupData();
+            // 使用 UTF-8 安全的 Base64 编码
+            const contentBase64 = btoa(unescape(encodeURIComponent(jsonContent)));
+
+            const apiUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${githubPath}`;
+
+            // 1. 获取现有的文件 SHA (用于覆盖)
+            let sha = null;
+            try {
+              const getResponse = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                  Authorization: `token ${githubToken}`,
+                  Accept: 'application/vnd.github.v3+json',
+                },
+              });
+
+              if (getResponse.ok) {
+                const fileData = await getResponse.json();
+                sha = fileData.sha;
+              } else if (getResponse.status !== 404) {
+                // 如果既不是成功，也不是404(文件不存在)，那就是其他错误
+                console.warn(`[GitHub] 获取SHA失败，状态码: ${getResponse.status}`);
+              }
+            } catch (e) {
+              console.warn('[GitHub] 获取旧文件失败 (可能是首次上传)', e);
+            }
+
+            // 2. 上传文件 (PUT)
+            const bodyData = {
+              message: `EPhone Backup ${new Date().toLocaleString()}`,
+              content: contentBase64,
+            };
+            if (sha) {
+              bodyData.sha = sha;
+            }
+
+            const putResponse = await fetch(apiUrl, {
+              method: 'PUT',
+              headers: {
+                Authorization: `token ${githubToken}`,
+                Accept: 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(bodyData),
+            });
+
+            if (!putResponse.ok) {
+              // 解析错误信息
+              let errorMsg = `状态码: ${putResponse.status}`;
+              try {
+                const errData = await putResponse.json();
+                errorMsg += `\n信息: ${errData.message}`;
+                if (putResponse.status === 404) {
+                  errorMsg += `\n\n【404 排查指南】\n1. 仓库 "${githubRepo}" 是否存在？\n2. 你的 Token 是否勾选了 "repo" 权限？\n3. 仓库是否为空？(必须先新建一个 README 文件)`;
+                }
+              } catch (e) {}
+
+              throw new Error(errorMsg);
+            }
+
+            console.log('GitHub 备份成功！');
+            if (!isAuto) {
+              await showCustomAlert('上传成功', `备份已保存到 ${githubUsername}/${githubRepo}`);
+            }
+          } catch (error) {
+            console.error('GitHub 备份失败:', error);
+            if (!isAuto) {
+              await showCustomAlert('上传失败', `错误详情:\n${error.message}`);
+            }
+          }
+        }
+
+        /**
+         * 管理自动备份定时器
+         */
+        function handleAutoBackupTimer() {
+          // 清除旧定时器
+          if (githubBackupTimer) {
+            clearInterval(githubBackupTimer);
+            githubBackupTimer = null;
+          }
+
+          // 如果开启了自动备份
+          if (state.apiConfig && state.apiConfig.githubAutoBackup) {
+            console.log('已开启 GitHub 自动备份 (每30分钟)');
+            // 立即执行一次 (可选，或者只等30分钟后)
+            // uploadBackupToGitHub(true);
+
+            githubBackupTimer = setInterval(() => {
+              uploadBackupToGitHub(true);
+            }, 30 * 60 * 1000); // 30分钟
+          }
+        }
+        // ▲▲▲ GitHub 备份功能结束 ▲▲▲
 
         // ▼▼▼ 请用这【一整块终极修复版】的代码，完整替换掉你旧的 importBackup 函数 ▼▼▼
         async function importBackup(file) {
@@ -15393,6 +15711,12 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           // 3. 渲染预设和频率的下拉框
           renderApiPresetSelector();
           renderBackgroundFrequencySelector();
+          // --- 加载 GitHub 备份设置 ---
+          document.getElementById('github-token').value = state.apiConfig.githubToken || '';
+          document.getElementById('github-username').value = state.apiConfig.githubUsername || '';
+          document.getElementById('github-repo').value = state.apiConfig.githubRepo || '';
+          document.getElementById('github-path').value = state.apiConfig.githubPath || 'ephone_backup.json';
+          document.getElementById('github-auto-backup-switch').checked = !!state.apiConfig.githubAutoBackup;
 
           // 渲染温度滑块的UI
           const tempSlider = document.getElementById('temperature-slider');
@@ -40102,50 +40426,50 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           // --- LRC 格式处理逻辑 ---
           // 如果包含 [mm:ss] 且不包含 --> 箭头，则认为是 LRC
           if (/^\[\d{1,2}:\d{1,2}/m.test(normalizedData) && !normalizedData.includes('-->')) {
-             console.log('检测到 LRC 格式字幕，正在转换...');
-             const lines = normalizedData.split('\n');
-             const lrcEntries = [];
-             // 匹配 [mm:ss.xx] 或 [mm:ss]
-             const timeRegex = /\[(\d{1,2}):(\d{1,2})(?:[.:](\d{1,3}))?\]/;
+            console.log('检测到 LRC 格式字幕，正在转换...');
+            const lines = normalizedData.split('\n');
+            const lrcEntries = [];
+            // 匹配 [mm:ss.xx] 或 [mm:ss]
+            const timeRegex = /\[(\d{1,2}):(\d{1,2})(?:[.:](\d{1,3}))?\]/;
 
-             // 提取所有时间和文本
-             for (let line of lines) {
-                 const match = timeRegex.exec(line);
-                 if (match) {
-                     const m = parseInt(match[1], 10);
-                     const s = parseInt(match[2], 10);
-                     let ms = 0;
-                     if (match[3]) {
-                         // 补齐毫秒位数，如 .5 -> 500, .05 -> 050
-                         ms = parseInt(match[3].padEnd(3, '0'), 10); 
-                     }
-                     const seconds = m * 60 + s + ms / 1000;
-                     const text = line.replace(timeRegex, '').trim();
-                     if (text) {
-                         lrcEntries.push({ time: seconds, text: text });
-                     }
-                 }
-             }
+            // 提取所有时间和文本
+            for (let line of lines) {
+              const match = timeRegex.exec(line);
+              if (match) {
+                const m = parseInt(match[1], 10);
+                const s = parseInt(match[2], 10);
+                let ms = 0;
+                if (match[3]) {
+                  // 补齐毫秒位数，如 .5 -> 500, .05 -> 050
+                  ms = parseInt(match[3].padEnd(3, '0'), 10);
+                }
+                const seconds = m * 60 + s + ms / 1000;
+                const text = line.replace(timeRegex, '').trim();
+                if (text) {
+                  lrcEntries.push({ time: seconds, text: text });
+                }
+              }
+            }
 
-             // 按时间排序
-             lrcEntries.sort((a, b) => a.time - b.time);
+            // 按时间排序
+            lrcEntries.sort((a, b) => a.time - b.time);
 
-             // 转换为 {start, end, text} 格式
-             // LRC没有结束时间，我们把下一句的开始时间作为上一句的结束时间
-             const result = [];
-             for (let i = 0; i < lrcEntries.length; i++) {
-                 const current = lrcEntries[i];
-                 const next = lrcEntries[i + 1];
-                 // 如果是最后一句，默认显示 5 秒
-                 const endTime = next ? next.time : (current.time + 5); 
-                 
-                 result.push({
-                     start: current.time,
-                     end: endTime,
-                     text: current.text
-                 });
-             }
-             return result;
+            // 转换为 {start, end, text} 格式
+            // LRC没有结束时间，我们把下一句的开始时间作为上一句的结束时间
+            const result = [];
+            for (let i = 0; i < lrcEntries.length; i++) {
+              const current = lrcEntries[i];
+              const next = lrcEntries[i + 1];
+              // 如果是最后一句，默认显示 5 秒
+              const endTime = next ? next.time : current.time + 5;
+
+              result.push({
+                start: current.time,
+                end: endTime,
+                text: current.text,
+              });
+            }
+            return result;
           }
 
           // --- SRT / VTT 格式处理逻辑 (保持原有增强版) ---
@@ -40164,10 +40488,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             });
           }
 
-          console.log(`成功解析字幕条数: ${subtitles.length}`); 
+          console.log(`成功解析字幕条数: ${subtitles.length}`);
           return subtitles;
         }
-
 
         /**
          * 【全能修复版】时间戳转秒数
@@ -41216,6 +41539,15 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             state.apiConfig.minimaxApiKey = document.getElementById('minimax-api-key').value.trim();
             state.apiConfig.minimaxProvider = document.getElementById('minimax-provider-select').value;
             state.apiConfig.minimaxSpeechModel = document.getElementById('minimax-speech-model-select').value;
+            // --- 保存 GitHub 备份设置 ---
+            state.apiConfig.githubToken = document.getElementById('github-token').value.trim();
+            state.apiConfig.githubUsername = document.getElementById('github-username').value.trim();
+            state.apiConfig.githubRepo = document.getElementById('github-repo').value.trim();
+            state.apiConfig.githubPath = document.getElementById('github-path').value.trim() || 'ephone_backup.json';
+            state.apiConfig.githubAutoBackup = document.getElementById('github-auto-backup-switch').checked;
+
+            // 如果开启了自动备份，立即重启定时器
+            handleAutoBackupTimer();
             await db.apiConfig.put(state.apiConfig);
 
             // 在 'save-api-settings-btn' 的 click 事件监听器内部
@@ -45700,8 +46032,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
           // ▲▲▲ 删除功能结束 ▲▲▲
           startGroupSimulation(); // 启动群聊专属的后台时钟
-          // ▲▲▲ 新事件绑定结束 ▲▲▲
-          // ▼▼▼ 步骤3.3：在 init() 的前面粘贴这段新代码 ▼▼▼
+          handleAutoBackupTimer();
           // 使用事件委托，监听整个动态列表的“焦点移出”事件
           document.getElementById('qzone-posts-list').addEventListener('focusout', e => {
             // 如果是评论输入框失去了焦点
@@ -47079,6 +47410,11 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             radio.addEventListener('change', toggleAuroraInputs);
           });
           // ▲▲▲ 修复结束 ▲▲▲
+          // 绑定 GitHub 手动上传按钮
+          const githubBtn = document.getElementById('manual-github-backup-btn');
+          if (githubBtn) {
+            githubBtn.addEventListener('click', () => uploadBackupToGitHub(false));
+          }
 
           initAuroraDrag(); // 初始化拖拽
 
