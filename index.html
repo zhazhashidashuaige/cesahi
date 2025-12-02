@@ -1189,6 +1189,13 @@
             >
               立即上传备份到 GitHub
             </button>
+            <button
+              id="manual-github-restore-btn"
+              class="form-button form-button-secondary"
+              style="margin-top: 10px; background-color: #28a745; color: white; border: none"
+            >
+              📥 从 GitHub 恢复备份
+            </button>
           </div>
           <!-- ▲▲▲ GitHub 备份设置区域结束 ▲▲▲ -->
 
@@ -11495,7 +11502,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         // ▲▲▲ 替换结束 ▲▲▲
 
         /**
-         * 【核心升级】处理用户点击搜索结果，增加备用音源查找和是否永久保存的逻辑
+         * 【核心升级】处理用户点击搜索结果
+         * 修改点：保存ID和来源，标记为永久，并保存到数据库
          */
         async function handleSearchResultClick(songData) {
           const modal = document.getElementById('music-search-results-modal');
@@ -11539,26 +11547,14 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
 
           if (!playableResult) {
-            await showCustomAlert('获取失败', '无法获取该歌曲的有效播放链接，主音源和备用音源均已尝试。');
+            await showCustomAlert('获取失败', '无法获取该歌曲的有效播放链接。');
             return;
           }
 
-          // ▼▼▼ 从这里开始粘贴新代码 ▼▼▼
-          const confirmed = await showCustomConfirm(
-            '温馨提示', // 这是弹窗的标题
-            '搜索的歌曲24h后会过期，重要的歌曲记得用url或者本地上传哦🐇', // 这是你指定的提示内容
-            { confirmText: '确定' }, // 按钮会显示“确定”和“取消”，这里的“取消”就等同于“返回”
-          );
-
-          // 如果用户点击了“取消”（返回），就直接结束，不添加歌曲
-          if (!confirmed) {
-            return;
-          }
-          // ▲▲▲ 粘贴结束 ▲▲▲
           // 获取歌词
           const lrcContent = (await getLyricsForSong(playableResult.id, finalSource)) || '';
 
-          // ▼▼▼ 用这块新代码替换 ▼▼▼
+          // ▼▼▼ 核心修改：构建永久保存的歌曲对象 ▼▼▼
           const newSong = {
             name: songData.name,
             artist: songData.artist,
@@ -11566,52 +11562,46 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             cover: songData.cover,
             isLocal: false,
             lrcContent: lrcContent,
-            isTemporary: true,
-            // 核心新增：记录这首歌被添加的精确时间
+            isTemporary: false, // 【修改1】标记为永久
             addedTimestamp: Date.now(),
+            // 【修改2】保存关键信息，用于未来自动续期
+            musicId: playableResult.id,
+            musicSource: finalSource,
           };
-          // ▲▲▲ 替换结束 ▲▲▲
+          // ▲▲▲ 修改结束 ▲▲▲
 
           musicState.playlist.push(newSong);
 
-          // 注意：我们已经删除了 saveGlobalPlaylist() 的调用，因为临时歌曲不需要被永久保存
-          // ▲▲▲ 替换结束 ▲▲▲
+          // 【修改3】立即保存到数据库
+          await saveGlobalPlaylist();
 
           updatePlaylistUI();
 
           if (musicState.currentIndex === -1) {
             musicState.currentIndex = musicState.playlist.length - 1;
-            updatePlayerUI();
+            // 这里调用 loadSong 确保能触发下面的自动续期逻辑
+            loadSong(musicState.currentIndex);
+          } else {
+            // 如果不是第一首，仅提示
+            await showCustomAlert('添加成功', `《${songData.name}》已保存，链接失效时会自动更新。`);
           }
 
-          await showCustomAlert('添加成功', `《${songData.name}》已成功添加到播放列表！`);
-          // ▼▼▼ 把这一整块全新的代码，粘贴到指定位置 ▼▼▼
+          // 尝试注入聊天上下文（如果开启了聊天）
           try {
-            // 1. 检查一下当前是不是正在和别人聊天
             if (state.activeChatId) {
               const chat = state.chats[state.activeChatId];
               if (chat) {
-                // 2. 创建一条对用户隐藏，但对AI可见的系统消息
                 const hiddenMessage = {
-                  role: 'system', // 告诉AI这是系统信息
-                  content: `[系统提示：用户刚刚通过搜索，将歌曲《${songData.name}》 - ${songData.artist} 添加到了“一起听”的播放列表中。你可以根据这个情景，自然地开启关于这首歌的话题。]`,
+                  role: 'system',
+                  content: `[系统提示：用户添加了歌曲《${songData.name}》到列表。]`,
                   timestamp: Date.now(),
-                  isHidden: true, // 这个是关键！让这条消息在聊天界面上“隐形”
+                  isHidden: true,
                 };
-
-                // 3. 把这条“隐形”消息加到聊天记录的末尾
                 chat.history.push(hiddenMessage);
-
-                // 4. 保存更新后的聊天记录到数据库
                 await db.chats.put(chat);
-
-                console.log(`已为歌曲《${songData.name}》成功注入AI上下文提示。`);
               }
             }
-          } catch (error) {
-            console.error('注入歌曲上下文时出错:', error);
-          }
-          // ▲▲▲ 粘贴结束 ▲▲▲
+          } catch (e) {}
         }
 
         /**
@@ -13965,113 +13955,227 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           return JSON.stringify(backupData, null, 2);
         }
 
-        // ▼▼▼ 增强版 GitHub 上传函数 (修复 404 问题) ▼▼▼
+        // ▼▼▼ 终极版：支持大文件自动分片上传 ▼▼▼
         async function uploadBackupToGitHub(isAuto = false) {
           let { githubToken, githubUsername, githubRepo, githubPath } = state.apiConfig;
 
+          // 1. 基础检查
           if (!githubToken || !githubUsername || !githubRepo) {
-            if (!isAuto) alert('请先在 API 设置中填写完整的 GitHub 配置！');
+            if (!isAuto) alert('请先在 API 设置中填写 GitHub 配置！');
             return;
           }
-
-          // --- ★★★ 核心修复 1：自动清洗输入数据 ★★★ ---
           githubToken = githubToken.trim();
           githubUsername = githubUsername.trim();
-
-          // 修复仓库名：如果用户填了 "https://github.com/user/repo"，自动提取 "repo"
-          githubRepo = githubRepo.trim().replace(/\/$/, ''); // 去掉末尾斜杠
-          if (githubRepo.includes('/')) {
-            const parts = githubRepo.split('/');
-            githubRepo = parts[parts.length - 1]; // 取最后一部分
-          }
-          if (githubRepo.includes('.git')) {
-            githubRepo = githubRepo.replace('.git', '');
-          }
-
-          // 修复路径：去掉开头的斜杠
+          githubRepo = githubRepo.trim().replace(/\/$/, '').split('/').pop().replace('.git', '');
           githubPath = (githubPath || 'ephone_backup.json').trim();
-          if (githubPath.startsWith('/')) {
-            githubPath = githubPath.substring(1);
-          }
-          // --- ★★★ 修复结束 ★★★ ---
 
-          if (!isAuto) {
-            await showCustomAlert('正在上传...', `目标仓库: ${githubUsername}/${githubRepo}\n正在打包数据...`);
-          } else {
-            console.log(`[自动备份] 开始上传到 ${githubUsername}/${githubRepo}...`);
-          }
+          if (!isAuto) await showCustomAlert('准备中...', '正在打包并计算文件大小...');
 
           try {
+            // 2. 获取原始 JSON 数据
             const jsonContent = await getFullBackupData();
-            // 使用 UTF-8 安全的 Base64 编码
-            const contentBase64 = btoa(unescape(encodeURIComponent(jsonContent)));
 
-            const apiUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${githubPath}`;
+            // 3. 转成 Base64 (解决中文乱码)
+            // 注意：这里我们生成原始 Base64 字符串，后续根据需要切割
+            const fullBase64 = btoa(unescape(encodeURIComponent(jsonContent)));
 
-            // 1. 获取现有的文件 SHA (用于覆盖)
-            let sha = null;
-            try {
-              const getResponse = await fetch(apiUrl, {
-                method: 'GET',
-                headers: {
-                  Authorization: `token ${githubToken}`,
-                  Accept: 'application/vnd.github.v3+json',
-                },
-              });
+            // 计算 Base64 大小 (字节)
+            const totalSize = fullBase64.length;
+            // 设定分片阈值：45MB (GitHub 限制 100MB，由于网络波动和编码，留足余量)
+            const CHUNK_SIZE = 45 * 1024 * 1024;
 
-              if (getResponse.ok) {
-                const fileData = await getResponse.json();
-                sha = fileData.sha;
-              } else if (getResponse.status !== 404) {
-                // 如果既不是成功，也不是404(文件不存在)，那就是其他错误
-                console.warn(`[GitHub] 获取SHA失败，状态码: ${getResponse.status}`);
-              }
-            } catch (e) {
-              console.warn('[GitHub] 获取旧文件失败 (可能是首次上传)', e);
-            }
+            const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
 
-            // 2. 上传文件 (PUT)
-            const bodyData = {
-              message: `EPhone Backup ${new Date().toLocaleString()}`,
-              content: contentBase64,
-            };
-            if (sha) {
-              bodyData.sha = sha;
-            }
+            console.log(`[GitHub] 文件大小: ${(totalSize / 1024 / 1024).toFixed(2)} MB, 分片数: ${totalChunks}`);
 
-            const putResponse = await fetch(apiUrl, {
-              method: 'PUT',
-              headers: {
-                Authorization: `token ${githubToken}`,
-                Accept: 'application/vnd.github.v3+json',
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(bodyData),
-            });
+            // 如果只有1片，走普通上传；如果多片，走分片上传
+            if (totalChunks === 1) {
+              await uploadSingleFile(githubUsername, githubRepo, githubPath, githubToken, fullBase64, isAuto);
+            } else {
+              if (!isAuto) await showCustomAlert('文件较大', `将分为 ${totalChunks} 个部分上传，请耐心等待...`);
 
-            if (!putResponse.ok) {
-              // 解析错误信息
-              let errorMsg = `状态码: ${putResponse.status}`;
-              try {
-                const errData = await putResponse.json();
-                errorMsg += `\n信息: ${errData.message}`;
-                if (putResponse.status === 404) {
-                  errorMsg += `\n\n【404 排查指南】\n1. 仓库 "${githubRepo}" 是否存在？\n2. 你的 Token 是否勾选了 "repo" 权限？\n3. 仓库是否为空？(必须先新建一个 README 文件)`;
+              for (let i = 0; i < totalChunks; i++) {
+                const start = i * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, totalSize);
+                const chunkContent = fullBase64.substring(start, end);
+
+                // 分片文件名：xxx.json.001, xxx.json.002
+                const partName = `${githubPath}.${String(i + 1).padStart(3, '0')}`;
+
+                if (!isAuto) {
+                  const progress = Math.round(((i + 1) / totalChunks) * 100);
+                  // 更新提示框 (如果你的 UI 支持动态更新，这里是个简单的 log)
+                  console.log(`正在上传分片 ${i + 1}/${totalChunks} ...`);
                 }
-              } catch (e) {}
 
-              throw new Error(errorMsg);
+                await uploadSingleFile(githubUsername, githubRepo, partName, githubToken, chunkContent, isAuto, true);
+              }
+
+              // 上传一个索引文件，告诉系统总共有多少片(可选，方便人工查看)
+              const infoContent = btoa(`{"total_parts": ${totalChunks}, "timestamp": ${Date.now()}}`);
+              await uploadSingleFile(
+                githubUsername,
+                githubRepo,
+                `${githubPath}.meta`,
+                githubToken,
+                infoContent,
+                true,
+                true,
+              );
             }
 
-            console.log('GitHub 备份成功！');
+            console.log('GitHub 备份全部完成！');
             if (!isAuto) {
-              await showCustomAlert('上传成功', `备份已保存到 ${githubUsername}/${githubRepo}`);
+              await showCustomAlert('上传成功', `大文件已切割为 ${totalChunks} 份保存。\n恢复时请下载所有分片并合并。`);
             }
           } catch (error) {
             console.error('GitHub 备份失败:', error);
-            if (!isAuto) {
-              await showCustomAlert('上传失败', `错误详情:\n${error.message}`);
+            if (!isAuto) await showCustomAlert('上传失败', error.message);
+          }
+        }
+        // ▼▼▼ GitHub 恢复备份核心功能 (支持切片) ▼▼▼
+
+        /**
+         * 从 GitHub 下载并恢复备份
+         */
+        async function restoreBackupFromGitHub() {
+          let { githubToken, githubUsername, githubRepo, githubPath } = state.apiConfig;
+
+          // 1. 基础检查
+          if (!githubToken || !githubUsername || !githubRepo) {
+            alert('请先在 API 设置中填写 GitHub 配置！');
+            return;
+          }
+
+          // 2. 这是一个高风险操作，必须确认
+          const confirmed = await showCustomConfirm(
+            '⚠️ 高能预警',
+            '即将从 GitHub 下载备份并【覆盖】当前所有数据！\n\n如果 GitHub 上的备份较旧，您当前的新数据将会丢失。\n\n确定要继续吗？',
+            { confirmButtonClass: 'btn-danger' },
+          );
+          if (!confirmed) return;
+
+          githubToken = githubToken.trim();
+          githubUsername = githubUsername.trim();
+          githubRepo = githubRepo.trim().replace(/\/$/, '').split('/').pop().replace('.git', '');
+          githubPath = (githubPath || 'ephone_backup.json').trim();
+
+          await showCustomAlert('正在连接...', '正在检查 GitHub 上的备份文件...');
+
+          try {
+            let finalBase64String = '';
+
+            // 3. 策略 A：检查是否存在分片索引文件 (.meta)
+            const metaUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${githubPath}.meta`;
+            let metaData = null;
+
+            try {
+              const metaRes = await fetch(metaUrl, {
+                headers: { Authorization: `token ${githubToken}` },
+              });
+              if (metaRes.ok) {
+                const metaJson = await metaRes.json();
+                // GitHub API 返回的内容在 content 字段，且可能有换行，需要清洗
+                const metaContentStr = decodeURIComponent(escape(atob(metaJson.content.replace(/\n/g, ''))));
+                metaData = JSON.parse(metaContentStr);
+              }
+            } catch (e) {
+              console.log('未找到 meta 文件，尝试单文件模式。');
             }
+
+            // 4. 分支处理
+            if (metaData && metaData.total_parts) {
+              // === 分片模式 ===
+              const totalParts = metaData.total_parts;
+              const modalTitle = document.getElementById('custom-modal-title');
+
+              for (let i = 1; i <= totalParts; i++) {
+                // 更新弹窗提示进度
+                if (modalTitle) modalTitle.textContent = `正在下载分片 ${i}/${totalParts}...`;
+
+                const partName = `${githubPath}.${String(i).padStart(3, '0')}`;
+                const partUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${partName}`;
+
+                const partRes = await fetch(partUrl, {
+                  headers: { Authorization: `token ${githubToken}` },
+                });
+
+                if (!partRes.ok) throw new Error(`分片 ${partName} 下载失败: ${partRes.status}`);
+
+                const partJson = await partRes.json();
+                // GitHub 返回的 content 是 base64，直接拼接到大字符串上
+                // 注意：这里不需要解码，我们要把所有 base64 拼起来最后统一解码
+                finalBase64String += partJson.content.replace(/\n/g, '');
+              }
+              console.log('所有分片下载并拼接完成。');
+            } else {
+              // === 单文件模式 ===
+              const singleUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${githubPath}`;
+              const res = await fetch(singleUrl, {
+                headers: { Authorization: `token ${githubToken}` },
+              });
+
+              if (!res.ok) {
+                if (res.status === 404) throw new Error('未找到备份文件！请检查文件名是否正确。');
+                throw new Error(`下载失败: ${res.status}`);
+              }
+
+              const json = await res.json();
+              finalBase64String = json.content.replace(/\n/g, '');
+            }
+
+            // 5. 解码与恢复
+            if (modalTitle) document.getElementById('custom-modal-title').textContent = '正在解析数据...';
+
+            const jsonString = decodeURIComponent(escape(atob(finalBase64String)));
+
+            const virtualFile = new File([jsonString], 'github_restore.json', { type: 'application/json' });
+
+            // 关闭之前的提示框（因为 importBackup 会弹它自己的提示）
+            hideCustomModal();
+
+            await importBackup(virtualFile);
+          } catch (error) {
+            console.error('恢复失败:', error);
+            await showCustomAlert('恢复失败', `错误信息: ${error.message}`);
+          }
+        }
+        // ▲▲▲ GitHub 恢复功能结束 ▲▲▲
+
+        // 辅助函数：上传单个文件
+        async function uploadSingleFile(user, repo, path, token, contentBase64, isAuto, isPart = false) {
+          const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+
+          // 1. 获取 SHA (用于覆盖)
+          let sha = null;
+          try {
+            const getRes = await fetch(apiUrl, {
+              headers: { Authorization: `token ${token}` },
+            });
+            if (getRes.ok) {
+              sha = (await getRes.json()).sha;
+            }
+          } catch (e) {}
+
+          // 2. 上传
+          const body = {
+            message: `Backup ${isPart ? 'Part' : ''} ${new Date().toLocaleString()}`,
+            content: contentBase64,
+          };
+          if (sha) body.sha = sha;
+
+          const res = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+              Authorization: `token ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(`文件 ${path} 上传失败: ${err.message}`);
           }
         }
 
@@ -22842,11 +22946,47 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           });
         }
         // ▲▲▲ 替换结束 ▲▲▲
-
+        /**
+         * 【核心升级版】加载歌曲，支持自动检测过期并续期URL
+         */
         async function loadSong(index) {
           if (index < 0 || index >= musicState.playlist.length) return;
           musicState.currentIndex = index;
-          const track = musicState.playlist[index];
+          let track = musicState.playlist[index];
+
+          // ▼▼▼ 核心逻辑：自动续期检查 ▼▼▼
+          if (!track.isLocal && track.musicId && track.musicSource) {
+            // 1. 检查当前链接是否有效
+            const isUrlValid = await checkAudioAvailability(track.src);
+
+            if (!isUrlValid) {
+              console.log(`检测到歌曲《${track.name}》链接失效，正在自动续期...`);
+              // 显示一个小提示，让用户知道正在努力
+              const statusEl = document.getElementById('music-player-artist');
+              if (statusEl) statusEl.textContent = '正在更新链接...';
+
+              try {
+                // 2. 使用保存的ID重新获取链接
+                const apiUrl =
+                  track.musicSource === 'netease'
+                    ? `https://api.vkeys.cn/v2/music/netease?id=${track.musicId}`
+                    : `https://api.vkeys.cn/v2/music/tencent?id=${track.musicId}`;
+
+                const res = await Http_Get(apiUrl);
+                if (res?.data?.url) {
+                  // 3. 更新内存中的链接
+                  track.src = res.data.url;
+                  // 4. 更新数据库，保存新链接
+                  musicState.playlist[index] = track;
+                  await saveGlobalPlaylist();
+                  console.log(`续期成功！新链接: ${track.src}`);
+                }
+              } catch (e) {
+                console.error('自动续期失败:', e);
+              }
+            }
+          }
+          // ▲▲▲ 续期逻辑结束 ▲▲▲
 
           // 检查并加载网络歌词
           if (track.lrcUrl && !track.lrcContent) {
@@ -22872,10 +23012,19 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             return;
           }
 
-          // 更新界面信息，但不播放
+          // 更新界面信息
           updatePlaylistUI();
           updatePlayerUI();
-          // audioPlayer.duration 可能需要一点时间加载，我们监听事件来更新进度条
+
+          // 尝试播放
+          try {
+            if (musicState.isPlaying) {
+              await audioPlayer.play();
+            }
+          } catch (e) {
+            console.warn('加载后自动播放被拦截', e);
+          }
+
           audioPlayer.onloadedmetadata = () => {
             updateMusicProgressBar();
           };
@@ -47414,6 +47563,11 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const githubBtn = document.getElementById('manual-github-backup-btn');
           if (githubBtn) {
             githubBtn.addEventListener('click', () => uploadBackupToGitHub(false));
+          }
+          // 绑定 GitHub 恢复按钮
+          const githubRestoreBtn = document.getElementById('manual-github-restore-btn');
+          if (githubRestoreBtn) {
+            githubRestoreBtn.addEventListener('click', restoreBackupFromGitHub);
           }
 
           initAuroraDrag(); // 初始化拖拽
