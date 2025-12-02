@@ -14935,21 +14935,19 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
           // 创建保活专用对象
           const keepAliveTrack = {
-                name: "【后台保活模式】(静音)",
-                artist: "点击播放以保持后台运行",
-                src: keepAliveUrl,
-                
-                // ▼▼▼ 以后想改图片，就改下面引号里的链接 ▼▼▼
-                cover: "https://i.postimg.cc/NF96p6vR/5A40D469A9B0E9A4925A385900714BFD.png", 
-                // ▲▲▲ 修改结束 ▲▲▲
-
-                isLocal: false,
-                lrcContent: "[00:00.00]⚠️ 后台保活运行中...\n[00:02.00]此音频无声\n[00:05.00]用于防止API请求中断\n[99:99.99]End",
-                isTemporary: false, 
-                addedTimestamp: Date.now(),
-                isKeepAlive: true 
+            name: '【后台保活模式】(静音)',
+            artist: '点击播放以保持后台运行',
+            src: keepAliveUrl,
+            // 使用 API设置 的图标作为封面
+            cover: 'https://i.postimg.cc/MK8rJ8t7/IMG-6438.jpg',
+            isLocal: false,
+            lrcContent:
+              '[00:00.00]⚠️ 后台保活运行中...\n[00:02.00]此音频无声\n[00:05.00]用于防止API请求中断\n[99:99.99]End',
+            isTemporary: false,
+            addedTimestamp: Date.now(),
+            // ★★★ 核心标记：这是一个保活音轨 ★★★
+            isKeepAlive: true,
           };
-
 
           // 强制插到播放列表的第 0 位
           musicState.playlist.unshift(keepAliveTrack);
@@ -17824,11 +17822,40 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           } else if (msg.type === 'naiimag') {
             // NovelAI图片渲染（复用realimag样式）
             bubble.classList.add('is-realimag', 'is-card-like');
-            contentHtml = `<img src="${
-              msg.imageUrl
-            }" class="realimag-image" alt="NovelAI图片分享" loading="lazy" onerror="this.src='https://i.postimg.cc/KYr2qRCK/1.jpg'; this.alt='图片加载失败';" title="${
+
+            // ▼▼▼ 修改开始：给图片包裹一个容器，并添加下载按钮 ▼▼▼
+            contentHtml = `
+    <div style="position: relative; display: inline-block;">
+        <img src="${
+          msg.imageUrl
+        }" class="realimag-image" alt="NovelAI图片分享" loading="lazy" onerror="this.src='https://i.postimg.cc/KYr2qRCK/1.jpg'; this.alt='图片加载失败';" title="${
               msg.fullPrompt || msg.prompt || 'NovelAI生成'
-            }">`;
+            }" style="display: block;">
+        
+        <!-- 这是下载按钮 -->
+        <div class="nai-download-btn" data-img-src="${msg.imageUrl}" style="
+            position: absolute; 
+            bottom: 10px; 
+            right: 10px; 
+            width: 36px; 
+            height: 36px; 
+            background-color: rgba(0,0,0,0.6); 
+            backdrop-filter: blur(4px);
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            color: white;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            z-index: 10;
+        " title="点击下载原图">
+            ⬇️
+        </div>
+    </div>
+    `;
+            // ▲▲▲ 修改结束 ▲▲▲
           } else {
             contentHtml = String(msg.content || '').replace(/\n/g, '<br>');
           }
@@ -42332,6 +42359,30 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           document.getElementById('chat-messages').addEventListener('click', async e => {
             const voiceBody = e.target.closest('.voice-message-body');
             if (voiceBody) {
+              // ▼▼▼ 新增：处理NAI图片下载按钮点击 ▼▼▼
+              const downloadBtn = e.target.closest('.nai-download-btn');
+              if (downloadBtn) {
+                e.stopPropagation(); // 阻止事件冒泡
+                const imgSrc = downloadBtn.dataset.imgSrc;
+                if (!imgSrc) return;
+
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.href = imgSrc;
+                // 生成文件名: nai_时间戳.png
+                link.download = `nai_image_${Date.now()}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // 给个简单的反馈
+                const originalText = downloadBtn.innerText;
+                downloadBtn.innerText = '✅';
+                setTimeout(() => (downloadBtn.innerText = originalText), 2000);
+                return;
+              }
+              // ▲▲▲ 新增结束 ▲▲▲
+
               const bubble = voiceBody.closest('.message-bubble');
               if (!bubble) return;
 
