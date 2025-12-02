@@ -3941,6 +3941,23 @@
               <label for="offline-word-count-input">期望回复字数</label>
               <input type="number" id="offline-word-count-input" value="300" min="50" step="50" />
             </div>
+            <!-- ▼▼▼ 新增：线下模式生图开关 ▼▼▼ -->
+            <div
+              class="form-group"
+              style="margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 15px"
+            >
+              <label for="offline-novelai-toggle" class="toggle-switch-label">
+                <span class="toggle-switch-text">
+                  每轮自动生成配图 (NovelAI)
+                  <p style="font-size: 12px; font-weight: normal; color: #999; margin-top: 5px">
+                    开启后，AI会根据当前剧情自动调用NovelAI生成一张插图。需先配置好NAI设置。
+                  </p>
+                </span>
+                <input type="checkbox" id="offline-novelai-toggle" />
+                <span class="toggle-switch-slider"></span>
+              </label>
+            </div>
+            <!-- ▲▲▲ 新增结束 ▲▲▲ -->
           </div>
           <!-- ▼▼▼ 【全新】聊天总结设置区域 ▼▼▼ -->
           <hr style="opacity: 0.2; margin: 20px 0" />
@@ -17953,80 +17970,78 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
           // ▲▲▲ 代码添加结束 ▲▲▲
           // ▼▼▼ 第3步 第1处修改 ▼▼▼
-          // --- 【线下模式核心拦截逻辑】 ---
+          // --- 【线下模式核心拦截逻辑 (已增强：读世界书 + 自动生图)】 ---
           if (!chat.isGroup && chat.settings.offlineMode && chat.settings.offlineMode.enabled) {
             console.log(`角色 "${chat.name}" 已开启线下模式，正在构建专属指令...`);
 
-            // 1. 获取线下模式的设置
             const offlineSettings = chat.settings.offlineMode;
             const wordCount = offlineSettings.wordCount || 300;
 
-            // 2. 准备默认的提示词和文风，如果用户没填就用这个
             const defaultPrompt = `你正在和用户进行一次私密的线下约会，场景可以是一个安静的咖啡馆、温馨的家中、或是浪漫的海边。请根据你的人设和最近的对话内容，自然地延续互动。`;
-            const defaultStyle = `请以【${chat.name}】的第一人称视角进行回复。你的回复【必须】是一个完整的、连贯的叙事段落，其中要包含丰富的【动作】、【神态】、【心理活动】和【对话】。请使用【】包裹所有的动作、神态和心理活动。`;
+            const defaultStyle = `请以【${chat.name}】的第一人称视角进行回复。你的回复【必须】是一个完整的、连贯的叙事段落，其中要包含丰富的【动作】、【神态】、【心理活动】和【对话】。`;
 
-            // 3. 决定最终使用的提示词和文风
             const finalPrompt = offlineSettings.prompt || defaultPrompt;
             const finalStyle = offlineSettings.style || defaultStyle;
 
-            // ▼▼▼ 请用这块【支持心声功能】的代码，完整替换旧的 offlineSystemPrompt ▼▼▼
+            // 1. 【修改】将 worldBookContext 加入到 System Prompt 中
             const offlineSystemPrompt = `
-			# 核心任务：线下场景角色扮演（包含心声）
+            # 核心任务：线下场景角色扮演（包含心声）
 
-			你现在【就是】角色“${chat.name}”，正在和用户进行一次【线下约会】。你们此刻正【物理上】待在一起。
+            你现在【就是】角色“${chat.name}”，正在和用户进行一次【线下约会】。你们此刻正【物理上】待在一起。
 
-			# 你的角色设定
-			${chat.settings.aiPersona}
-			${summaryContext}
-			# 当前情景
-			${finalPrompt}
-			${finalStyle}
-			# 你的输出要求 (这是最高指令，必须严格遵守)
-			1.  **【【【格式铁律】】】**: 你的回复【必须】是一个**单一且完整**的JSON对象，包含 "chatResponse" 和 "innerVoice" 两个顶级键。
-			2.  **"chatResponse" 键**:
-			    -   **类型**: JSON数组 \`[]\`。
-			    -   **内容**: 【必须】包含**一个**消息对象，格式为 \`{"type": "text", "content": "你的叙事内容..."}\`。
-			    -   **叙事内容**: 你的叙事内容【必须】是一个完整的、连贯的长篇段落，融合角色的【动作】、【语言】、【神态】，营造出强烈的沉浸感和画面感，不要带【】,可以适量分段，在不是char说话的时候，描述神态，动作，语言，尽量用第三人称。
-			3.  **"innerVoice" 键**:
-			    -   **类型**: JSON对象 \`{}\`。
-			    -   **内容**: 描绘你此刻未曾说出口的内心活动。
-			    -   **必含字段**:
-			        -   "clothing": (字符串) 详细描述你当前从头到脚的**全身服装**。
-			        -   "behavior": (字符串) 描述你当前符合聊天情景的**细微动作或表情**。
-			        -   "thoughts": (字符串) 描述你此刻**丰富、细腻的内心真实想法**（50字左右）。
-			        -   "naughtyThoughts": (字符串) 描述你此刻与情境相关的**腹黑或色色的坏心思**，必须符合人设。
-			4.  **【【【字数铁律】】】**: "content" 字段的总字数应在【${wordCount}】字左右。
-			5.  **【禁止出戏】**: 绝对不能提及你是AI、模型或程序。
+            # 你的角色设定
+            ${chat.settings.aiPersona}
+            ${summaryContext}
 
-			# JSON输出格式示例:
-			{
-			  "chatResponse": [
-			    {
-			      "type": "text",
-			      "content": "xxx看着窗外的雨滴，轻轻搅动着杯中的咖啡，然后抬起头对你笑了笑今天天气不太好呢，不过和你待在一起，好像就没那么糟了。"
-			    }
-			  ],
-			  "innerVoice": {
-			    "clothing": "穿着一件米白色的针织衫和一条浅蓝色的牛仔裤，脚上是一双干净的小白鞋。",
-			    "behavior": "手指无意识地在咖啡杯的边缘摩挲，眼神不时飘向你。",
-			    "thoughts": "今天的约会好开心，不知道Ta是不是也这么想的。雨下得好大，希望待会儿能一起撑伞走回去。",
-			    "naughtyThoughts": "Ta的侧脸真好看，好想偷偷亲一下..."
-			  }
-			}
+            ${worldBookContext}  // <--- 在这里注入世界书内容！
 
-			# 对话历史 (供你参考)
-			${chat.history
-        .slice(-chat.settings.maxMemory)
-        .map(m => `${m.role === 'user' ? '用户' : chat.name}: ${m.content}`)
-        .join('\n')}
+            # 当前情景
+            ${finalPrompt}
+            ${finalStyle}
+            
+            # 你的输出要求 (这是最高指令，必须严格遵守)
+            1.  **【【【格式铁律】】】**: 你的回复【必须】是一个**单一且完整**的JSON对象，包含 "chatResponse" 和 "innerVoice" 两个顶级键。
+            2.  **"chatResponse" 键**:
+                -   **类型**: JSON数组 \`[]\`。
+                -   **内容**: 【必须】包含**一个**消息对象，格式为 \`{"type": "text", "content": "你的叙事内容..."}\`。
+                -   **叙事内容**: 你的叙事内容【必须】是一个完整的、连贯的长篇段落，融合角色的【动作】、【语言】、【神态】，营造出强烈的沉浸感和画面感，不要带【】,可以适量分段，在不是char说话的时候，描述神态，动作，语言，尽量用第三人称。
+            3.  **"innerVoice" 键**:
+                -   **类型**: JSON对象 \`{}\`。
+                -   **内容**: 描绘你此刻未曾说出口的内心活动。
+                -   **必含字段**:
+                    -   "clothing": (字符串) 详细描述你当前从头到脚的**全身服装**。
+                    -   "behavior": (字符串) 描述你当前符合聊天情景的**细微动作或表情**。
+                    -   "thoughts": (字符串) 描述你此刻**丰富、细腻的内心真实想法**（50字左右）。
+                    -   "naughtyThoughts": (字符串) 描述你此刻与情境相关的**腹黑或色色的坏心思**，必须符合人设。
+            4.  **【【【字数铁律】】】**: "content" 字段的总字数应在【${wordCount}】字左右。
+            5.  **【禁止出戏】**: 绝对不能提及你是AI、模型或程序。
 
-			现在，请根据用户的最后一句话，开始你的表演。`;
-            // ▲▲▲ 替换结束 ▲▲▲
+            # JSON输出格式示例:
+            {
+              "chatResponse": [
+                {
+                  "type": "text",
+                  "content": "..."
+                }
+              ],
+              "innerVoice": {
+                "clothing": "...",
+                "behavior": "...",
+                "thoughts": "...",
+                "naughtyThoughts": "..."
+              }
+            }
 
-            // 5. 准备发送给API的数据
+            # 对话历史 (供你参考)
+            ${chat.history
+              .slice(-chat.settings.maxMemory)
+              .map(m => `${m.role === 'user' ? '用户' : chat.name}: ${m.content}`)
+              .join('\n')}
+
+            现在，请根据用户的最后一句话，开始你的表演。`;
+
             const messagesForOfflineMode = chat.history.slice(-chat.settings.maxMemory);
 
-            // 6. 执行与正常流程类似的API调用和后续处理
             const chatHeaderTitle = document.getElementById('chat-header-title');
             if (chatHeaderTitle) {
               chatHeaderTitle.style.opacity = 0;
@@ -18049,7 +18064,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               };
 
               if (isGemini) {
-                // Gemini API 的特殊处理
                 requestUrl = `${GEMINI_API_URL}/${model}:generateContent?key=${getRandomValue(apiKey)}`;
                 requestHeaders = { 'Content-Type': 'application/json' };
                 requestBody = {
@@ -18063,7 +18077,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   },
                 };
               } else {
-                // OpenAI 兼容 API 的处理
                 requestBody = {
                   model: model,
                   messages: [{ role: 'system', content: offlineSystemPrompt }, ...messagesForOfflineMode],
@@ -18082,31 +18095,22 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 throw new Error(`API 错误: ${await response.text()}`);
               }
 
-              // ▼▼▼ 在这里粘贴新代码 ▼▼▼
               const data = await response.json();
-
-              // 这是你要替换成的新代码（已添加注释说明）
               const aiResponseContent = isGemini
                 ? data?.candidates?.[0]?.content?.parts?.[0]?.text
                 : data?.choices?.[0]?.message?.content;
 
-              // 重要：在获取内容后，增加一个判断，如果内容为空，则主动抛出错误
               if (!aiResponseContent) {
-                console.warn(`API返回了空内容或格式不正确（可能因安全设置被拦截）。返回数据:`, data);
-                throw new Error('API返回了空内容或格式不正确（可能因安全设置被拦截）。');
+                throw new Error('API返回了空内容或格式不正确。');
               }
 
-              // 使用我们新获取的、更安全的变量 aiResponseContent
-              const aiContent = aiResponseContent;
-
-              // ▼▼▼ 在这里粘贴新代码 ▼▼▼
-              // 7. 【全新】智能解析包含心声的JSON回复
+              // 解析回复
               let messagesArray = [];
               let innerVoiceData = null;
+              let narrativeText = ''; // 用于生图的剧情文本
 
               try {
-                // 净化AI可能返回的不规范JSON
-                let sanitizedContent = aiContent
+                let sanitizedContent = aiResponseContent
                   .replace(/^```json\s*/, '')
                   .replace(/```$/, '')
                   .trim();
@@ -18120,59 +18124,183 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
                 if (fullResponse.chatResponse && Array.isArray(fullResponse.chatResponse)) {
                   messagesArray = fullResponse.chatResponse;
+                  // 提取文本用于生图Prompt
+                  narrativeText = messagesArray.map(m => m.content).join(' ');
                 }
                 if (fullResponse.innerVoice && typeof fullResponse.innerVoice === 'object') {
                   innerVoiceData = fullResponse.innerVoice;
                 }
               } catch (e) {
                 console.warn('线下模式AI回复不是JSON，退回到纯文本模式。', e);
-                // 如果解析失败，就当作纯文本处理，保证程序不崩溃
-                messagesArray = [{ type: 'text', content: aiContent }];
+                messagesArray = [{ type: 'text', content: aiResponseContent }];
+                narrativeText = aiResponseContent;
               }
 
-              // 8. 处理并保存心声数据
+              // 保存心声
               if (innerVoiceData) {
-                console.log('线下模式已成功捕获到心声数据。', innerVoiceData);
                 const newInnerVoice = { ...innerVoiceData, timestamp: Date.now() };
                 chat.latestInnerVoice = newInnerVoice;
                 if (!chat.innerVoiceHistory) chat.innerVoiceHistory = [];
                 chat.innerVoiceHistory.push(newInnerVoice);
-              } else {
-                console.warn('本次线下模式回复中未检测到心声数据。');
               }
 
-              // 9. 处理并显示聊天回复
+              // 显示文本消息
               const isViewingThisChat =
                 document.getElementById('chat-interface-screen').classList.contains('active') &&
                 state.activeChatId === chatId;
               let messageTimestamp = Date.now();
 
               for (const msgData of messagesArray) {
-                // 因为线下模式很简单，我们直接创建一个text消息
                 const aiMessage = {
                   role: 'assistant',
                   senderName: chat.name,
                   timestamp: messageTimestamp++,
                   content: msgData.content || '',
                 };
-
                 chat.history.push(aiMessage);
                 await incrementMessageCount(chatId);
-
                 if (isViewingThisChat) {
                   appendMessage(aiMessage, chat);
-                  // 模拟AI思考，增加沉浸感
-                  await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
                 }
               }
 
-              // 10. 统一保存并刷新列表
+              // 统一保存
               await db.chats.put(chat);
               renderChatList();
-              // ▲▲▲ 粘贴结束 ▲▲▲
-              // ▼▼▼ 在这里添加下面这行新代码 ▼▼▼
               checkAndTriggerSummary(chatId);
-              // ▲▲▲ 新增代码结束 ▲▲▲
+
+              // =================================================================
+              // ▼▼▼ 【重点新增】线下模式自动生图逻辑 ▼▼▼
+              // =================================================================
+              if (offlineSettings.enableNovelAI) {
+                // 检查是否配置了NovelAI
+                const naiKey = localStorage.getItem('novelai-api-key');
+                if (naiKey && narrativeText) {
+                  console.log('检测到线下模式生图开启，正在请求NovelAI...');
+
+                  // 1. 准备Prompt: 角色NAI正面提示词 + 剧情摘要
+                  const charNaiPrompts = getCharacterNAIPrompts(chat.id);
+                  // 我们让剧情摘要简单点，直接用AI回复的文本的前200个字，避免太长
+                  const scenarioPrompt = narrativeText.substring(0, 200).replace(/\n/g, ' ');
+
+                  const finalPrompt = `${scenarioPrompt}, ${charNaiPrompts.positive}`;
+                  const finalNegative = charNaiPrompts.negative;
+
+                  // 2. 构造 naiimag 消息结构 (复用已有的逻辑)
+                  const naiMsgData = {
+                    postType: 'naiimag',
+                    prompt: finalPrompt, // 这里只是传递参数给下面的处理逻辑
+                    content: '',
+                  };
+
+                  // 3. 直接调用 NovelAI API (借用我们之前写的逻辑，这里为了稳妥，我们直接内联一个简化版的请求)
+                  // 因为在 triggerAiResponse 里调用自身比较麻烦，我们直接执行生图 fetch
+
+                  const settings = getNovelAISettings();
+                  const [width, height] = settings.resolution.split('x').map(Number);
+                  const model = localStorage.getItem('novelai-model') || 'nai-diffusion-4-5-full';
+
+                  let requestBody;
+                  let apiUrl = model.includes('nai-diffusion-4')
+                    ? 'https://image.novelai.net/ai/generate-image-stream'
+                    : 'https://image.novelai.net/ai/generate-image';
+
+                  // 简单的V3/V4构建逻辑
+                  if (model.includes('nai-diffusion-4')) {
+                    requestBody = {
+                      input: finalPrompt,
+                      model: model,
+                      action: 'generate',
+                      parameters: {
+                        params_version: 3,
+                        width: width,
+                        height: height,
+                        scale: settings.cfg_scale,
+                        sampler: settings.sampler,
+                        steps: settings.steps,
+                        seed: Math.floor(Math.random() * 9999999999),
+                        n_samples: 1,
+                        ucPreset: settings.uc_preset,
+                        qualityToggle: settings.quality_toggle,
+                        negative_prompt: finalNegative,
+                        v4_prompt: {
+                          caption: { base_caption: finalPrompt, char_captions: [] },
+                          use_coords: false,
+                          use_order: true,
+                        },
+                        v4_negative_prompt: {
+                          caption: { base_caption: finalNegative, char_captions: [] },
+                          legacy_uc: false,
+                        },
+                      },
+                    };
+                  } else {
+                    requestBody = {
+                      input: finalPrompt,
+                      model: model,
+                      action: 'generate',
+                      parameters: {
+                        width: width,
+                        height: height,
+                        scale: settings.cfg_scale,
+                        sampler: settings.sampler,
+                        steps: settings.steps,
+                        seed: Math.floor(Math.random() * 9999999999),
+                        n_samples: 1,
+                        ucPreset: settings.uc_preset,
+                        qualityToggle: settings.quality_toggle,
+                        negative_prompt: finalNegative,
+                      },
+                    };
+                  }
+
+                  // 处理代理
+                  let corsProxy = settings.cors_proxy;
+                  if (corsProxy === 'custom') corsProxy = settings.custom_proxy_url || '';
+                  if (corsProxy) apiUrl = corsProxy + encodeURIComponent(apiUrl);
+
+                  // 异步执行，不阻塞主线程
+                  fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + naiKey },
+                    body: JSON.stringify(requestBody),
+                  })
+                    .then(async res => {
+                      if (!res.ok) throw new Error('NAI API Error');
+                      return res.blob(); // 简化处理，假设返回的是Zip或Image Blob
+                    })
+                    .then(async blob => {
+                      // 这里为了简化，假设返回的是ZIP，需要JSZip解压 (前提是页面引入了JSZip)
+                      // 如果你已有通用的解压逻辑，可以调用。这里简单写一下:
+                      if (typeof JSZip !== 'undefined') {
+                        const zip = await JSZip.loadAsync(blob);
+                        const file = Object.values(zip.files)[0]; // 取第一个文件
+                        const imgBlob = await file.async('blob');
+                        const reader = new FileReader();
+                        reader.onloadend = async () => {
+                          const base64data = reader.result;
+                          // 生成成功！创建 naiimag 消息
+                          const imgMsg = {
+                            role: 'assistant',
+                            senderName: chat.name,
+                            timestamp: Date.now(),
+                            type: 'naiimag',
+                            imageUrl: base64data,
+                            prompt: finalPrompt,
+                            fullPrompt: finalPrompt,
+                          };
+                          chat.history.push(imgMsg);
+                          await db.chats.put(chat);
+                          if (isViewingThisChat) appendMessage(imgMsg, chat);
+                        };
+                        reader.readAsDataURL(imgBlob);
+                      }
+                    })
+                    .catch(err => console.error('线下模式自动生图失败:', err));
+                }
+              }
+              // =================================================================
+              // ▲▲▲ 自动生图逻辑结束 ▲▲▲
             } catch (error) {
               console.error('线下模式AI响应失败:', error);
               const errorMessage = { role: 'assistant', content: `[出错了: ${error.message}]`, timestamp: Date.now() };
@@ -18189,10 +18317,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 }, 200);
               }
             }
-
-            // 8. 【最重要】执行完线下模式的逻辑后，必须 return，不再执行后面的线上模式逻辑！
-            return;
+            return; // 结束线下模式逻辑
           }
+          // --- 【线下模式逻辑结束】 ---
+
           // --- 【线下模式核心拦截逻辑结束】 ---
           // ▼▼▼ 将剪切的代码粘贴到这里 ▼▼▼
           // 1. 准备专属表情包列表 (现在对单聊和群聊都生效)
@@ -42390,6 +42518,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             document.getElementById('offline-prompt-input').value = offlineModeSettings.prompt || '';
             document.getElementById('offline-style-input').value = offlineModeSettings.style || '';
             document.getElementById('offline-word-count-input').value = offlineModeSettings.wordCount || 300;
+            // 加载生图开关状态
+            document.getElementById('offline-novelai-toggle').checked = offlineModeSettings.enableNovelAI || false;
 
             // 3. 渲染预设下拉框
             renderOfflinePresetsSelector();
@@ -42987,6 +43117,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             chat.settings.offlineMode.style = document.getElementById('offline-style-input').value.trim();
             chat.settings.offlineMode.wordCount =
               parseInt(document.getElementById('offline-word-count-input').value) || 300;
+            // 保存生图开关状态
+            chat.settings.offlineMode.enableNovelAI = document.getElementById('offline-novelai-toggle').checked;
+
             // presets 的数据在管理函数中直接操作，这里无需保存
             // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
             // --- 保存聊天总结设置 ---
