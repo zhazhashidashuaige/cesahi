@@ -68,6 +68,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <script src="tukey-accounting.js" defer></script>
     <script src="kk-checkin.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
     <style></style>
     <!-- ▼▼▼ 在这里添加下面这行 ▼▼▼ -->
@@ -14919,7 +14920,39 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           state.charStickers = charStickers || [];
           state.worldBooks = worldBooks || [];
           currentDatingScenes = datingScenes || [];
+          // ▼▼▼ 【修改】加载播放列表并注入“隐形”保活音频 ▼▼▼
           musicState.playlist = musicLib?.playlist || [];
+
+          const keepAliveUrl = 'https://files.catbox.moe/4b91t0.mp3';
+
+          // 检查列表中是否已经有这个音频了
+          const existingKeepAliveIndex = musicState.playlist.findIndex(t => t.src === keepAliveUrl);
+
+          // 如果已经存在，先删掉旧的，确保它永远在第一位且信息最新
+          if (existingKeepAliveIndex > -1) {
+            musicState.playlist.splice(existingKeepAliveIndex, 1);
+          }
+
+          // 创建保活专用对象
+          const keepAliveTrack = {
+            name: '【后台保活模式】(静音)',
+            artist: '点击播放以保持后台运行',
+            src: keepAliveUrl,
+            // 使用 API设置 的图标作为封面
+            cover: 'https://i.postimg.cc/MK8rJ8t7/IMG-6438.jpg',
+            isLocal: false,
+            lrcContent:
+              '[00:00.00]⚠️ 后台保活运行中...\n[00:02.00]此音频无声\n[00:05.00]用于防止API请求中断\n[99:99.99]End',
+            isTemporary: false,
+            addedTimestamp: Date.now(),
+            // ★★★ 核心标记：这是一个保活音轨 ★★★
+            isKeepAlive: true,
+          };
+
+          // 强制插到播放列表的第 0 位
+          musicState.playlist.unshift(keepAliveTrack);
+          // ▲▲▲ 修改结束 ▲▲▲
+
           state.personaPresets = personaPresets || [];
           state.apiPresets = apiPresets || [];
           state.bubbleStylePresets = bubbleStylePresets || [];
@@ -18185,56 +18218,66 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               // =================================================================
               // ▼▼▼ 【重点新增】线下模式自动生图逻辑 ▼▼▼
               // =================================================================
+              // =================================================================
+              // ▼▼▼ 【重点新增/修复】线下模式自动生图逻辑 ▼▼▼
+              // =================================================================
               if (offlineSettings.enableNovelAI) {
-                // 检查是否配置了NovelAI
+                // 1. 检查必要条件
                 const naiKey = localStorage.getItem('novelai-api-key');
-                if (naiKey && narrativeText) {
+
+                if (!naiKey) {
+                  console.warn('线下模式生图已开启，但未配置NovelAI API Key，跳过。');
+                } else if (!narrativeText) {
+                  console.warn('线下模式生图跳过：本次AI回复未包含有效剧情文本。');
+                } else {
                   console.log('检测到线下模式生图开启，正在请求NovelAI...');
+                  // 给用户一个视觉提示
+                  if (chatHeaderTitle) chatHeaderTitle.textContent = '正在绘制场景插图...';
 
-                  // 1. 准备Prompt: 角色NAI正面提示词 + 剧情摘要
+                  // 2. 准备Prompt: 角色NAI正面提示词 + 剧情摘要
                   const charNaiPrompts = getCharacterNAIPrompts(chat.id);
-                  // 我们让剧情摘要简单点，直接用AI回复的文本的前200个字，避免太长
-                  const scenarioPrompt = narrativeText.substring(0, 200).replace(/\n/g, ' ');
 
-                  const finalPrompt = `${scenarioPrompt}, ${charNaiPrompts.positive}`;
-                  const finalNegative = charNaiPrompts.negative;
+                  // 提取剧情摘要（去除特殊字符，保留前250字英文或100汉字左右的长度）
+                  const cleanNarrative = narrativeText.replace(/[^\w\s\u4e00-\u9fa5,，.。]/g, ' ').substring(0, 200);
 
-                  // 2. 构造 naiimag 消息结构 (复用已有的逻辑)
-                  const naiMsgData = {
-                    postType: 'naiimag',
-                    prompt: finalPrompt, // 这里只是传递参数给下面的处理逻辑
-                    content: '',
-                  };
+                  // 组合提示词：场景描述 + 角色固定特征 + 质量词
+                  const finalPrompt = `${cleanNarrative}, ${charNaiPrompts.positive}, best quality, amazing quality, very aesthetic, absurdres`;
+                  const finalNegative =
+                    charNaiPrompts.negative ||
+                    'lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry';
 
-                  // 3. 直接调用 NovelAI API (借用我们之前写的逻辑，这里为了稳妥，我们直接内联一个简化版的请求)
-                  // 因为在 triggerAiResponse 里调用自身比较麻烦，我们直接执行生图 fetch
-
+                  // 3. 获取NAI设置
                   const settings = getNovelAISettings();
                   const [width, height] = settings.resolution.split('x').map(Number);
                   const model = localStorage.getItem('novelai-model') || 'nai-diffusion-4-5-full';
 
+                  // 4. 构建请求体
                   let requestBody;
                   let apiUrl = model.includes('nai-diffusion-4')
                     ? 'https://image.novelai.net/ai/generate-image-stream'
                     : 'https://image.novelai.net/ai/generate-image';
 
-                  // 简单的V3/V4构建逻辑
+                  // 简单的参数构建
+                  const commonParams = {
+                    width: width,
+                    height: height,
+                    scale: settings.cfg_scale,
+                    sampler: settings.sampler,
+                    steps: settings.steps,
+                    seed: Math.floor(Math.random() * 4294967295),
+                    n_samples: 1,
+                    ucPreset: settings.uc_preset,
+                    qualityToggle: settings.quality_toggle,
+                  };
+
                   if (model.includes('nai-diffusion-4')) {
                     requestBody = {
                       input: finalPrompt,
                       model: model,
                       action: 'generate',
                       parameters: {
+                        ...commonParams,
                         params_version: 3,
-                        width: width,
-                        height: height,
-                        scale: settings.cfg_scale,
-                        sampler: settings.sampler,
-                        steps: settings.steps,
-                        seed: Math.floor(Math.random() * 9999999999),
-                        n_samples: 1,
-                        ucPreset: settings.uc_preset,
-                        qualityToggle: settings.quality_toggle,
                         negative_prompt: finalNegative,
                         v4_prompt: {
                           caption: { base_caption: finalPrompt, char_captions: [] },
@@ -18253,45 +18296,53 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                       model: model,
                       action: 'generate',
                       parameters: {
-                        width: width,
-                        height: height,
-                        scale: settings.cfg_scale,
-                        sampler: settings.sampler,
-                        steps: settings.steps,
-                        seed: Math.floor(Math.random() * 9999999999),
-                        n_samples: 1,
-                        ucPreset: settings.uc_preset,
-                        qualityToggle: settings.quality_toggle,
+                        ...commonParams,
                         negative_prompt: finalNegative,
+                        sm: settings.smea,
+                        sm_dyn: settings.smea_dyn,
+                        add_original_image: false,
                       },
                     };
                   }
 
-                  // 处理代理
+                  // 5. 处理代理
                   let corsProxy = settings.cors_proxy;
                   if (corsProxy === 'custom') corsProxy = settings.custom_proxy_url || '';
                   if (corsProxy) apiUrl = corsProxy + encodeURIComponent(apiUrl);
 
-                  // 异步执行，不阻塞主线程
+                  // 6. 发送请求
                   fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + naiKey },
                     body: JSON.stringify(requestBody),
                   })
                     .then(async res => {
-                      if (!res.ok) throw new Error('NAI API Error');
-                      return res.blob(); // 简化处理，假设返回的是Zip或Image Blob
+                      if (!res.ok) throw new Error(`NAI API Error: ${res.status}`);
+                      return res.blob();
                     })
                     .then(async blob => {
-                      // 这里为了简化，假设返回的是ZIP，需要JSZip解压 (前提是页面引入了JSZip)
-                      // 如果你已有通用的解压逻辑，可以调用。这里简单写一下:
-                      if (typeof JSZip !== 'undefined') {
-                        const zip = await JSZip.loadAsync(blob);
-                        const file = Object.values(zip.files)[0]; // 取第一个文件
+                      // ★★★ 核心修复：增加JSZip检查和错误提示 ★★★
+                      if (typeof JSZip === 'undefined') {
+                        console.error('错误：未找到JSZip库，无法解压NovelAI返回的图片。请在HTML头部添加JSZip引用。');
+                        const errBubble = {
+                          role: 'system',
+                          content: '[系统错误：无法解压图片，请检查代码是否引入了 JSZip 库]',
+                          timestamp: Date.now(),
+                        };
+                        chat.history.push(errBubble);
+                        if (isViewingThisChat) appendMessage(errBubble, chat);
+                        return;
+                      }
+
+                      const zip = await JSZip.loadAsync(blob);
+                      const file = Object.values(zip.files)[0]; // 取第一个文件
+
+                      if (file) {
                         const imgBlob = await file.async('blob');
                         const reader = new FileReader();
                         reader.onloadend = async () => {
                           const base64data = reader.result;
+
                           // 生成成功！创建 naiimag 消息
                           const imgMsg = {
                             role: 'assistant',
@@ -18302,16 +18353,39 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                             prompt: finalPrompt,
                             fullPrompt: finalPrompt,
                           };
+
                           chat.history.push(imgMsg);
                           await db.chats.put(chat);
-                          if (isViewingThisChat) appendMessage(imgMsg, chat);
+
+                          // 如果用户还在看这个聊天，就显示出来
+                          if (isViewingThisChat) {
+                            appendMessage(imgMsg, chat);
+                            const msgsDiv = document.getElementById('chat-messages');
+                            msgsDiv.scrollTop = msgsDiv.scrollHeight;
+                          }
+
+                          // 恢复标题状态
+                          if (chatHeaderTitle) {
+                            chatHeaderTitle.textContent = chat.name;
+                            chatHeaderTitle.classList.remove('typing-status');
+                          }
                         };
                         reader.readAsDataURL(imgBlob);
                       }
                     })
-                    .catch(err => console.error('线下模式自动生图失败:', err));
+                    .catch(err => {
+                      console.error('线下模式自动生图失败:', err);
+                      const errBubble = {
+                        role: 'system',
+                        content: `[自动生图失败: ${err.message}]`,
+                        timestamp: Date.now(),
+                      };
+                      chat.history.push(errBubble);
+                      if (isViewingThisChat) appendMessage(errBubble, chat);
+                    });
                 }
               }
+
               // =================================================================
               // ▲▲▲ 自动生图逻辑结束 ▲▲▲
             } catch (error) {
@@ -18738,44 +18812,48 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             let musicContext = '';
             const countdownContext = await getCountdownContext(chatId); // <--- 把chatId传进去
             const streakContext = await getStreakContext(chat);
+            // ▼▼▼ 【修改】音乐上下文生成（增加保活屏蔽逻辑） ▼▼▼
             if (musicState.isActive && musicState.activeChatId === chatId) {
-              // 【核心修改】提供更详细的音乐上下文
               const currentTrack = musicState.currentIndex > -1 ? musicState.playlist[musicState.currentIndex] : null;
-              const playlistInfo = musicState.playlist.map(t => `"${t.name}"`).join(', ');
 
-              // --- 【核心新增】获取歌词上下文 ---
-              let lyricsContext = '';
-              // 检查是否有解析好的歌词，并且当前有高亮的行
-              if (
-                currentTrack &&
-                musicState.parsedLyrics &&
-                musicState.parsedLyrics.length > 0 &&
-                musicState.currentLyricIndex > -1
-              ) {
-                // 获取当前高亮歌词
-                const currentLine = musicState.parsedLyrics[musicState.currentLyricIndex];
+              // ★★★ 核心判断：如果是保活音频，就当做什么都没发生，不生成 context ★★★
+              if (currentTrack && currentTrack.isKeepAlive) {
+                musicContext = ''; // AI 此时什么都不知道，就像没听歌一样
+              } else {
+                // 只有是正常歌曲时，才告诉 AI
+                const playlistInfo = musicState.playlist
+                  .filter(t => !t.isKeepAlive) // 甚至在列表里也不要让 AI 看到保活音频
+                  .map(t => `"${t.name}"`)
+                  .join(', ');
 
-                // 获取接下来的2句歌词作为预告
-                const upcomingLines = musicState.parsedLyrics.slice(
-                  musicState.currentLyricIndex + 1,
-                  musicState.currentLyricIndex + 3,
-                );
-
-                // 构建歌词部分的Prompt
-                lyricsContext += `- **当前歌词**: "${currentLine.text}"\n`;
-                if (upcomingLines.length > 0) {
-                  lyricsContext += `- **即将演唱**: ${upcomingLines.map(line => `"${line.text}"`).join(' / ')}\n`;
+                // 获取歌词上下文 (保持原有逻辑)
+                let lyricsContext = '';
+                if (
+                  currentTrack &&
+                  musicState.parsedLyrics &&
+                  musicState.parsedLyrics.length > 0 &&
+                  musicState.currentLyricIndex > -1
+                ) {
+                  const currentLine = musicState.parsedLyrics[musicState.currentLyricIndex];
+                  const upcomingLines = musicState.parsedLyrics.slice(
+                    musicState.currentLyricIndex + 1,
+                    musicState.currentLyricIndex + 3,
+                  );
+                  lyricsContext += `- **当前歌词**: "${currentLine.text}"\n`;
+                  if (upcomingLines.length > 0) {
+                    lyricsContext += `- **即将演唱**: ${upcomingLines.map(line => `"${line.text}"`).join(' / ')}\n`;
+                  }
                 }
-              }
-              // --- 【新增结束】 ---
 
-              musicContext = `\n\n# 当前音乐情景
-			-   **当前状态**: 你正在和用户一起听歌。
-			-   **正在播放**: ${currentTrack ? `《${currentTrack.name}》 - ${currentTrack.artist}` : '无'}
-			-   **可用播放列表**: [${playlistInfo}]
-			-   **你的任务**: 你可以根据对话内容和氛围，使用 "change_music" 指令切换到播放列表中的任何一首歌，以增强互动体验。
-			${lyricsContext}`; // <--- 核心修复：在这里加上这一行！
+                musicContext = `\n\n# 当前音乐情景
+                    -   **当前状态**: 你正在和用户一起听歌。
+                    -   **正在播放**: ${currentTrack ? `《${currentTrack.name}》 - ${currentTrack.artist}` : '无'}
+                    -   **可用播放列表**: [${playlistInfo}]
+                    -   **你的任务**: 你可以根据对话内容和氛围，使用 "change_music" 指令切换到播放列表中的任何一首歌，以增强互动体验。
+                    ${lyricsContext}`;
+              }
             }
+            // ▲▲▲ 修改结束 ▲▲▲
 
             let systemPrompt, messagesPayload;
             // ▼▼▼ 【全新】记忆互通核心逻辑 - 构建附加上下文 ▼▼▼
@@ -23190,29 +23268,58 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
         // ▲▲▲ 替换结束 ▲▲▲
 
+        // ▼▼▼ 【修改】播放下一首（自动跳过保活音频） ▼▼▼
         function playNext() {
           if (musicState.playlist.length === 0) return;
           let nextIndex;
-          switch (musicState.playMode) {
-            case 'random':
-              nextIndex = Math.floor(Math.random() * musicState.playlist.length);
-              break;
-            case 'single':
-              playSong(musicState.currentIndex);
-              return;
-            case 'order':
-            default:
-              nextIndex = (musicState.currentIndex + 1) % musicState.playlist.length;
-              break;
-          }
+          let attempts = 0; // 防止死循环
+
+          do {
+            switch (musicState.playMode) {
+              case 'random':
+                nextIndex = Math.floor(Math.random() * musicState.playlist.length);
+                break;
+              case 'single':
+                // 单曲循环模式下，如果不手动切，playNext通常由 ended 触发，那里已经处理了
+                // 但如果是手动点下一首，还是切到下一首比较符合直觉
+                nextIndex = (musicState.currentIndex + 1) % musicState.playlist.length;
+                break;
+              case 'order':
+              default:
+                nextIndex = (musicState.currentIndex + 1) % musicState.playlist.length;
+                break;
+            }
+            // 临时赋值以便检查
+            if (musicState.playMode !== 'random') musicState.currentIndex = nextIndex - 1;
+            attempts++;
+          } while (
+            // 如果选中的是保活音频，并且列表里还有其他歌，就继续找下一首
+            musicState.playlist[nextIndex].isKeepAlive &&
+            musicState.playlist.length > 1 &&
+            attempts < musicState.playlist.length * 2
+          );
+
           playSong(nextIndex);
         }
 
+        // ▼▼▼ 【修改】播放上一首（自动跳过保活音频） ▼▼▼
         function playPrev() {
           if (musicState.playlist.length === 0) return;
-          const newIndex = (musicState.currentIndex - 1 + musicState.playlist.length) % musicState.playlist.length;
+          let newIndex = musicState.currentIndex;
+          let attempts = 0;
+
+          do {
+            newIndex = (newIndex - 1 + musicState.playlist.length) % musicState.playlist.length;
+            attempts++;
+          } while (
+            musicState.playlist[newIndex].isKeepAlive &&
+            musicState.playlist.length > 1 &&
+            attempts < musicState.playlist.length * 2
+          );
+
           playSong(newIndex);
         }
+        // ▲▲▲ 修改结束 ▲▲▲
 
         function changePlayMode() {
           const modes = ['order', 'random', 'single'];
@@ -41562,7 +41669,21 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           });
           // ▲▲▲ 新增事件绑定结束 ▲▲▲
 
-          audioPlayer.addEventListener('ended', playNext);
+          // ▼▼▼ 【修改】播放结束监听器（保活音频强制死循环） ▼▼▼
+          audioPlayer.addEventListener('ended', () => {
+            const currentTrack = musicState.playlist[musicState.currentIndex];
+
+            // ★★★ 核心逻辑：如果是保活音频，强制重播，无视任何模式 ★★★
+            if (currentTrack && currentTrack.isKeepAlive) {
+              console.log('保活音频循环中...');
+              audioPlayer.currentTime = 0;
+              audioPlayer.play().catch(e => console.error('重播失败:', e));
+            } else {
+              // 正常歌曲走正常逻辑
+              playNext();
+            }
+          });
+          // ▲▲▲ 修改结束 ▲▲▲
 
           const chatInput = document.getElementById('chat-input');
           // ▼▼▼ 找到 id="send-btn" 的 click 事件监听器 ▼▼▼
