@@ -6529,18 +6529,18 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       </div>
     </div>
 
-    <!-- ▼▼▼ 【修改】漫游悬浮播放器 ▼▼▼ -->
+    <!-- ▼▼▼ 【修改】漫游悬浮播放器 (修复进度条和字幕问题) ▼▼▼ -->
     <div
       id="aurora-player-overlay"
       style="
-        display: none; /* 默认隐藏，这是关键 */
+        display: none;
         position: absolute;
         top: 100px;
         left: 50%;
         transform: translateX(-50%);
         width: 90%;
         max-width: 400px;
-        background: #1a1a1a;
+        background: #000; /* 改为纯黑背景，看视频体验更好 */
         border-radius: 16px;
         z-index: 9999;
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
@@ -6561,6 +6561,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           align-items: center;
           justify-content: space-between;
           box-sizing: border-box;
+          z-index: 100; /* 确保拖拽条在最上层 */
+          position: relative;
         "
       >
         <span style="font-size: 14px; color: #333; font-weight: 800; pointer-events: none; letter-spacing: 1px"
@@ -6582,8 +6584,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           justify-content: center;
         "
       >
-        <!-- 1. 视频播放器 -->
-        <video id="aurora-video-element" controls style="width: 100%; max-height: 60vh; display: none"></video>
+        <!-- 1. 视频播放器 (去掉了默认的 controls，由JS控制显示) -->
+        <video
+          id="aurora-video-element"
+          style="width: 100%; max-height: 60vh; display: none"
+          playsinline
+          webkit-playsinline
+        ></video>
 
         <!-- 2. 文本阅读器 -->
         <div
@@ -6604,14 +6611,14 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           <div id="aurora-text-body" style="white-space: pre-wrap"></div>
         </div>
 
-        <!-- 3. 【新增】自定义音画播放器 -->
+        <!-- 3. 【修复】自定义音画播放器 -->
         <div id="aurora-custom-viewer" style="display: none; width: 100%; height: auto; position: relative">
           <!-- 背景图 -->
           <img
             id="aurora-custom-bg-img"
             style="width: 100%; height: auto; max-height: 60vh; display: block; object-fit: cover"
           />
-          <!-- 字幕层 -->
+          <!-- 字幕层 (增加了 z-index 防止被挡住) -->
           <div
             id="aurora-custom-subtitle-display"
             style="
@@ -6626,13 +6633,23 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               padding: 0 10px;
               pointer-events: none;
               font-weight: 500;
+              z-index: 20; /* 【修复】确保字幕在图片上方 */
             "
           ></div>
-          <!-- 音频控制条 (放在最底部) -->
+          <!-- 音频控制条 (增加了透明度过渡动画，默认隐藏) -->
           <audio
             id="aurora-custom-audio-element"
             controls
-            style="width: 100%; height: 40px; opacity: 0.8; position: absolute; bottom: 0; left: 0"
+            style="
+              width: 100%;
+              height: 40px;
+              opacity: 0; /* 【修复】默认隐藏 */
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              z-index: 30; /* 【修复】确保控制条在最上方 */
+              transition: opacity 0.3s ease; /* 添加过渡动画 */
+            "
           ></audio>
         </div>
       </div>
@@ -39898,9 +39915,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             document.getElementById('aurora-custom-inputs').style.display = 'block';
           }
         }
-
         /**
-         * 确认设置，启动漫游播放器
+         * 【修复版】确认设置，启动漫游播放器
+         * 修复了进度条无法隐藏和字幕被挡住的问题
          */
         async function confirmAuroraSetup() {
           const title = document.getElementById('aurora-title-input').value.trim();
@@ -39934,7 +39951,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           // 关闭设置弹窗
           document.getElementById('aurora-setup-modal').classList.remove('visible');
 
-          // ★★★ 只有在这里才显示播放器 ★★★
+          // 显示播放器
           playerOverlay.style.display = 'flex';
           statusTitle.textContent = `正在漫游:《${title}》`;
 
@@ -39956,6 +39973,16 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
             videoEl.style.display = 'block';
             videoEl.src = URL.createObjectURL(videoFile);
+
+            // 【修复】初始不显示控件，点击视频切换显示/隐藏
+            videoEl.removeAttribute('controls');
+            videoEl.onclick = () => {
+              if (videoEl.hasAttribute('controls')) {
+                videoEl.removeAttribute('controls');
+              } else {
+                videoEl.setAttribute('controls', 'controls');
+              }
+            };
 
             if (subFile) {
               const reader = new FileReader();
@@ -39996,9 +40023,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             // 自定义模式
             const imgFile = document.getElementById('aurora-custom-img').files[0];
             const audioFile = document.getElementById('aurora-custom-audio').files[0];
-            const subFile =
-              document.getElementById('aurora-custom-sub-file') ||
-              document.getElementById('aurora-sub-file-custom').files[0];
+            const subFile = document.getElementById('aurora-sub-file-custom').files[0];
 
             if (!imgFile || !audioFile) {
               alert('图片和音频文件都是必填的哦！');
@@ -40008,6 +40033,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             customViewer.style.display = 'block';
             customImg.src = URL.createObjectURL(imgFile);
             customAudio.src = URL.createObjectURL(audioFile);
+
+            // 【修复】默认隐藏进度条 (opacity: 0)，点击图片切换显示/隐藏
+            customAudio.style.opacity = '0';
+            customImg.onclick = () => {
+              // 切换透明度
+              customAudio.style.opacity = customAudio.style.opacity === '0' ? '0.8' : '0';
+            };
 
             if (subFile) {
               const reader = new FileReader();
@@ -40030,29 +40062,49 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         }
 
         /**
-         * 简易 SRT 字幕解析器
+         * 【全能修复版】解析 SRT/VTT 字幕文件
+         * 兼容：\r\n 换行、VTT格式(.)、SRT格式(,)
          */
         function parseSRT(srtData) {
+          // 1. 统一换行符，移除 BOM 头
+          const normalizedData = srtData.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+
+          // 2. 更加宽容的正则匹配
+          // 支持 VTT 的 "WEBVTT" 头，支持点号或逗号的时间戳
           const pattern =
-            /(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\n([\s\S]*?)(?=\n\n|\n\r|\r\n|$)/g;
+            /(\d{2}:\d{2}:\d{2}[.,]\d{3}) --> (\d{2}:\d{2}:\d{2}[.,]\d{3})(?:[^\n]*)\n([\s\S]*?)(?=\n\n|$|\n\d{2}:)/g;
+
           const subtitles = [];
           let match;
-          while ((match = pattern.exec(srtData)) !== null) {
+
+          while ((match = pattern.exec(normalizedData)) !== null) {
             subtitles.push({
-              start: timeToSeconds(match[2]),
-              end: timeToSeconds(match[3]),
-              text: match[4].replace(/\n/g, ' '),
+              start: timeToSeconds(match[1]),
+              end: timeToSeconds(match[2]),
+              text: match[3].trim(), // 移除首尾空白
             });
           }
+
+          console.log(`成功解析字幕条数: ${subtitles.length}`); // 调试日志
           return subtitles;
         }
 
+        /**
+         * 【全能修复版】时间戳转秒数
+         * 兼容 "00:00:00,000" 和 "00:00:00.000"
+         */
         function timeToSeconds(timeString) {
-          const parts = timeString.split(':');
-          const seconds = parts[2].split(',');
-          return (
-            parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(seconds[0]) + parseInt(seconds[1]) / 1000
-          );
+          if (!timeString) return 0;
+          // 将逗号统一替换为点号，方便处理
+          const normalized = timeString.replace(',', '.');
+          const parts = normalized.split(':');
+
+          // 处理 HH:MM:SS.ms
+          const hours = parseInt(parts[0], 10);
+          const minutes = parseInt(parts[1], 10);
+          const seconds = parseFloat(parts[2]);
+
+          return hours * 3600 + minutes * 60 + seconds;
         }
 
         /**
