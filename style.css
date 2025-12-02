@@ -20983,4 +20983,174 @@ body {
     opacity: 1;
   }
 }
+/* === ✨ V2.0 极致复古书架样式 ✨ === */
 
+/* 1. 整体背景：深邃的胡桃木色调，带暗角氛围 */
+#aurora-bookshelf-screen {
+  background-color: #1a120b !important; /* 极深褐色 */
+  /* 模拟老式墙纸或木纹背景 */
+  background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 10px
+    ),
+    radial-gradient(circle at center, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+#bookshelf-container {
+  padding: 30px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px; /* 层板间距加大，更显大气 */
+}
+
+/* 2. 书架层板：厚重的实木质感 */
+.bookshelf-row {
+  display: flex;
+  align-items: flex-end; /* 底部对齐 */
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 4px; /* 书籍排列稍微紧凑一点 */
+  padding: 15px 20px 14px 20px; /* 调整内边距 */
+
+  /* 复杂的渐变模拟木质凹槽阴影 */
+  background: linear-gradient(to bottom, #150f0b 0%, #2d1e16 20%, #2d1e16 80%, #150f0b 100%);
+
+  /* 实木层板厚度与投影 */
+  border-bottom: 12px solid #3e2723;
+  border-left: 8px solid #281a15;
+  border-right: 8px solid #281a15;
+
+  /* 深度阴影，制造“盒子”感 */
+  box-shadow: inset 0 10px 30px rgba(0, 0, 0, 0.8), /* 内部深邃阴影 */ 0 15px 20px rgba(0, 0, 0, 0.5); /* 外部投影 */
+
+  border-radius: 4px;
+  min-height: 135px; /* 稍微增高 */
+  position: relative;
+}
+
+/* 层板边缘的高光，增加立体感 */
+.bookshelf-row::before {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+/* 3. 书籍样式：精装皮革质感 */
+.retro-book {
+  width: 38px; /* 稍微加宽 */
+  height: 110px; /* 加高 */
+  border-radius: 3px 5px 5px 3px; /* 书脊圆角 */
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 竖排文字设置 */
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+
+  /* 文字样式：更精致的衬线体，金色 */
+  color: #e6c88a; /* 哑光金 */
+  font-size: 11px;
+  font-family: 'Songti SC', 'SimSun', 'Georgia', serif; /* 宋体/衬线体 */
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); /* 文字凹陷感 */
+
+  padding: 8px 0;
+  overflow: hidden;
+
+  /* ★★★ 核心：模拟书脊的圆柱体光影 + 皮革纹理 ★★★ */
+  box-shadow: inset 3px 0 5px rgba(255, 255, 255, 0.15), /* 左侧高光 */ inset -3px 0 8px rgba(0, 0, 0, 0.6),
+    /* 右侧阴影 */ 3px 5px 8px rgba(0, 0, 0, 0.6); /* 外部投影 */
+}
+
+/* 烫金装饰线：复古书必备 */
+.retro-book::before,
+.retro-book::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  /* 金色渐变，模拟金属反光 */
+  background: linear-gradient(90deg, #b88a4d, #ffe082, #b88a4d);
+  opacity: 0.8;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+.retro-book::before {
+  top: 12px;
+}
+.retro-book::after {
+  bottom: 12px;
+}
+
+/* 悬停效果：浮起 + 变亮 */
+.retro-book:hover {
+  transform: translateY(-12px) scale(1.02);
+  z-index: 100;
+  box-shadow: inset 3px 0 5px rgba(255, 255, 255, 0.25), inset -3px 0 8px rgba(0, 0, 0, 0.6),
+    5px 15px 20px rgba(0, 0, 0, 0.7); /* 悬浮时的深阴影 */
+  margin: 0 3px; /* 挤开旁边的书 */
+}
+
+/* 4. 书籍颜色：低饱和度的高级复古色 */
+
+/* 勃艮第红 */
+.book-color-1 {
+  background-color: #4a1a1a;
+  background-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.2));
+}
+/* 皇家蓝 */
+.book-color-2 {
+  background-color: #1a2a3a;
+  background-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.3));
+}
+/* 森林绿 */
+.book-color-3 {
+  background-color: #1e3324;
+  background-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.2));
+}
+/* 皮革棕 */
+.book-color-4 {
+  background-color: #3e2723;
+  background-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.2));
+}
+/* 炭灰黑 */
+.book-color-5 {
+  background-color: #263238;
+  background-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.3));
+}
+
+/* 书名标签限制 */
+.book-spine-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 75%; /* 给上下金线留出位置 */
+  pointer-events: none;
+}
+
+/* 5. 头部 Header 的特殊适配 */
+/* 当打开书架时，强制改变头部的样式，使其融入背景 */
+#aurora-bookshelf-screen .header {
+  background-color: #251812 !important;
+  border-bottom: 1px solid #3e2723 !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+#aurora-bookshelf-screen .header span {
+  color: #d7ccc8 !important;
+  font-family: serif;
+  letter-spacing: 1px;
+}

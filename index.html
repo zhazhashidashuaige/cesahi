@@ -1827,40 +1827,34 @@
                 <path d="M19.5 15.7L21.5 16.7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" />
               </svg>
             </button>
-            <!-- ▼▼▼ 【全新】极光多媒体按钮 ▼▼▼ -->
-            <button id="aurora-media-btn" class="chat-action-icon-btn action-button" title="一起看/读 (视频/小说)">
+            <!-- ▼▼▼ 【全新】极光多媒体按钮 (已改为单色) ▼▼▼ -->
+            <button id="aurora-media-btn" class="chat-action-icon-btn action-button" title="漫游共赏 (视频/小说)">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M12 3C7.03 3 3 7.03 3 12C3 16.97 7.03 21 12 21C16.97 21 21 16.97 21 12C21 7.03 16.97 3 12 3Z"
-                  stroke="url(#aurora-gradient)"
+                  stroke="currentColor"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 />
                 <path
                   d="M15 9L9 15M9 9L15 15"
-                  stroke="url(#aurora-gradient)"
+                  stroke="currentColor"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 />
                 <path
                   d="M12 8V16"
-                  stroke="url(#aurora-gradient)"
+                  stroke="currentColor"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 />
-                <defs>
-                  <linearGradient id="aurora-gradient" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stop-color="#00ff88" />
-                    <stop offset="50%" stop-color="#00ffff" />
-                    <stop offset="100%" stop-color="#ff00ff" />
-                  </linearGradient>
-                </defs>
               </svg>
             </button>
-            <!-- ▲▲▲ 添加结束 ▲▲▲ -->
+            <!-- ▲▲▲ 修改结束 ▲▲▲ -->
+
           </div>
           <div id="chat-input-main-row">
             <textarea id="chat-input" rows="1" placeholder="输入消息..."></textarea>
@@ -6467,6 +6461,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       <div class="modal-content" style="height: auto">
         <div class="modal-header">
           <span>漫游共赏</span>
+          <span id="open-aurora-bookshelf-btn" class="action-btn" style="font-size: 14px">📚 书架</span>
         </div>
         <div class="modal-body">
           <!-- 1. 名字输入 -->
@@ -6494,7 +6489,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             </div>
             <div class="form-group">
               <label>字幕文件 (可选 .srt, .vtt)</label>
-              <input type="file" id="aurora-sub-file-video" accept=".srt,.vtt" />
+              <input type="file" id="aurora-sub-file-video" accept=".srt,.vtt,.lrc" />
             </div>
           </div>
 
@@ -6518,7 +6513,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             </div>
             <div class="form-group">
               <label>字幕文件 (可选 .srt, .vtt)</label>
-              <input type="file" id="aurora-sub-file-custom" accept=".srt,.vtt" />
+              <input type="file" id="aurora-sub-file-custom" accept=".srt,.vtt,.lrc" />
             </div>
           </div>
         </div>
@@ -6529,7 +6524,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       </div>
     </div>
 
-    <!-- ▼▼▼ 【修改】漫游悬浮播放器 (修复进度条和字幕问题) ▼▼▼ -->
+    <!-- ▼▼▼ 【修改】漫游悬浮播放器 (支持调整大小) ▼▼▼ -->
     <div
       id="aurora-player-overlay"
       style="
@@ -6538,14 +6533,19 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         top: 100px;
         left: 50%;
         transform: translateX(-50%);
-        width: 90%;
-        max-width: 400px;
-        background: #000; /* 改为纯黑背景，看视频体验更好 */
-        border-radius: 16px;
+        /* 修改：设置初始大小，并开启 resize */
+        width: 320px;
+        height: 240px;
+        resize: both;
+        overflow: hidden; /* 必须配合 resize 使用 */
+        min-width: 200px;
+        min-height: 150px;
+
+        background: #000;
+        border-radius: 12px;
         z-index: 9999;
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        overflow: hidden;
         flex-direction: column;
       "
     >
@@ -6554,14 +6554,16 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         id="aurora-drag-handle"
         style="
           width: 100%;
-          padding: 10px 15px;
+          height: 36px; /* 固定高度 */
+          flex-shrink: 0; /* 防止被压缩 */
+          padding: 0 15px;
           background: linear-gradient(90deg, #e0c3fc 0%, #8ec5fc 100%);
           cursor: grab;
           display: flex;
           align-items: center;
           justify-content: space-between;
           box-sizing: border-box;
-          z-index: 100; /* 确保拖拽条在最上层 */
+          z-index: 100;
           position: relative;
         "
       >
@@ -6571,23 +6573,24 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         <span id="aurora-close-player" style="cursor: pointer; font-weight: bold; color: #333; font-size: 18px">×</span>
       </div>
 
-      <!-- 内容区 -->
+      <!-- 内容区 (使用 flex-grow 自动填满剩余空间) -->
       <div
         id="aurora-content-area"
         style="
           width: 100%;
+          flex-grow: 1;
           position: relative;
           background: #000;
-          min-height: 200px;
           display: flex;
           align-items: center;
           justify-content: center;
+          overflow: hidden;
         "
       >
-        <!-- 1. 视频播放器 (去掉了默认的 controls，由JS控制显示) -->
+        <!-- 1. 视频播放器 -->
         <video
           id="aurora-video-element"
-          style="width: 100%; max-height: 60vh; display: none"
+          style="width: 100%; height: 100%; object-fit: contain; display: none"
           playsinline
           webkit-playsinline
         ></video>
@@ -6598,11 +6601,11 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           style="
             display: none;
             width: 100%;
-            height: 300px;
+            height: 100%;
             overflow-y: auto;
-            padding: 20px;
+            padding: 15px;
             box-sizing: border-box;
-            font-size: 15px;
+            font-size: 14px;
             line-height: 1.8;
             color: #e0e0e0;
             font-family: sans-serif;
@@ -6611,19 +6614,16 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           <div id="aurora-text-body" style="white-space: pre-wrap"></div>
         </div>
 
-        <!-- 3. 【修复】自定义音画播放器 -->
-        <div id="aurora-custom-viewer" style="display: none; width: 100%; height: auto; position: relative">
+        <!-- 3. 自定义音画播放器 -->
+        <div id="aurora-custom-viewer" style="display: none; width: 100%; height: 100%; position: relative">
           <!-- 背景图 -->
-          <img
-            id="aurora-custom-bg-img"
-            style="width: 100%; height: auto; max-height: 60vh; display: block; object-fit: cover"
-          />
-          <!-- 字幕层 (增加了 z-index 防止被挡住) -->
+          <img id="aurora-custom-bg-img" style="width: 100%; height: 100%; display: block; object-fit: cover" />
+          <!-- 字幕层 -->
           <div
             id="aurora-custom-subtitle-display"
             style="
               position: absolute;
-              bottom: 60px;
+              bottom: 10%;
               left: 0;
               width: 100%;
               text-align: center;
@@ -6633,22 +6633,22 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               padding: 0 10px;
               pointer-events: none;
               font-weight: 500;
-              z-index: 20; /* 【修复】确保字幕在图片上方 */
+              z-index: 20;
             "
           ></div>
-          <!-- 音频控制条 (增加了透明度过渡动画，默认隐藏) -->
+          <!-- 音频控制条 -->
           <audio
             id="aurora-custom-audio-element"
             controls
             style="
               width: 100%;
               height: 40px;
-              opacity: 0; /* 【修复】默认隐藏 */
+              opacity: 0;
               position: absolute;
               bottom: 0;
               left: 0;
-              z-index: 30; /* 【修复】确保控制条在最上方 */
-              transition: opacity 0.3s ease; /* 添加过渡动画 */
+              z-index: 30;
+              transition: opacity 0.3s ease;
             "
           ></audio>
         </div>
@@ -6657,23 +6657,50 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       <!-- 底部信息栏 -->
       <div
         style="
-          padding: 8px 12px;
+          padding: 5px 12px;
+          height: 28px; /* 固定高度 */
+          flex-shrink: 0;
           font-size: 12px;
           color: #888;
           background: #121212;
           border-top: 1px solid #333;
           display: flex;
+          align-items: center;
           justify-content: space-between;
         "
       >
         <span
           id="aurora-playing-title"
-          style="max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+          style="max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
           >未播放</span
         >
+        <!-- ▼▼▼ 新增：保存到书架按钮 (默认隐藏，只有小说模式显示) ▼▼▼ -->
+        <span
+          id="aurora-save-book-btn"
+          style="cursor: pointer; display: none; color: #d4af37; font-weight: bold; margin-right: 10px"
+        >
+          📥 存入书架
+        </span>
         <span id="aurora-info-status">等待中...</span>
       </div>
     </div>
+    <!-- ▲▲▲ 修改结束 ▲▲▲ -->
+    <!-- ▼▼▼ 【全新】复古书架界面 ▼▼▼ -->
+    <div id="aurora-bookshelf-screen" class="screen">
+      <div
+        class="header"
+        style="background-color: #3e2723 !important; color: #e0c097 !important; border-bottom: 1px solid #5d4037"
+      >
+        <span class="back-btn" id="back-from-bookshelf" style="color: #e0c097">‹</span>
+        <span style="font-family: 'serif'; font-weight: bold; letter-spacing: 2px">藏书阁</span>
+        <span style="width: 30px"></span>
+      </div>
+      <!-- 书架背景容器 -->
+      <div id="bookshelf-container">
+        <!-- 书籍将由JS生成在这里 -->
+      </div>
+    </div>
+    <!-- ▲▲▲ 书架界面结束 ▲▲▲ -->
 
     <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
     <!-- ▼▼▼ 【全新】这是游戏大厅的主界面，粘贴到所有 modal 的 div 之后、<script> 标签之前 ▼▼▼ -->
@@ -12199,6 +12226,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           tukeyAccountingReplies: '++id, recordId, charId', // AI的回复记录
           tukeyUserSettings: '&id',
           tukeyCustomConfig: '&id',
+          auroraBooks: '++id, title, content, addedAt',
         });
 
         window.db = db;
@@ -39955,10 +39983,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           playerOverlay.style.display = 'flex';
           statusTitle.textContent = `正在漫游:《${title}》`;
 
-          // 重置所有显示区
           videoEl.style.display = 'none';
           textViewer.style.display = 'none';
           customViewer.style.display = 'none';
+          document.getElementById('aurora-save-book-btn').style.display = 'none'; // <--- 确保默认隐藏
           videoEl.pause();
           customAudio.pause();
 
@@ -40010,7 +40038,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               alert('请选择文本文件！');
               return;
             }
-
+            document.getElementById('aurora-save-book-btn').style.display = 'inline-block';
             textViewer.style.display = 'block';
             const reader = new FileReader();
             reader.onload = e => {
@@ -40062,17 +40090,68 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         }
 
         /**
-         * 【全能修复版】解析 SRT/VTT 字幕文件
-         * 兼容：\r\n 换行、VTT格式(.)、SRT格式(,)
+         * 【全能修复版】解析字幕文件 (支持 SRT, VTT, LRC)
+         * 自动识别格式并转换为统一的 {start, end, text} 数组
          */
-        function parseSRT(srtData) {
-          // 1. 统一换行符，移除 BOM 头
-          const normalizedData = srtData.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+        function parseSRT(data) {
+          if (!data) return [];
 
-          // 2. 更加宽容的正则匹配
+          // 1. 统一换行符
+          const normalizedData = data.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+
+          // --- LRC 格式处理逻辑 ---
+          // 如果包含 [mm:ss] 且不包含 --> 箭头，则认为是 LRC
+          if (/^\[\d{1,2}:\d{1,2}/m.test(normalizedData) && !normalizedData.includes('-->')) {
+             console.log('检测到 LRC 格式字幕，正在转换...');
+             const lines = normalizedData.split('\n');
+             const lrcEntries = [];
+             // 匹配 [mm:ss.xx] 或 [mm:ss]
+             const timeRegex = /\[(\d{1,2}):(\d{1,2})(?:[.:](\d{1,3}))?\]/;
+
+             // 提取所有时间和文本
+             for (let line of lines) {
+                 const match = timeRegex.exec(line);
+                 if (match) {
+                     const m = parseInt(match[1], 10);
+                     const s = parseInt(match[2], 10);
+                     let ms = 0;
+                     if (match[3]) {
+                         // 补齐毫秒位数，如 .5 -> 500, .05 -> 050
+                         ms = parseInt(match[3].padEnd(3, '0'), 10); 
+                     }
+                     const seconds = m * 60 + s + ms / 1000;
+                     const text = line.replace(timeRegex, '').trim();
+                     if (text) {
+                         lrcEntries.push({ time: seconds, text: text });
+                     }
+                 }
+             }
+
+             // 按时间排序
+             lrcEntries.sort((a, b) => a.time - b.time);
+
+             // 转换为 {start, end, text} 格式
+             // LRC没有结束时间，我们把下一句的开始时间作为上一句的结束时间
+             const result = [];
+             for (let i = 0; i < lrcEntries.length; i++) {
+                 const current = lrcEntries[i];
+                 const next = lrcEntries[i + 1];
+                 // 如果是最后一句，默认显示 5 秒
+                 const endTime = next ? next.time : (current.time + 5); 
+                 
+                 result.push({
+                     start: current.time,
+                     end: endTime,
+                     text: current.text
+                 });
+             }
+             return result;
+          }
+
+          // --- SRT / VTT 格式处理逻辑 (保持原有增强版) ---
           // 支持 VTT 的 "WEBVTT" 头，支持点号或逗号的时间戳
           const pattern =
-            /(\d{2}:\d{2}:\d{2}[.,]\d{3}) --> (\d{2}:\d{2}:\d{2}[.,]\d{3})(?:[^\n]*)\n([\s\S]*?)(?=\n\n|$|\n\d{2}:)/g;
+            /(\d{1,2}:\d{1,2}:\d{1,2}[.,]\d{1,3}) --> (\d{1,2}:\d{1,2}:\d{1,2}[.,]\d{1,3})(?:[^\n]*)\n([\s\S]*?)(?=\n\n|$|\n\d{1,2}:)/g;
 
           const subtitles = [];
           let match;
@@ -40085,9 +40164,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             });
           }
 
-          console.log(`成功解析字幕条数: ${subtitles.length}`); // 调试日志
+          console.log(`成功解析字幕条数: ${subtitles.length}`); 
           return subtitles;
         }
+
 
         /**
          * 【全能修复版】时间戳转秒数
@@ -40162,6 +40242,187 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
           auroraState.active = false;
         }
+        /* ▼▼▼ 【全新】漫游书架功能核心逻辑 ▼▼▼ */
+
+        // 1. 打开书架界面
+        async function openAuroraBookshelf() {
+          // 关闭设置弹窗
+          document.getElementById('aurora-setup-modal').classList.remove('visible');
+          // 渲染书架
+          await renderBookshelf();
+          // 显示书架屏幕
+          showScreen('aurora-bookshelf-screen');
+        }
+
+        // 2. 渲染书架
+        async function renderBookshelf() {
+          const container = document.getElementById('bookshelf-container');
+          container.innerHTML = '';
+
+          // 从数据库获取所有书籍，按添加时间倒序
+          const books = await db.auroraBooks.orderBy('addedAt').reverse().toArray();
+
+          if (books.length === 0) {
+            container.innerHTML =
+              '<div class="bookshelf-row" style="justify-content:center; align-items:center; color:#8d6e63; font-size:14px;">书架空空如也...</div>';
+            return;
+          }
+
+          // 分层渲染，每层放 6 本书 (为了美观)
+          const booksPerRow = 6;
+          for (let i = 0; i < books.length; i += booksPerRow) {
+            const rowBooks = books.slice(i, i + booksPerRow);
+
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'bookshelf-row';
+
+            rowBooks.forEach(book => {
+              const bookEl = document.createElement('div');
+              // 随机分配一种颜色
+              const colorClass = `book-color-${Math.floor(Math.random() * 5) + 1}`;
+              bookEl.className = `retro-book ${colorClass}`;
+              bookEl.title = book.title; // 鼠标悬停显示全名
+              bookEl.innerHTML = `<span class="book-spine-title">${book.title}</span>`;
+
+              // 点击打开书
+              bookEl.addEventListener('click', () => loadBookFromShelf(book));
+
+              // 长按删除
+              addLongPressListener(bookEl, async () => {
+                const confirmed = await showCustomConfirm('移除书籍', `要把《${book.title}》从书架上拿走吗？`, {
+                  confirmButtonClass: 'btn-danger',
+                });
+                if (confirmed) {
+                  await db.auroraBooks.delete(book.id);
+                  await renderBookshelf();
+                }
+              });
+
+              rowDiv.appendChild(bookEl);
+            });
+
+            container.appendChild(rowDiv);
+          }
+
+          // 如果最后一行不满，且总书不多，补一个空书架显得更有氛围
+          if (books.length % booksPerRow !== 0 || books.length < 4) {
+            const emptyRow = document.createElement('div');
+            emptyRow.className = 'bookshelf-row';
+            container.appendChild(emptyRow);
+          }
+        }
+
+        // 3. 保存当前正在读的小说到书架
+        async function saveCurrentNovelToShelf() {
+          if (!auroraState.active || auroraState.mode !== 'text' || !auroraState.textContent) {
+            alert('没有正在阅读的小说内容！');
+            return;
+          }
+
+          const title = auroraState.title || '未命名小说';
+
+          // 检查是否已存在
+          const existing = await db.auroraBooks.where('title').equals(title).first();
+          if (existing) {
+            alert(`《${title}》已经在书架上了！`);
+            return;
+          }
+
+          await db.auroraBooks.add({
+            title: title,
+            content: auroraState.textContent,
+            addedAt: Date.now(),
+          });
+
+          alert(`《${title}》已成功放入书架！`);
+
+          // 隐藏保存按钮，避免重复保存
+          document.getElementById('aurora-save-book-btn').style.display = 'none';
+        }
+
+        // 4. 从书架加载书籍并阅读 (已添加进度记忆功能)
+        function loadBookFromShelf(book) {
+          // 更新全局状态
+          auroraState = {
+            active: true,
+            mode: 'text',
+            title: book.title,
+            subtitles: [],
+            textContent: book.content,
+            lastSyncTime: 0,
+            // ★★★ 新增：记录当前正在读哪本书的ID，以便保存进度
+            currentBookId: book.id,
+          };
+
+          const playerOverlay = document.getElementById('aurora-player-overlay');
+          const statusTitle = document.getElementById('aurora-playing-title');
+          const statusInfo = document.getElementById('aurora-info-status');
+          const textViewer = document.getElementById('aurora-text-viewer');
+          const videoEl = document.getElementById('aurora-video-element');
+          const customViewer = document.getElementById('aurora-custom-viewer');
+          const saveBtn = document.getElementById('aurora-save-book-btn');
+
+          // UI 切换逻辑
+          document.getElementById('aurora-bookshelf-screen').classList.remove('active'); // 退出书架
+
+          if (state.activeChatId) {
+            showScreen('chat-interface-screen');
+          } else {
+            showScreen('home-screen');
+          }
+
+          playerOverlay.style.display = 'flex'; // 显示播放器
+
+          statusTitle.textContent = `正在漫游:《${book.title}》`;
+          statusInfo.textContent = '来自书架';
+
+          videoEl.style.display = 'none';
+          customViewer.style.display = 'none';
+          textViewer.style.display = 'block';
+
+          document.getElementById('aurora-text-body').textContent = book.content;
+
+          // 因为是从书架打开的，所以隐藏“保存”按钮
+          saveBtn.style.display = 'none';
+
+          // ★★★ 核心修改：恢复阅读进度 ★★★
+          // 我们使用 setTimeout 确保文本渲染完成后再滚动
+          setTimeout(() => {
+            if (book.progress) {
+              // progress 是一个 0 到 1 之间的浮点数 (百分比)
+              const scrollHeight = textViewer.scrollHeight - textViewer.clientHeight;
+              const targetScrollTop = Math.floor(scrollHeight * book.progress);
+
+              textViewer.scrollTop = targetScrollTop;
+              console.log(`已恢复阅读进度: ${(book.progress * 100).toFixed(1)}%`);
+            } else {
+              textViewer.scrollTop = 0; // 如果没有记录，从头开始
+            }
+          }, 50);
+        }
+
+        // ▼▼▼ 绑定事件 (请确保这段在 init 之前执行) ▼▼▼
+
+        // 绑定书架入口按钮
+        document.getElementById('open-aurora-bookshelf-btn').addEventListener('click', openAuroraBookshelf);
+
+        document.getElementById('back-from-bookshelf').addEventListener('click', () => {
+          // 1. 隐藏书架屏幕
+          document.getElementById('aurora-bookshelf-screen').classList.remove('active');
+
+          // 2. 【修改】显式地切换回聊天界面
+          if (state.activeChatId) {
+            showScreen('chat-interface-screen');
+          } else {
+            showScreen('home-screen');
+          }
+
+          // 3. 重新打开设置弹窗 (模仿返回上一级菜单的效果)
+          document.getElementById('aurora-setup-modal').classList.add('visible');
+        });
+
+        // 绑定保存按钮
+        document.getElementById('aurora-save-book-btn').addEventListener('click', saveCurrentNovelToShelf);
 
         // ===================================================================
         // 4. 初始化函数 init()
@@ -46777,6 +47038,42 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             }
           });
           // ▲▲▲ 自动识别文件名结束 ▲▲▲
+          // ▼▼▼ 【全新】漫游阅读进度自动保存功能 ▼▼▼
+          const textViewer = document.getElementById('aurora-text-viewer');
+          let saveProgressTimer = null;
+
+          textViewer.addEventListener('scroll', () => {
+            // 1. 检查当前是否处于书架阅读模式
+            if (!auroraState.active || auroraState.mode !== 'text' || !auroraState.currentBookId) {
+              return;
+            }
+
+            // 2. 防抖处理：用户停止滚动 0.5 秒后才保存，避免频繁写入数据库
+            if (saveProgressTimer) clearTimeout(saveProgressTimer);
+
+            saveProgressTimer = setTimeout(async () => {
+              // 3. 计算当前进度百分比 (0.0 - 1.0)
+              // 进度 = 卷去的高度 / (总高度 - 可视高度)
+              const scrollHeight = textViewer.scrollHeight - textViewer.clientHeight;
+              let progress = 0;
+
+              if (scrollHeight > 0) {
+                progress = textViewer.scrollTop / scrollHeight;
+              }
+
+              // 确保进度在 0 到 1 之间
+              progress = Math.max(0, Math.min(1, progress));
+
+              // 4. 更新数据库
+              try {
+                await db.auroraBooks.update(auroraState.currentBookId, { progress: progress });
+                // console.log(`阅读进度已保存: ${(progress * 100).toFixed(1)}%`);
+              } catch (error) {
+                console.error('保存阅读进度失败:', error);
+              }
+            }, 500); // 延迟500毫秒
+          });
+          // ▲▲▲ 进度保存代码结束 ▲▲▲
 
           document.querySelectorAll('input[name="aurora-mode"]').forEach(radio => {
             radio.addEventListener('change', toggleAuroraInputs);
