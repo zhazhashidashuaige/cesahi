@@ -17968,8 +17968,21 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			${summaries.map((summary, index) => `- 总结${index + 1}: ${summary.content}`).join('\n')}
 			`;
           }
-          // ▲▲▲ 代码添加结束 ▲▲▲
-          // ▼▼▼ 第3步 第1处修改 ▼▼▼
+          // ▼▼▼ 【修改】将世界书读取提到这里，确保线下模式也能生效 ▼▼▼
+          let worldBookContext = '';
+          if (chat.settings.linkedWorldBookIds && chat.settings.linkedWorldBookIds.length > 0) {
+            const linkedContents = chat.settings.linkedWorldBookIds
+              .map(id => {
+                const book = state.worldBooks.find(b => b.id === id);
+                // 这里使用了 stripHtmlAndCode 清理函数，确保纯文本
+                return book && book.content ? `\n\n## 世界书条目: ${book.name}\n${stripHtmlAndCode(book.content)}` : '';
+              })
+              .filter(Boolean)
+              .join('');
+            if (linkedContents) {
+              worldBookContext = `\n\n# 核心世界观设定 (必须严格遵守以下所有设定)\n${linkedContents}\n`;
+            }
+          }
           // --- 【线下模式核心拦截逻辑 (已增强：读世界书 + 自动生图)】 ---
           if (!chat.isGroup && chat.settings.offlineMode && chat.settings.offlineMode.enabled) {
             console.log(`角色 "${chat.name}" 已开启线下模式，正在构建专属指令...`);
@@ -19118,23 +19131,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
               // ▲▲▲ 替换结束 ▲▲▲
             } else {
-              // 单聊的Prompt
-              // ▼▼▼ 核心修改：用下面这一整块全新的Prompt替换你原来的单聊Prompt ▼▼▼
-              let worldBookContext = '';
-              if (chat.settings.linkedWorldBookIds && chat.settings.linkedWorldBookIds.length > 0) {
-                const linkedContents = chat.settings.linkedWorldBookIds
-                  .map(bookId => {
-                    const worldBook = state.worldBooks.find(wb => wb.id === bookId);
-                    return worldBook && worldBook.content
-                      ? `\n\n## 世界书: ${worldBook.name}\n${worldBook.content}`
-                      : '';
-                  })
-                  .filter(Boolean)
-                  .join('');
-                if (linkedContents) {
-                  worldBookContext = `\n\n# 核心世界观设定 (你必须严格遵守)\n${linkedContents}\n`;
-                }
-              }
               const npcLibrary = chat.npcLibrary || [];
               let npcContext = '';
               if (npcLibrary.length > 0) {
