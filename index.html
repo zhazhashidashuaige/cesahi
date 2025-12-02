@@ -14935,19 +14935,21 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
           // 创建保活专用对象
           const keepAliveTrack = {
-            name: '【后台保活模式】(静音)',
-            artist: '点击播放以保持后台运行',
-            src: keepAliveUrl,
-            // 使用 API设置 的图标作为封面
-            cover: 'https://i.postimg.cc/MK8rJ8t7/IMG-6438.jpg',
-            isLocal: false,
-            lrcContent:
-              '[00:00.00]⚠️ 后台保活运行中...\n[00:02.00]此音频无声\n[00:05.00]用于防止API请求中断\n[99:99.99]End',
-            isTemporary: false,
-            addedTimestamp: Date.now(),
-            // ★★★ 核心标记：这是一个保活音轨 ★★★
-            isKeepAlive: true,
+                name: "【后台保活模式】(静音)",
+                artist: "点击播放以保持后台运行",
+                src: keepAliveUrl,
+                
+                // ▼▼▼ 以后想改图片，就改下面引号里的链接 ▼▼▼
+                cover: "https://i.postimg.cc/NF96p6vR/5A40D469A9B0E9A4925A385900714BFD.png", 
+                // ▲▲▲ 修改结束 ▲▲▲
+
+                isLocal: false,
+                lrcContent: "[00:00.00]⚠️ 后台保活运行中...\n[00:02.00]此音频无声\n[00:05.00]用于防止API请求中断\n[99:99.99]End",
+                isTemporary: false, 
+                addedTimestamp: Date.now(),
+                isKeepAlive: true 
           };
+
 
           // 强制插到播放列表的第 0 位
           musicState.playlist.unshift(keepAliveTrack);
