@@ -17822,40 +17822,11 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           } else if (msg.type === 'naiimag') {
             // NovelAI图片渲染（复用realimag样式）
             bubble.classList.add('is-realimag', 'is-card-like');
-
-            // ▼▼▼ 修改开始：给图片包裹一个容器，并添加下载按钮 ▼▼▼
-            contentHtml = `
-    <div style="position: relative; display: inline-block;">
-        <img src="${
-          msg.imageUrl
-        }" class="realimag-image" alt="NovelAI图片分享" loading="lazy" onerror="this.src='https://i.postimg.cc/KYr2qRCK/1.jpg'; this.alt='图片加载失败';" title="${
+            contentHtml = `<img src="${
+              msg.imageUrl
+            }" class="realimag-image" alt="NovelAI图片分享" loading="lazy" onerror="this.src='https://i.postimg.cc/KYr2qRCK/1.jpg'; this.alt='图片加载失败';" title="${
               msg.fullPrompt || msg.prompt || 'NovelAI生成'
-            }" style="display: block;">
-        
-        <!-- 这是下载按钮 -->
-        <div class="nai-download-btn" data-img-src="${msg.imageUrl}" style="
-            position: absolute; 
-            bottom: 10px; 
-            right: 10px; 
-            width: 36px; 
-            height: 36px; 
-            background-color: rgba(0,0,0,0.6); 
-            backdrop-filter: blur(4px);
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            color: white;
-            font-size: 18px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            z-index: 10;
-        " title="点击下载原图">
-            ⬇️
-        </div>
-    </div>
-    `;
-            // ▲▲▲ 修改结束 ▲▲▲
+            }">`;
           } else {
             contentHtml = String(msg.content || '').replace(/\n/g, '<br>');
           }
@@ -18045,12 +18016,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               worldBookContext = `\n\n# 核心世界观设定 (必须严格遵守以下所有设定)\n${linkedContents}\n`;
             }
           }
-          // --- 【线下模式核心拦截逻辑 (已增强：读世界书 + 自动生图)】 ---
+          // --- 【线下模式核心拦截逻辑 (已增强：让AI生成提示词 + 强力生图)】 ---
           if (!chat.isGroup && chat.settings.offlineMode && chat.settings.offlineMode.enabled) {
             console.log(`角色 "${chat.name}" 已开启线下模式，正在构建专属指令...`);
 
             const offlineSettings = chat.settings.offlineMode;
             const wordCount = offlineSettings.wordCount || 300;
+            const enableNai = offlineSettings.enableNovelAI || false; // 检查生图开关
 
             const defaultPrompt = `你正在和用户进行一次私密的线下约会，场景可以是一个安静的咖啡馆、温馨的家中、或是浪漫的海边。请根据你的人设和最近的对话内容，自然地延续互动。`;
             const defaultStyle = `请以【${chat.name}】的第一人称视角进行回复。你的回复【必须】是一个完整的、连贯的叙事段落，其中要包含丰富的【动作】、【神态】、【心理活动】和【对话】。`;
@@ -18058,7 +18030,17 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const finalPrompt = offlineSettings.prompt || defaultPrompt;
             const finalStyle = offlineSettings.style || defaultStyle;
 
-            // 1. 【修改】将 worldBookContext 加入到 System Prompt 中
+            // 1. 【修改】在 System Prompt 中增加生成 "naiPrompt" 的指令
+            let naiInstruction = '';
+            if (enableNai) {
+              naiInstruction = `
+            6.  **【【【生图指令 (重要)】】】**: 检测到生图功能已开启。你【必须】在JSON根对象中额外包含一个 **"naiPrompt"** 字段。
+                -   **内容**: 根据你生成的剧情，提取出画面的视觉元素（地点、光线、天气、你的动作、你的表情、你的穿着）。
+                -   **格式**: 【必须】是**全英文**的、逗号分隔的单词（Tags）。
+                -   **示例**: "1girl, sitting in cafe, holding coffee cup, looking at viewer, smile, rainy day, indoor lighting, cinematic composition"
+                `;
+            }
+
             const offlineSystemPrompt = `
             # 核心任务：线下场景角色扮演（包含心声）
 
@@ -18067,29 +18049,25 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             # 你的角色设定
             ${chat.settings.aiPersona}
             ${summaryContext}
-
-            ${worldBookContext}  // <--- 在这里注入世界书内容！
+            ${worldBookContext}
 
             # 当前情景
             ${finalPrompt}
             ${finalStyle}
             
             # 你的输出要求 (这是最高指令，必须严格遵守)
-            1.  **【【【格式铁律】】】**: 你的回复【必须】是一个**单一且完整**的JSON对象，包含 "chatResponse" 和 "innerVoice" 两个顶级键。
+            1.  **【【【格式铁律】】】**: 你的回复【必须】是一个**单一且完整**的JSON对象。
             2.  **"chatResponse" 键**:
                 -   **类型**: JSON数组 \`[]\`。
                 -   **内容**: 【必须】包含**一个**消息对象，格式为 \`{"type": "text", "content": "你的叙事内容..."}\`。
-                -   **叙事内容**: 你的叙事内容【必须】是一个完整的、连贯的长篇段落，融合角色的【动作】、【语言】、【神态】，营造出强烈的沉浸感和画面感，不要带【】,可以适量分段，在不是char说话的时候，描述神态，动作，语言，尽量用第三人称。
+                -   **叙事内容**: 你的叙事内容【必须】是一个完整的、连贯的长篇段落，融合角色的【动作】、【语言】、【神态】，营造出强烈的沉浸感和画面感。
             3.  **"innerVoice" 键**:
                 -   **类型**: JSON对象 \`{}\`。
                 -   **内容**: 描绘你此刻未曾说出口的内心活动。
-                -   **必含字段**:
-                    -   "clothing": (字符串) 详细描述你当前从头到脚的**全身服装**。
-                    -   "behavior": (字符串) 描述你当前符合聊天情景的**细微动作或表情**。
-                    -   "thoughts": (字符串) 描述你此刻**丰富、细腻的内心真实想法**（50字左右）。
-                    -   "naughtyThoughts": (字符串) 描述你此刻与情境相关的**腹黑或色色的坏心思**，必须符合人设。
+                -   **必含字段**: "clothing" (服装), "behavior" (动作), "thoughts" (心声), "naughtyThoughts" (坏心思)。
             4.  **【【【字数铁律】】】**: "content" 字段的总字数应在【${wordCount}】字左右。
             5.  **【禁止出戏】**: 绝对不能提及你是AI、模型或程序。
+            ${naiInstruction}
 
             # JSON输出格式示例:
             {
@@ -18104,7 +18082,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 "behavior": "...",
                 "thoughts": "...",
                 "naughtyThoughts": "..."
-              }
+              }${enableNai ? ',\n  "naiPrompt": "1girl, solo, ... (English Tags Only)"' : ''}
             }
 
             # 对话历史 (供你参考)
@@ -18182,7 +18160,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               // 解析回复
               let messagesArray = [];
               let innerVoiceData = null;
-              let narrativeText = ''; // 用于生图的剧情文本
+              let generatedNaiPrompt = ''; // 【修改】用来存AI生成的英文Prompt
 
               try {
                 let sanitizedContent = aiResponseContent
@@ -18199,16 +18177,18 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
                 if (fullResponse.chatResponse && Array.isArray(fullResponse.chatResponse)) {
                   messagesArray = fullResponse.chatResponse;
-                  // 提取文本用于生图Prompt
-                  narrativeText = messagesArray.map(m => m.content).join(' ');
                 }
                 if (fullResponse.innerVoice && typeof fullResponse.innerVoice === 'object') {
                   innerVoiceData = fullResponse.innerVoice;
                 }
+                // 【修改】提取 naiPrompt
+                if (fullResponse.naiPrompt && typeof fullResponse.naiPrompt === 'string') {
+                  generatedNaiPrompt = fullResponse.naiPrompt;
+                  console.log('AI生成的NAI Prompt:', generatedNaiPrompt);
+                }
               } catch (e) {
                 console.warn('线下模式AI回复不是JSON，退回到纯文本模式。', e);
                 messagesArray = [{ type: 'text', content: aiResponseContent }];
-                narrativeText = aiResponseContent;
               }
 
               // 保存心声
@@ -18245,164 +18225,221 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               checkAndTriggerSummary(chatId);
 
               // =================================================================
-              // ▼▼▼ 【重点新增】线下模式自动生图逻辑 ▼▼▼
+              // ▼▼▼ 【重点修复】线下模式生图逻辑 (使用AI生成的Prompt) ▼▼▼
               // =================================================================
-              // =================================================================
-              // ▼▼▼ 【重点新增/修复】线下模式自动生图逻辑 ▼▼▼
-              // =================================================================
-              if (offlineSettings.enableNovelAI) {
+              if (enableNai) {
                 // 1. 检查必要条件
                 const naiKey = localStorage.getItem('novelai-api-key');
 
                 if (!naiKey) {
                   console.warn('线下模式生图已开启，但未配置NovelAI API Key，跳过。');
-                } else if (!narrativeText) {
-                  console.warn('线下模式生图跳过：本次AI回复未包含有效剧情文本。');
+                } else if (!generatedNaiPrompt) {
+                  // 如果AI没生成prompt，我们尝试用文本回退，或者直接提示
+                  console.warn('AI本次未返回 "naiPrompt" 字段，尝试使用默认方式生成...');
+                  // 如果你想在这里加回退逻辑，可以把 messagesArray[0].content 拿来做翻译，
+                  // 但为了保证效果，如果AI没按要求生成，最好就跳过或者用人设兜底。
+                  // 这里我们暂时跳过，避免生成烂图。
                 } else {
-                  console.log('检测到线下模式生图开启，正在请求NovelAI...');
-                  // 给用户一个视觉提示
+                  console.log('检测到线下模式生图开启，使用AI生成的Tags:', generatedNaiPrompt);
                   if (chatHeaderTitle) chatHeaderTitle.textContent = '正在绘制场景插图...';
 
-                  // 2. 准备Prompt: 角色NAI正面提示词 + 剧情摘要
-                  const charNaiPrompts = getCharacterNAIPrompts(chat.id);
+                  (async () => {
+                    try {
+                      // 2. 准备Prompt: AI生成的场景Tags + 角色专属配置(固定特征)
+                      const charNaiPrompts = getCharacterNAIPrompts(chat.id);
 
-                  // 提取剧情摘要（去除特殊字符，保留前250字英文或100汉字左右的长度）
-                  const cleanNarrative = narrativeText.replace(/[^\w\s\u4e00-\u9fa5,，.。]/g, ' ').substring(0, 200);
+                      // 组合提示词：AI生成的场景 + 角色固定特征 + 质量词
+                      const finalPrompt = `${generatedNaiPrompt}, ${charNaiPrompts.positive}, best quality, amazing quality, very aesthetic, absurdres`;
 
-                  // 组合提示词：场景描述 + 角色固定特征 + 质量词
-                  const finalPrompt = `${cleanNarrative}, ${charNaiPrompts.positive}, best quality, amazing quality, very aesthetic, absurdres`;
-                  const finalNegative =
-                    charNaiPrompts.negative ||
-                    'lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry';
+                      // 负面提示词
+                      const finalNegative =
+                        charNaiPrompts.negative ||
+                        'lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry';
 
-                  // 3. 获取NAI设置
-                  const settings = getNovelAISettings();
-                  const [width, height] = settings.resolution.split('x').map(Number);
-                  const model = localStorage.getItem('novelai-model') || 'nai-diffusion-4-5-full';
+                      // 3. 获取NAI设置 (以下逻辑与线上版保持一致，确保稳定性)
+                      const settings = getNovelAISettings();
+                      const [width, height] = settings.resolution.split('x').map(Number);
+                      const model = localStorage.getItem('novelai-model') || 'nai-diffusion-4-5-full';
 
-                  // 4. 构建请求体
-                  let requestBody;
-                  let apiUrl = model.includes('nai-diffusion-4')
-                    ? 'https://image.novelai.net/ai/generate-image-stream'
-                    : 'https://image.novelai.net/ai/generate-image';
+                      // 4. 构建请求体
+                      let requestBody;
+                      let apiUrl = model.includes('nai-diffusion-4')
+                        ? 'https://image.novelai.net/ai/generate-image-stream'
+                        : 'https://image.novelai.net/ai/generate-image';
 
-                  // 简单的参数构建
-                  const commonParams = {
-                    width: width,
-                    height: height,
-                    scale: settings.cfg_scale,
-                    sampler: settings.sampler,
-                    steps: settings.steps,
-                    seed: Math.floor(Math.random() * 4294967295),
-                    n_samples: 1,
-                    ucPreset: settings.uc_preset,
-                    qualityToggle: settings.quality_toggle,
-                  };
+                      const commonParams = {
+                        width: width,
+                        height: height,
+                        scale: settings.cfg_scale,
+                        sampler: settings.sampler,
+                        steps: settings.steps,
+                        seed: Math.floor(Math.random() * 4294967295),
+                        n_samples: 1,
+                        ucPreset: settings.uc_preset,
+                        qualityToggle: settings.quality_toggle,
+                      };
 
-                  if (model.includes('nai-diffusion-4')) {
-                    requestBody = {
-                      input: finalPrompt,
-                      model: model,
-                      action: 'generate',
-                      parameters: {
-                        ...commonParams,
-                        params_version: 3,
-                        negative_prompt: finalNegative,
-                        v4_prompt: {
-                          caption: { base_caption: finalPrompt, char_captions: [] },
-                          use_coords: false,
-                          use_order: true,
-                        },
-                        v4_negative_prompt: {
-                          caption: { base_caption: finalNegative, char_captions: [] },
-                          legacy_uc: false,
-                        },
-                      },
-                    };
-                  } else {
-                    requestBody = {
-                      input: finalPrompt,
-                      model: model,
-                      action: 'generate',
-                      parameters: {
-                        ...commonParams,
-                        negative_prompt: finalNegative,
-                        sm: settings.smea,
-                        sm_dyn: settings.smea_dyn,
-                        add_original_image: false,
-                      },
-                    };
-                  }
-
-                  // 5. 处理代理
-                  let corsProxy = settings.cors_proxy;
-                  if (corsProxy === 'custom') corsProxy = settings.custom_proxy_url || '';
-                  if (corsProxy) apiUrl = corsProxy + encodeURIComponent(apiUrl);
-
-                  // 6. 发送请求
-                  fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + naiKey },
-                    body: JSON.stringify(requestBody),
-                  })
-                    .then(async res => {
-                      if (!res.ok) throw new Error(`NAI API Error: ${res.status}`);
-                      return res.blob();
-                    })
-                    .then(async blob => {
-                      // ★★★ 核心修复：增加JSZip检查和错误提示 ★★★
-                      if (typeof JSZip === 'undefined') {
-                        console.error('错误：未找到JSZip库，无法解压NovelAI返回的图片。请在HTML头部添加JSZip引用。');
-                        const errBubble = {
-                          role: 'system',
-                          content: '[系统错误：无法解压图片，请检查代码是否引入了 JSZip 库]',
-                          timestamp: Date.now(),
+                      if (model.includes('nai-diffusion-4')) {
+                        requestBody = {
+                          input: finalPrompt,
+                          model: model,
+                          action: 'generate',
+                          parameters: {
+                            ...commonParams,
+                            params_version: 3,
+                            negative_prompt: finalNegative,
+                            v4_prompt: {
+                              caption: { base_caption: finalPrompt, char_captions: [] },
+                              use_coords: false,
+                              use_order: true,
+                            },
+                            v4_negative_prompt: {
+                              caption: { base_caption: finalNegative, char_captions: [] },
+                              legacy_uc: false,
+                            },
+                          },
                         };
-                        chat.history.push(errBubble);
-                        if (isViewingThisChat) appendMessage(errBubble, chat);
-                        return;
+                      } else {
+                        requestBody = {
+                          input: finalPrompt,
+                          model: model,
+                          action: 'generate',
+                          parameters: {
+                            ...commonParams,
+                            negative_prompt: finalNegative,
+                            sm: settings.smea,
+                            sm_dyn: settings.smea_dyn,
+                            add_original_image: false,
+                          },
+                        };
                       }
 
-                      const zip = await JSZip.loadAsync(blob);
-                      const file = Object.values(zip.files)[0]; // 取第一个文件
+                      // 5. 处理代理
+                      let corsProxy = settings.cors_proxy;
+                      if (corsProxy === 'custom') corsProxy = settings.custom_proxy_url || '';
+                      if (corsProxy) apiUrl = corsProxy + encodeURIComponent(apiUrl);
 
-                      if (file) {
-                        const imgBlob = await file.async('blob');
-                        const reader = new FileReader();
-                        reader.onloadend = async () => {
-                          const base64data = reader.result;
-
-                          // 生成成功！创建 naiimag 消息
-                          const imgMsg = {
-                            role: 'assistant',
-                            senderName: chat.name,
-                            timestamp: Date.now(),
-                            type: 'naiimag',
-                            imageUrl: base64data,
-                            prompt: finalPrompt,
-                            fullPrompt: finalPrompt,
-                          };
-
-                          chat.history.push(imgMsg);
-                          await db.chats.put(chat);
-
-                          // 如果用户还在看这个聊天，就显示出来
-                          if (isViewingThisChat) {
-                            appendMessage(imgMsg, chat);
-                            const msgsDiv = document.getElementById('chat-messages');
-                            msgsDiv.scrollTop = msgsDiv.scrollHeight;
-                          }
-
-                          // 恢复标题状态
-                          if (chatHeaderTitle) {
-                            chatHeaderTitle.textContent = chat.name;
-                            chatHeaderTitle.classList.remove('typing-status');
-                          }
-                        };
-                        reader.readAsDataURL(imgBlob);
+                      // 6. 准备Headers (Chrome兼容)
+                      const isChrome = /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent);
+                      let headers = {
+                        'Content-Type': 'application/json',
+                        Authorization: 'Bearer ' + naiKey,
+                      };
+                      if (isChrome) {
+                        const cleanHeaders = {};
+                        for (const [key, value] of Object.entries(headers)) {
+                          cleanHeaders[key] = value.replace(/[^\x00-\xFF]/g, '');
+                        }
+                        headers = cleanHeaders;
                       }
-                    })
-                    .catch(err => {
+
+                      // 7. 发送请求
+                      const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(requestBody),
+                      });
+
+                      if (!response.ok) {
+                        const errText = await response.text();
+                        throw new Error(`NAI API Error (${response.status}): ${errText}`);
+                      }
+
+                      // 8. 解析响应 (支持SSE和ZIP)
+                      const contentType = response.headers.get('content-type');
+                      let imageDataUrl = null;
+                      let zipBlob = null;
+
+                      if (contentType && contentType.includes('text/event-stream')) {
+                        const text = await response.text();
+                        const lines = text.trim().split('\n');
+                        let base64Data = null;
+                        for (let i = lines.length - 1; i >= 0; i--) {
+                          const line = lines[i].trim();
+                          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+                            const dataContent = line.substring(6);
+                            try {
+                              const jsonData = JSON.parse(dataContent);
+                              if (jsonData.event_type === 'final' && jsonData.image) {
+                                base64Data = jsonData.image;
+                                break;
+                              }
+                              if (jsonData.data) {
+                                base64Data = jsonData.data;
+                                break;
+                              }
+                              if (jsonData.image) {
+                                base64Data = jsonData.image;
+                                break;
+                              }
+                            } catch (e) {
+                              base64Data = dataContent;
+                              break;
+                            }
+                          }
+                        }
+                        if (base64Data) {
+                          const isPNG = base64Data.startsWith('iVBORw0KGgo');
+                          const binaryString = atob(base64Data);
+                          const bytes = new Uint8Array(binaryString.length);
+                          for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+
+                          if (isPNG || base64Data.startsWith('/9j/')) {
+                            const imageBlob = new Blob([bytes], { type: isPNG ? 'image/png' : 'image/jpeg' });
+                            const reader = new FileReader();
+                            imageDataUrl = await new Promise(r => {
+                              reader.onloadend = () => r(reader.result);
+                              reader.readAsDataURL(imageBlob);
+                            });
+                          } else {
+                            zipBlob = new Blob([bytes]);
+                          }
+                        }
+                      } else {
+                        zipBlob = await response.blob();
+                      }
+
+                      if (!imageDataUrl && zipBlob) {
+                        if (typeof JSZip === 'undefined') throw new Error('未找到JSZip库');
+                        const zip = await JSZip.loadAsync(zipBlob);
+                        const file = Object.values(zip.files)[0];
+                        if (file) {
+                          const imgBlob = await file.async('blob');
+                          const reader = new FileReader();
+                          imageDataUrl = await new Promise(r => {
+                            reader.onloadend = () => r(reader.result);
+                            reader.readAsDataURL(imgBlob);
+                          });
+                        }
+                      }
+
+                      if (!imageDataUrl) throw new Error('无法提取图片数据');
+
+                      // 9. 创建图片消息
+                      const imgMsg = {
+                        role: 'assistant',
+                        senderName: chat.name,
+                        timestamp: Date.now(),
+                        type: 'naiimag',
+                        imageUrl: imageDataUrl,
+                        prompt: generatedNaiPrompt, // 使用AI生成的Prompt显示
+                        fullPrompt: finalPrompt,
+                      };
+
+                      chat.history.push(imgMsg);
+                      await db.chats.put(chat);
+
+                      if (isViewingThisChat) {
+                        appendMessage(imgMsg, chat);
+                        const msgsDiv = document.getElementById('chat-messages');
+                        msgsDiv.scrollTop = msgsDiv.scrollHeight;
+                      }
+
+                      if (chatHeaderTitle) {
+                        chatHeaderTitle.textContent = chat.name;
+                        chatHeaderTitle.classList.remove('typing-status');
+                      }
+                    } catch (err) {
                       console.error('线下模式自动生图失败:', err);
                       const errBubble = {
                         role: 'system',
@@ -18411,10 +18448,14 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                       };
                       chat.history.push(errBubble);
                       if (isViewingThisChat) appendMessage(errBubble, chat);
-                    });
+                      if (chatHeaderTitle) {
+                        chatHeaderTitle.textContent = chat.name;
+                        chatHeaderTitle.classList.remove('typing-status');
+                      }
+                    }
+                  })();
                 }
               }
-
               // =================================================================
               // ▲▲▲ 自动生图逻辑结束 ▲▲▲
             } catch (error) {
@@ -18436,9 +18477,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             return; // 结束线下模式逻辑
           }
           // --- 【线下模式逻辑结束】 ---
-
-          // --- 【线下模式核心拦截逻辑结束】 ---
-          // ▼▼▼ 将剪切的代码粘贴到这里 ▼▼▼
           // 1. 准备专属表情包列表 (现在对单聊和群聊都生效)
           const exclusiveStickers = chat.settings.stickerLibrary || [];
           let exclusiveStickerContext = '';
@@ -23297,10 +23335,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
         // ▲▲▲ 替换结束 ▲▲▲
 
-            // ▼▼▼ 【修复】播放下一首（正确跳过保活音频） ▼▼▼
+        // ▼▼▼ 【修复】播放下一首（正确跳过保活音频） ▼▼▼
         function playNext() {
           if (musicState.playlist.length === 0) return;
-          
+
           let nextIndex = musicState.currentIndex; // 使用临时变量作为起点
           let attempts = 0; // 防止死循环的安全计数
 
@@ -23320,9 +23358,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 nextIndex = (nextIndex + 1) % musicState.playlist.length;
                 break;
             }
-            
+
             attempts++;
-            
           } while (
             // 如果选中的是保活音频 (isKeepAlive=true)
             // 并且列表里不只有这一首歌
@@ -23334,7 +23371,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
           playSong(nextIndex);
         }
-
 
         // ▼▼▼ 【修改】播放上一首（自动跳过保活音频） ▼▼▼
         function playPrev() {
@@ -41722,20 +41758,19 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           // ▼▼▼ 【新增】20分钟强制循环监听器 ▼▼▼
           audioPlayer.addEventListener('timeupdate', () => {
             const currentTrack = musicState.playlist[musicState.currentIndex];
-            
+
             // 检查：1.是否存在当前歌曲 2.是否是保活音频 3.是否超过20分钟(1200秒)
             if (currentTrack && currentTrack.isKeepAlive && audioPlayer.currentTime > 600) {
-                console.log("保活音频已播放20分钟，执行循环...");
-                // 强制拉回 0 秒
-                audioPlayer.currentTime = 0; 
-                // 确保继续播放
-                if (audioPlayer.paused) {
-                    audioPlayer.play().catch(e => console.error("循环重播失败:", e));
-                }
+              console.log('保活音频已播放20分钟，执行循环...');
+              // 强制拉回 0 秒
+              audioPlayer.currentTime = 0;
+              // 确保继续播放
+              if (audioPlayer.paused) {
+                audioPlayer.play().catch(e => console.error('循环重播失败:', e));
+              }
             }
           });
           // ▲▲▲ 新增结束 ▲▲▲
-
 
           const chatInput = document.getElementById('chat-input');
           // ▼▼▼ 找到 id="send-btn" 的 click 事件监听器 ▼▼▼
@@ -42382,30 +42417,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           document.getElementById('chat-messages').addEventListener('click', async e => {
             const voiceBody = e.target.closest('.voice-message-body');
             if (voiceBody) {
-              // ▼▼▼ 新增：处理NAI图片下载按钮点击 ▼▼▼
-              const downloadBtn = e.target.closest('.nai-download-btn');
-              if (downloadBtn) {
-                e.stopPropagation(); // 阻止事件冒泡
-                const imgSrc = downloadBtn.dataset.imgSrc;
-                if (!imgSrc) return;
-
-                // 创建下载链接
-                const link = document.createElement('a');
-                link.href = imgSrc;
-                // 生成文件名: nai_时间戳.png
-                link.download = `nai_image_${Date.now()}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                // 给个简单的反馈
-                const originalText = downloadBtn.innerText;
-                downloadBtn.innerText = '✅';
-                setTimeout(() => (downloadBtn.innerText = originalText), 2000);
-                return;
-              }
-              // ▲▲▲ 新增结束 ▲▲▲
-
               const bubble = voiceBody.closest('.message-bubble');
               if (!bubble) return;
 
