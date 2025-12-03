@@ -41719,7 +41719,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const currentTrack = musicState.playlist[musicState.currentIndex];
             
             // 检查：1.是否存在当前歌曲 2.是否是保活音频 3.是否超过20分钟(1200秒)
-            if (currentTrack && currentTrack.isKeepAlive && audioPlayer.currentTime > 1200) {
+            if (currentTrack && currentTrack.isKeepAlive && audioPlayer.currentTime > 600) {
                 console.log("保活音频已播放20分钟，执行循环...");
                 // 强制拉回 0 秒
                 audioPlayer.currentTime = 0; 
