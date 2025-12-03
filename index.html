@@ -23297,32 +23297,36 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
         // ▲▲▲ 替换结束 ▲▲▲
 
-        // ▼▼▼ 【修改】播放下一首（自动跳过保活音频） ▼▼▼
+            // ▼▼▼ 【修复】播放下一首（正确跳过保活音频） ▼▼▼
         function playNext() {
           if (musicState.playlist.length === 0) return;
-          let nextIndex;
-          let attempts = 0; // 防止死循环
+          
+          let nextIndex = musicState.currentIndex; // 使用临时变量作为起点
+          let attempts = 0; // 防止死循环的安全计数
 
           do {
             switch (musicState.playMode) {
               case 'random':
+                // 随机模式：直接生成一个随机数
                 nextIndex = Math.floor(Math.random() * musicState.playlist.length);
                 break;
               case 'single':
-                // 单曲循环模式下，如果不手动切，playNext通常由 ended 触发，那里已经处理了
-                // 但如果是手动点下一首，还是切到下一首比较符合直觉
-                nextIndex = (musicState.currentIndex + 1) % musicState.playlist.length;
+                // 单曲循环模式：虽然通常由ended触发重播，但在手动点击下一首时，应当切换到下一首
+                nextIndex = (nextIndex + 1) % musicState.playlist.length;
                 break;
               case 'order':
               default:
-                nextIndex = (musicState.currentIndex + 1) % musicState.playlist.length;
+                // 顺序模式：当前索引 + 1
+                nextIndex = (nextIndex + 1) % musicState.playlist.length;
                 break;
             }
-            // 临时赋值以便检查
-            if (musicState.playMode !== 'random') musicState.currentIndex = nextIndex - 1;
+            
             attempts++;
+            
           } while (
-            // 如果选中的是保活音频，并且列表里还有其他歌，就继续找下一首
+            // 如果选中的是保活音频 (isKeepAlive=true)
+            // 并且列表里不只有这一首歌
+            // 并且没有尝试超过列表长度的2倍（防止全都是保活音频导致死循环）
             musicState.playlist[nextIndex].isKeepAlive &&
             musicState.playlist.length > 1 &&
             attempts < musicState.playlist.length * 2
@@ -23330,6 +23334,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
           playSong(nextIndex);
         }
+
 
         // ▼▼▼ 【修改】播放上一首（自动跳过保活音频） ▼▼▼
         function playPrev() {
