@@ -14939,7 +14939,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             artist: '点击播放以保持后台运行',
             src: keepAliveUrl,
             // 使用 API设置 的图标作为封面
-            cover: 'https://i.postimg.cc/MK8rJ8t7/IMG-6438.jpg',
+            cover: 'https://i.postimg.cc/y8YfDNNr/D9FD94FC0A3523D02D9EE3A7B0F57396.png',
             isLocal: false,
             lrcContent:
               '[00:00.00]⚠️ 后台保活运行中...\n[00:02.00]此音频无声\n[00:05.00]用于防止API请求中断\n[99:99.99]End',
@@ -41713,6 +41713,24 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             }
           });
           // ▲▲▲ 修改结束 ▲▲▲
+
+          // ▼▼▼ 【新增】20分钟强制循环监听器 ▼▼▼
+          audioPlayer.addEventListener('timeupdate', () => {
+            const currentTrack = musicState.playlist[musicState.currentIndex];
+            
+            // 检查：1.是否存在当前歌曲 2.是否是保活音频 3.是否超过20分钟(1200秒)
+            if (currentTrack && currentTrack.isKeepAlive && audioPlayer.currentTime > 1200) {
+                console.log("保活音频已播放20分钟，执行循环...");
+                // 强制拉回 0 秒
+                audioPlayer.currentTime = 0; 
+                // 确保继续播放
+                if (audioPlayer.paused) {
+                    audioPlayer.play().catch(e => console.error("循环重播失败:", e));
+                }
+            }
+          });
+          // ▲▲▲ 新增结束 ▲▲▲
+
 
           const chatInput = document.getElementById('chat-input');
           // ▼▼▼ 找到 id="send-btn" 的 click 事件监听器 ▼▼▼
