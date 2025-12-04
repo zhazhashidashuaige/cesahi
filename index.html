@@ -10891,6 +10891,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       };
 
       // ▲▲▲ 新代码粘贴结束 ▲▲▲
+
       // ▼▼▼ 【粘贴到这里】把那4个头像变量放在这里，让它们变成全局变量 ▼▼▼
       const defaultAvatar = 'https://i.postimg.cc/PxZrFFFL/o-o-1.jpg';
       const defaultMyGroupAvatar = 'https://i.postimg.cc/cLPP10Vm/4.jpg';
@@ -17986,6 +17987,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const formattedDate = date.toLocaleString(); // 格式化为本地时间字符串
           return `${formattedDate} ${senderName}: ${contentText}`;
         }
+        window.formatMessageForContext = formatMessageForContext;
 
         async function triggerAiResponse() {
           if (!state.activeChatId) return;
@@ -18031,15 +18033,15 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const finalStyle = offlineSettings.style || defaultStyle;
 
             // 1. 动态构建生图指令
-            let naiInstruction = "";
-            let naiExample = "";
+            let naiInstruction = '';
+            let naiExample = '';
             if (enableNai) {
-                naiInstruction = `
+              naiInstruction = `
             6.  **【【【生图指令】】】**: 生图开关已开启。你【必须】在 "chatResponse" 数组中包含一个图片生成对象。
                 -   **格式**: \`{"type": "naiimag", "prompt": "1girl, ... (详细的英文描述tags)"}\`
                 -   **内容**: 提取当前剧情的视觉画面（地点、光线、动作、表情、穿着）。
                 `;
-                naiExample = `,\n    {\n      "type": "naiimag",\n      "prompt": "1girl, sitting in cafe, holding coffee cup, smile, indoor lighting, cinematic composition"\n    }`;
+              naiExample = `,\n    {\n      "type": "naiimag",\n      "prompt": "1girl, sitting in cafe, holding coffee cup, smile, indoor lighting, cinematic composition"\n    }`;
             }
 
             const offlineSystemPrompt = `
@@ -18105,8 +18107,12 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               const { proxyUrl, apiKey, model } = state.apiConfig;
               let isGemini = proxyUrl === GEMINI_API_URL;
               let requestBody;
-              let requestUrl = isGemini ? `${GEMINI_API_URL}/${model}:generateContent?key=${getRandomValue(apiKey)}` : `${proxyUrl}/v1/chat/completions`;
-              let requestHeaders = isGemini ? { 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` };
+              let requestUrl = isGemini
+                ? `${GEMINI_API_URL}/${model}:generateContent?key=${getRandomValue(apiKey)}`
+                : `${proxyUrl}/v1/chat/completions`;
+              let requestHeaders = isGemini
+                ? { 'Content-Type': 'application/json' }
+                : { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` };
 
               if (isGemini) {
                 requestBody = {
@@ -18146,7 +18152,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               let innerVoiceData = null;
 
               try {
-                let sanitizedContent = aiResponseContent.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+                let sanitizedContent = aiResponseContent
+                  .replace(/^```json\s*/, '')
+                  .replace(/```$/, '')
+                  .trim();
                 const firstBrace = sanitizedContent.indexOf('{');
                 const lastBrace = sanitizedContent.lastIndexOf('}');
                 if (firstBrace !== -1 && lastBrace > firstBrace) {
@@ -18174,136 +18183,207 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               }
 
               // 2. 【核心循环】处理消息数组 (支持 naiimag)
-              const isViewingThisChat = document.getElementById('chat-interface-screen').classList.contains('active') && state.activeChatId === chatId;
+              const isViewingThisChat =
+                document.getElementById('chat-interface-screen').classList.contains('active') &&
+                state.activeChatId === chatId;
               let messageTimestamp = Date.now();
 
               for (const msgData of messagesArray) {
                 // 2.1 如果是 naiimag 类型，执行生图逻辑 (复用线上代码)
                 if (msgData.type === 'naiimag') {
-                    if (!enableNai) continue; // 如果开关关了，跳过
-                    console.log('【线下模式】检测到生图指令，执行 NovelAI 请求...');
-                    
-                    // 这里直接复用switch case里的生图逻辑代码
-                    // 因为代码太长，我们把它封装成一个即时执行的逻辑
-                    (async () => {
-                        try {
-                            if (chatHeaderTitle) chatHeaderTitle.textContent = '正在绘制插图...';
-                            
-                            const naiPrompts = getCharacterNAIPrompts(chat.id);
-                            const aiPrompt = msgData.prompt || 'a beautiful scene';
-                            const finalPositivePrompt = `${aiPrompt}, ${naiPrompts.positive}`;
-                            const finalNegativePrompt = naiPrompts.negative;
+                  if (!enableNai) continue; // 如果开关关了，跳过
+                  console.log('【线下模式】检测到生图指令，执行 NovelAI 请求...');
 
-                            const apiKey = localStorage.getItem('novelai-api-key');
-                            const model = localStorage.getItem('novelai-model') || 'nai-diffusion-4-5-full';
-                            const settings = getNovelAISettings();
-                            
-                            if (!apiKey) throw new Error('未配置NovelAI API Key');
+                  // 这里直接复用switch case里的生图逻辑代码
+                  // 因为代码太长，我们把它封装成一个即时执行的逻辑
+                  (async () => {
+                    try {
+                      if (chatHeaderTitle) chatHeaderTitle.textContent = '正在绘制插图...';
 
-                            const [width, height] = settings.resolution.split('x').map(Number);
-                            let requestBody;
-                            let apiUrl = model.includes('nai-diffusion-4') ? 'https://image.novelai.net/ai/generate-image-stream' : 'https://image.novelai.net/ai/generate-image';
+                      const naiPrompts = getCharacterNAIPrompts(chat.id);
+                      const aiPrompt = msgData.prompt || 'a beautiful scene';
+                      const finalPositivePrompt = `${aiPrompt}, ${naiPrompts.positive}`;
+                      const finalNegativePrompt = naiPrompts.negative;
 
-                             // V4/V3 参数构建逻辑 (简化复用)
-                             const commonParams = { width, height, scale: settings.cfg_scale, sampler: settings.sampler, steps: settings.steps, seed: Math.floor(Math.random() * 4294967295), n_samples: 1, ucPreset: settings.uc_preset, qualityToggle: settings.quality_toggle };
-                             
-                             if (model.includes('nai-diffusion-4')) {
-                                 requestBody = { input: finalPositivePrompt, model, action: 'generate', parameters: { ...commonParams, params_version: 3, negative_prompt: finalNegativePrompt, v4_prompt: { caption: { base_caption: finalPositivePrompt, char_captions: [] }, use_coords: false, use_order: true }, v4_negative_prompt: { caption: { base_caption: finalNegativePrompt, char_captions: [] }, legacy_uc: false } } };
-                             } else {
-                                 requestBody = { input: finalPositivePrompt, model, action: 'generate', parameters: { ...commonParams, negative_prompt: finalNegativePrompt, sm: settings.smea, sm_dyn: settings.smea_dyn, add_original_image: false } };
-                             }
+                      const apiKey = localStorage.getItem('novelai-api-key');
+                      const model = localStorage.getItem('novelai-model') || 'nai-diffusion-4-5-full';
+                      const settings = getNovelAISettings();
 
-                             // 代理处理
-                             let corsProxy = settings.cors_proxy === 'custom' ? settings.custom_proxy_url : settings.cors_proxy;
-                             if (corsProxy) apiUrl = corsProxy + encodeURIComponent(apiUrl);
+                      if (!apiKey) throw new Error('未配置NovelAI API Key');
 
-                             // Headers (Chrome兼容)
-                             const isChrome = /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent);
-                             let headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey };
-                             if (isChrome) {
-                                 const cleanHeaders = {};
-                                 for (const [k, v] of Object.entries(headers)) cleanHeaders[k] = v.replace(/[^\x00-\xFF]/g, '');
-                                 headers = cleanHeaders;
-                             }
+                      const [width, height] = settings.resolution.split('x').map(Number);
+                      let requestBody;
+                      let apiUrl = model.includes('nai-diffusion-4')
+                        ? 'https://image.novelai.net/ai/generate-image-stream'
+                        : 'https://image.novelai.net/ai/generate-image';
 
-                             const res = await fetch(apiUrl, { method: 'POST', headers, body: JSON.stringify(requestBody) });
-                             if (!res.ok) throw new Error(`NAI API Error: ${res.status}`);
+                      // V4/V3 参数构建逻辑 (简化复用)
+                      const commonParams = {
+                        width,
+                        height,
+                        scale: settings.cfg_scale,
+                        sampler: settings.sampler,
+                        steps: settings.steps,
+                        seed: Math.floor(Math.random() * 4294967295),
+                        n_samples: 1,
+                        ucPreset: settings.uc_preset,
+                        qualityToggle: settings.quality_toggle,
+                      };
 
-                             // 解析响应 (SSE/Blob)
-                             const contentType = res.headers.get('content-type');
-                             let imageDataUrl = null, zipBlob = null;
+                      if (model.includes('nai-diffusion-4')) {
+                        requestBody = {
+                          input: finalPositivePrompt,
+                          model,
+                          action: 'generate',
+                          parameters: {
+                            ...commonParams,
+                            params_version: 3,
+                            negative_prompt: finalNegativePrompt,
+                            v4_prompt: {
+                              caption: { base_caption: finalPositivePrompt, char_captions: [] },
+                              use_coords: false,
+                              use_order: true,
+                            },
+                            v4_negative_prompt: {
+                              caption: { base_caption: finalNegativePrompt, char_captions: [] },
+                              legacy_uc: false,
+                            },
+                          },
+                        };
+                      } else {
+                        requestBody = {
+                          input: finalPositivePrompt,
+                          model,
+                          action: 'generate',
+                          parameters: {
+                            ...commonParams,
+                            negative_prompt: finalNegativePrompt,
+                            sm: settings.smea,
+                            sm_dyn: settings.smea_dyn,
+                            add_original_image: false,
+                          },
+                        };
+                      }
 
-                             if (contentType && contentType.includes('text/event-stream')) {
-                                 const text = await res.text();
-                                 const lines = text.trim().split('\n');
-                                 let base64Data = null;
-                                 for (let i = lines.length - 1; i >= 0; i--) {
-                                     const line = lines[i].trim();
-                                     if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-                                         const dataContent = line.substring(6);
-                                         try {
-                                             const jsonData = JSON.parse(dataContent);
-                                             if (jsonData.event_type === 'final' && jsonData.image) { base64Data = jsonData.image; break; }
-                                             if (jsonData.data) { base64Data = jsonData.data; break; }
-                                             if (jsonData.image) { base64Data = jsonData.image; break; }
-                                         } catch (e) { base64Data = dataContent; break; }
-                                     }
-                                 }
-                                 if (base64Data) {
-                                     const isPNG = base64Data.startsWith('iVBORw0KGgo');
-                                     const binaryString = atob(base64Data);
-                                     const bytes = new Uint8Array(binaryString.length);
-                                     for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-                                     if (isPNG || base64Data.startsWith('/9j/')) {
-                                         const imageBlob = new Blob([bytes], { type: isPNG ? 'image/png' : 'image/jpeg' });
-                                         const reader = new FileReader();
-                                         imageDataUrl = await new Promise(r => { reader.onloadend = () => r(reader.result); reader.readAsDataURL(imageBlob); });
-                                     } else { zipBlob = new Blob([bytes]); }
-                                 }
-                             } else { zipBlob = await res.blob(); }
+                      // 代理处理
+                      let corsProxy =
+                        settings.cors_proxy === 'custom' ? settings.custom_proxy_url : settings.cors_proxy;
+                      if (corsProxy) apiUrl = corsProxy + encodeURIComponent(apiUrl);
 
-                             if (!imageDataUrl && zipBlob) {
-                                 if (typeof JSZip === 'undefined') throw new Error('未找到JSZip库');
-                                 const zip = await JSZip.loadAsync(zipBlob);
-                                 const file = Object.values(zip.files)[0];
-                                 if (file) {
-                                     const imgBlob = await file.async('blob');
-                                     const reader = new FileReader();
-                                     imageDataUrl = await new Promise(r => { reader.onloadend = () => r(reader.result); reader.readAsDataURL(imgBlob); });
-                                 }
-                             }
+                      // Headers (Chrome兼容)
+                      const isChrome = /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent);
+                      let headers = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey };
+                      if (isChrome) {
+                        const cleanHeaders = {};
+                        for (const [k, v] of Object.entries(headers)) cleanHeaders[k] = v.replace(/[^\x00-\xFF]/g, '');
+                        headers = cleanHeaders;
+                      }
 
-                             if (imageDataUrl) {
-                                 const imgMsg = {
-                                     role: 'assistant',
-                                     senderName: chat.name,
-                                     timestamp: Date.now(),
-                                     type: 'naiimag',
-                                     imageUrl: imageDataUrl,
-                                     prompt: aiPrompt,
-                                     fullPrompt: finalPositivePrompt
-                                 };
-                                 chat.history.push(imgMsg);
-                                 await db.chats.put(chat);
-                                 if (isViewingThisChat) {
-                                     appendMessage(imgMsg, chat);
-                                     const msgsDiv = document.getElementById('chat-messages');
-                                     msgsDiv.scrollTop = msgsDiv.scrollHeight;
-                                 }
-                             }
-                        } catch (err) {
-                            console.error('线下模式生图失败:', err);
-                            const errBubble = { role: 'system', content: `[生图失败: ${err.message}]`, timestamp: Date.now() };
-                            chat.history.push(errBubble);
-                            if (isViewingThisChat) appendMessage(errBubble, chat);
-                        } finally {
-                            if (chatHeaderTitle) {
-                                chatHeaderTitle.textContent = chat.name;
-                                chatHeaderTitle.classList.remove('typing-status');
+                      const res = await fetch(apiUrl, { method: 'POST', headers, body: JSON.stringify(requestBody) });
+                      if (!res.ok) throw new Error(`NAI API Error: ${res.status}`);
+
+                      // 解析响应 (SSE/Blob)
+                      const contentType = res.headers.get('content-type');
+                      let imageDataUrl = null,
+                        zipBlob = null;
+
+                      if (contentType && contentType.includes('text/event-stream')) {
+                        const text = await res.text();
+                        const lines = text.trim().split('\n');
+                        let base64Data = null;
+                        for (let i = lines.length - 1; i >= 0; i--) {
+                          const line = lines[i].trim();
+                          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+                            const dataContent = line.substring(6);
+                            try {
+                              const jsonData = JSON.parse(dataContent);
+                              if (jsonData.event_type === 'final' && jsonData.image) {
+                                base64Data = jsonData.image;
+                                break;
+                              }
+                              if (jsonData.data) {
+                                base64Data = jsonData.data;
+                                break;
+                              }
+                              if (jsonData.image) {
+                                base64Data = jsonData.image;
+                                break;
+                              }
+                            } catch (e) {
+                              base64Data = dataContent;
+                              break;
                             }
+                          }
                         }
-                    })();
-                    continue; // 处理完生图，跳过普通文本逻辑
+                        if (base64Data) {
+                          const isPNG = base64Data.startsWith('iVBORw0KGgo');
+                          const binaryString = atob(base64Data);
+                          const bytes = new Uint8Array(binaryString.length);
+                          for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+                          if (isPNG || base64Data.startsWith('/9j/')) {
+                            const imageBlob = new Blob([bytes], { type: isPNG ? 'image/png' : 'image/jpeg' });
+                            const reader = new FileReader();
+                            imageDataUrl = await new Promise(r => {
+                              reader.onloadend = () => r(reader.result);
+                              reader.readAsDataURL(imageBlob);
+                            });
+                          } else {
+                            zipBlob = new Blob([bytes]);
+                          }
+                        }
+                      } else {
+                        zipBlob = await res.blob();
+                      }
+
+                      if (!imageDataUrl && zipBlob) {
+                        if (typeof JSZip === 'undefined') throw new Error('未找到JSZip库');
+                        const zip = await JSZip.loadAsync(zipBlob);
+                        const file = Object.values(zip.files)[0];
+                        if (file) {
+                          const imgBlob = await file.async('blob');
+                          const reader = new FileReader();
+                          imageDataUrl = await new Promise(r => {
+                            reader.onloadend = () => r(reader.result);
+                            reader.readAsDataURL(imgBlob);
+                          });
+                        }
+                      }
+
+                      if (imageDataUrl) {
+                        const imgMsg = {
+                          role: 'assistant',
+                          senderName: chat.name,
+                          timestamp: Date.now(),
+                          type: 'naiimag',
+                          imageUrl: imageDataUrl,
+                          prompt: aiPrompt,
+                          fullPrompt: finalPositivePrompt,
+                        };
+                        chat.history.push(imgMsg);
+                        await db.chats.put(chat);
+                        if (isViewingThisChat) {
+                          appendMessage(imgMsg, chat);
+                          const msgsDiv = document.getElementById('chat-messages');
+                          msgsDiv.scrollTop = msgsDiv.scrollHeight;
+                        }
+                      }
+                    } catch (err) {
+                      console.error('线下模式生图失败:', err);
+                      const errBubble = {
+                        role: 'system',
+                        content: `[生图失败: ${err.message}]`,
+                        timestamp: Date.now(),
+                      };
+                      chat.history.push(errBubble);
+                      if (isViewingThisChat) appendMessage(errBubble, chat);
+                    } finally {
+                      if (chatHeaderTitle) {
+                        chatHeaderTitle.textContent = chat.name;
+                        chatHeaderTitle.classList.remove('typing-status');
+                      }
+                    }
+                  })();
+                  continue; // 处理完生图，跳过普通文本逻辑
                 }
 
                 // 2.2 普通文本消息
@@ -18324,7 +18404,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               await db.chats.put(chat);
               renderChatList();
               checkAndTriggerSummary(chatId);
-
             } catch (error) {
               console.error('线下模式AI响应失败:', error);
               const errorMessage = { role: 'assistant', content: `[出错了: ${error.message}]`, timestamp: Date.now() };
@@ -39371,7 +39450,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         }
         // ▲▲▲ 替换结束 ▲▲▲
 
-        let activeGroupId = null; // 记录当前打开的小组ID
+        window.activeGroupId = null;
         /**
          * 【已修复】渲染小组内的帖子列表及其分类（已支持筛选）
          */
@@ -40682,13 +40761,40 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             }
             document.getElementById('aurora-save-book-btn').style.display = 'inline-block';
             textViewer.style.display = 'block';
+
+            // --- ▼▼▼ 核心修改开始：支持自动识别 ANSI/GBK/UTF-8 ▼▼▼ ---
             const reader = new FileReader();
             reader.onload = e => {
-              auroraState.textContent = e.target.result;
+              const buffer = e.target.result;
+              let text = '';
+
+              // 步骤1：先尝试用 UTF-8 解码 (fatal: true 表示如果遇到非法字节就报错)
+              try {
+                const decoder = new TextDecoder('utf-8', { fatal: true });
+                text = decoder.decode(buffer);
+              } catch (error) {
+                // 步骤2：如果 UTF-8 解析失败，说明可能是 ANSI/GBK，尝试用 gb18030 解码
+                console.log('检测到非UTF-8编码，尝试使用 GB18030 (兼容GBK/ANSI) 解码...');
+                try {
+                  const decoder = new TextDecoder('gb18030'); // gb18030 包含 gbk 和 gb2312
+                  text = decoder.decode(buffer);
+                } catch (err2) {
+                  alert('抱歉，无法识别该文件的编码格式。建议将文件另存为 UTF-8 格式重试。');
+                  return;
+                }
+              }
+
+              auroraState.textContent = text;
+              // 使用 textContent 确保安全，同时配合 CSS 的 white-space: pre-wrap 保留换行
               document.getElementById('aurora-text-body').textContent = auroraState.textContent;
-              statusInfo.textContent = `文档已加载`;
+
+              const statusInfo = document.getElementById('aurora-info-status');
+              if (statusInfo) statusInfo.textContent = `文档已加载`;
             };
-            reader.readAsText(textFile);
+
+            // 关键：读取为 ArrayBuffer (二进制流)，而不是 readAsText
+            reader.readAsArrayBuffer(textFile);
+            // --- ▲▲▲ 核心修改结束 ▲▲▲ ---
           } else if (mode === 'custom') {
             // 自定义模式
             const imgFile = document.getElementById('aurora-custom-img').files[0];
@@ -41065,7 +41171,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         // 绑定保存按钮
         document.getElementById('aurora-save-book-btn').addEventListener('click', saveCurrentNovelToShelf);
 
-        // ===================================================================
         // 4. 初始化函数 init()
         // ===================================================================
         async function init() {
