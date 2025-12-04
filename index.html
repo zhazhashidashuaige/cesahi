@@ -14076,10 +14076,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             }
           }
         }
-
-        /**
-         * 从 GitHub 下载并恢复备份
-         */
+        // ▼▼▼ GitHub 恢复备份 (V2 - 强力解码版) ▼▼▼
         async function restoreBackupFromGitHub() {
           let { githubToken, githubUsername, githubRepo, githubPath } = state.apiConfig;
 
@@ -14089,7 +14086,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             return;
           }
 
-          // 2. 这是一个高风险操作，必须确认
+          // 2. 确认操作
           const confirmed = await showCustomConfirm(
             '⚠️ 高能预警',
             '即将从 GitHub 下载备份并【覆盖】当前所有数据！\n\n如果 GitHub 上的备份较旧，您当前的新数据将会丢失。\n\n确定要继续吗？',
@@ -14117,15 +14114,16 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               });
               if (metaRes.ok) {
                 const metaJson = await metaRes.json();
-                // GitHub API 返回的内容在 content 字段，且可能有换行，需要清洗
-                const metaContentStr = decodeURIComponent(escape(atob(metaJson.content.replace(/\n/g, ''))));
+                // 这里的解码相对简单，因为 meta 文件很小
+                // 使用 replace(/\s/g, '') 清除所有空白符(换行等)，防止 base64 报错
+                const metaContentStr = atob(metaJson.content.replace(/\s/g, ''));
                 metaData = JSON.parse(metaContentStr);
               }
             } catch (e) {
               console.log('未找到 meta 文件，尝试单文件模式。');
             }
 
-            // 4. 分支处理
+            // 4. 分支处理：分片下载 vs 单文件下载
             if (metaData && metaData.total_parts) {
               // === 分片模式 ===
               const totalParts = metaData.total_parts;
@@ -14145,9 +14143,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 if (!partRes.ok) throw new Error(`分片 ${partName} 下载失败: ${partRes.status}`);
 
                 const partJson = await partRes.json();
-                // GitHub 返回的 content 是 base64，直接拼接到大字符串上
-                // 注意：这里不需要解码，我们要把所有 base64 拼起来最后统一解码
-                finalBase64String += partJson.content.replace(/\n/g, '');
+                // ★★★ 修复核心1：使用 \s 匹配所有空白字符（包括 \n, \r），防止拼接处出现断裂
+                finalBase64String += partJson.content.replace(/\s/g, '');
               }
               console.log('所有分片下载并拼接完成。');
             } else {
@@ -14163,26 +14160,53 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               }
 
               const json = await res.json();
-              finalBase64String = json.content.replace(/\n/g, '');
+              // ★★★ 修复核心1：同样彻底清理空白符
+              finalBase64String = json.content.replace(/\s/g, '');
             }
 
-            // 5. 解码与恢复
-            if (modalTitle) document.getElementById('custom-modal-title').textContent = '正在解析数据...';
+            // 5. 解码与恢复 (使用 TextDecoder 解决大文件 EOF 问题)
+            if (document.getElementById('custom-modal-title')) {
+              document.getElementById('custom-modal-title').textContent = '正在解析数据(可能需要几秒)...';
+            }
 
-            const jsonString = decodeURIComponent(escape(atob(finalBase64String)));
+            // ★★★ 修复核心2：使用 TextDecoder 替代 decodeURIComponent ★★★
+            // 这是解决 Unexpected EOF 和中文乱码的关键。
+            // 旧方法在处理超长字符串时容易溢出或截断。
 
+            // a. 将 Base64 还原为二进制字符串
+            const binaryString = atob(finalBase64String);
+
+            // b. 将二进制字符串转换为 Uint8Array 字节数组
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            // c. 使用 TextDecoder 按 UTF-8 格式解码
+            const decoder = new TextDecoder('utf-8');
+            const jsonString = decoder.decode(bytes);
+
+            // d. 预检 JSON 是否完整 (如果不完整，这里会直接报错，我们可以捕获它)
+            try {
+              JSON.parse(jsonString);
+            } catch (parseErr) {
+              throw new Error(`JSON解析失败(文件可能不完整): ${parseErr.message}`);
+            }
+
+            // e. 创建虚拟文件对象
             const virtualFile = new File([jsonString], 'github_restore.json', { type: 'application/json' });
 
-            // 关闭之前的提示框（因为 importBackup 会弹它自己的提示）
+            // 关闭之前的提示框
             hideCustomModal();
 
+            // 调用通用的导入函数
             await importBackup(virtualFile);
           } catch (error) {
             console.error('恢复失败:', error);
             await showCustomAlert('恢复失败', `错误信息: ${error.message}`);
           }
         }
-        // ▲▲▲ GitHub 恢复功能结束 ▲▲▲
+        // ▲▲▲ 恢复功能结束 ▲▲▲
 
         // 辅助函数：上传单个文件
         async function uploadSingleFile(user, repo, path, token, contentBase64, isAuto, isPart = false) {
