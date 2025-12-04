@@ -13974,7 +13974,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           return JSON.stringify(backupData, null, 2);
         }
 
-        // ▼▼▼ 终极版：支持大文件自动分片上传 ▼▼▼
+        // ▼▼▼ 终极版：支持大文件自动分片上传 + 自动去除敏感Key防止报错 ▼▼▼
         async function uploadBackupToGitHub(isAuto = false) {
           let { githubToken, githubUsername, githubRepo, githubPath } = state.apiConfig;
 
@@ -13991,16 +13991,32 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           if (!isAuto) await showCustomAlert('准备中...', '正在打包并计算文件大小...');
 
           try {
-            // 2. 获取原始 JSON 数据
-            const jsonContent = await getFullBackupData();
+            // 2. 获取原始 JSON 数据字符串
+            const rawJsonContent = await getFullBackupData();
+
+            // ★★★ 核心修复：解析并移除敏感信息 ★★★
+            // GitHub 会拒绝包含 API Key 的文件上传，所以必须在上传前清空它们
+            const backupObj = JSON.parse(rawJsonContent);
+
+            if (backupObj.apiConfig) {
+              // 清空 OpenAI/API Key
+              backupObj.apiConfig.apiKey = '';
+              // 清空 GitHub Token (最关键，不删这个必报 secret detected)
+              backupObj.apiConfig.githubToken = '';
+              // 清空 Minimax Key
+              backupObj.apiConfig.minimaxApiKey = '';
+            }
+
+            // 重新转换回 JSON 字符串
+            const jsonContent = JSON.stringify(backupObj, null, 2);
+            // ★★★ 修复结束 ★★★
 
             // 3. 转成 Base64 (解决中文乱码)
-            // 注意：这里我们生成原始 Base64 字符串，后续根据需要切割
             const fullBase64 = btoa(unescape(encodeURIComponent(jsonContent)));
 
             // 计算 Base64 大小 (字节)
             const totalSize = fullBase64.length;
-            // 设定分片阈值：45MB (GitHub 限制 100MB，由于网络波动和编码，留足余量)
+            // 设定分片阈值：45MB
             const CHUNK_SIZE = 45 * 1024 * 1024;
 
             const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
@@ -14018,19 +14034,15 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 const end = Math.min(start + CHUNK_SIZE, totalSize);
                 const chunkContent = fullBase64.substring(start, end);
 
-                // 分片文件名：xxx.json.001, xxx.json.002
                 const partName = `${githubPath}.${String(i + 1).padStart(3, '0')}`;
 
                 if (!isAuto) {
-                  const progress = Math.round(((i + 1) / totalChunks) * 100);
-                  // 更新提示框 (如果你的 UI 支持动态更新，这里是个简单的 log)
                   console.log(`正在上传分片 ${i + 1}/${totalChunks} ...`);
                 }
 
                 await uploadSingleFile(githubUsername, githubRepo, partName, githubToken, chunkContent, isAuto, true);
               }
 
-              // 上传一个索引文件，告诉系统总共有多少片(可选，方便人工查看)
               const infoContent = btoa(`{"total_parts": ${totalChunks}, "timestamp": ${Date.now()}}`);
               await uploadSingleFile(
                 githubUsername,
@@ -14045,14 +14057,25 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
             console.log('GitHub 备份全部完成！');
             if (!isAuto) {
-              await showCustomAlert('上传成功', `大文件已切割为 ${totalChunks} 份保存。\n恢复时请下载所有分片并合并。`);
+              await showCustomAlert(
+                '上传成功',
+                `备份已上传。(为了安全，云端备份已自动移除API Key，恢复时请记得重新填写)`,
+              );
             }
           } catch (error) {
             console.error('GitHub 备份失败:', error);
-            if (!isAuto) await showCustomAlert('上传失败', error.message);
+            // 如果还是报 Bad credentials，提示用户检查 Token
+            if (error.message.includes('Bad credentials')) {
+              if (!isAuto)
+                await showCustomAlert(
+                  '认证失败',
+                  'GitHub Token 无效或过期。请重新生成 Token 并确保勾选了 "repo" 权限。',
+                );
+            } else {
+              if (!isAuto) await showCustomAlert('上传失败', error.message);
+            }
           }
         }
-        // ▼▼▼ GitHub 恢复备份核心功能 (支持切片) ▼▼▼
 
         /**
          * 从 GitHub 下载并恢复备份
