@@ -60,25 +60,23 @@ document.addEventListener('DOMContentLoaded', () => {
     element.addEventListener('touchmove', cancelPress);
   }
   /**
-   * 渲染论坛主屏幕，显示所有小组及其分类（已支持筛选）
+   * 【V3 最终完美版】渲染论坛主屏幕
+   * 逻辑：内置小组显示SVG，用户小组显示自定义图片
    */
   async function renderForumScreen() {
     const listEl = document.getElementById('forum-group-list');
     const allGroups = await db.forumGroups.toArray();
     listEl.innerHTML = '';
 
-    // --- ▼▼▼ 【核心新增】筛选逻辑 ▼▼▼ ---
+    // --- 筛选逻辑 (保持不变) ---
     const globalFilters = activeForumFilters.global;
     let groupsToRender = allGroups;
-
     if (globalFilters && globalFilters.length > 0) {
       groupsToRender = allGroups.filter(
         group => group.categories && group.categories.some(cat => globalFilters.includes(cat)),
       );
     }
-    // --- ▲▲▲ 新增结束 ▲▲▲ ---
 
-    // 检查筛选后是否还有内容
     if (groupsToRender.length === 0) {
       const message =
         globalFilters.length > 0 ? '没有找到符合筛选条件的小组哦' : '还没有任何小组，点击右上角“+”创建一个吧！';
@@ -86,7 +84,47 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // 使用筛选后的 groupsToRender 数组进行渲染
+    // --- 核心：图标生成器 (已修复：优先显示自定义图片) ---
+    const renderGroupIcon = group => {
+      const name = group.name;
+      const iconInput = group.icon || ''; // 可能是emoji 或 URL
+
+      // 1. 【最高优先级】检查是否是图片URL (http开头 或 data:开头)
+      // 只要用户填了链接，不管它叫什么名字，都强制显示图片！
+      if (iconInput.startsWith('http') || iconInput.startsWith('data:')) {
+        return `<img src="${iconInput}" class="forum-group-custom-img">`;
+      }
+
+      // 2. 如果没有图片URL，再检查是否是【内置小组】，使用精美SVG
+      const svgStyle = `width="24" height="24" fill="currentColor" viewBox="0 0 24 24"`;
+
+      if (name.includes('娱乐') || name.includes('瓜')) {
+        return `<div class="forum-group-icon-wrapper style-pink"><svg ${svgStyle}><path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>`;
+      }
+      if (name.includes('灵异') || name.includes('鬼')) {
+        return `<div class="forum-group-icon-wrapper style-purple"><svg ${svgStyle}><path d="M9 22v-2c0-1.1.9-2 2-2s2 .9 2 2v2M6 22v-4c0-1.1.9-2 2-2s2 .9 2 2v4M18 22v-4c0-1.1-.9-2-2-2s-2 .9-2 2v4M12 2a8 8 0 0 0-8 8v7a5 5 0 0 0 5 5h10a5 5 0 0 0 5-5v-7a8 8 0 0 0-8-8z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/></svg></div>`;
+      }
+      if (name.includes('crush') || name.includes('梦') || name.includes('恋') || name.includes('心动')) {
+        return `<div class="forum-group-icon-wrapper style-red"><svg ${svgStyle}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>`;
+      }
+      if (name.includes('同人') || name.includes('文') || name.includes('写')) {
+        return `<div class="forum-group-icon-wrapper style-blue"><svg ${svgStyle}><path d="M12 19l7-7 3 3-7 7-3-3z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 2l7.586 7.586" stroke="currentColor" stroke-width="2"/><circle cx="11" cy="11" r="2" fill="currentColor"/></svg></div>`;
+      }
+      if (name.includes('帮') || name.includes('选') || name.includes('助')) {
+        return `<div class="forum-group-icon-wrapper style-orange"><svg ${svgStyle}><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2"/></svg></div>`;
+      }
+
+      // 3. 如果既不是URL，名字也没匹配到内置风格，就检查是不是 Emoji
+      if (iconInput) {
+        // 这里简单处理，直接显示输入的字符作为图标（用于Emoji）
+        return `<div class="forum-group-icon-wrapper style-default" style="font-size: 24px; display: flex; align-items: center; justify-content: center;">${iconInput}</div>`;
+      }
+
+      // 4. 最后的默认 SVG (兜底)
+      return `<div class="forum-group-icon-wrapper style-default"><svg ${svgStyle}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>`;
+    };
+
+    // --- 渲染列表 ---
     groupsToRender.forEach(group => {
       const item = document.createElement('div');
       item.className = 'forum-group-item';
@@ -101,10 +139,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       item.innerHTML = `
-            <div class="forum-group-icon">${group.icon || '📁'}</div>
-            <div class="forum-group-name">${group.name}</div>
-            <div class="forum-group-desc">${group.description}</div>
-            ${categoriesHtml}
+            ${renderGroupIcon(group)}
+            <div class="forum-group-info">
+                <div class="forum-group-name">${group.name}</div>
+                <div class="forum-group-desc">${group.description || '暂无简介'}</div>
+                ${categoriesHtml}
+            </div>
+            <div class="forum-group-arrow">›</div>
         `;
       item.addEventListener('click', () => openGroup(group.id, group.name));
       addLongPressListener(item, () => showGroupActions(group.id, group.name));
@@ -1077,12 +1118,8 @@ ${worldviewContext}
     };
   }
 
-  // ▲▲▲ 替换结束 ▲▲▲
-
-  // ▼▼▼ 【全新】圈子/小组高级功能辅助函数 ▼▼▼
-
   /**
-   * 打开小组编辑器
+   * 打开小组编辑器 (已升级：支持图片URL)
    */
   async function openGroupEditor(groupId) {
     editingGroupId = groupId;
@@ -1091,10 +1128,18 @@ ${worldviewContext}
 
     document.getElementById('group-editor-name-input').value = group.name;
     document.getElementById('group-editor-desc-input').value = group.description;
-    document.getElementById('group-editor-icon-input').value = group.icon;
+
+    // ★★★ 修改：获取图标输入框，并修改 placeholder 提示 ★★★
+    const iconInput = document.getElementById('group-editor-icon-input');
+    iconInput.value = group.icon;
+    // 修改输入框上方的 label 文字（通过修改 DOM 或设置 placeholder）
+    iconInput.placeholder = '输入图片链接(URL) 或 Emoji';
+    // 找到它前面的 label 元素并修改文字
+    const iconLabel = document.querySelector('label[for="group-editor-icon-input"]');
+    if (iconLabel) iconLabel.textContent = '小组封面 (图片URL / Emoji)';
+
     document.getElementById('group-editor-worldview-input').value = group.worldview || '';
 
-    // 将分类数组转换回带'#'的字符串
     const categoriesString = (group.categories || []).map(c => `#${c}`).join(' ');
     document.getElementById('group-editor-categories-input').value = categoriesString;
 
@@ -1188,14 +1233,6 @@ ${worldviewContext}
       await renderForumCategoryList();
     }
   }
-  // ▲▲▲ 新增函数结束 ▲▲▲
-
-  // ▲▲▲ 论坛功能核心代码结束 ▲▲▲
-
-  // ▼▼▼ 在 init() 函数的【上方】粘贴这【一整块新代码】 ▼▼▼
-  /**
-   * 【全新】打开创建小组的模态框
-   */
   async function openGroupCreator() {
     const name = await showCustomPrompt('创建新小组', '请输入小组名称：');
     if (!name || !name.trim()) {
@@ -1206,17 +1243,18 @@ ${worldviewContext}
     const desc = await showCustomPrompt('小组描述', '为你的小组写一句简介吧：');
     if (desc === null) return;
 
-    const icon = await showCustomPrompt('小组图标', '输入一个 Emoji 作为小组图标：', '💬');
+    // ★★★ 修改：提示输入 URL ★★★
+    const icon = await showCustomPrompt('小组封面', '请输入图片链接 (URL)：\n(留空则使用默认图标)', '', 'url');
     if (icon === null) return;
 
     try {
       const newGroup = {
         name: name.trim(),
         description: desc.trim(),
-        icon: icon.trim() || '💬', // 如果没输入就给个默认的
+        icon: icon.trim(), // 存入URL
       };
       await db.forumGroups.add(newGroup);
-      await renderForumScreen(); // 刷新小组列表
+      await renderForumScreen();
       alert(`小组“${name.trim()}”创建成功！`);
     } catch (error) {
       console.error('创建小组失败:', error);
