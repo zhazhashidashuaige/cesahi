@@ -68,6 +68,7 @@
     <script src="tukey-accounting.js" defer></script>
     <script src="kk-checkin.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 
     <style></style>
 
@@ -997,15 +998,55 @@
               </div>
               <div class="form-group">
                 <label class="toggle-switch-label">
-                  <span class="toggle-switch-text">自动备份 (30分钟)</span>
+                  <span class="toggle-switch-text">自动备份 </span>
                   <input type="checkbox" id="github-auto-backup-switch" />
                   <span class="toggle-switch-slider"></span>
                 </label>
               </div>
-              <div class="moe-btn-group">
-                <button id="manual-github-backup-btn" class="moe-btn-secondary">☁️ 上传</button>
-                <button id="manual-github-restore-btn" class="moe-btn-secondary">📥 恢复</button>
+              <!-- 在 github-path 输入框下方插入 -->
+              <div class="form-group" style="margin-top: 5px">
+                <label>自动备份模式</label>
+                <div style="display: flex; gap: 10px">
+                  <select id="github-backup-mode" class="moe-input" style="flex: 1">
+                    <option value="full">全量</option>
+                    <option value="stream">流式 (分片/稳定)</option>
+                  </select>
+                  <input
+                    type="number"
+                    id="github-backup-interval"
+                    class="moe-input"
+                    style="width: 80px"
+                    placeholder="分钟"
+                    value="30"
+                    min="5"
+                  />
+                  <span style="align-self: center; font-size: 12px; color: #888">分钟</span>
+                </div>
               </div>
+
+              <div class="moe-btn-group">
+                <button id="manual-github-backup-btn" class="moe-btn-secondary">☁️ 上传 (全量)</button>
+                <button id="manual-github-restore-btn" class="moe-btn-secondary">📥 恢复 (全量)</button>
+              </div>
+              <div class="moe-btn-group" style="margin-top: 10px">
+                <button
+                  id="git-stream-upload-btn"
+                  class="moe-btn-secondary"
+                  style="background-color: #6f42c1; color: white"
+                >
+                  🌊 Git流式上传
+                </button>
+                <button
+                  id="git-stream-restore-btn"
+                  class="moe-btn-secondary"
+                  style="background-color: #6f42c1; color: white"
+                >
+                  🎣 Git流式导入
+                </button>
+              </div>
+              <p style="font-size: 12px; color: #999; margin-top: 5px">
+                * 流式模式会将数据拆分为多个文件(按表)上传，解决大文件导致崩溃的问题。
+              </p>
 
               <div class="moe-divider"></div>
 
@@ -1338,9 +1379,7 @@
                 </svg>
               </span>
               <span class="action-btn" id="listen-together-btn" title="一起听"
-                ><img
-                  src="https://chatbotcos.weixin.qq.com/chatbot/30-openaiassets_63e04c67410237fa43bf6fcce542dbff_469401762321466866.png"
-                  alt="一起听"
+                ><img src="https://i.postimg.cc/CxjpF6gK/yi-qi-ting.png" alt="一起听"
               /></span>
               <span class="action-btn" id="chat-settings-btn" title="聊天设置"
                 ><img src="https://i.postimg.cc/bvPq64cv/CCA834-BA-5-A90-408-D-94-FA-7-EE156-B6-A765.png" alt="设置"
@@ -1934,7 +1973,7 @@
               <button id="save-as-new-theme-btn" class="upload-btn-pill">另存为</button>
               <button id="export-theme-btn" class="upload-btn-pill secondary">导出</button>
               <button id="import-theme-btn" class="upload-btn-pill secondary">导入</button>
-              <input type="file" id="import-theme-input" accept=".json" hidden />
+              <input type="file" id="import-theme-input" accept=".json, .txt, .css, .docx" hidden />
             </div>
           </div>
         </div>
@@ -4162,7 +4201,7 @@
                 <button id="export-bubble-preset-btn" class="moe-btn-mini">导出</button>
                 <button id="import-bubble-preset-btn" class="moe-btn-mini">导入</button>
               </div>
-              <input type="file" id="import-bubble-preset-input" accept=".json" hidden />
+              <input type="file" id="import-bubble-preset-input" accept=".json, .txt, .css, .docx" hidden />
             </div>
 
             <div class="form-group">
@@ -6169,24 +6208,28 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           </div>
 
           <!-- 3. 视频模式输入区 -->
-          <div id="aurora-video-inputs" class="aurora-input-group">
-            <div class="form-group">
-              <label>视频文件 (mp4, webm)</label>
-              <input type="file" id="aurora-video-file" accept="video/*,.mkv" />
-            </div>
-            <div class="form-group">
-              <label>字幕文件 (可选 .srt, .vtt)</label>
-              <input type="file" id="aurora-sub-file-video" accept=".srt,.vtt,.lrc" />
-            </div>
-          </div>
+<div id="aurora-video-inputs" class="aurora-input-group">
+  <div class="form-group">
+    <label>视频文件 (mp4, webm)</label>
+    <input type="file" id="aurora-video-file" accept="video/*,.mkv" />
+  </div>
+  <div class="form-group">
+    <label>字幕文件 (可选 .srt, .vtt)</label>
+    <input type="file" id="aurora-sub-file-video" accept=".srt,.vtt,.lrc" />
+    <!-- ★★★ 新增：字幕URL输入框 ★★★ -->
+    <input type="text" id="aurora-sub-url-video" placeholder="或粘贴字幕链接 (SRT/VTT/LRC)" style="margin-top: 5px;" />
+  </div>
+</div>
 
-          <!-- 4. 文本模式输入区 -->
-          <div id="aurora-text-inputs" class="aurora-input-group" style="display: none">
-            <div class="form-group">
-              <label>小说/文本文件 (.txt)</label>
-              <input type="file" id="aurora-text-file" accept=".txt" />
-            </div>
-          </div>
+<div id="aurora-text-inputs" class="aurora-input-group" style="display: none">
+  <div class="form-group">
+    <label>小说/文本文件 (.txt)</label>
+    <input type="file" id="aurora-text-file" accept=".txt" />
+    <!-- ★★★ 新增：小说URL输入框 ★★★ -->
+    <input type="text" id="aurora-text-url" placeholder="或粘贴txt文件链接" style="margin-top: 5px;" />
+  </div>
+</div>
+
 
           <!-- 5. 自定义模式输入区 -->
           <div id="aurora-custom-inputs" class="aurora-input-group" style="display: none">
@@ -13581,28 +13624,38 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
         }
 
-        // 辅助函数：上传单个文件
-        async function uploadSingleFile(user, repo, path, token, contentBase64, isAuto, isPart = false) {
+        /**
+         * 辅助函数：上传单个文件到 GitHub
+         * 增强版：支持获取SHA以覆盖文件，处理404情况
+         */
+        async function uploadSingleFile(user, repo, path, token, contentBase64, isAuto) {
           const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
 
-          // 1. 获取 SHA (用于覆盖)
+          // 1. 尝试获取现有的 SHA (用于覆盖)
           let sha = null;
           try {
+            // 这里的 fetch 可能会因为网络问题失败，所以加 try-catch
             const getRes = await fetch(apiUrl, {
+              method: 'GET',
               headers: { Authorization: `token ${token}` },
             });
             if (getRes.ok) {
-              sha = (await getRes.json()).sha;
+              const json = await getRes.json();
+              sha = json.sha;
             }
-          } catch (e) {}
+          } catch (e) {
+            console.warn(`[Github] 获取文件 SHA 失败 (可能是新文件): ${path}`, e);
+            // 忽略获取SHA的错误，假设是新文件继续尝试上传
+          }
 
-          // 2. 上传
+          // 2. 准备上传请求体
           const body = {
-            message: `Backup ${isPart ? 'Part' : ''} ${new Date().toLocaleString()}`,
+            message: `Backup ${new Date().toLocaleString()}`,
             content: contentBase64,
           };
           if (sha) body.sha = sha;
 
+          // 3. 执行上传 (PUT)
           const res = await fetch(apiUrl, {
             method: 'PUT',
             headers: {
@@ -13613,13 +13666,18 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           });
 
           if (!res.ok) {
-            const err = await res.json();
-            throw new Error(`文件 ${path} 上传失败: ${err.message}`);
+            const errText = await res.text();
+            let errMsg = `Status ${res.status}`;
+            try {
+              const errJson = JSON.parse(errText);
+              errMsg = errJson.message || errMsg;
+            } catch (e) {}
+            throw new Error(`GitHub API Error: ${errMsg}`);
           }
         }
 
         /**
-         * 管理自动备份定时器
+         * 管理自动备份定时器 (已修改：支持自定义时间和模式)
          */
         function handleAutoBackupTimer() {
           // 清除旧定时器
@@ -13630,13 +13688,21 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
           // 如果开启了自动备份
           if (state.apiConfig && state.apiConfig.githubAutoBackup) {
-            console.log('已开启 GitHub 自动备份 (每30分钟)');
-            // 立即执行一次 (可选，或者只等30分钟后)
-            // uploadBackupToGitHub(true);
+            // 获取间隔时间，默认为 30 分钟
+            const intervalMinutes = state.apiConfig.githubBackupInterval || 30;
+            console.log(`已开启 GitHub 自动备份 (每 ${intervalMinutes} 分钟)`);
 
             githubBackupTimer = setInterval(() => {
-              uploadBackupToGitHub(true);
-            }, 30 * 60 * 1000); // 30分钟
+              // 获取备份模式，默认为全量
+              const mode = state.apiConfig.githubBackupMode || 'full';
+
+              if (mode === 'stream') {
+                // 传入 true 表示这是自动备份
+                uploadBackupToGitHubStream(true);
+              } else {
+                uploadBackupToGitHub(true);
+              }
+            }, intervalMinutes * 60 * 1000);
           }
         }
 
@@ -15231,6 +15297,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           document.getElementById('github-repo').value = state.apiConfig.githubRepo || '';
           document.getElementById('github-path').value = state.apiConfig.githubPath || 'ephone_backup.json';
           document.getElementById('github-auto-backup-switch').checked = !!state.apiConfig.githubAutoBackup;
+          document.getElementById('github-backup-mode').value = state.apiConfig.githubBackupMode || 'full';
+          document.getElementById('github-backup-interval').value = state.apiConfig.githubBackupInterval || 30;
 
           // 渲染温度滑块的UI
           const tempSlider = document.getElementById('temperature-slider');
@@ -22162,8 +22230,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const iconImg = document.querySelector('#listen-together-btn img');
           if (!iconImg) return;
           if (forceReset || !musicState.isActive || musicState.activeChatId !== chatId) {
-            iconImg.src =
-              'https://chatbotcos.weixin.qq.com/chatbot/30-openaiassets_63e04c67410237fa43bf6fcce542dbff_469401762321466866.png';
+            iconImg.src = 'https://i.postimg.cc/CxjpF6gK/yi-qi-ting.png';
             iconImg.className = '';
             return;
           }
@@ -26828,24 +26895,38 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         }
 
         /**
-         * 向当前AI的头像库中添加新头像
+         * 向当前AI的头像库中添加新头像 (修改版：支持本地和URL)
          */
         async function addAvatarToLibrary() {
           const name = await showCustomPrompt('添加头像', '请为这个头像起个名字（例如：开心、哭泣）');
           if (!name || !name.trim()) return;
 
-          const url = await showCustomPrompt('添加头像', '请输入头像的图片URL', '', 'url');
-          if (!url || !url.trim().startsWith('http')) {
-            alert('请输入有效的图片URL！');
-            return;
+          // 1. 弹出选择框，让用户选是本地还是URL
+          const choice = await showChoiceModal('选择图片来源', [
+            { text: '📁 本地上传', value: 'local' },
+            { text: '🌐 网络URL', value: 'url' },
+          ]);
+
+          let finalUrl = null;
+
+          // 2. 根据选择执行不同逻辑
+          if (choice === 'local') {
+            // 调用现有的本地上传辅助函数 (代码里原本就有的)
+            finalUrl = await uploadImageLocally();
+          } else if (choice === 'url') {
+            finalUrl = await showCustomPrompt('添加头像', '请输入头像的图片URL', '', 'url');
           }
+
+          // 3. 如果没获取到图片(用户取消了)，直接结束
+          if (!finalUrl) return;
 
           const chat = state.chats[state.activeChatId];
           if (!chat.settings.aiAvatarLibrary) {
             chat.settings.aiAvatarLibrary = [];
           }
 
-          chat.settings.aiAvatarLibrary.push({ name: name.trim(), url: url.trim() });
+          // 4. 保存到数据库
+          chat.settings.aiAvatarLibrary.push({ name: name.trim(), url: finalUrl.trim() });
           await db.chats.put(chat);
           renderAiAvatarLibrary();
         }
@@ -28770,16 +28851,56 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         }
 
         /**
-         * 导入一个主题JSON文件
+         * 导入主题 (支持 JSON, TXT, CSS, DOCX)
          */
         function importTheme(file) {
           if (!file) return;
+
+          const fileName = file.name.toLowerCase();
+          const editor = document.getElementById('theme-css-editor'); // 获取编辑器文本框
+
+          // --- 情况A: 如果是 Word 文档 (.docx) ---
+          if (fileName.endsWith('.docx')) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const arrayBuffer = e.target.result;
+              // 使用 mammoth 提取纯文本
+              mammoth
+                .extractRawText({ arrayBuffer: arrayBuffer })
+                .then(function (result) {
+                  const extractedText = result.value; // 获取提取的文字
+                  editor.value = extractedText; // 填入文本框
+                  applyThemeCss(extractedText); // 立即应用预览
+                  alert(`成功从Word文档读取CSS！`);
+                })
+                .catch(function (err) {
+                  console.error(err);
+                  alert('读取Word文件失败，请确保文件未损坏。');
+                });
+            };
+            reader.readAsArrayBuffer(file);
+            return;
+          }
+
+          // --- 情况B: 如果是文本文件 (.txt 或 .css) ---
+          if (fileName.endsWith('.txt') || fileName.endsWith('.css')) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const text = e.target.result;
+              editor.value = text; // 填入文本框
+              applyThemeCss(text); // 立即应用预览
+              alert(`成功导入文本内容！`);
+            };
+            reader.readAsText(file);
+            return;
+          }
+
+          // --- 情况C: 如果是 JSON (旧逻辑) ---
           const reader = new FileReader();
           reader.onload = async e => {
             try {
               const data = JSON.parse(e.target.result);
               if (data.themeName && typeof data.themeCss !== 'undefined') {
-                // 为了避免重名，导入时可以在名字后面加个 "(导入)"
                 const newTheme = {
                   name: `${data.themeName} (导入)`,
                   css: data.themeCss,
@@ -28790,10 +28911,15 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 handleThemeSelection(); // 导入后自动选中并应用
                 alert(`方案 "${newTheme.name}" 导入成功！`);
               } else {
-                alert('导入失败：文件格式不正确。');
+                // 如果解析JSON失败，可能是用户选错了文件，尝试当作纯文本填入
+                editor.value = e.target.result;
+                alert('JSON格式不匹配，已尝试将内容作为纯文本填入编辑器。');
               }
             } catch (error) {
-              alert(`导入失败：文件解析错误。 ${error.message}`);
+              // 最后的兜底：如果不是JSON，直接填进去
+              editor.value = e.target.result;
+              applyThemeCss(e.target.result);
+              alert('已将文件内容填入编辑器。');
             }
           };
           reader.readAsText(file);
@@ -39193,17 +39319,14 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const titleInput = document.getElementById('aurora-title-input');
           if (titleInput) titleInput.value = '';
 
-          // 2. 清空所有文件输入框 (兼容新旧ID)
-          const fileIds = [
-            'aurora-video-file',
-            'aurora-text-file',
-            'aurora-sub-file-video',
-            'aurora-custom-img',
-            'aurora-custom-audio',
-            'aurora-sub-file-custom',
+          // 2. 清空所有输入框 (包括新加的URL框)
+          const idsToClear = [
+            'aurora-video-file', 'aurora-sub-file-video', 'aurora-sub-url-video',
+            'aurora-text-file', 'aurora-text-url',
+            'aurora-custom-img', 'aurora-custom-audio', 'aurora-sub-file-custom', 'aurora-sub-url-custom'
           ];
 
-          fileIds.forEach(id => {
+          idsToClear.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
           });
@@ -39218,6 +39341,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           // 5. 显示弹窗
           document.getElementById('aurora-setup-modal').classList.add('visible');
         }
+
 
         /**
          * 切换弹窗内的输入显示
@@ -39239,7 +39363,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         }
         /**
          * 确认设置，启动漫游播放器
-         * 修复了进度条无法隐藏和字幕被挡住的问题
+         * (已支持 URL 导入字幕和TXT)
          */
         async function confirmAuroraSetup() {
           const title = document.getElementById('aurora-title-input').value.trim();
@@ -39280,13 +39404,32 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           videoEl.style.display = 'none';
           textViewer.style.display = 'none';
           customViewer.style.display = 'none';
-          document.getElementById('aurora-save-book-btn').style.display = 'none'; // <--- 确保默认隐藏
+          document.getElementById('aurora-save-book-btn').style.display = 'none';
           videoEl.pause();
           customAudio.pause();
+
+          // --- 辅助函数：处理字幕内容 ---
+          const handleSubtitleContent = (content) => {
+             auroraState.subtitles = parseSRT(content);
+             statusInfo.textContent = `字幕已加载`;
+             // 如果是视频模式，挂载VTT轨道
+             if (mode === 'video') {
+                 const vttContent = 'WEBVTT\n\n' + content.replace(/,/g, '.');
+                 const track = document.createElement('track');
+                 track.kind = 'subtitles';
+                 track.label = 'Chinese';
+                 track.srclang = 'zh';
+                 track.default = true;
+                 track.src = URL.createObjectURL(new Blob([vttContent], { type: 'text/vtt' }));
+                 videoEl.innerHTML = '';
+                 videoEl.appendChild(track);
+             }
+          };
 
           if (mode === 'video') {
             const videoFile = document.getElementById('aurora-video-file').files[0];
             const subFile = document.getElementById('aurora-sub-file-video').files[0];
+            const subUrl = document.getElementById('aurora-sub-url-video').value.trim();
 
             if (!videoFile) {
               alert('请选择视频文件！');
@@ -39306,71 +39449,77 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               }
             };
 
+            // 处理字幕 (文件优先，其次URL)
             if (subFile) {
               const reader = new FileReader();
-              reader.onload = e => {
-                auroraState.subtitles = parseSRT(e.target.result);
-                statusInfo.textContent = `字幕已加载`;
-                // 挂载字幕到视频
-                const vttContent = 'WEBVTT\n\n' + e.target.result.replace(/,/g, '.');
-                const track = document.createElement('track');
-                track.kind = 'subtitles';
-                track.label = 'Chinese';
-                track.srclang = 'zh';
-                track.default = true;
-                track.src = URL.createObjectURL(new Blob([vttContent], { type: 'text/vtt' }));
-                videoEl.innerHTML = '';
-                videoEl.appendChild(track);
-              };
+              reader.onload = e => handleSubtitleContent(e.target.result);
               reader.readAsText(subFile);
+            } else if (subUrl) {
+               statusInfo.textContent = '正在下载字幕...';
+               fetch(subUrl).then(r => r.text()).then(txt => handleSubtitleContent(txt)).catch(()=> statusInfo.textContent = '字幕下载失败');
             } else {
               statusInfo.textContent = '无字幕';
             }
+
           } else if (mode === 'text') {
             const textFile = document.getElementById('aurora-text-file').files[0];
-            if (!textFile) {
-              alert('请选择文本文件！');
+            const textUrl = document.getElementById('aurora-text-url').value.trim();
+
+            if (!textFile && !textUrl) {
+              alert('请选择文本文件或输入链接！');
               return;
             }
             document.getElementById('aurora-save-book-btn').style.display = 'inline-block';
             textViewer.style.display = 'block';
 
-            const reader = new FileReader();
-            reader.onload = e => {
-              const buffer = e.target.result;
-              let text = '';
-
-              // 步骤1：先尝试用 UTF-8 解码 (fatal: true 表示如果遇到非法字节就报错)
-              try {
-                const decoder = new TextDecoder('utf-8', { fatal: true });
-                text = decoder.decode(buffer);
-              } catch (error) {
-                // 步骤2：如果 UTF-8 解析失败，说明可能是 ANSI/GBK，尝试用 gb18030 解码
-                console.log('检测到非UTF-8编码，尝试使用 GB18030 (兼容GBK/ANSI) 解码...');
+            // --- 辅助函数：处理文本Buffer (解码GBK/UTF8) ---
+            const processTextBuffer = (buffer) => {
+                let text = '';
                 try {
-                  const decoder = new TextDecoder('gb18030'); // gb18030 包含 gbk 和 gb2312
-                  text = decoder.decode(buffer);
-                } catch (err2) {
-                  alert('抱歉，无法识别该文件的编码格式。建议将文件另存为 UTF-8 格式重试。');
-                  return;
+                    const decoder = new TextDecoder('utf-8', { fatal: true });
+                    text = decoder.decode(buffer);
+                } catch (error) {
+                    console.log('检测到非UTF-8编码，尝试使用 GB18030 (兼容GBK/ANSI) 解码...');
+                    try {
+                        const decoder = new TextDecoder('gb18030');
+                        text = decoder.decode(buffer);
+                    } catch (err2) {
+                        alert('抱歉，无法识别该文件的编码格式。');
+                        return;
+                    }
                 }
-              }
-
-              auroraState.textContent = text;
-              // 使用 textContent 确保安全，同时配合 CSS 的 white-space: pre-wrap 保留换行
-              document.getElementById('aurora-text-body').textContent = auroraState.textContent;
-
-              const statusInfo = document.getElementById('aurora-info-status');
-              if (statusInfo) statusInfo.textContent = `文档已加载`;
+                auroraState.textContent = text;
+                document.getElementById('aurora-text-body').textContent = auroraState.textContent;
+                const statusInfo = document.getElementById('aurora-info-status');
+                if (statusInfo) statusInfo.textContent = `文档已加载`;
             };
 
-            // 关键：读取为 ArrayBuffer (二进制流)，而不是 readAsText
-            reader.readAsArrayBuffer(textFile);
+            if (textFile) {
+                const reader = new FileReader();
+                reader.onload = e => processTextBuffer(e.target.result);
+                reader.readAsArrayBuffer(textFile);
+            } else if (textUrl) {
+                const statusInfo = document.getElementById('aurora-info-status');
+                if (statusInfo) statusInfo.textContent = '正在下载文档...';
+                
+                fetch(textUrl)
+                    .then(res => {
+                        if(!res.ok) throw new Error('网络错误');
+                        return res.arrayBuffer();
+                    })
+                    .then(buffer => processTextBuffer(buffer))
+                    .catch(err => {
+                        console.error(err);
+                        if (statusInfo) statusInfo.textContent = '下载失败';
+                        alert('文档下载失败，请检查链接跨域问题。');
+                    });
+            }
+
           } else if (mode === 'custom') {
-            // 自定义模式
             const imgFile = document.getElementById('aurora-custom-img').files[0];
             const audioFile = document.getElementById('aurora-custom-audio').files[0];
             const subFile = document.getElementById('aurora-sub-file-custom').files[0];
+            const subUrl = document.getElementById('aurora-sub-url-custom').value.trim();
 
             if (!imgFile || !audioFile) {
               alert('图片和音频文件都是必填的哦！');
@@ -39381,27 +39530,35 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             customImg.src = URL.createObjectURL(imgFile);
             customAudio.src = URL.createObjectURL(audioFile);
 
-            // 默认隐藏进度条 (opacity: 0)，点击图片切换显示/隐藏
             customAudio.style.opacity = '0';
             customImg.onclick = () => {
-              // 切换透明度
               customAudio.style.opacity = customAudio.style.opacity === '0' ? '0.8' : '0';
             };
 
+            // 处理字幕 (文件优先，其次URL)
             if (subFile) {
               const reader = new FileReader();
               reader.onload = e => {
-                auroraState.subtitles = parseSRT(e.target.result);
-                statusInfo.textContent = `音频+字幕就绪`;
-
-                // 启动一个简单的计时器来更新自定义字幕显示
-                customAudio.ontimeupdate = () => {
-                  const curTime = customAudio.currentTime;
-                  const sub = auroraState.subtitles.find(s => curTime >= s.start && curTime <= s.end);
-                  document.getElementById('aurora-custom-subtitle-display').textContent = sub ? sub.text : '';
-                };
+                 handleSubtitleContent(e.target.result);
+                 // 开启监听
+                 customAudio.ontimeupdate = () => {
+                    const curTime = customAudio.currentTime;
+                    const sub = auroraState.subtitles.find(s => curTime >= s.start && curTime <= s.end);
+                    document.getElementById('aurora-custom-subtitle-display').textContent = sub ? sub.text : '';
+                 };
               };
               reader.readAsText(subFile);
+            } else if (subUrl) {
+               statusInfo.textContent = '正在下载字幕...';
+               fetch(subUrl).then(r => r.text()).then(txt => {
+                   handleSubtitleContent(txt);
+                   // 开启监听
+                   customAudio.ontimeupdate = () => {
+                      const curTime = customAudio.currentTime;
+                      const sub = auroraState.subtitles.find(s => curTime >= s.start && curTime <= s.end);
+                      document.getElementById('aurora-custom-subtitle-display').textContent = sub ? sub.text : '';
+                   };
+               }).catch(()=> statusInfo.textContent = '字幕下载失败');
             } else {
               statusInfo.textContent = '音频无字幕';
             }
@@ -39739,6 +39896,500 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
         // 绑定保存按钮
         document.getElementById('aurora-save-book-btn').addEventListener('click', saveCurrentNovelToShelf);
+        /**
+         * Git流式上传 (分表 + 自动切片 + 重试机制)
+         * 修复：解决 "Failed to fetch" 网络超时问题
+         */
+        async function uploadBackupToGitHubStream() {
+          let { githubToken, githubUsername, githubRepo, githubPath } = state.apiConfig;
+
+          if (!githubToken || !githubUsername || !githubRepo) {
+            alert('请先在 API 设置中填写 GitHub 配置！');
+            return;
+          }
+
+          // 整理路径
+          githubToken = githubToken.trim();
+          githubUsername = githubUsername.trim();
+          githubRepo = githubRepo.trim().replace(/\/$/, '').split('/').pop().replace('.git', '');
+          let basePath = (githubPath || 'ephone_backup').trim();
+          if (basePath.endsWith('.json')) {
+            basePath = basePath.replace('.json', '');
+          }
+
+          // ★★★ 2.如果是自动备份，跳过确认框 ★★★
+          if (!isAuto) {
+            const confirmed = await showCustomConfirm(
+              '开始流式上传',
+              `将把数据拆分为多个文件上传。\n已优化为 15MB 分片以防止网络超时。\n\n确定要开始吗？`,
+            );
+            if (!confirmed) return;
+          }
+
+          const loadingOverlay = document.getElementById('generation-overlay');
+          const loadingText = loadingOverlay.querySelector('p');
+
+          // ★★★ 3. 只有不是自动备份时，才显示遮罩层 ★★★
+          if (!isAuto) {
+            loadingOverlay.classList.add('visible');
+          } else {
+            console.log('正在后台执行流式备份...'); // 后台备份仅打印日志
+          }
+
+          // ★★★ 修改 1: 降低分片大小到 15MB (浏览器上传更稳定) ★★★
+          const CHUNK_SIZE = 15 * 1024 * 1024;
+
+          // ★★★ 辅助函数: 延时 (防止触发速率限制) ★★★
+          const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+          // ★★★ 辅助函数: 带重试的上传器 ★★★
+          const uploadWithRetry = async (path, content, retries = 3) => {
+            for (let i = 0; i < retries; i++) {
+              try {
+                await uploadSingleFile(githubUsername, githubRepo, path, githubToken, content, true);
+                return; // 成功则退出
+              } catch (error) {
+                console.warn(`上传 ${path} 失败 (第 ${i + 1} 次重试):`, error);
+                if (i === retries - 1) throw error; // 最后一次还失败，则抛出异常
+                await sleep(2000); // 失败后等待2秒再试
+              }
+            }
+          };
+
+          try {
+            // 1. 准备任务列表
+            const tablesToExport = db.tables.map(t => t.name);
+            const singleObjects = ['apiConfig', 'globalSettings', 'musicLibrary', 'qzoneSettings'];
+
+            const allTasks = [
+              ...tablesToExport.map(name => ({ type: 'table', name })),
+              ...singleObjects.map(name => ({ type: 'object', name })),
+            ];
+
+            const totalTasks = allTasks.length;
+
+            // 2. 遍历执行
+            for (let i = 0; i < totalTasks; i++) {
+              const task = allTasks[i];
+
+              let data = null;
+              if (task.type === 'table') {
+                // 对于大表，这里读取可能会花一点时间，UI更新一下
+                loadingText.textContent = `[${i + 1}/${totalTasks}] 读取本地数据: ${task.name}...`;
+                // 给UI一点渲染时间
+                await sleep(50);
+                data = await db[task.name].toArray();
+              } else {
+                data = await db[task.name].get('main');
+                // 安全过滤
+                if (data && task.name === 'apiConfig') {
+                  data.apiKey = '';
+                  data.githubToken = '';
+                  data.minimaxApiKey = '';
+                }
+              }
+
+              if (!data) continue;
+
+              loadingText.textContent = `[${i + 1}/${totalTasks}] 正在编码: ${task.name}...`;
+              await sleep(20);
+
+              // 序列化并转Base64
+              const jsonContent = JSON.stringify(data);
+              const contentBase64 = btoa(unescape(encodeURIComponent(jsonContent)));
+
+              const fileName = `${basePath}_${task.name}.json`;
+              const totalSize = contentBase64.length;
+
+              // 3. 上传逻辑
+              if (totalSize > CHUNK_SIZE) {
+                const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
+
+                for (let c = 0; c < totalChunks; c++) {
+                  loadingText.textContent = `[${i + 1}/${totalTasks}] 上传 ${task.name} 分片 (${
+                    c + 1
+                  }/${totalChunks})...`;
+
+                  const start = c * CHUNK_SIZE;
+                  const end = Math.min(start + CHUNK_SIZE, totalSize);
+                  const chunkContent = contentBase64.substring(start, end);
+                  const partName = `${fileName}.${String(c + 1).padStart(3, '0')}`;
+
+                  // 使用重试机制上传
+                  await uploadWithRetry(partName, chunkContent);
+
+                  // ★★★ 每次上传完一个分片，休息 1 秒 ★★★
+                  await sleep(1000);
+                }
+
+                // 上传索引文件
+                const metaInfo = { split: true, totalChunks: totalChunks, originalSize: totalSize };
+                const metaBase64 = btoa(JSON.stringify(metaInfo));
+                await uploadWithRetry(`${fileName}.meta`, metaBase64);
+              } else {
+                loadingText.textContent = `[${i + 1}/${totalTasks}] 正在上传: ${task.name}...`;
+                await uploadWithRetry(fileName, contentBase64);
+                await sleep(500); // 小文件也稍微休息一下
+              }
+            }
+
+            // 4. 上传总索引
+            const masterMeta = {
+              type: 'stream_backup_v2',
+              timestamp: Date.now(),
+              tables: tablesToExport,
+              configs: singleObjects,
+            };
+            const masterMetaBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(masterMeta))));
+            await uploadWithRetry(`${basePath}_master_meta.json`, masterMetaBase64);
+
+            // ★★★ 4. 成功后的处理 ★★★
+            if (isAuto) {
+              // 如果是自动备份，使用顶部通知条（不打断用户）
+              showNotification(state.activeChatId || 'system', 'GitHub 自动备份已完成 ✅');
+              console.log('GitHub 自动备份已完成');
+            } else {
+              // 如果是手动，弹窗提示
+              await showCustomAlert('上传完成', `所有数据已流式上传成功！\n网络波动已自动处理。`);
+            }
+          } catch (error) {
+            console.error('流式上传失败:', error);
+            // ★★★ 5. 失败处理 ★★★
+            if (!isAuto) {
+              await showCustomAlert(
+                '上传中断',
+                `多次重试后仍然失败。\n错误信息: ${error.message}\n请检查网络连接是否稳定。`,
+              );
+            } else {
+              showNotification(state.activeChatId || 'system', 'GitHub 自动备份失败 ❌');
+            }
+          } finally {
+            // 无论如何都要尝试移除，防止手动模式卡住
+            loadingOverlay.classList.remove('visible');
+          }
+        }
+
+        /**
+         * Git流式导入 (修复版：支持分表下载 + 自动合并分片)
+         */
+        async function restoreBackupFromGitHubStream() {
+          let { githubToken, githubUsername, githubRepo, githubPath } = state.apiConfig;
+
+          if (!githubToken || !githubUsername || !githubRepo) {
+            alert('请先在 API 设置中填写 GitHub 配置！');
+            return;
+          }
+
+          githubToken = githubToken.trim();
+          githubUsername = githubUsername.trim();
+          githubRepo = githubRepo.trim().replace(/\/$/, '').split('/').pop().replace('.git', '');
+          let basePath = (githubPath || 'ephone_backup').trim();
+          if (basePath.endsWith('.json')) {
+            basePath = basePath.replace('.json', '');
+          }
+
+          const confirmed = await showCustomConfirm(
+            '⚠️ 确认流式恢复',
+            `将从 GitHub 依次下载以 "${basePath}_" 开头的文件并覆盖当前数据。\n\n此操作会【清空】当前所有数据且不可撤销！\n确定要继续吗？`,
+            { confirmButtonClass: 'btn-danger' },
+          );
+          if (!confirmed) return;
+
+          const loadingOverlay = document.getElementById('generation-overlay');
+          const loadingText = loadingOverlay.querySelector('p');
+          loadingOverlay.classList.add('visible');
+
+          try {
+            // 1. 定义需要恢复的表名和配置
+            const tablesToImport = db.tables.map(t => t.name);
+            const singleObjects = ['apiConfig', 'globalSettings', 'musicLibrary', 'qzoneSettings'];
+
+            // 合并任务列表
+            const allTasks = [
+              ...tablesToImport.map(name => ({ type: 'table', name })),
+              ...singleObjects.map(name => ({ type: 'object', name })),
+            ];
+
+            const totalTasks = allTasks.length;
+            let completedTasks = 0;
+            let successCount = 0;
+
+            // 清库
+            loadingText.textContent = '正在清空当前数据库...';
+            for (const table of db.tables) {
+              await table.clear();
+            }
+
+            // --- 核心辅助函数：下载并合并 (包含分片逻辑) ---
+            const downloadAndMerge = async (taskName, taskType) => {
+              const fileName = `${basePath}_${taskName}.json`;
+              // 构造 meta 文件地址
+              const metaUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${fileName}.meta`;
+
+              let finalBase64 = '';
+              let isSplit = false;
+              let splitInfo = null;
+
+              // A. 尝试获取 .meta 文件，判断是否分片
+              try {
+                const metaRes = await fetch(metaUrl, { headers: { Authorization: `token ${githubToken}` } });
+                if (metaRes.ok) {
+                  const metaJson = await metaRes.json();
+                  // 解码 meta 文件内容
+                  const metaStr = atob(metaJson.content.replace(/\s/g, ''));
+                  splitInfo = JSON.parse(metaStr);
+                  isSplit = true;
+                }
+              } catch (e) {
+                // 没找到 meta 文件，说明是单文件，继续走
+              }
+
+              if (isSplit && splitInfo) {
+                // === 分片模式 ===
+                console.log(`检测到 ${taskName} 为分片文件，共 ${splitInfo.totalChunks} 片`);
+                loadingText.textContent = `正在下载 ${taskName} (分片 ${splitInfo.totalChunks} 个)...`;
+
+                for (let i = 1; i <= splitInfo.totalChunks; i++) {
+                  // 构造分片文件名，例如 .001, .002
+                  const partName = `${fileName}.${String(i).padStart(3, '0')}`;
+                  const partUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${partName}`;
+
+                  const partRes = await fetch(partUrl, { headers: { Authorization: `token ${githubToken}` } });
+                  if (!partRes.ok) throw new Error(`分片 ${partName} 下载失败`);
+
+                  const partJson = await partRes.json();
+
+                  // 处理内容（兼容大文件返回 sha 的情况）
+                  if (partJson.content) {
+                    finalBase64 += partJson.content.replace(/\s/g, '');
+                  } else if (partJson.sha) {
+                    // 如果分片本身也很大，GitHub可能只返回sha，需要用Blob API
+                    const blobUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/git/blobs/${partJson.sha}`;
+                    const blobRes = await fetch(blobUrl, { headers: { Authorization: `token ${githubToken}` } });
+                    const blobJson = await blobRes.json();
+                    finalBase64 += blobJson.content.replace(/\s/g, '');
+                  }
+                }
+              } else {
+                // === 单文件模式 ===
+                const fileUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${fileName}`;
+                const res = await fetch(fileUrl, { headers: { Authorization: `token ${githubToken}` } });
+
+                if (res.status === 404) return null; // 文件不存在，跳过
+                if (!res.ok) throw new Error(`文件 ${fileName} 下载失败`);
+
+                const json = await res.json();
+
+                if (json.content) {
+                  finalBase64 = json.content.replace(/\s/g, '');
+                } else if (json.sha) {
+                  const blobUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/git/blobs/${json.sha}`;
+                  const blobRes = await fetch(blobUrl, { headers: { Authorization: `token ${githubToken}` } });
+                  const blobJson = await blobRes.json();
+                  finalBase64 = blobJson.content.replace(/\s/g, '');
+                }
+              }
+
+              // B. 解码 Base64 -> UTF8 -> JSON
+              try {
+                // atob 解码 Base64
+                const binaryString = atob(finalBase64);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                  bytes[i] = binaryString.charCodeAt(i);
+                }
+                // TextDecoder 处理中文乱码
+                const decoder = new TextDecoder('utf-8');
+                const dataJson = JSON.parse(decoder.decode(bytes));
+                return dataJson;
+              } catch (parseError) {
+                console.error(`解析 ${taskName} 数据失败`, parseError);
+                throw new Error(`解析 ${taskName} 失败，数据可能损坏`);
+              }
+            };
+
+            // 2. 循环处理所有任务
+            for (let i = 0; i < totalTasks; i++) {
+              const task = allTasks[i];
+              loadingText.textContent = `[${completedTasks + 1}/${totalTasks}] 正在恢复: ${task.name}...`;
+
+              try {
+                const data = await downloadAndMerge(task.name, task.type);
+
+                if (data) {
+                  if (task.type === 'object') {
+                    // 恢复单对象配置
+                    if (task.name === 'apiConfig') {
+                      // 恢复时，如果备份里没有Key，保留当前内存里的Key
+                      if (!data.apiKey) data.apiKey = state.apiConfig.apiKey;
+                      if (!data.githubToken) data.githubToken = state.apiConfig.githubToken;
+                    }
+                    await db[task.name].put(data);
+                  } else {
+                    // 恢复数组表数据
+                    if (Array.isArray(data) && data.length > 0) {
+                      await db[task.name].bulkPut(data);
+                    }
+                  }
+                  successCount++;
+                }
+              } catch (err) {
+                console.warn(`恢复 ${task.name} 时出错，跳过:`, err);
+              }
+              completedTasks++;
+            }
+
+            await showCustomAlert(
+              '恢复完成',
+              `流式恢复结束！\n成功恢复了 ${successCount} 个数据模块。\n应用即将刷新。`,
+            );
+            setTimeout(() => window.location.reload(), 1500);
+          } catch (error) {
+            console.error('流式恢复失败:', error);
+            await showCustomAlert('恢复失败', `发生错误: ${error.message}`);
+          } finally {
+            loadingOverlay.classList.remove('visible');
+          }
+        }
+
+        /**
+         * Git流式导入 (分表下载，节省内存)
+         */
+        async function restoreBackupFromGitHubStream() {
+          let { githubToken, githubUsername, githubRepo, githubPath } = state.apiConfig;
+
+          if (!githubToken || !githubUsername || !githubRepo) {
+            alert('请先在 API 设置中填写 GitHub 配置！');
+            return;
+          }
+
+          // 整理路径
+          githubToken = githubToken.trim();
+          githubUsername = githubUsername.trim();
+          githubRepo = githubRepo.trim().replace(/\/$/, '').split('/').pop().replace('.git', '');
+          let basePath = (githubPath || 'ephone_backup').trim();
+          if (basePath.endsWith('.json')) {
+            basePath = basePath.replace('.json', '');
+          }
+
+          const confirmed = await showCustomConfirm(
+            '⚠️ 确认流式恢复',
+            `将从 GitHub 依次下载以 "${basePath}_" 开头的文件并覆盖当前数据。\n\n此操作会【清空】当前所有数据且不可撤销！\n确定要继续吗？`,
+            { confirmButtonClass: 'btn-danger' },
+          );
+          if (!confirmed) return;
+
+          const loadingOverlay = document.getElementById('generation-overlay');
+          const loadingText = loadingOverlay.querySelector('p');
+          loadingOverlay.classList.add('visible');
+
+          try {
+            // 1. 定义需要恢复的表名和配置 (与上传时对应)
+            // 即使云端没有某些表，尝试下载404也会被忽略，保证健壮性
+            const tablesToImport = db.tables.map(t => t.name);
+            const singleObjects = ['apiConfig', 'globalSettings', 'musicLibrary', 'qzoneSettings'];
+
+            const totalTasks = tablesToImport.length + singleObjects.length;
+            let completedTasks = 0;
+            let successCount = 0;
+
+            // 先清空数据库 (为了保证数据纯净)
+            loadingText.textContent = '正在清空当前数据库...';
+            for (const table of db.tables) {
+              await table.clear();
+            }
+
+            // 2. 辅助下载函数
+            const downloadAndImport = async (fileName, targetStore, isSingleObject = false) => {
+              const apiUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${fileName}`;
+              try {
+                const res = await fetch(apiUrl, {
+                  headers: { Authorization: `token ${githubToken}` },
+                });
+
+                if (res.status === 404) {
+                  console.log(`跳过: ${fileName} 不存在`);
+                  return false;
+                }
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const json = await res.json();
+
+                // 处理大文件 Blob (如果是大文件 github api 会返回 sha 没 content)
+                let finalContentStr = '';
+                if (json.content) {
+                  finalContentStr = json.content.replace(/\s/g, '');
+                } else if (json.sha) {
+                  // Blob API for large files
+                  const blobUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/git/blobs/${json.sha}`;
+                  const blobRes = await fetch(blobUrl, { headers: { Authorization: `token ${githubToken}` } });
+                  const blobJson = await blobRes.json();
+                  finalContentStr = blobJson.content.replace(/\s/g, '');
+                }
+
+                // 解码
+                const binaryString = atob(finalContentStr);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                  bytes[i] = binaryString.charCodeAt(i);
+                }
+                const decoder = new TextDecoder('utf-8');
+                const dataJson = JSON.parse(decoder.decode(bytes));
+
+                // 写入数据库
+                if (isSingleObject) {
+                  // 对于配置对象，如果是 apiConfig，保留当前的 Key 别被空值覆盖
+                  if (targetStore === 'apiConfig') {
+                    // 恢复时，如果备份里是空的，就保留当前内存里的Key
+                    if (!dataJson.apiKey) dataJson.apiKey = state.apiConfig.apiKey;
+                    if (!dataJson.githubToken) dataJson.githubToken = state.apiConfig.githubToken;
+                  }
+                  await db[targetStore].put(dataJson);
+                } else {
+                  // 数组数据
+                  if (Array.isArray(dataJson) && dataJson.length > 0) {
+                    await db[targetStore].bulkPut(dataJson);
+                  }
+                }
+                return true;
+              } catch (e) {
+                console.warn(`下载/导入 ${fileName} 失败:`, e);
+                return false;
+              }
+            };
+
+            // 3. 循环恢复表
+            for (const tableName of tablesToImport) {
+              loadingText.textContent = `[${completedTasks + 1}/${totalTasks}] 正在下载并导入: ${tableName}...`;
+              const fileName = `${basePath}_${tableName}.json`;
+              if (await downloadAndImport(fileName, tableName, false)) {
+                successCount++;
+              }
+              completedTasks++;
+            }
+
+            // 4. 循环恢复配置
+            for (const configName of singleObjects) {
+              loadingText.textContent = `[${completedTasks + 1}/${totalTasks}] 正在下载并导入配置: ${configName}...`;
+              const fileName = `${basePath}_${configName}.json`;
+              if (await downloadAndImport(fileName, configName, true)) {
+                successCount++;
+              }
+              completedTasks++;
+            }
+
+            await showCustomAlert(
+              '恢复完成',
+              `流式恢复结束！\n成功恢复了 ${successCount} 个数据模块。\n应用即将刷新。`,
+            );
+            setTimeout(() => window.location.reload(), 1500);
+          } catch (error) {
+            console.error('流式恢复失败:', error);
+            await showCustomAlert('恢复失败', `发生错误: ${error.message}`);
+          } finally {
+            loadingOverlay.classList.remove('visible');
+          }
+        }
 
         // 4. 初始化函数 init()
         // ===================================================================
@@ -40523,6 +41174,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             state.apiConfig.githubRepo = document.getElementById('github-repo').value.trim();
             state.apiConfig.githubPath = document.getElementById('github-path').value.trim() || 'ephone_backup.json';
             state.apiConfig.githubAutoBackup = document.getElementById('github-auto-backup-switch').checked;
+            // ★★★ 新增：保存模式和时间 ★★★
+            state.apiConfig.githubBackupMode = document.getElementById('github-backup-mode').value;
+            state.apiConfig.githubBackupInterval =
+              parseInt(document.getElementById('github-backup-interval').value) || 30;
 
             // 如果开启了自动备份，立即重启定时器
             handleAutoBackupTimer();
@@ -45048,11 +45703,47 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
 
           /**
-           * 处理导入的气泡样式预设文件
-           * @param {File} file - 用户选择的.json文件
+           * 导入气泡预设 (支持 JSON, TXT, CSS, DOCX)
+           * 如果是 JSON，保存为预设；如果是 TXT/DOCX，直接填入输入框
            */
           function importBubblePreset(file) {
             if (!file) return;
+
+            const fileName = file.name.toLowerCase();
+            const customCssInput = document.getElementById('custom-css-input'); // 获取气泡CSS输入框
+
+            // --- 情况A: Word 文档 ---
+            if (fileName.endsWith('.docx')) {
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                mammoth
+                  .extractRawText({ arrayBuffer: e.target.result })
+                  .then(function (result) {
+                    customCssInput.value = result.value; // 填入输入框
+                    updateSettingsPreview(); // 刷新预览
+                    alert('已从Word提取CSS代码到输入框！(请点击“保存”以存为预设)');
+                  })
+                  .catch(function (err) {
+                    alert('读取Word文件失败');
+                  });
+              };
+              reader.readAsArrayBuffer(file);
+              return;
+            }
+
+            // --- 情况B: 文本文件 ---
+            if (fileName.endsWith('.txt') || fileName.endsWith('.css')) {
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                customCssInput.value = e.target.result; // 填入输入框
+                updateSettingsPreview(); // 刷新预览
+                alert('已读取CSS代码到输入框！(请点击“保存”以存为预设)');
+              };
+              reader.readAsText(file);
+              return;
+            }
+
+            // --- 情况C: JSON 文件 (保持原有逻辑) ---
             const reader = new FileReader();
             reader.onload = async e => {
               try {
@@ -45074,10 +45765,16 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   handlePresetSelectChange();
                   await showCustomAlert('导入成功', `气泡预设 "${newPreset.name}" 已成功导入！`);
                 } else {
-                  alert('导入失败：文件格式不正确。');
+                  // 如果不是标准预设JSON，尝试直接填入输入框
+                  customCssInput.value = e.target.result;
+                  updateSettingsPreview();
+                  alert('JSON格式不是标准预设，已将内容填入输入框。');
                 }
               } catch (error) {
-                alert(`导入失败：文件解析错误。 ${error.message}`);
+                // 解析出错，当作纯文本填入
+                customCssInput.value = e.target.result;
+                updateSettingsPreview();
+                alert('已将文件内容填入输入框。');
               }
             };
             reader.readAsText(file);
@@ -46235,6 +46932,16 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
           // 绑定 GitHub 恢复按钮
           const githubRestoreBtn = document.getElementById('manual-github-restore-btn');
+          const gitStreamUploadBtn = document.getElementById('git-stream-upload-btn');
+          if (gitStreamUploadBtn) {
+            gitStreamUploadBtn.addEventListener('click', uploadBackupToGitHubStream);
+          }
+
+          const gitStreamRestoreBtn = document.getElementById('git-stream-restore-btn');
+          if (gitStreamRestoreBtn) {
+            gitStreamRestoreBtn.addEventListener('click', restoreBackupFromGitHubStream);
+          }
+
           if (githubRestoreBtn) {
             githubRestoreBtn.addEventListener('click', restoreBackupFromGitHub);
           }
