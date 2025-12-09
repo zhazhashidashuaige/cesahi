@@ -4414,6 +4414,8 @@
 
     <audio id="audio-player" style="display: none"></audio>
 
+    <audio id="dating-bgm-player" loop></audio>
+
     <audio id="tts-audio-player" style="display: none"></audio>
 
     <audio id="ringtone-player" loop></audio>
@@ -6208,28 +6210,32 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           </div>
 
           <!-- 3. 视频模式输入区 -->
-<div id="aurora-video-inputs" class="aurora-input-group">
-  <div class="form-group">
-    <label>视频文件 (mp4, webm)</label>
-    <input type="file" id="aurora-video-file" accept="video/*,.mkv" />
-  </div>
-  <div class="form-group">
-    <label>字幕文件 (可选 .srt, .vtt)</label>
-    <input type="file" id="aurora-sub-file-video" accept=".srt,.vtt,.lrc" />
-    <!-- ★★★ 新增：字幕URL输入框 ★★★ -->
-    <input type="text" id="aurora-sub-url-video" placeholder="或粘贴字幕链接 (SRT/VTT/LRC)" style="margin-top: 5px;" />
-  </div>
-</div>
+          <div id="aurora-video-inputs" class="aurora-input-group">
+            <div class="form-group">
+              <label>视频文件 (mp4, webm)</label>
+              <input type="file" id="aurora-video-file" accept="video/*,.mkv" />
+            </div>
+            <div class="form-group">
+              <label>字幕文件 (可选 .srt, .vtt)</label>
+              <input type="file" id="aurora-sub-file-video" accept=".srt,.vtt,.lrc" />
+              <!-- ★★★ 新增：字幕URL输入框 ★★★ -->
+              <input
+                type="text"
+                id="aurora-sub-url-video"
+                placeholder="或粘贴字幕链接 (SRT/VTT/LRC)"
+                style="margin-top: 5px"
+              />
+            </div>
+          </div>
 
-<div id="aurora-text-inputs" class="aurora-input-group" style="display: none">
-  <div class="form-group">
-    <label>小说/文本文件 (.txt)</label>
-    <input type="file" id="aurora-text-file" accept=".txt" />
-    <!-- ★★★ 新增：小说URL输入框 ★★★ -->
-    <input type="text" id="aurora-text-url" placeholder="或粘贴txt文件链接" style="margin-top: 5px;" />
-  </div>
-</div>
-
+          <div id="aurora-text-inputs" class="aurora-input-group" style="display: none">
+            <div class="form-group">
+              <label>小说/文本文件 (.txt)</label>
+              <input type="file" id="aurora-text-file" accept=".txt" />
+              <!-- ★★★ 新增：小说URL输入框 ★★★ -->
+              <input type="text" id="aurora-text-url" placeholder="或粘贴txt文件链接" style="margin-top: 5px" />
+            </div>
+          </div>
 
           <!-- 5. 自定义模式输入区 -->
           <div id="aurora-custom-inputs" class="aurora-input-group" style="display: none">
@@ -8469,7 +8475,23 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 <!-- 我们会用JS在这里生成5个黄色心形 -->
               </div>
             </div>
-
+            <span class="action-btn" id="dating-bgm-btn" title="背景音乐">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
+              </svg>
+            </span>
             <span class="action-btn" id="dating-game-settings-btn" title="场景设置">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -8521,6 +8543,51 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         </div>
       </div>
     </div>
+    <!-- ▼▼▼ 全新：约会BGM控制面板 ▼▼▼ -->
+    <div id="dating-bgm-modal" class="modal">
+      <div class="modal-content" style="height: 70%">
+        <div class="modal-header">
+          <span>选择背景音乐</span>
+        </div>
+        <div class="modal-body" style="padding: 15px">
+          <!-- 控制按钮 -->
+          <div class="bgm-controls" style="display: flex; gap: 10px; margin-bottom: 15px">
+            <button id="dating-bgm-random-btn" class="form-button-secondary" style="flex: 1; margin: 0">
+              随机播放
+            </button>
+            <button
+              id="dating-bgm-stop-btn"
+              class="form-button-secondary"
+              style="flex: 1; margin: 0; background-color: #ffe5e5; color: #ff3b30; border-color: #ffc2d1"
+            >
+              停止播放
+            </button>
+          </div>
+          <!-- 音量控制 -->
+          <div class="form-group">
+            <label for="dating-bgm-volume-slider">音量: <span id="dating-bgm-volume-value">100%</span></label>
+            <input
+              type="range"
+              id="dating-bgm-volume-slider"
+              min="0"
+              max="1"
+              step="0.05"
+              value="1"
+              style="width: 100%"
+            />
+          </div>
+          <hr style="opacity: 0.2" />
+          <!-- 歌曲列表 -->
+          <div id="dating-bgm-playlist" class="list-container" style="padding: 0; height: calc(100% - 130px)">
+            <!-- 曲库将由JS动态生成在这里 -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="save" id="dating-bgm-close-btn" style="width: 100%">关闭</button>
+        </div>
+      </div>
+    </div>
+    <!-- ▲▲▲ 新增结束 ▲▲▲ -->
 
     <!-- 借钱对象选择弹窗（带滚动和头像） -->
     <div id="borrow-money-modal" class="modal">
@@ -8598,6 +8665,22 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               <input type="text" id="dating-bg-url-input" placeholder="或粘贴网络图片URL" style="flex-grow: 1" />
             </div>
             <input type="file" id="dating-bg-upload-input" accept="image/*" hidden />
+          </div>
+          <hr style="opacity: 0.2; margin: 15px 0" />
+
+          <div class="form-group">
+            <label>额外挂载世界书 (本次约会)</label>
+            <!-- 复用主设置的样式，非常方便 -->
+            <div class="custom-multiselect" id="dating-wb-multiselect">
+              <div class="select-box moe-input">
+                <span class="selected-options-text">-- 点击选择额外世界观 --</span>
+                <span class="arrow-down">▼</span>
+              </div>
+              <!-- 注意这个容器的 ID 是新的，防止冲突 -->
+              <div id="dating-wb-checkboxes-container" class="checkboxes-container">
+                <!-- 选项将由JS动态生成 -->
+              </div>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -10801,7 +10884,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         let newLockscreenWallpaperBase64 = null;
         let newGlobalBgBase64 = null; // 用于暂存新的全局聊天背景
         let newAppWallpaperBase64 = null;
-        let musicState = {
+        window.state.musicState = {
           isActive: false,
           activeChatId: null,
           isPlaying: false,
@@ -14368,16 +14451,16 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           state.worldBooks = worldBooks || [];
           currentDatingScenes = datingScenes || [];
           // 加载播放列表并注入“隐形”保活音频
-          musicState.playlist = musicLib?.playlist || [];
+          window.state.musicState.playlist = musicLib?.playlist || [];
 
           const keepAliveUrl = 'https://files.catbox.moe/7jn7bp.mp3';
 
           // 检查列表中是否已经有这个音频了
-          const existingKeepAliveIndex = musicState.playlist.findIndex(t => t.src === keepAliveUrl);
+          const existingKeepAliveIndex = window.state.musicState.playlist.findIndex(t => t.src === keepAliveUrl);
 
           // 如果已经存在，先删掉旧的，确保它永远在第一位且信息最新
           if (existingKeepAliveIndex > -1) {
-            musicState.playlist.splice(existingKeepAliveIndex, 1);
+            window.state.musicState.playlist.splice(existingKeepAliveIndex, 1);
           }
 
           // 创建保活专用对象
@@ -14397,7 +14480,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           };
 
           // 强制插到播放列表的第 0 位
-          musicState.playlist.unshift(keepAliveTrack);
+          window.state.musicState.playlist.unshift(keepAliveTrack);
 
           state.personaPresets = personaPresets || [];
           state.apiPresets = apiPresets || [];
@@ -17153,11 +17236,21 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           } else if (msg.type === 'naiimag') {
             // NovelAI图片渲染（复用realimag样式）
             bubble.classList.add('is-realimag', 'is-card-like');
-            contentHtml = `<img src="${
-              msg.imageUrl
-            }" class="realimag-image" alt="NovelAI图片分享" loading="lazy" onerror="this.src='https://i.postimg.cc/KYr2qRCK/1.jpg'; this.alt='图片加载失败';" title="${
-              msg.fullPrompt || msg.prompt || 'NovelAI生成'
-            }">`;
+            
+            // 【新增】包裹一个容器，方便定位按钮
+            contentHtml = `
+              <div class="nai-image-container">
+                <img src="${msg.imageUrl}" class="realimag-image" alt="NovelAI图片分享" loading="lazy" onerror="this.src='https://i.postimg.cc/KYr2qRCK/1.jpg'; this.alt='图片加载失败';" title="${msg.fullPrompt || msg.prompt || 'NovelAI生成'}">
+                
+
+                <button class="reroll-nai-button" data-timestamp="${msg.timestamp}" title="重新生成">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                  </svg>
+                </button>
+              </div>
+            `;
           } else {
             contentHtml = String(msg.content || '').replace(/\n/g, '<br>');
           }
@@ -39321,9 +39414,15 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
           // 2. 清空所有输入框 (包括新加的URL框)
           const idsToClear = [
-            'aurora-video-file', 'aurora-sub-file-video', 'aurora-sub-url-video',
-            'aurora-text-file', 'aurora-text-url',
-            'aurora-custom-img', 'aurora-custom-audio', 'aurora-sub-file-custom', 'aurora-sub-url-custom'
+            'aurora-video-file',
+            'aurora-sub-file-video',
+            'aurora-sub-url-video',
+            'aurora-text-file',
+            'aurora-text-url',
+            'aurora-custom-img',
+            'aurora-custom-audio',
+            'aurora-sub-file-custom',
+            'aurora-sub-url-custom',
           ];
 
           idsToClear.forEach(id => {
@@ -39341,7 +39440,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           // 5. 显示弹窗
           document.getElementById('aurora-setup-modal').classList.add('visible');
         }
-
 
         /**
          * 切换弹窗内的输入显示
@@ -39409,21 +39507,21 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           customAudio.pause();
 
           // --- 辅助函数：处理字幕内容 ---
-          const handleSubtitleContent = (content) => {
-             auroraState.subtitles = parseSRT(content);
-             statusInfo.textContent = `字幕已加载`;
-             // 如果是视频模式，挂载VTT轨道
-             if (mode === 'video') {
-                 const vttContent = 'WEBVTT\n\n' + content.replace(/,/g, '.');
-                 const track = document.createElement('track');
-                 track.kind = 'subtitles';
-                 track.label = 'Chinese';
-                 track.srclang = 'zh';
-                 track.default = true;
-                 track.src = URL.createObjectURL(new Blob([vttContent], { type: 'text/vtt' }));
-                 videoEl.innerHTML = '';
-                 videoEl.appendChild(track);
-             }
+          const handleSubtitleContent = content => {
+            auroraState.subtitles = parseSRT(content);
+            statusInfo.textContent = `字幕已加载`;
+            // 如果是视频模式，挂载VTT轨道
+            if (mode === 'video') {
+              const vttContent = 'WEBVTT\n\n' + content.replace(/,/g, '.');
+              const track = document.createElement('track');
+              track.kind = 'subtitles';
+              track.label = 'Chinese';
+              track.srclang = 'zh';
+              track.default = true;
+              track.src = URL.createObjectURL(new Blob([vttContent], { type: 'text/vtt' }));
+              videoEl.innerHTML = '';
+              videoEl.appendChild(track);
+            }
           };
 
           if (mode === 'video') {
@@ -39455,12 +39553,14 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               reader.onload = e => handleSubtitleContent(e.target.result);
               reader.readAsText(subFile);
             } else if (subUrl) {
-               statusInfo.textContent = '正在下载字幕...';
-               fetch(subUrl).then(r => r.text()).then(txt => handleSubtitleContent(txt)).catch(()=> statusInfo.textContent = '字幕下载失败');
+              statusInfo.textContent = '正在下载字幕...';
+              fetch(subUrl)
+                .then(r => r.text())
+                .then(txt => handleSubtitleContent(txt))
+                .catch(() => (statusInfo.textContent = '字幕下载失败'));
             } else {
               statusInfo.textContent = '无字幕';
             }
-
           } else if (mode === 'text') {
             const textFile = document.getElementById('aurora-text-file').files[0];
             const textUrl = document.getElementById('aurora-text-url').value.trim();
@@ -39473,48 +39573,47 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             textViewer.style.display = 'block';
 
             // --- 辅助函数：处理文本Buffer (解码GBK/UTF8) ---
-            const processTextBuffer = (buffer) => {
-                let text = '';
+            const processTextBuffer = buffer => {
+              let text = '';
+              try {
+                const decoder = new TextDecoder('utf-8', { fatal: true });
+                text = decoder.decode(buffer);
+              } catch (error) {
+                console.log('检测到非UTF-8编码，尝试使用 GB18030 (兼容GBK/ANSI) 解码...');
                 try {
-                    const decoder = new TextDecoder('utf-8', { fatal: true });
-                    text = decoder.decode(buffer);
-                } catch (error) {
-                    console.log('检测到非UTF-8编码，尝试使用 GB18030 (兼容GBK/ANSI) 解码...');
-                    try {
-                        const decoder = new TextDecoder('gb18030');
-                        text = decoder.decode(buffer);
-                    } catch (err2) {
-                        alert('抱歉，无法识别该文件的编码格式。');
-                        return;
-                    }
+                  const decoder = new TextDecoder('gb18030');
+                  text = decoder.decode(buffer);
+                } catch (err2) {
+                  alert('抱歉，无法识别该文件的编码格式。');
+                  return;
                 }
-                auroraState.textContent = text;
-                document.getElementById('aurora-text-body').textContent = auroraState.textContent;
-                const statusInfo = document.getElementById('aurora-info-status');
-                if (statusInfo) statusInfo.textContent = `文档已加载`;
+              }
+              auroraState.textContent = text;
+              document.getElementById('aurora-text-body').textContent = auroraState.textContent;
+              const statusInfo = document.getElementById('aurora-info-status');
+              if (statusInfo) statusInfo.textContent = `文档已加载`;
             };
 
             if (textFile) {
-                const reader = new FileReader();
-                reader.onload = e => processTextBuffer(e.target.result);
-                reader.readAsArrayBuffer(textFile);
+              const reader = new FileReader();
+              reader.onload = e => processTextBuffer(e.target.result);
+              reader.readAsArrayBuffer(textFile);
             } else if (textUrl) {
-                const statusInfo = document.getElementById('aurora-info-status');
-                if (statusInfo) statusInfo.textContent = '正在下载文档...';
-                
-                fetch(textUrl)
-                    .then(res => {
-                        if(!res.ok) throw new Error('网络错误');
-                        return res.arrayBuffer();
-                    })
-                    .then(buffer => processTextBuffer(buffer))
-                    .catch(err => {
-                        console.error(err);
-                        if (statusInfo) statusInfo.textContent = '下载失败';
-                        alert('文档下载失败，请检查链接跨域问题。');
-                    });
-            }
+              const statusInfo = document.getElementById('aurora-info-status');
+              if (statusInfo) statusInfo.textContent = '正在下载文档...';
 
+              fetch(textUrl)
+                .then(res => {
+                  if (!res.ok) throw new Error('网络错误');
+                  return res.arrayBuffer();
+                })
+                .then(buffer => processTextBuffer(buffer))
+                .catch(err => {
+                  console.error(err);
+                  if (statusInfo) statusInfo.textContent = '下载失败';
+                  alert('文档下载失败，请检查链接跨域问题。');
+                });
+            }
           } else if (mode === 'custom') {
             const imgFile = document.getElementById('aurora-custom-img').files[0];
             const audioFile = document.getElementById('aurora-custom-audio').files[0];
@@ -39539,26 +39638,29 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             if (subFile) {
               const reader = new FileReader();
               reader.onload = e => {
-                 handleSubtitleContent(e.target.result);
-                 // 开启监听
-                 customAudio.ontimeupdate = () => {
-                    const curTime = customAudio.currentTime;
-                    const sub = auroraState.subtitles.find(s => curTime >= s.start && curTime <= s.end);
-                    document.getElementById('aurora-custom-subtitle-display').textContent = sub ? sub.text : '';
-                 };
+                handleSubtitleContent(e.target.result);
+                // 开启监听
+                customAudio.ontimeupdate = () => {
+                  const curTime = customAudio.currentTime;
+                  const sub = auroraState.subtitles.find(s => curTime >= s.start && curTime <= s.end);
+                  document.getElementById('aurora-custom-subtitle-display').textContent = sub ? sub.text : '';
+                };
               };
               reader.readAsText(subFile);
             } else if (subUrl) {
-               statusInfo.textContent = '正在下载字幕...';
-               fetch(subUrl).then(r => r.text()).then(txt => {
-                   handleSubtitleContent(txt);
-                   // 开启监听
-                   customAudio.ontimeupdate = () => {
-                      const curTime = customAudio.currentTime;
-                      const sub = auroraState.subtitles.find(s => curTime >= s.start && curTime <= s.end);
-                      document.getElementById('aurora-custom-subtitle-display').textContent = sub ? sub.text : '';
-                   };
-               }).catch(()=> statusInfo.textContent = '字幕下载失败');
+              statusInfo.textContent = '正在下载字幕...';
+              fetch(subUrl)
+                .then(r => r.text())
+                .then(txt => {
+                  handleSubtitleContent(txt);
+                  // 开启监听
+                  customAudio.ontimeupdate = () => {
+                    const curTime = customAudio.currentTime;
+                    const sub = auroraState.subtitles.find(s => curTime >= s.start && curTime <= s.end);
+                    document.getElementById('aurora-custom-subtitle-display').textContent = sub ? sub.text : '';
+                  };
+                })
+                .catch(() => (statusInfo.textContent = '字幕下载失败'));
             } else {
               statusInfo.textContent = '音频无字幕';
             }
@@ -40390,6 +40492,152 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             loadingOverlay.classList.remove('visible');
           }
         }
+/**
+ * 【全新】处理NovelAI图片重roll的核心函数
+ * @param {string} chatId - 当前聊天ID
+ * @param {string} promptToUse - 用于生成的提示词
+ * @param {number} originalMessageTimestamp - 被重roll的原始消息的时间戳
+ */
+async function generateAndRerollNaiImage(chatId, promptToUse, originalMessageTimestamp) {
+    if (!chatId || !promptToUse || !originalMessageTimestamp) {
+        console.error("重roll函数缺少必要参数。");
+        return;
+    }
+
+    const chat = state.chats[chatId];
+    if (!chat) return;
+
+    // 找到UI元素并显示加载状态
+    const bubble = document.querySelector(`.message-bubble[data-timestamp="${originalMessageTimestamp}"]`);
+    const rerollButton = bubble ? bubble.querySelector('.reroll-nai-button') : null;
+
+    if (rerollButton) {
+        rerollButton.classList.add('is-loading'); // 显示加载动画
+        rerollButton.disabled = true;
+    }
+
+    try {
+        const apiKey = localStorage.getItem('novelai-api-key');
+        const model = localStorage.getItem('novelai-model') || 'nai-diffusion-4-5-full';
+        const settings = getNovelAISettings();
+
+        if (!apiKey) throw new Error('未配置NovelAI API Key');
+
+        const naiPrompts = getCharacterNAIPrompts(chat.id);
+        const finalPositivePrompt = `${promptToUse}, ${naiPrompts.positive}`;
+        const finalNegativePrompt = naiPrompts.negative;
+
+        const [width, height] = settings.resolution.split('x').map(Number);
+        
+        // 此处省略了完整的 requestBody 构建，因为它非常长且在您的代码中已存在。
+        // 我们假设您的 generateNovelAIImage 函数或类似逻辑可以被调用。
+        // 为简化，我们直接复用您已有的生成逻辑。
+        
+        let requestBody;
+        if (model.includes('nai-diffusion-4')) {
+            requestBody = {
+                input: finalPositivePrompt, model, action: 'generate',
+                parameters: { params_version: 3, width, height, scale: settings.cfg_scale, sampler: settings.sampler, steps: settings.steps, seed: -1, n_samples: 1, ucPreset: settings.uc_preset, qualityToggle: settings.quality_toggle, negative_prompt: finalNegativePrompt, v4_prompt:{caption:{base_caption:finalPositivePrompt}}, v4_negative_prompt:{caption:{base_caption:finalNegativePrompt}} }
+            };
+        } else {
+            requestBody = {
+                input: finalPositivePrompt, model, action: 'generate',
+                parameters: { width, height, scale: settings.cfg_scale, sampler: settings.sampler, steps: settings.steps, seed: -1, n_samples: 1, ucPreset: settings.uc_preset, qualityToggle: settings.quality_toggle, sm: settings.smea, sm_dyn: settings.smea_dyn, negative_prompt: finalNegativePrompt }
+            };
+        }
+        
+        let apiUrl = model.includes('nai-diffusion-4') ? 'https://image.novelai.net/ai/generate-image-stream' : 'https://image.novelai.net/ai/generate-image';
+        let corsProxy = settings.cors_proxy === 'custom' ? settings.custom_proxy_url : settings.cors_proxy;
+        if (corsProxy) apiUrl = corsProxy + encodeURIComponent(apiUrl);
+
+        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey }, body: JSON.stringify(requestBody) });
+
+        if (!response.ok) throw new Error(`NAI API 错误: ${response.status}`);
+
+        let imageDataUrl = null;
+        let zipBlob = null;
+        if (response.headers.get('content-type')?.includes('text/event-stream')) {
+          const text = await response.text();
+          const lines = text.trim().split('\n');
+          let base64Data = null;
+          for (let i = lines.length - 1; i >= 0; i--) {
+            const line = lines[i].trim();
+            if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+              const dataContent = line.substring(6);
+              try {
+                const jsonData = JSON.parse(dataContent);
+                if(jsonData.event_type === 'final' && jsonData.image) { base64Data = jsonData.image; break; }
+              } catch { base64Data = dataContent; break; }
+            }
+          }
+          if(base64Data) {
+            const binaryString = atob(base64Data);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+            if (base64Data.startsWith('iVBORw0KGgo') || base64Data.startsWith('/9j/')) {
+              imageDataUrl = await new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(new Blob([bytes], {type: base64Data.startsWith('iVBORw0KGgo') ? 'image/png' : 'image/jpeg'}));
+              });
+            } else { zipBlob = new Blob([bytes]); }
+          }
+        } else {
+            zipBlob = await response.blob();
+        }
+
+        if (!imageDataUrl && zipBlob) {
+            if (typeof JSZip === 'undefined') throw new Error('JSZip库未加载');
+            const zip = await JSZip.loadAsync(zipBlob);
+            const imageFile = Object.values(zip.files).find(f => f.name.endsWith('.png'));
+            if (!imageFile) throw new Error('ZIP中未找到图片');
+            imageDataUrl = await imageFile.async('base64');
+            imageDataUrl = `data:image/png;base64,${imageDataUrl}`;
+        }
+        
+        if (!imageDataUrl) throw new Error("无法从API响应中提取图片。");
+
+        // --- 更新数据并刷新UI ---
+        const messageIndex = chat.history.findIndex(m => m.timestamp === originalMessageTimestamp);
+        if (messageIndex > -1) {
+            chat.history[messageIndex].imageUrl = imageDataUrl;
+            // 可以在这里更新其他信息，比如新的seed
+            // chat.history[messageIndex].seed = newSeed; 
+            await db.chats.put(chat);
+            renderChatInterface(chatId); // 重新渲染整个聊天界面
+        }
+
+    } catch (error) {
+        console.error('重roll图片失败:', error);
+        alert(`重roll图片失败: ${error.message}`);
+    } finally {
+        // 确保无论成功失败都移除加载状态
+        if (rerollButton) {
+            rerollButton.classList.remove('is-loading');
+            rerollButton.disabled = false;
+        }
+    }
+}
+
+/**
+ * 【全新】处理重roll按钮点击的入口函数
+ * @param {number} timestamp - 被点击按钮对应消息的时间戳
+ */
+async function handleNaiImageReroll(timestamp) {
+    const chatId = state.activeChatId;
+    if (!chatId) return;
+
+    const chat = state.chats[chatId];
+    const originalMessage = chat.history.find(m => m.timestamp === timestamp);
+
+    if (originalMessage && originalMessage.type === 'naiimag' && (originalMessage.prompt || originalMessage.fullPrompt)) {
+        // 使用 fullPrompt 优先，如果没有再用 prompt
+        const promptToUse = originalMessage.fullPrompt || originalMessage.prompt;
+        await generateAndRerollNaiImage(chatId, promptToUse, timestamp);
+    } else {
+        alert("无法重roll：找不到原始图片的生成提示词。");
+    }
+}
 
         // 4. 初始化函数 init()
         // ===================================================================
@@ -41556,6 +41804,16 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           });
 
           document.getElementById('chat-messages').addEventListener('click', async e => {
+                        const rerollBtn = e.target.closest('.reroll-nai-button');
+            if (rerollBtn) {
+                e.stopPropagation(); // 阻止事件冒泡，防止触发其他点击效果
+                const timestamp = parseInt(rerollBtn.dataset.timestamp);
+                if (!isNaN(timestamp)) {
+                    handleNaiImageReroll(timestamp);
+                }
+                return; // 处理完就退出，不执行后续逻辑
+            }
+
             const voiceBody = e.target.closest('.voice-message-body');
             if (voiceBody) {
               const bubble = voiceBody.closest('.message-bubble');
