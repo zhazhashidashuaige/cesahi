@@ -20952,7 +20952,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                     const apiKey = localStorage.getItem('novelai-api-key');
                     const model = localStorage.getItem('novelai-model') || 'nai-diffusion-4-5-full';
                     const settings = getNovelAISettings();
-
+                    const newImageDataUrl = await _internal_generateNaiImage(chatId, aiPrompt);
                     if (!apiKey) {
                       throw new Error('NovelAI API Key未配置。请在NovelAI设置中填写API Key。');
                     }
@@ -40503,15 +40503,16 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
         }
         /**
-         * 【全新】可复用的 NovelAI 图片生成“引擎”
+         * 【全新修正版】可复用的 NovelAI 图片生成“引擎”
          * @param {string} chatId - 当前聊天ID
          * @param {string} prompt - 用于生成图片的核心提示词
+         * @param {boolean} isReroll - 【新增】是否为重roll模式，默认为 false
          * @returns {Promise<string>} - 成功时返回图片的 Base64 Data URL
          * @throws {Error} - 失败时抛出错误
          */
-        async function _internal_generateNaiImage(chatId, prompt) {
-          // 1. 获取所有必要的配置信息
-          const chat = state.chats[chatId];
+        async function _internal_generateNaiImage(chatId, prompt, isReroll = false) {
+          // 1. 获取所有必要的配置信息 (这部分不变)
+          const chat = window.state.chats[chatId];
           if (!chat) throw new Error('找不到当前聊天对象');
 
           const apiKey = localStorage.getItem('novelai-api-key');
@@ -40520,15 +40521,22 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
           if (!apiKey) throw new Error('未配置NovelAI API Key');
 
-          // 2. 准备提示词 (与 AI 主动发图时的逻辑完全一致)
+          // 2. ★★★ 核心修改：根据 isReroll 参数，决定如何构建最终的提示词 ★★★
           const naiPrompts = getCharacterNAIPrompts(chat.id);
-          const finalPositivePrompt = `${prompt}, ${naiPrompts.positive}`;
-          const finalNegativePrompt = naiPrompts.negative;
+          let finalPositivePrompt;
+          const finalNegativePrompt = naiPrompts.negative; // 负面提示词逻辑不变
 
-          console.log(`[NAI引擎] 使用'${naiPrompts.source}'配置生成...`);
-          console.log(`[NAI引擎] 最终正面提示词:`, finalPositivePrompt);
+          if (isReroll) {
+            // 如果是重roll，直接使用传进来的完整prompt，不再拼接任何东西
+            finalPositivePrompt = prompt;
+            console.log('🔄 [NAI引擎-重roll模式] 使用原始Prompt:', finalPositivePrompt);
+          } else {
+            // 如果是首次生成，执行原来的拼接逻辑
+            finalPositivePrompt = `${prompt}, ${naiPrompts.positive}`;
+            console.log('✨ [NAI引擎-生成模式] 拼接后的Prompt:', finalPositivePrompt);
+          }
 
-          // 3. 构建请求体 (这是最关键的部分，完全复刻了您代码中已验证可行的逻辑)
+          // 3. 构建请求体 (这部分不变)
           const [width, height] = settings.resolution.split('x').map(Number);
           let requestBody;
 
@@ -40544,7 +40552,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 scale: settings.cfg_scale,
                 sampler: settings.sampler,
                 steps: settings.steps,
-                seed: -1,
+                seed: -1, // 重roll时总是使用随机种子
                 n_samples: 1,
                 ucPreset: settings.uc_preset,
                 qualityToggle: settings.quality_toggle,
@@ -40587,7 +40595,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 scale: settings.cfg_scale,
                 sampler: settings.sampler,
                 steps: settings.steps,
-                seed: -1,
+                seed: -1, // 重roll时总是使用随机种子
                 n_samples: 1,
                 ucPreset: settings.uc_preset,
                 qualityToggle: settings.quality_toggle,
@@ -40604,7 +40612,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             };
           }
 
-          // 4. 发送请求 (与 AI 主动发图时的逻辑完全一致)
+          // 4. 发送请求和处理响应 (这部分不变)
           let apiUrl = model.includes('nai-diffusion-4')
             ? 'https://image.novelai.net/ai/generate-image-stream'
             : 'https://image.novelai.net/ai/generate-image';
@@ -40619,11 +40627,12 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
           if (!response.ok) throw new Error(`NAI API 错误: ${response.status} ${response.statusText}`);
 
-          // 5. 解压并提取图片 (与 AI 主动发图时的逻辑完全一致)
+          // 5. 解压并提取图片 (这部分不变)
           let imageDataUrl = null;
           let zipBlob = null;
+          const contentType = response.headers.get('content-type');
 
-          if (response.headers.get('content-type')?.includes('text/event-stream')) {
+          if (contentType && contentType.includes('text/event-stream')) {
             const text = await response.text();
             const lines = text.trim().split('\n');
             let base64Data = null;
@@ -40644,16 +40653,15 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               }
             }
             if (base64Data) {
+              const isPNG = base64Data.startsWith('iVBORw0KGgo');
               const binaryString = atob(base64Data);
               const bytes = new Uint8Array(binaryString.length);
               for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-              if (base64Data.startsWith('iVBORw0KGgo') || base64Data.startsWith('/9j/')) {
+              if (isPNG || base64Data.startsWith('/9j/')) {
                 imageDataUrl = await new Promise(resolve => {
                   const reader = new FileReader();
                   reader.onloadend = () => resolve(reader.result);
-                  reader.readAsDataURL(
-                    new Blob([bytes], { type: base64Data.startsWith('iVBORw0KGgo') ? 'image/png' : 'image/jpeg' }),
-                  );
+                  reader.readAsDataURL(new Blob([bytes], { type: isPNG ? 'image/png' : 'image/jpeg' }));
                 });
               } else {
                 zipBlob = new Blob([bytes]);
@@ -40674,12 +40682,11 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
           if (!imageDataUrl) throw new Error('无法从API响应中提取图片。');
 
-          // 6. 返回最终的图片数据
           return imageDataUrl;
         }
 
         /**
-         * 【全新】处理重roll按钮点击的“控制器”
+         * 【全新修正版】处理重roll按钮点击的“控制器”
          * @param {number} timestamp - 被点击按钮对应消息的时间戳
          */
         async function handleNaiImageReroll(timestamp) {
@@ -40690,7 +40697,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const messageIndex = chat.history.findIndex(m => m.timestamp === timestamp);
           const originalMessage = chat.history[messageIndex];
 
-          // 1. 安全检查，确保能找到原始消息和prompt
           if (
             !originalMessage ||
             originalMessage.type !== 'naiimag' ||
@@ -40700,10 +40706,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             return;
           }
 
-          // 2. 获取用于重roll的提示词
-          const promptToUse = originalMessage.prompt || originalMessage.fullPrompt;
+          // 这次我们用 fullPrompt，因为它包含了AI生成这张图的所有信息
+          const promptToUse = originalMessage.fullPrompt || originalMessage.prompt;
 
-          // 3. 更新UI，进入加载状态
           const rerollButton = document.querySelector(`.reroll-nai-button[data-timestamp="${timestamp}"]`);
           if (rerollButton) {
             rerollButton.classList.add('is-loading');
@@ -40711,23 +40716,19 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
 
           try {
-            // 4. 【核心】调用我们新的、可靠的“引擎”函数
-            const newImageDataUrl = await _internal_generateNaiImage(chatId, promptToUse);
+            // ★★★ 核心修改：调用引擎函数时，第三个参数传入 true，表示这是重roll ★★★
+            const newImageDataUrl = await _internal_generateNaiImage(chatId, promptToUse, true);
 
-            // 5. 成功后，直接更新原始消息对象的 imageUrl 字段
             if (messageIndex > -1) {
               chat.history[messageIndex].imageUrl = newImageDataUrl;
 
-              // 6. 保存到数据库并刷新UI，完成覆盖
               await db.chats.put(chat);
               renderChatInterface(chatId);
             }
           } catch (error) {
-            // 7. 捕获引擎抛出的任何错误并提示用户
             console.error('重roll图片失败:', error);
             alert(`重roll图片失败: ${error.message}`);
           } finally {
-            // 8. 无论成功失败，都必须恢复按钮状态
             if (rerollButton) {
               rerollButton.classList.remove('is-loading');
               rerollButton.disabled = false;
