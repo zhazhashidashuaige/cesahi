@@ -23846,16 +23846,6 @@ body {
 #dating-completion-text {
   font-size: 10px;
 }
-
-/* 修改心形图标颜色 */
-#romance-value svg {
-  color: #ff8fab;
-  stroke: #ffc2d1;
-}
-#lust-value svg {
-  color: #d8b4fe;
-  stroke: #e9d8ff;
-} /* 欲望值改为薰衣草紫 */
 /* --- naiimag 图片重roll按钮样式 --- */
 .nai-image-container {
   position: relative;
@@ -23899,4 +23889,48 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+/* ======================================================= */
+/* === ✨ 萌系聊天设置弹窗·终极修复与美化 v2.0 ✨ === */
+/* ======================================================= */
+
+/* 1. 【核心】让设置面板成为按钮的“定位锚点” */
+/* 这行代码告诉浏览器，里面的绝对定位元素都要听它的 */
+.moe-settings-content {
+  position: relative !important;
+}
+
+/* 2. 【核心】把底部按钮栏变成一个“隐形”的容器，它不再负责布局 */
+#chat-settings-modal .modal-footer {
+  position: static !important; /* 移除旧的定位 */
+  padding: 0 !important; /* 移除所有内边距 */
+  border: none !important; /* 移除所有边框 */
+  height: 0 !important; /* 让它不占据任何垂直空间 */
+  pointer-events: none; /* 让鼠标可以“穿透”这个隐形容器 */
+}
+
+/* 3. 【核心】让两个“萌系悬浮球”重新绝对定位，但这次是相对于面板 */
+.moe-fab-save,
+.moe-fab-cancel {
+  position: absolute !important; /* 绝对定位，相对于 .moe-settings-content */
+  bottom: 25px !important; /* 距离面板底部 25px */
+  pointer-events: auto !important; /* 确保按钮自己可以被点击 */
+
+  /* ▼▼▼ 新增：可爱的交互动画！ ▼▼▼ */
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 4. 按钮们在鼠标放上去时，会可爱地“弹”一下 */
+.moe-fab-save:hover,
+.moe-fab-cancel:hover {
+  transform: scale(1.08) rotate(-5deg);
+}
+
+/* 5. 分别定位左右两个按钮 */
+.moe-fab-save {
+  right: 25px !important; /* 保存按钮乖乖待在右边 */
+}
+
+.moe-fab-cancel {
+  left: 25px !important; /* 取消按钮乖乖待在左边 */
 }
