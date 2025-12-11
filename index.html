@@ -2096,41 +2096,27 @@
             <label>提示音 URL</label>
             <input type="text" id="notification-sound-url-input" class="moe-input" placeholder="音频链接..." />
           </div>
-          <!-- 4. 声音与背景卡片 -->
-          <div class="settings-group-card">
-            <div class="settings-section-title">🎵 声音与背景</div>
 
-            <div class="setting-item">
-              <label>来电铃声 URL</label>
-              <input type="text" id="ringtone-url-input" class="moe-input" placeholder="音频链接..." />
-            </div>
-
-            <div class="setting-item">
-              <label>提示音 URL</label>
-              <input type="text" id="notification-sound-url-input" class="moe-input" placeholder="音频链接..." />
-            </div>
-
-            <div class="setting-item">
-              <label>全局聊天背景</label>
-              <div class="preview-upload-box">
-                <!-- ★★★ 修改点：删除了 landscape 类名，现在它是竖屏的了 ★★★ -->
-                <div id="global-bg-preview" class="mini-preview">预览</div>
-                <div class="btn-col">
-                  <button class="upload-btn-pill" onclick="document.getElementById('global-bg-upload-input').click();">
-                    上传背景
-                  </button>
-                  <button class="upload-btn-pill danger" id="remove-global-bg-btn">移除背景</button>
-                </div>
+          <div class="setting-item">
+            <label>全局聊天背景</label>
+            <div class="preview-upload-box">
+              <!-- ★★★ 修改点：删除了 landscape 类名，现在它是竖屏的了 ★★★ -->
+              <div id="global-bg-preview" class="mini-preview">预览</div>
+              <div class="btn-col">
+                <button class="upload-btn-pill" onclick="document.getElementById('global-bg-upload-input').click();">
+                  上传背景
+                </button>
+                <button class="upload-btn-pill danger" id="remove-global-bg-btn">移除背景</button>
               </div>
-              <input type="file" id="global-bg-upload-input" accept="image/*" hidden />
-              <button
-                class="form-button-secondary small-btn danger-text"
-                id="clear-all-single-bgs-btn"
-                style="margin-top: 10px"
-              >
-                一键清空所有单人聊天背景
-              </button>
             </div>
+            <input type="file" id="global-bg-upload-input" accept="image/*" hidden />
+            <button
+              class="form-button-secondary small-btn danger-text"
+              id="clear-all-single-bgs-btn"
+              style="margin-top: 10px"
+            >
+              一键清空所有单人聊天背景
+            </button>
           </div>
         </div>
 
@@ -3649,10 +3635,14 @@
           <!-- ============================== -->
           <div class="settings-group-card moe-card">
             <div class="settings-section-title">📝 基础资料</div>
-
             <div class="form-group" id="chat-name-group">
-              <label for="chat-name-input">备注名 / 群名</label>
+              <label>角色真名 /群聊名称(AI只认这个，修改会影响记忆)</label>
               <input type="text" id="chat-name-input" class="moe-input" />
+            </div>
+            <!-- 新增的备注名输入框，默认隐藏，JS里控制显示 -->
+            <div class="form-group" id="chat-remark-group" style="display: none">
+              <label>备注名 (仅显示用，AI不知道)</label>
+              <input type="text" id="chat-remark-input" class="moe-input" placeholder="设置一个备注..." />
             </div>
 
             <div class="form-group" id="assign-group-section" style="display: none">
@@ -6265,6 +6255,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       </div>
     </div>
 
+    <!-- 漫游播放器弹窗 -->
     <div
       id="aurora-player-overlay"
       style="
@@ -6273,20 +6264,15 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         top: 100px;
         left: 50%;
         transform: translateX(-50%);
-        /* 修改：设置初始大小，并开启 resize */
         width: 320px;
-        height: 240px;
-        resize: both;
-        overflow: hidden; /* 必须配合 resize 使用 */
-        min-width: 200px;
-        min-height: 150px;
-
+        height: 400px; /* 稍微加大一点初始高度 */
         background: #000;
         border-radius: 12px;
         z-index: 9999;
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
         border: 1px solid rgba(255, 255, 255, 0.1);
         flex-direction: column;
+        overflow: hidden; /* 重要 */
       "
     >
       <!-- 顶部拖拽条 -->
@@ -6294,26 +6280,56 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         id="aurora-drag-handle"
         style="
           width: 100%;
-          height: 36px; /* 固定高度 */
-          flex-shrink: 0; /* 防止被压缩 */
-          padding: 0 15px;
+          height: 40px;
+          flex-shrink: 0;
+          padding: 0 10px;
           background: linear-gradient(90deg, #e0c3fc 0%, #8ec5fc 100%);
           cursor: grab;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          box-sizing: border-box;
           z-index: 100;
-          position: relative;
         "
       >
-        <span style="font-size: 14px; color: #333; font-weight: 800; pointer-events: none; letter-spacing: 1px"
-          >✨ 漫游</span
-        >
-        <span id="aurora-close-player" style="cursor: pointer; font-weight: bold; color: #333; font-size: 18px">×</span>
+        <span style="font-size: 14px; color: #333; font-weight: 800">✨ 漫游</span>
+
+        <!-- 新增：字号调整按钮组 -->
+        <div style="display: flex; gap: 8px">
+          <button
+            id="aurora-font-down"
+            style="
+              background: rgba(255, 255, 255, 0.3);
+              border: none;
+              border-radius: 4px;
+              padding: 2px 8px;
+              font-weight: bold;
+              cursor: pointer;
+            "
+          >
+            A-
+          </button>
+          <button
+            id="aurora-font-up"
+            style="
+              background: rgba(255, 255, 255, 0.3);
+              border: none;
+              border-radius: 4px;
+              padding: 2px 8px;
+              font-weight: bold;
+              cursor: pointer;
+            "
+          >
+            A+
+          </button>
+          <span
+            id="aurora-close-player"
+            style="cursor: pointer; font-weight: bold; color: #333; font-size: 20px; margin-left: 8px"
+            >×</span
+          >
+        </div>
       </div>
 
-      <!-- 内容区 (使用 flex-grow 自动填满剩余空间) -->
+      <!-- 内容区 -->
       <div
         id="aurora-content-area"
         style="
@@ -6327,7 +6343,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           overflow: hidden;
         "
       >
-        <!-- 1. 视频播放器 -->
+        <!-- 视频播放器 -->
         <video
           id="aurora-video-element"
           style="width: 100%; height: 100%; object-fit: contain; display: none"
@@ -6335,7 +6351,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           webkit-playsinline
         ></video>
 
-        <!-- 2. 文本阅读器 -->
+        <!-- 文本阅读器 -->
         <div
           id="aurora-text-viewer"
           style="
@@ -6345,7 +6361,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             overflow-y: auto;
             padding: 15px;
             box-sizing: border-box;
-            font-size: 14px;
+            font-size: 16px; /* 默认字号 */
             line-height: 1.8;
             color: #e0e0e0;
             font-family: sans-serif;
@@ -6354,11 +6370,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           <div id="aurora-text-body" style="white-space: pre-wrap"></div>
         </div>
 
-        <!-- 3. 自定义音画播放器 -->
+        <!-- 自定义音画播放器 -->
         <div id="aurora-custom-viewer" style="display: none; width: 100%; height: 100%; position: relative">
-          <!-- 背景图 -->
           <img id="aurora-custom-bg-img" style="width: 100%; height: 100%; display: block; object-fit: cover" />
-          <!-- 字幕层 -->
           <div
             id="aurora-custom-subtitle-display"
             style="
@@ -6376,29 +6390,19 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               z-index: 20;
             "
           ></div>
-          <!-- 音频控制条 -->
           <audio
             id="aurora-custom-audio-element"
             controls
-            style="
-              width: 100%;
-              height: 40px;
-              opacity: 0;
-              position: absolute;
-              bottom: 0;
-              left: 0;
-              z-index: 30;
-              transition: opacity 0.3s ease;
-            "
+            style="width: 100%; height: 40px; opacity: 0; position: absolute; bottom: 0; left: 0; z-index: 30"
           ></audio>
         </div>
       </div>
 
-      <!-- 底部信息栏 -->
+      <!-- 底部栏 -->
       <div
         style="
           padding: 5px 12px;
-          height: 28px; /* 固定高度 */
+          height: 28px;
           flex-shrink: 0;
           font-size: 12px;
           color: #888;
@@ -6411,18 +6415,30 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
       >
         <span
           id="aurora-playing-title"
-          style="max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+          style="max-width: 50%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis"
           >未播放</span
         >
-        <!-- 新增：保存到书架按钮 (默认隐藏，只有小说模式显示) -->
-        <span
-          id="aurora-save-book-btn"
-          style="cursor: pointer; display: none; color: #d4af37; font-weight: bold; margin-right: 10px"
+        <span id="aurora-save-book-btn" style="cursor: pointer; display: none; color: #d4af37; font-weight: bold"
+          >📥 存入书架</span
         >
-          📥 存入书架
-        </span>
         <span id="aurora-info-status">等待中...</span>
       </div>
+
+      <!-- ★★★ 新增：手机端触摸缩放手柄 ★★★ -->
+      <div
+        id="aurora-resize-handle"
+        style="
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          width: 30px;
+          height: 30px;
+          background: linear-gradient(135deg, transparent 50%, #8ec5fc 50%);
+          cursor: nwse-resize;
+          z-index: 101;
+          touch-action: none; /* 关键：防止触发浏览器默认行为 */
+        "
+      ></div>
     </div>
 
     <!-- 复古书架界面 -->
@@ -14642,7 +14658,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const bar = document.getElementById('notification-bar');
           document.getElementById('notification-avatar').src =
             chat.settings.aiAvatar || chat.settings.groupAvatar || defaultAvatar;
-          document.getElementById('notification-content').querySelector('.name').textContent = chat.name;
+          const notifName = !chat.isGroup && chat.settings.remarkName ? chat.settings.remarkName : chat.name;
+          document.getElementById('notification-content').querySelector('.name').textContent = notifName;
           document.getElementById('notification-content').querySelector('.message').textContent = messageContent;
           const newBar = bar.cloneNode(true);
           bar.parentNode.replaceChild(newBar, bar);
@@ -15735,7 +15752,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			            <img src="${avatar || defaultAvatar}" class="avatar">
 			            <div class="info">
 			                <div class="name-line">
-			                    <span class="name">${chat.name}</span>
+			                    <span class="name">${
+                            !chat.isGroup && chat.settings.remarkName ? chat.settings.remarkName : chat.name
+                          }</span>
 			                    ${chat.isGroup ? '<span class="group-tag">群聊</span>' : ''}
 			                    ${streakHtml}
 			                    ${selectedBadgeHtml} <!-- 把徽章放在火花后面 -->
@@ -15810,8 +15829,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const fontSize = chat.settings.fontSize || 13;
           messagesContainer.style.setProperty('--chat-font-size', `${fontSize}px`);
           applyScopedCss(chat.settings.customCss || '', '#chat-messages', 'custom-bubble-style');
-
-          document.getElementById('chat-header-title').textContent = chat.name;
+          const displayName = !chat.isGroup && chat.settings.remarkName ? chat.settings.remarkName : chat.name;
+          document.getElementById('chat-header-title').textContent = displayName;
           const statusContainer = document.getElementById('chat-header-status');
           const statusTextEl = statusContainer.querySelector('.status-text');
 
@@ -18795,37 +18814,21 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   }
                 }
 
-                // 3. 小说/文本模式 (保持原样)
+                // ---------------- [修改开始] AI读取缓存文本 ----------------
+                // 3. 小说/文本模式
                 else if (auroraState.mode === 'text') {
-                  const viewerEl = document.getElementById('aurora-text-viewer');
-                  const textBodyEl = document.getElementById('aurora-text-body');
-                  if (viewerEl && textBodyEl && auroraState.textContent) {
-                    const scrollHeight = viewerEl.scrollHeight - viewerEl.clientHeight;
-                    const scrollPercentage = scrollHeight > 0 ? viewerEl.scrollTop / scrollHeight : 0;
-                    const totalLength = auroraState.textContent.length;
-                    const centerIndex = Math.floor(totalLength * scrollPercentage);
-                    const start = Math.max(0, centerIndex - 350);
-                    const end = Math.min(totalLength, centerIndex + 350);
-                    const currentTextSegment = auroraState.textContent.substring(start, end);
+                  // 直接从状态里取，不再依赖 DOM 计算，彻底解决错位/丢失问题
+                  const currentTextSegment = auroraState.currentSegmentText || '（用户刚刚开始阅读，暂无具体片段）';
 
-                    // UI高亮逻辑
-                    const savedScrollTop = viewerEl.scrollTop;
-                    const escapeHtml = str => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                    const partBefore = escapeHtml(auroraState.textContent.substring(0, start));
-                    const partActive = escapeHtml(currentTextSegment);
-                    const partAfter = escapeHtml(auroraState.textContent.substring(end));
-                    textBodyEl.innerHTML = `${partBefore}<span style="color: #00ffea; text-shadow: 0 0 8px rgba(0, 255, 234, 0.4); font-weight: 500;">${partActive}</span>${partAfter}`;
-                    viewerEl.scrollTop = savedScrollTop;
-
-                    auroraContext = `
+                  auroraContext = `
 # 【特殊情景：正在一起读小说】
 你和用户正在一起阅读《${auroraState.title}》。
 **当前页面显示的内容片段如下**：
 “...${currentTextSegment}...”
 **任务**：请仔细阅读上述片段。你的回复必须基于这段具体内容。例如：评价这段剧情、讨论人物的行为、或者感叹作者的文笔。
 `;
-                  }
                 }
+                // ---------------- [修改结束] ----------------
               }
 
               // --- 获取饿了么菜单，为AI点单提供上下文 ---
@@ -40583,6 +40586,103 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             loadingOverlay.classList.remove('visible');
           }
         }
+        // ---------------- [修改开始] 新增功能逻辑 ----------------
+
+        // 1. 初始化漫游字号调整
+        let currentAuroraFontSize = 16;
+        function initAuroraFontControl() {
+          const upBtn = document.getElementById('aurora-font-up');
+          const downBtn = document.getElementById('aurora-font-down');
+          const textViewer = document.getElementById('aurora-text-viewer');
+          const subDisplay = document.getElementById('aurora-custom-subtitle-display');
+
+          // 调整字号的通用函数
+          const changeFontSize = delta => {
+            currentAuroraFontSize = Math.max(10, Math.min(40, currentAuroraFontSize + delta)); // 限制在 10px - 40px
+
+            // 应用到小说文本
+            if (textViewer) textViewer.style.fontSize = `${currentAuroraFontSize}px`;
+
+            // 应用到自定义模式字幕
+            if (subDisplay) subDisplay.style.fontSize = `${currentAuroraFontSize}px`;
+          };
+
+          if (upBtn)
+            upBtn.addEventListener('click', e => {
+              e.stopPropagation();
+              changeFontSize(2);
+            });
+          if (downBtn)
+            downBtn.addEventListener('click', e => {
+              e.stopPropagation();
+              changeFontSize(-2);
+            });
+        }
+
+        // 2. 初始化手机端触摸缩放
+        function initAuroraResize() {
+          const handle = document.getElementById('aurora-resize-handle');
+          const overlay = document.getElementById('aurora-player-overlay');
+
+          if (!handle || !overlay) return;
+
+          let startX, startY, startWidth, startHeight;
+
+          const onTouchStart = e => {
+            e.preventDefault(); // 防止滚动
+            e.stopPropagation();
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            startWidth = parseInt(document.defaultView.getComputedStyle(overlay).width, 10);
+            startHeight = parseInt(document.defaultView.getComputedStyle(overlay).height, 10);
+
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchend', onTouchEnd);
+          };
+
+          const onTouchMove = e => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const newWidth = startWidth + (touch.clientX - startX);
+            const newHeight = startHeight + (touch.clientY - startY);
+
+            // 设置最小尺寸限制
+            if (newWidth > 200) overlay.style.width = `${newWidth}px`;
+            if (newHeight > 150) overlay.style.height = `${newHeight}px`;
+          };
+
+          const onTouchEnd = () => {
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
+          };
+
+          handle.addEventListener('touchstart', onTouchStart, { passive: false });
+
+          // 为了兼容电脑鼠标拖拽该角落
+          handle.addEventListener('mousedown', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            startX = e.clientX;
+            startY = e.clientY;
+            startWidth = parseInt(document.defaultView.getComputedStyle(overlay).width, 10);
+            startHeight = parseInt(document.defaultView.getComputedStyle(overlay).height, 10);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+          });
+
+          const onMouseMove = e => {
+            const newWidth = startWidth + (e.clientX - startX);
+            const newHeight = startHeight + (e.clientY - startY);
+            if (newWidth > 200) overlay.style.width = `${newWidth}px`;
+            if (newHeight > 150) overlay.style.height = `${newHeight}px`;
+          };
+
+          const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+          };
+        }
 
         // 4. 初始化函数 init()
         // ===================================================================
@@ -41749,7 +41849,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           });
 
           document.getElementById('chat-messages').addEventListener('click', async e => {
-
             const voiceBody = e.target.closest('.voice-message-body');
             if (voiceBody) {
               const bubble = voiceBody.closest('.message-bubble');
@@ -41981,19 +42080,23 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               countDisplay.textContent = `${totalMessages} 条`;
             }
 
-            // 计算并显示上下文Token数
-            // --- 修改开始 ---
-            // 计算并显示上下文Token数
+            // --- 修改开始：使用深度分析逻辑来更新主界面的Token显示 ---
             const tokenDisplay = document.getElementById('context-token-count-display');
 
-            // 1. 先定义一个更新显示的内部函数
             const updateTokenDisplay = async () => {
-              const contextTextForToken = await getContextForTokenCalculation(state.activeChatId);
-              const totalCount = calculateTokenCount(contextTextForToken);
-              tokenDisplay.textContent = totalCount.toLocaleString(); // 显示总数
+              tokenDisplay.textContent = '计算中...';
+
+              // 复用深度分析的计算逻辑
+              const result = await getTokenDetailedBreakdown(state.activeChatId);
+
+              if (result && result.items) {
+                const totalCount = result.items.reduce((sum, item) => sum + item.count, 0);
+                tokenDisplay.textContent = totalCount.toLocaleString();
+              } else {
+                tokenDisplay.textContent = '0';
+              }
             };
 
-            // 2. 立即执行一次更新
             await updateTokenDisplay();
 
             // 3. 【关键】移除旧的监听器（防止重复），并添加新的点击监听器
@@ -42244,6 +42347,18 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
             // --- 加载表单数据 ---
             document.getElementById('chat-name-input').value = chat.name;
+            const remarkGroup = document.getElementById('chat-remark-group');
+            const remarkInput = document.getElementById('chat-remark-input');
+
+            if (chat.isGroup) {
+              remarkGroup.style.display = 'none'; // 群聊不显示备注设置
+            } else {
+              remarkGroup.style.display = 'block'; // 单聊显示
+              // 如果没有settings对象，初始化它
+              if (!chat.settings) chat.settings = {};
+              remarkInput.value = chat.settings.remarkName || '';
+            }
+
             document.getElementById('my-persona').value = chat.settings.myPersona;
             document.getElementById('my-avatar-preview').src =
               chat.settings.myAvatar || (isGroup ? defaultMyGroupAvatar : defaultAvatar);
@@ -42604,6 +42719,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const newName = document.getElementById('chat-name-input').value.trim();
             if (!newName) return alert('备注名/群名不能为空！');
             chat.name = newName;
+            // --- 新增代码开始 ---
+            if (!chat.isGroup) {
+              const newRemark = document.getElementById('chat-remark-input').value.trim();
+              chat.settings.remarkName = newRemark;
+            }
+            // --- 新增代码结束 ---
+
             // 记忆互通功能 - 保存逻辑
             const linkedMemoryCheckboxes = document.querySelectorAll('#memory-link-checkboxes-container input:checked');
             const memoryDepth = parseInt(document.getElementById('link-memory-depth-input').value) || 5;
@@ -47080,41 +47202,59 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             }
           });
 
-          // 漫游阅读进度自动保存功能
+          // ---------------- [修改开始] 修复文本错位问题 ----------------
+          // 漫游阅读进度自动保存 & 实时上下文更新功能
           const textViewer = document.getElementById('aurora-text-viewer');
           let saveProgressTimer = null;
 
+          // 辅助函数：获取当前可视区域的文本
+          function updateCurrentReadingContext() {
+            if (!auroraState.textContent) return;
+
+            const scrollHeight = textViewer.scrollHeight - textViewer.clientHeight;
+            const scrollTop = textViewer.scrollTop;
+
+            // 防止除以0
+            const scrollPercentage = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+            const totalLength = auroraState.textContent.length;
+
+            // 计算中心点索引
+            const centerIndex = Math.floor(totalLength * scrollPercentage);
+
+            // 截取前后各 500 字，保证上下文足够
+            const start = Math.max(0, centerIndex - 500);
+            const end = Math.min(totalLength, centerIndex + 500);
+
+            // ★★★ 核心修复：直接把这段文字存进全局状态，供AI随时读取 ★★★
+            auroraState.currentSegmentText = auroraState.textContent.substring(start, end);
+
+            return scrollPercentage; // 返回进度给下面保存用
+          }
+
           textViewer.addEventListener('scroll', () => {
-            // 1. 检查当前是否处于书架阅读模式
+            // 1. 实时更新当前阅读片段（无论是否在书架模式）
+            const currentProgress = updateCurrentReadingContext();
+
+            // 2. 检查当前是否处于书架阅读模式（用于保存进度到数据库）
             if (!auroraState.active || auroraState.mode !== 'text' || !auroraState.currentBookId) {
               return;
             }
 
-            // 2. 防抖处理：用户停止滚动 0.5 秒后才保存，避免频繁写入数据库
+            // 3. 防抖处理：用户停止滚动 0.5 秒后才保存数据库，避免卡顿
             if (saveProgressTimer) clearTimeout(saveProgressTimer);
 
             saveProgressTimer = setTimeout(async () => {
-              // 3. 计算当前进度百分比 (0.0 - 1.0)
-              // 进度 = 卷去的高度 / (总高度 - 可视高度)
-              const scrollHeight = textViewer.scrollHeight - textViewer.clientHeight;
-              let progress = 0;
-
-              if (scrollHeight > 0) {
-                progress = textViewer.scrollTop / scrollHeight;
-              }
-
               // 确保进度在 0 到 1 之间
-              progress = Math.max(0, Math.min(1, progress));
+              const progress = Math.max(0, Math.min(1, currentProgress));
 
-              // 4. 更新数据库
               try {
                 await db.auroraBooks.update(auroraState.currentBookId, { progress: progress });
-                // console.log(`阅读进度已保存: ${(progress * 100).toFixed(1)}%`);
               } catch (error) {
                 console.error('保存阅读进度失败:', error);
               }
-            }, 500); // 延迟500毫秒
+            }, 500);
           });
+          // ---------------- [修改结束] ----------------
 
           document.querySelectorAll('input[name="aurora-mode"]').forEach(radio => {
             radio.addEventListener('change', toggleAuroraInputs);
@@ -47142,7 +47282,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
 
           initAuroraDrag(); // 初始化拖拽
-
+          initAuroraFontControl();
+          initAuroraResize();
           initVideoBubbleDrag(); // 初始化视频悬浮球拖拽
           initLoversSpace();
           initTaobao();

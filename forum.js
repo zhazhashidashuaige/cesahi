@@ -1001,7 +1001,7 @@ ${lengthInstruction}
     // 5. 给出成功提示。
     alert('帖子发布成功！');
   }
-
+  window.handleCreateForumPost = handleCreateForumPost;
   /**
    * 删除一个小组及其所有内容
    */
