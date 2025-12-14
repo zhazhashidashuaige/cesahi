@@ -1062,6 +1062,21 @@
 
               <div class="moe-divider"></div>
               <button class="moe-btn-danger" id="clear-orphaned-data-btn">🧹 清理失效数据</button>
+              <div class="moe-divider"></div>
+              <button
+                class="moe-btn-secondary"
+                id="repair-data-btn"
+                style="background-color: #ff9800; color: white; margin-bottom: 10px; width: 100%; font-weight: bold"
+              >
+                🔧 一键修复 (修复数据结构错误)
+              </button>
+              <button
+                class="moe-btn-danger"
+                id="factory-reset-btn"
+                style="background-color: #c82333; margin-top: 10px; width: 100%; font-weight: bold"
+              >
+                🧨 初始化 (清空全部数据)
+              </button>
             </div>
           </div>
 
@@ -9162,43 +9177,14 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         class="header"
         style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent); border-bottom: none"
       >
-        <!-- 1. 返回按钮保持在最左边 -->
         <span class="back-btn" id="kk-back-from-house-view">‹</span>
-
-        <!-- 2. 标题放在中间，这样它就能完美居中了 -->
         <span id="kk-house-owner-name"></span>
+        <!-- 标题会自动居中 -->
 
         <div class="header-actions">
-          <span class="action-btn" id="kk-surveillance-icon" title="查看监控">
-            <!-- 替换了图标，调整了大小和颜色，使其与其他图标协调 -->
-            <svg viewBox="0 0 1024 1024" width="22" height="22">
-              <path
-                d="M554.666667 768v85.333333h170.666666v42.666667H341.333333v-42.666667h170.666667v-85.333333c-166.4-12.8-298.666667-149.333333-298.666667-320S345.6 140.8 512 128h42.666667c166.4 12.8 298.666667 149.333333 298.666666 320s-132.266667 307.2-298.666666 320z m-21.333334-42.666667c153.6 0 277.333333-123.733333 277.333334-277.333333S686.933333 170.666667 533.333333 170.666667 256 294.4 256 448 379.733333 725.333333 533.333333 725.333333z m0-213.333333c-34.133333 0-64-29.866667-64-64S499.2 384 533.333333 384s64 29.866667 64 64-29.866667 64-64 64z"
-                fill="white"
-              ></path>
-            </svg>
-          </span>
-
-          <!-- 保持你原来的其他按钮不变 -->
+          <!-- 这里只保留“继续翻找”和“重新翻找” -->
           <span class="action-btn" id="kk-continue-search-btn" title="继续翻找">
             <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </span>
-          <span class="action-btn" id="kk-reset-search-btn" title="重新翻找">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
               width="22"
               height="22"
               viewBox="0 0 24 24"
@@ -9208,10 +9194,122 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <polyline points="23 4 23 10 17 10"></polyline>
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
           </span>
+          <span class="action-btn" id="kk-reset-search-btn" title="重新翻找">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <div
+        id="kk-scene-toolbar"
+        style="
+          position: absolute;
+          top: 110px;
+          right: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          z-index: 10;
+        "
+      >
+        <!-- 衣柜按钮 -->
+        <!-- 重点修复：加了 box-shadow: none 等重置属性，防止旧样式干扰 -->
+        <div
+          id="kk-wardrobe-btn"
+          title="查看衣柜"
+          style="
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            /* 强制重置旧样式 */
+            margin: 0;
+            padding: 0;
+            /* 水晶果冻风格核心 */
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6); /* 唯一保留的高光边框 */
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); /* 柔和投影 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ff9a9e; /* 樱花粉图标 */
+            transition: transform 0.2s;
+          "
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            style="filter: drop-shadow(0 2px 4px rgba(255, 154, 158, 0.3))"
+          >
+            <path
+              d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"
+            ></path>
+          </svg>
+        </div>
+
+        <!-- 监控按钮 -->
+        <div
+          id="kk-surveillance-icon"
+          title="查看监控"
+          style="
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            /* 强制重置旧样式 */
+            position: static;
+            top: auto;
+            left: auto;
+            /* 水晶果冻风格核心 */
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ff9a9e; /* 樱花粉图标 */
+            transition: transform 0.2s;
+          "
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            style="filter: drop-shadow(0 2px 4px rgba(255, 154, 158, 0.3))"
+          >
+            <path d="M23 7l-7 5 7 5V7z"></path>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+          </svg>
         </div>
       </div>
 
@@ -9249,9 +9347,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         <span class="back-btn" id="kk-back-from-monitor">‹</span>
         <span id="kk-monitor-title">监控中心</span>
         <div class="header-actions">
+          <!-- 刷新监控按钮：统一成刷新箭头 -->
           <span class="action-btn" id="kk-refresh-monitor-btn" title="刷新监控画面">
             <svg
-              xmlns="http://www.w3.org/2000/svg"
               width="22"
               height="22"
               viewBox="0 0 24 24"
@@ -9261,7 +9359,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <polyline points="23 4 23 10 17 10"></polyline>
+              <path d="M23 4v6h-6"></path>
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
             </svg>
           </span>
@@ -9296,6 +9394,92 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         </div>
         <div class="modal-footer">
           <button class="cancel" id="close-file-explorer-modal-btn">关闭</button>
+        </div>
+      </div>
+    </div>
+    <!-- KK查岗 - 沉浸式衣帽间屏幕 -->
+    <div id="kk-wardrobe-screen" class="screen">
+      <div class="header">
+        <span class="back-btn" id="kk-back-from-wardrobe">‹</span>
+        <span>Ta的衣帽间</span>
+        <div class="header-actions">
+          <!-- 新增：添加衣服按钮 -->
+          <span
+            class="action-btn"
+            id="kk-wardrobe-add-btn"
+            title="添置新衣"
+            style="font-size: 24px; font-weight: 300; margin-right: 10px"
+            >+</span
+          >
+          <span class="action-btn" id="kk-wardrobe-refresh-btn" title="重置衣柜 (清空重来)">↻</span>
+        </div>
+      </div>
+
+      <!-- 衣柜主区域 -->
+      <div id="wardrobe-container">
+        <!-- 左侧/顶部：搭配预览与角色立绘区 -->
+        <div id="wardrobe-preview-area">
+          <img id="wardrobe-char-avatar" src="" alt="角色" />
+
+          <!-- 新增：用于显示角色对衣服看法的气泡 (默认显示提示) -->
+          <div
+            id="wardrobe-comment-bubble"
+            style="
+              display: block;
+              background: #fff;
+              padding: 10px;
+              border-radius: 12px;
+              margin: 10px;
+              font-size: 13px;
+              color: #555;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+              min-height: 40px;
+              position: relative;
+            "
+          >
+            <span class="content">点击下面的衣服，看看我怎么说~</span>
+            <!-- 小三角 -->
+            <div
+              style="
+                position: absolute;
+                bottom: -6px;
+                left: 20px;
+                width: 0;
+                height: 0;
+                border-left: 6px solid transparent;
+                border-right: 6px solid transparent;
+                border-top: 6px solid #fff;
+              "
+            ></div>
+          </div>
+
+          <!-- 这里的气泡用于显示试穿后的反应 (保留原有) -->
+          <div id="wardrobe-reaction-bubble" style="display: none">
+            <div class="content"></div>
+          </div>
+
+          <!-- 当前选中的搭配展示 -->
+          <div id="current-outfit-display">
+            <div class="outfit-slot" data-type="上装" data-placeholder="上衣"></div>
+            <div class="outfit-slot" data-type="下装" data-placeholder="下装"></div>
+            <div class="outfit-slot" data-type="配饰" data-placeholder="配饰"></div>
+            <div class="outfit-slot" data-type="特殊" data-placeholder="特殊"></div>
+          </div>
+
+          <button id="wardrobe-try-on-btn" class="form-button" disabled>让Ta穿上</button>
+        </div>
+
+        <!-- 右侧/底部：衣服库存列表 -->
+        <div id="wardrobe-inventory-area">
+          <div class="wardrobe-tabs">
+            <div class="wardrobe-tab active" data-cat="上装">上装</div>
+            <div class="wardrobe-tab" data-cat="下装">下装</div>
+            <div class="wardrobe-tab" data-cat="配饰">配饰</div>
+            <div class="wardrobe-tab" data-cat="特殊">特殊</div>
+          </div>
+          <div id="wardrobe-grid" class="wardrobe-grid">
+            <!-- 衣服卡片由JS生成 -->
+          </div>
         </div>
       </div>
     </div>
@@ -10017,6 +10201,42 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         </div>
         <div class="modal-footer">
           <button class="save" id="close-branching-modal-btn" style="width: 100%">关闭</button>
+        </div>
+      </div>
+    </div>
+    <!-- KK查岗物品详情专用弹窗 -->
+    <div id="kk-item-share-modal" class="modal">
+      <div class="modal-content" style="height: auto; max-height: 80%">
+        <div class="modal-header">
+          <span id="kk-item-share-title">物品详情</span>
+        </div>
+        <!-- 内容显示区 -->
+        <div class="modal-body" style="padding: 15px">
+          <div
+            id="kk-item-share-content"
+            style="
+              text-align: left;
+              white-space: pre-wrap;
+              background: #f9f9f9;
+              padding: 15px;
+              border-radius: 8px;
+              font-size: 14px;
+              line-height: 1.6;
+              border: 1px solid #eee;
+              color: #333;
+            "
+          ></div>
+        </div>
+        <!-- 按钮区 -->
+        <div class="modal-footer" style="display: flex; gap: 10px">
+          <button class="form-button-secondary" id="kk-item-share-close-btn" style="flex: 1; margin: 0">关闭</button>
+          <button
+            class="form-button"
+            id="kk-item-share-confirm-btn"
+            style="flex: 1; margin: 0; background-color: #ff9800; border-color: #ff9800"
+          >
+            📤 分享给Ta
+          </button>
         </div>
       </div>
     </div>
@@ -16802,6 +17022,26 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			            </div>
 			        </div>
 			    `;
+          } else if (msg.type === 'kk_item_share') {
+            bubble.classList.add('is-link-share'); // 复用透明背景样式(如果已定义)，或者不加这行让它有气泡背景
+            // 如果你没有 is-link-share 样式，可以忽略上一行，或者定义 bubble.style.background = 'transparent';
+            bubble.style.background = 'transparent';
+            bubble.style.padding = '0';
+
+            const payload = msg.payload;
+
+            contentHtml = `
+                <div class="kk-share-card">
+                    <div class="header">
+                        <span class="icon">🔍</span>
+                        <span>查岗线索：${payload.itemName}</span>
+                    </div>
+                    <div class="content">${payload.content}</div>
+                    <div class="footer">
+                        来源：${payload.areaName}
+                    </div>
+                </div>
+            `;
           } else if (msg.type === 'cart_share_request') {
             bubble.classList.add('is-cart-share-request');
             const payload = msg.payload;
@@ -40894,6 +41134,215 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             document.removeEventListener('mouseup', onMouseUp);
           };
         }
+        /**
+         * 全局数据初始化（恢复出厂设置）
+         */
+        async function handleFactoryReset() {
+          // 1. 第一重警告
+          const confirmed = await showCustomConfirm(
+            '⚠ 严重警告',
+            '此操作将【彻底清空】所有数据！包括：\n- 所有聊天记录\n- 所有设置与API Key\n- 所有图片、世界书、表情包\n\n数据一旦删除【无法恢复】。确定要继续吗？',
+            { confirmButtonClass: 'btn-danger' },
+          );
+
+          if (!confirmed) return;
+
+          // 2. 第二重警告 (使用原生 confirm 防止误触)
+          if (confirm('最后一次确认：真的要清空所有数据并重置应用吗？')) {
+            try {
+              // 显示加载遮罩
+              const loadingOverlay = document.getElementById('generation-overlay');
+              if (loadingOverlay) {
+                loadingOverlay.querySelector('p').textContent = '正在粉碎数据...';
+                loadingOverlay.classList.add('visible');
+              }
+
+              // A. 清空 IndexedDB 数据库的所有表
+              await db.transaction('rw', db.tables, async () => {
+                for (const table of db.tables) {
+                  await table.clear();
+                }
+              });
+
+              // B. 清空 LocalStorage (包含主题、部分开关设置等)
+              localStorage.clear();
+
+              // C. 成功提示并刷新
+              alert('数据已全部初始化，应用将重启。');
+              window.location.reload();
+            } catch (error) {
+              console.error(error);
+              alert('初始化失败: ' + error.message);
+              window.location.reload(); // 即使失败也尝试刷新
+            }
+          }
+        }
+        /**
+         * 【新增】全能数据修复函数
+         * 扫描所有数据库表，补全缺失字段，修复错误结构，防止界面白屏
+         */
+        async function repairAllData() {
+          const confirmed = await showCustomConfirm(
+            '数据修复',
+            '此功能将扫描所有数据，补全缺失的属性并修复错误结构（不会删除聊天记录）。\n\n如果你的界面出现白屏、卡顿或报错，请尝试此操作。\n\n确定要开始修复吗？',
+          );
+
+          if (!confirmed) return;
+
+          await showCustomAlert('请稍候...', '正在深度扫描并修复数据结构...');
+
+          try {
+            let fixCount = 0;
+
+            // 1. 修复聊天数据 (Chats)
+            const allChats = await db.chats.toArray();
+            for (const chat of allChats) {
+              let needSave = false;
+
+              // 修复基础结构
+              if (!chat.history || !Array.isArray(chat.history)) {
+                chat.history = [];
+                needSave = true;
+              }
+              if (!chat.settings) {
+                chat.settings = {};
+                needSave = true;
+              }
+              if (!chat.status) {
+                chat.status = { text: '在线', lastUpdate: Date.now(), isBusy: false };
+                needSave = true;
+              }
+
+              // 修复群聊成员结构
+              if (chat.isGroup) {
+                if (!chat.members || !Array.isArray(chat.members)) {
+                  chat.members = [];
+                  needSave = true;
+                }
+                chat.members.forEach(m => {
+                  if (!m.originalName && m.name) {
+                    m.originalName = m.name;
+                    needSave = true;
+                  } // 修复旧版名字
+                  if (!m.groupNickname) {
+                    m.groupNickname = m.originalName || '未知成员';
+                    needSave = true;
+                  }
+                });
+              }
+
+              // 修复单聊设置
+              if (!chat.isGroup) {
+                // 修复关系状态
+                if (!chat.relationship) {
+                  chat.relationship = { status: 'friend' };
+                  needSave = true;
+                }
+
+                // 修复手机数据结构 (最容易导致报错的部分)
+                if (!chat.characterPhoneData) {
+                  chat.characterPhoneData = {};
+                  needSave = true;
+                }
+
+                const phone = chat.characterPhoneData;
+                const phoneDefaults = {
+                  chats: {},
+                  shoppingCart: [],
+                  memos: [],
+                  browserHistory: [],
+                  photoAlbum: [],
+                  bank: { balance: 0, transactions: [] },
+                  trajectory: [],
+                  appUsage: [],
+                  diary: [],
+                  widgets: {},
+                };
+
+                for (const key in phoneDefaults) {
+                  if (!phone[key]) {
+                    phone[key] = phoneDefaults[key];
+                    needSave = true;
+                  }
+                }
+
+                // 修复银行余额为NaN的情况
+                if (phone.bank && typeof phone.bank.balance !== 'number') {
+                  phone.bank.balance = 0;
+                  needSave = true;
+                }
+              }
+
+              // 修复设置中的缺失项
+              if (!chat.settings.streak) {
+                chat.settings.streak = { enabled: false, currentDays: 0 };
+                needSave = true;
+              }
+              if (!chat.settings.summary) {
+                chat.settings.summary = { enabled: false, mode: 'auto', count: 20, lastSummaryIndex: -1 };
+                needSave = true;
+              }
+
+              if (needSave) {
+                await db.chats.put(chat);
+                fixCount++;
+              }
+            }
+
+            // 2. 修复全局设置 (Global Settings)
+            let globalSettings = await db.globalSettings.get('main');
+            if (!globalSettings) {
+              globalSettings = { id: 'main' }; // 如果完全丢失，重建
+            }
+
+            let globalNeedSave = false;
+            if (!globalSettings.appIcons) {
+              globalSettings.appIcons = {};
+              globalNeedSave = true;
+            }
+            if (!globalSettings.appLabels) {
+              globalSettings.appLabels = {};
+              globalNeedSave = true;
+            }
+            if (!globalSettings.quickReplies || !Array.isArray(globalSettings.quickReplies)) {
+              globalSettings.quickReplies = [];
+              globalNeedSave = true;
+            }
+            // 修复余额NaN
+            if (typeof globalSettings.userBalance !== 'number' || isNaN(globalSettings.userBalance)) {
+              globalSettings.userBalance = 0;
+              globalNeedSave = true;
+            }
+
+            if (globalNeedSave) {
+              await db.globalSettings.put(globalSettings);
+              fixCount++;
+            }
+
+            // 3. 修复动态设置 (Qzone Settings)
+            let qzoneSettings = await db.qzoneSettings.get('main');
+            if (!qzoneSettings) {
+              await db.qzoneSettings.put({
+                id: 'main',
+                nickname: '我',
+                avatar: 'https://files.catbox.moe/q6z5fc.jpeg',
+              });
+              fixCount++;
+            }
+
+            await showCustomAlert(
+              '修复完成',
+              `已检查所有数据，共修复了 ${fixCount} 处潜在问题。\n\n页面即将刷新以应用更改。`,
+            );
+
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          } catch (error) {
+            console.error('修复过程中出错:', error);
+            alert(`修复失败: ${error.message}\n请截图控制台报错给开发者。`);
+          }
+        }
 
         // 4. 初始化函数 init()
         // ===================================================================
@@ -41266,6 +41715,15 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             if (e.target === modalOverlay) hideCustomModal();
           });
           document.getElementById('clear-orphaned-data-btn').addEventListener('click', clearOrphanedData);
+          const repairBtn = document.getElementById('repair-data-btn');
+          if (repairBtn) {
+            repairBtn.addEventListener('click', repairAllData);
+          }
+
+          const factoryResetBtn = document.getElementById('factory-reset-btn');
+          if (factoryResetBtn) {
+            factoryResetBtn.addEventListener('click', handleFactoryReset);
+          }
           document.getElementById('export-data-btn').addEventListener('click', exportBackup);
           document
             .getElementById('import-btn')
@@ -47156,27 +47614,23 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             switch (icon.id) {
               case 'kk-browser-icon':
                 const history = computerData.browser_history || [];
-                const historyHtml =
-                  history.length > 0
-                    ? `<ul style="text-align: left; padding-left: 20px;">${history
-                        .map(item => `<li>${item}</li>`)
-                        .join('')}</ul>`
-                    : '<p>浏览器历史记录是空的。</p>';
-                showCustomAlert('浏览器历史记录', historyHtml);
+                // 【修改】不再用 showCustomAlert，改用新写的列表展示函数
+                showComputerContentList('浏览器历史 (点击分享)', history, '浏览器');
                 break;
+
               case 'kk-movies-icon':
                 const movies = computerData.movies || [];
-                const moviesHtml =
-                  movies.length > 0
-                    ? `<ul style="text-align: left; padding-left: 20px;">${movies
-                        .map(item => `<li>${item}</li>`)
-                        .join('')}</ul>`
-                    : '<p>没有下载任何电影。</p>';
-                showCustomAlert('下载的电影', moviesHtml);
+                // 【修改】同上
+                showComputerContentList('D盘电影 (点击分享)', movies, 'D盘');
                 break;
+
               case 'kk-files-icon':
+                // 保持原样，打开文件浏览器
+                // 注意：如果你想让文件也能分享，需要去 openFileExplorer 函数里改，
+                // 但文件目前是点击查看内容，建议保持现状或在查看器里加分享按钮
                 openFileExplorer();
                 break;
+
               case 'kk-secret-folder-icon':
                 const secretFolder = computerData.secret_folder;
                 if (secretFolder) {
@@ -47185,13 +47639,15 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                     `你尝试打开文件 "${secretFolder.fileName}"。<br><br>这是一个加密文件夹，是否继续访问？`,
                   ).then(confirmed => {
                     if (confirmed) {
-                      showCustomAlert('已解密', secretFolder.content.replace(/\n/g, '<br>'));
+                      // 【修改】解密后直接弹出分享确认框，而不是只显示 Alert
+                      openComputerItemShareModal(secretFolder.fileName, secretFolder.content, '加密文件夹');
                     }
                   });
                 } else {
                   showCustomAlert('未发现', '没有找到隐秘文件夹。');
                 }
                 break;
+
               case 'kk-steam-icon':
                 openSteamScreen();
                 break;
@@ -47492,6 +47948,52 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           if (githubRestoreBtn) {
             githubRestoreBtn.addEventListener('click', restoreBackupFromGitHub);
           }
+          // --- KK查岗专用弹窗关闭事件 ---
+          document.getElementById('kk-item-share-close-btn').addEventListener('click', () => {
+            document.getElementById('kk-item-share-modal').classList.remove('visible');
+          });
+
+          // 点击遮罩层也可以关闭
+          document.getElementById('kk-item-share-modal').addEventListener('click', e => {
+            if (e.target.id === 'kk-item-share-modal') {
+              e.target.classList.remove('visible');
+            }
+          });
+
+          // 确保你在 HTML 里加了 id="kk-wardrobe-btn"
+          const wardrobeEntryBtn = document.getElementById('kk-wardrobe-btn');
+          if (wardrobeEntryBtn) {
+            wardrobeEntryBtn.addEventListener('click', openKkWardrobe);
+          }
+
+          // 2. 绑定衣柜内部的“返回”按钮
+          document.getElementById('kk-back-from-wardrobe').addEventListener('click', () => {
+            // 返回到房屋总览
+            showScreen('kk-house-view-screen');
+          });
+
+          // 3. 绑定“重置衣柜”按钮
+          document.getElementById('kk-wardrobe-refresh-btn').addEventListener('click', async () => {
+            const confirmed = await showCustomConfirm('重置衣柜', '确定要清空并重新生成所有衣服吗？', {
+              confirmButtonClass: 'btn-danger',
+            });
+            if (confirmed) {
+              await generateWardrobeData(activeKkCharId); // 重新生成
+              currentOutfit = { 上装: null, 下装: null, 配饰: null, 特殊: null };
+              renderWardrobeUI();
+            }
+          });
+
+          // 4. 绑定标签页切换 (使用事件委托)
+          document.querySelector('.wardrobe-tabs').addEventListener('click', e => {
+            if (e.target.classList.contains('wardrobe-tab')) {
+              activeWardrobeCategory = e.target.dataset.cat;
+              renderWardrobeUI();
+            }
+          });
+
+          // 5. 绑定“试穿”按钮
+          document.getElementById('wardrobe-try-on-btn').addEventListener('click', handleTryOn);
 
           initAuroraDrag(); // 初始化拖拽
           initAuroraFontControl();
