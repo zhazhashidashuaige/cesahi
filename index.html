@@ -1129,11 +1129,25 @@
               <div class="form-group">
                 <label>模型选择 (手动输入 或 拉取后选择)</label>
                 <!-- 1. 这里的 id="model-select" 是真正的输入框，保存时只看它的值 -->
-                <input type="text" id="model-select" class="moe-input" placeholder="如 gpt-4o, claude-3-5-sonnet">
-                <select id="fetched-model-list" class="moe-input" style="margin-top: 5px; display: none; border: 1px dashed var(--accent-color);" onchange="document.getElementById('model-select').value = this.value">
+                <input
+                  type="text"
+                  id="model-select"
+                  class="moe-input"
+                  placeholder="如 gpt-4o, claude-3-5-sonnet"
+                />
+                <select
+                  id="fetched-model-list"
+                  class="moe-input"
+                  style="
+                    margin-top: 5px;
+                    display: none;
+                    border: 1px dashed var(--accent-color);
+                  "
+                  onchange="document.getElementById('model-select').value = this.value"
+                >
                   <option value="">▼ 点击此处选择已拉取的模型</option>
                 </select>
-              </div>                         
+              </div>
               <div class="form-group">
                 <label>预设配置</label>
                 <div class="bubble-preset-manager">
@@ -4491,10 +4505,35 @@
           <!-- 大图容器 -->
           <div id="video-main-view" class="video-container">
             <img src="" alt="主视频画面" />
+            <video
+              id="video-main-stream"
+              autoplay
+              playsinline
+              muted
+              style="
+                display: none;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+              "
+            ></video>
           </div>
           <!-- 小图容器 (画中画) -->
           <div id="video-pip-view" class="video-container pip">
             <img src="" alt="小窗视频画面" />
+            <video
+              id="video-pip-stream"
+              autoplay
+              playsinline
+              muted
+              style="
+                display: none;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transform: scaleX(-1);
+              "
+            ></video>
           </div>
         </div>
 
@@ -4528,6 +4567,18 @@
             id="reroll-call-btn"
             class="control-btn reroll-btn"
             title="重新生成"
+          ></button>
+          <button
+            id="flip-real-camera-btn"
+            class="control-btn"
+            style="
+              display: none;
+              background-image: url('https://api.iconify.design/ion:camera-reverse-outline.svg?color=white');
+              background-size: 60%;
+              background-repeat: no-repeat;
+              background-position: center;
+            "
+            title="翻转前后镜头"
           ></button>
           <!-- 【核心新增】发言按钮 -->
           <button
@@ -5744,6 +5795,18 @@
                   </div>
                 </div>
               </div>
+              <label
+                class="toggle-switch-label"
+                style="
+                  margin-top: 10px;
+                  border-top: 1px dashed #eee;
+                  padding-top: 10px;
+                "
+              >
+                <span class="toggle-switch-text">我的画面使用真实摄像头</span>
+                <input type="checkbox" id="user-real-camera-switch" />
+                <span class="toggle-switch-slider"></span>
+              </label>
 
               <label class="toggle-switch-label" style="margin-top: 10px">
                 <span class="toggle-switch-text">开启语音接入</span>
@@ -20674,8 +20737,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             modelPicker.style.display = "none";
           }
 
-
-
           // --------------------------------
 
           // 加载NovelAI配置
@@ -32939,7 +33000,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             showScreen("chat-interface-screen");
           }
         }
-
         function startVideoCall() {
           const chat = state.chats[videoCallState.activeChatId];
           if (!chat) return;
@@ -32965,6 +33025,11 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             videoCallState.startTime = Date.now();
             videoCallState.callHistory = [];
 
+            // 标记当前大屏是谁 (false代表大屏是对方，小屏是我)
+            videoCallState.isUserMain = false;
+            // 【新增】标记当前摄像头方向 ('user'前置, 'environment'后置)
+            videoCallState.facingMode = "user";
+
             const visualInterface = document.getElementById(
               "visual-call-interface"
             );
@@ -32972,31 +33037,90 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               "text-call-interface"
             );
 
-            // 显示新界面，隐藏旧界面
             visualInterface.style.display = "flex";
             textInterface.style.display = "none";
 
-            // 加载图片
-            document.querySelector("#video-main-view img").src =
-              chat.settings.charVideoImage || defaultAvatar;
-            document.querySelector("#video-pip-view img").src =
-              chat.settings.userVideoImage || defaultAvatar;
+            // 1. 设置对方的画面 (始终是图片/动图)
+            const mainImg = document.querySelector("#video-main-view img");
+            const mainVideo = document.querySelector("#video-main-view video");
 
-            // 清空旧的聊天气泡
+            if (mainImg) mainImg.style.display = "block";
+            if (mainVideo) mainVideo.style.display = "none";
+            if (mainImg)
+              mainImg.src = chat.settings.charVideoImage || defaultAvatar;
+
+            // 2. 设置我的画面 (根据设置决定是图片还是摄像头)
+            const pipImg = document.querySelector("#video-pip-view img");
+            const pipVideo = document.querySelector("#video-pip-view video");
+            const flipBtn = document.getElementById("flip-real-camera-btn");
+
+            if (chat.settings.useRealCamera) {
+              // --- 使用摄像头模式 ---
+              if (pipImg) pipImg.style.display = "none";
+              if (pipVideo) pipVideo.style.display = "block";
+
+              // 显示翻转按钮
+              if (flipBtn) flipBtn.style.display = "block";
+
+              // 请求摄像头权限 (默认前置)
+              if (
+                navigator.mediaDevices &&
+                navigator.mediaDevices.getUserMedia
+              ) {
+                navigator.mediaDevices
+                  .getUserMedia({ video: { facingMode: "user" }, audio: false })
+                  .then((stream) => {
+                    if (pipVideo) {
+                      pipVideo.srcObject = stream;
+                      // 前置摄像头通常需要镜像
+                      pipVideo.style.transform = "scaleX(-1)";
+                    }
+                    window.localCameraStream = stream;
+                  })
+                  .catch((err) => {
+                    console.error("无法启动摄像头:", err);
+                    alert("无法启动摄像头，已切换回图片模式。");
+                    // 失败回退
+                    if (pipVideo) pipVideo.style.display = "none";
+                    if (pipImg) pipImg.style.display = "block";
+                    if (pipImg)
+                      pipImg.src =
+                        chat.settings.userVideoImage || defaultAvatar;
+                    if (flipBtn) flipBtn.style.display = "none";
+                  });
+              } else {
+                alert("当前浏览器不支持摄像头调用。");
+              }
+            } else {
+              // --- 使用图片模式 ---
+              if (pipVideo) pipVideo.style.display = "none";
+              if (flipBtn) flipBtn.style.display = "none"; // 隐藏翻转按钮
+
+              // 停止旧流
+              if (window.localCameraStream) {
+                window.localCameraStream
+                  .getTracks()
+                  .forEach((track) => track.stop());
+                window.localCameraStream = null;
+              }
+              if (pipImg) pipImg.style.display = "block";
+              if (pipImg)
+                pipImg.src = chat.settings.userVideoImage || defaultAvatar;
+            }
+
+            // 清空旧气泡
             document.getElementById(
               "video-call-messages-visual"
             ).innerHTML = `<em>正在接通...</em>`;
             showScreen("video-call-screen");
 
-            // 启动计时器
             if (callTimerInterval) clearInterval(callTimerInterval);
             callTimerInterval = setInterval(updateCallTimer, 1000);
-            updateCallTimer(); // 立即更新一次
+            updateCallTimer();
 
-            // 触发AI在通话中的第一句话
             triggerAiInCallAction();
           } else {
-            // --- 启动【旧】的纯文字界面 ---
+            // --- 启动【旧】的纯文字界面 (保持不变) ---
             videoCallState.isActive = true;
             videoCallState.isAwaitingResponse = false;
             videoCallState.startTime = Date.now();
@@ -33008,13 +33132,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const textInterface = document.getElementById(
               "text-call-interface"
             );
-
-            // 显示旧界面，隐藏新界面
             visualInterface.style.display = "none";
-            textInterface.style.display = "flex"; // 旧界面用flex
+            textInterface.style.display = "flex";
 
             updateParticipantAvatars();
-
             document.getElementById("video-call-main").innerHTML = `<em>${
               videoCallState.isGroupCall ? "群聊已建立..." : "正在接通..."
             }</em>`;
@@ -33033,17 +33154,32 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
         }
 
-        /**
-         * 结束视频通话
-         */
-
         async function endVideoCall() {
+          // 1. 隐藏界面元素
           document.getElementById("visual-call-interface").style.display =
             "none";
-
+          document.getElementById("text-call-interface").style.display = "none"; // 确保旧界面也隐藏
           document.getElementById("video-call-floating-bubble").style.display =
             "none";
+
           if (!videoCallState.isActive) return;
+
+          // ==========================================
+          // 【核心新增】关闭摄像头流，释放硬件资源
+          // ==========================================
+          if (window.localCameraStream) {
+            window.localCameraStream
+              .getTracks()
+              .forEach((track) => track.stop());
+            window.localCameraStream = null;
+          }
+
+          // 清空 video 标签的源，防止黑屏残留
+          const v1 = document.querySelector("#video-main-view video");
+          const v2 = document.querySelector("#video-pip-view video");
+          if (v1) v1.srcObject = null;
+          if (v2) v2.srcObject = null;
+          // ==========================================
 
           const duration = Math.floor(
             (Date.now() - videoCallState.startTime) / 1000
@@ -33055,7 +33191,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
           const chat = state.chats[videoCallState.activeChatId];
           if (chat) {
-            // 1. 保存完整的通话记录到数据库 (这部分逻辑不变)
+            // 保存通话记录到数据库
             const participantsData = [];
             if (videoCallState.isGroupCall) {
               videoCallState.participants.forEach((p) =>
@@ -33089,9 +33225,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               transcript: [...videoCallState.callHistory],
             };
             await db.callRecords.add(callRecord);
-            console.log("通话记录已保存:", callRecord);
 
-            // 2. 在聊天记录里添加对用户可见的“通话结束”消息
+            // 添加结束消息
             let summaryMessage = {
               role: videoCallState.initiator === "user" ? "user" : "assistant",
               content: endCallText,
@@ -33099,8 +33234,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             };
 
             if (chat.isGroup && summaryMessage.role === "assistant") {
-              // 在群聊中，通话结束的消息应该由“发起者”来说
-              // videoCallState.callRequester 保存了最初发起通话的那个AI的名字
               summaryMessage.senderName =
                 videoCallState.callRequester ||
                 chat.members[0]?.originalName ||
@@ -33109,7 +33242,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
             chat.history.push(summaryMessage);
 
-            // 3. 创建并添加对用户隐藏的“通话后汇报”指令
+            // 触发AI总结
             const callTranscriptForAI = videoCallState.callHistory
               .map(
                 (h) =>
@@ -33124,16 +33257,15 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const hiddenReportInstruction = {
               role: "system",
               content: `[系统指令：视频通话刚刚结束。请你根据完整的通话文字记录（见下方），以你的角色口吻，向用户主动发送几条【格式为 {"type": "text", "content": "..."} 的】消息，来自然地总结这次通话的要点、确认达成的约定，或者表达你的感受。这很重要，能让用户感觉你记得通话内容。]\n---通话记录开始---\n${callTranscriptForAI}\n---通话记录结束---`,
-              timestamp: Date.now() + 1, // 确保在上一条消息之后
+              timestamp: Date.now() + 1,
               isHidden: true,
             };
             chat.history.push(hiddenReportInstruction);
 
-            // 4. 保存所有更新到数据库
             await db.chats.put(chat);
           }
 
-          // 5. 清理和重置状态 (这部分逻辑不变)
+          // 重置状态
           clearInterval(callTimerInterval);
           callTimerInterval = null;
           videoCallState = {
@@ -33147,12 +33279,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             isUserParticipating: true,
             callHistory: [],
             preCallContext: "",
+            isUserMain: false, // 重置视图状态
           };
 
-          // 6. 返回聊天界面并触发AI响应（AI会读取到我们的“汇报”指令）
+          // 返回聊天界面
           if (chat) {
             openChat(chat.id);
-            triggerAiResponse(); // 关键一步！
+            triggerAiResponse();
           }
         }
 
@@ -40224,19 +40357,150 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           return num;
         }
 
-        /**
-         * 切换视频通话的大小窗口画面
-         */
         function switchVideoViews() {
-          const mainView = document.getElementById("video-main-view");
-          const pipView = document.getElementById("video-pip-view");
+          // 切换状态：标记当前谁在主屏幕
+          videoCallState.isUserMain = !videoCallState.isUserMain;
 
-          // 交换两张图片的 src
-          const mainImg = mainView.querySelector("img");
-          const pipImg = pipView.querySelector("img");
-          const tempSrc = mainImg.src;
-          mainImg.src = pipImg.src;
-          pipImg.src = tempSrc;
+          const chat = state.chats[videoCallState.activeChatId];
+          if (!chat) return;
+
+          const useCamera = chat.settings.useRealCamera;
+
+          // 获取所有视图元素
+          const mainImg = document.querySelector("#video-main-view img");
+          const mainVideo = document.querySelector("#video-main-view video");
+          const pipImg = document.querySelector("#video-pip-view img");
+          const pipVideo = document.querySelector("#video-pip-view video");
+
+          // 准备资源地址
+          const charUrl = chat.settings.charVideoImage || defaultAvatar;
+          const userUrl = chat.settings.userVideoImage || defaultAvatar;
+
+          // 根据前置/后置决定是否镜像 (前置镜像，后置不镜像)
+          const shouldMirror = videoCallState.facingMode === "user";
+          const mirrorStyle = shouldMirror ? "scaleX(-1)" : "none";
+
+          // --- 辅助函数：安全播放视频 ---
+          const safePlay = (videoEl, stream, transform) => {
+            if (!videoEl) return;
+            videoEl.srcObject = stream;
+            videoEl.muted = true; // 必须静音才能自动播放
+            videoEl.style.transform = transform;
+            videoEl.style.display = "block";
+            // 强制触发播放
+            videoEl.play().catch((e) => console.error("视频播放失败:", e));
+          };
+
+          if (videoCallState.isUserMain) {
+            // === 状态 A：用户(我)在主大屏，角色(Ta)在小屏 ===
+
+            // 1. 设置小屏 (显示对方 - 始终是图片)
+            if (pipVideo) {
+              pipVideo.style.display = "none";
+              pipVideo.srcObject = null; // 切断流
+            }
+            if (pipImg) {
+              pipImg.style.display = "block";
+              pipImg.src = charUrl;
+            }
+
+            // 2. 设置大屏 (显示我)
+            if (useCamera && window.localCameraStream) {
+              // 摄像头模式 -> 视频流给大屏
+              if (mainImg) mainImg.style.display = "none";
+              // 使用辅助函数强制播放
+              safePlay(mainVideo, window.localCameraStream, mirrorStyle);
+            } else {
+              // 图片模式 -> 图片给大屏
+              if (mainVideo) {
+                mainVideo.style.display = "none";
+                mainVideo.srcObject = null;
+              }
+              if (mainImg) {
+                mainImg.style.display = "block";
+                mainImg.src = userUrl;
+              }
+            }
+          } else {
+            // === 状态 B (默认)：角色(Ta)在主大屏，用户(我)在小屏 ===
+
+            // 1. 设置大屏 (显示对方 - 始终是图片)
+            if (mainVideo) {
+              mainVideo.style.display = "none";
+              mainVideo.srcObject = null; // 切断流
+            }
+            if (mainImg) {
+              mainImg.style.display = "block";
+              mainImg.src = charUrl;
+            }
+
+            // 2. 设置小屏 (显示我)
+            if (useCamera && window.localCameraStream) {
+              // 摄像头模式 -> 视频流给小屏
+              if (pipImg) pipImg.style.display = "none";
+              // 使用辅助函数强制播放
+              safePlay(pipVideo, window.localCameraStream, mirrorStyle);
+            } else {
+              // 图片模式 -> 图片给小屏
+              if (pipVideo) {
+                pipVideo.style.display = "none";
+                pipVideo.srcObject = null;
+              }
+              if (pipImg) {
+                pipImg.style.display = "block";
+                pipImg.src = userUrl;
+              }
+            }
+          }
+        }
+
+        // 【新增】处理摄像头翻转
+        async function handleCameraFlip() {
+          if (!window.localCameraStream) return;
+
+          // 1. 停止当前流
+          window.localCameraStream.getTracks().forEach((track) => track.stop());
+
+          // 2. 切换模式
+          videoCallState.facingMode =
+            videoCallState.facingMode === "user" ? "environment" : "user";
+
+          // 3. 重新请求摄像头
+          try {
+            const newStream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: videoCallState.facingMode },
+              audio: false,
+            });
+
+            window.localCameraStream = newStream;
+
+            // 4. 将新流应用到当前正在显示的 video 标签上
+            const mainVideo = document.querySelector("#video-main-view video");
+            const pipVideo = document.querySelector("#video-pip-view video");
+
+            // 根据前置/后置决定是否镜像
+            const shouldMirror = videoCallState.facingMode === "user";
+            const mirrorStyle = shouldMirror ? "scaleX(-1)" : "none";
+
+            if (videoCallState.isUserMain) {
+              // 如果我在大屏，更新大屏
+              if (mainVideo) {
+                mainVideo.srcObject = newStream;
+                mainVideo.style.transform = mirrorStyle;
+                mainVideo.play();
+              }
+            } else {
+              // 如果我在小屏，更新小屏
+              if (pipVideo) {
+                pipVideo.srcObject = newStream;
+                pipVideo.style.transform = mirrorStyle;
+                pipVideo.play();
+              }
+            }
+          } catch (err) {
+            console.error("切换摄像头失败:", err);
+            alert("切换摄像头失败，可能是设备不支持或权限被拒绝。");
+          }
         }
 
         /**
@@ -46494,6 +46758,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               // 调用你原本处理“重roll”的函数
               handleVideoCallReroll();
               break;
+            case "flip-real-camera-btn":
+              handleCameraFlip();
+              break;
             case "switch-camera-btn":
               // 调用你原本处理“切换镜头”的函数
               switchVideoViews();
@@ -51894,7 +52161,24 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               } else {
                 console.log("后台活动模拟已停止。");
               }
+              const novelaiSwitch = document.getElementById("novelai-switch");
+              const novelaiModelInput =
+                document.getElementById("novelai-model");
+              const novelaiKeyInput =
+                document.getElementById("novelai-api-key");
 
+              if (novelaiSwitch) {
+                localStorage.setItem("novelai-enabled", novelaiSwitch.checked);
+              }
+              if (novelaiModelInput) {
+                localStorage.setItem("novelai-model", novelaiModelInput.value);
+              }
+              if (novelaiKeyInput) {
+                localStorage.setItem(
+                  "novelai-api-key",
+                  novelaiKeyInput.value.trim()
+                );
+              }
               alert("API设置已保存!");
             });
 
@@ -51936,8 +52220,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 }
                 // 获取我们的辅助下拉框
                 const picker = document.getElementById("fetched-model-list");
-                picker.innerHTML = '<option value="">▼ 请选择模型 (点击自动填入上方)</option>';
-                
+                picker.innerHTML =
+                  '<option value="">▼ 请选择模型 (点击自动填入上方)</option>';
+
                 // 填充下拉框
                 models.forEach((model) => {
                   const option = document.createElement("option");
@@ -51945,11 +52230,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   option.textContent = model.id;
                   picker.appendChild(option);
                 });
-                
+
                 // 显示下拉框
                 picker.style.display = "block";
-                
-                alert(`成功拉取 ${models.length} 个模型！\n请点击下方的下拉框选择，选择后会自动填入输入框。`);
+
+                alert(
+                  `成功拉取 ${models.length} 个模型！\n请点击下方的下拉框选择，选择后会自动填入输入框。`
+                );
               } catch (error) {
                 alert(`拉取模型失败: ${error.message}`);
               }
@@ -52806,7 +53093,12 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                     : "none";
                 };
               }
-
+              const realCameraSwitch = document.getElementById(
+                "user-real-camera-switch"
+              );
+              if (realCameraSwitch) {
+                realCameraSwitch.checked = chat.settings.useRealCamera || false;
+              }
               // --- 线下模式UI渲染 ---
               const offlineModeSettings = chat.settings.offlineMode || {
                 enabled: false,
@@ -53624,7 +53916,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 chat.settings.videoCallVoiceAccess = document.getElementById(
                   "video-call-voice-access-switch"
                 ).checked;
-
+                chat.settings.useRealCamera = document.getElementById(
+                  "user-real-camera-switch"
+                ).checked;
                 // 保存NAI出图设置
                 const novelaiEnabled =
                   localStorage.getItem("novelai-enabled") === "true";

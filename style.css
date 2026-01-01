@@ -15,7 +15,8 @@ html {
 
 body {
   margin: 0;
-  font-family: 'bulangni', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: "bulangni", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
   font-weight: normal;
   background-color: #f0f2f5;
   height: 100%;
@@ -58,7 +59,7 @@ body {
   font-size: 14px;
   box-sizing: border-box;
   pointer-events: none;
-  font-family: 'bulangni', sans-serif;
+  font-family: "bulangni", sans-serif;
   text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
@@ -82,7 +83,7 @@ body {
 }
 
 .battery-icon::after {
-  content: '';
+  content: "";
   position: absolute;
   right: -4px;
   top: 2.5px;
@@ -667,7 +668,7 @@ body {
 }
 
 .message-bubble.selected::after {
-  content: '✔';
+  content: "✔";
   position: absolute;
   left: -10px;
   top: 50%;
@@ -831,7 +832,7 @@ body {
   padding: 6px 10px;
   margin-left: 0;
 }
-.avatar-upload input[type='file'] {
+.avatar-upload input[type="file"] {
   display: none;
 }
 .theme-selector label {
@@ -1356,7 +1357,7 @@ body {
 }
 
 .message-bubble::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 20px;
   height: 20px;
@@ -1366,123 +1367,123 @@ body {
   z-index: 1;
 }
 
-#chat-messages[data-theme='pink_blue'] .message-bubble.user .content {
+#chat-messages[data-theme="pink_blue"] .message-bubble.user .content {
   background-color: #fff0f6;
   color: #432531;
 }
-#chat-messages[data-theme='pink_blue'] .message-bubble.ai .content {
+#chat-messages[data-theme="pink_blue"] .message-bubble.ai .content {
   background-color: #eff7ff;
   color: #263a4e;
 }
-#chat-messages[data-theme='blue_white'] .message-bubble.user .content {
+#chat-messages[data-theme="blue_white"] .message-bubble.user .content {
   background-color: #eff7ff;
   color: #263a4e;
 }
-#chat-messages[data-theme='blue_white'] .message-bubble.ai .content {
+#chat-messages[data-theme="blue_white"] .message-bubble.ai .content {
   background-color: #f8f9fa;
   color: #383d41;
 }
-#chat-messages[data-theme='purple_yellow'] .message-bubble.user .content {
+#chat-messages[data-theme="purple_yellow"] .message-bubble.user .content {
   background-color: #faf7ff;
   color: #827693;
 }
-#chat-messages[data-theme='purple_yellow'] .message-bubble.ai .content {
+#chat-messages[data-theme="purple_yellow"] .message-bubble.ai .content {
   background-color: #fffde4;
   color: #5c4033;
 }
-#chat-messages[data-theme='black_white'] .message-bubble.user .content {
+#chat-messages[data-theme="black_white"] .message-bubble.user .content {
   background-color: #343a40;
   color: #f8f9fa;
 }
-#chat-messages[data-theme='black_white'] .message-bubble.ai .content {
+#chat-messages[data-theme="black_white"] .message-bubble.ai .content {
   background-color: #f8f9fa;
   color: #343a40;
 }
-#chat-messages[data-theme='yellow_white'] .message-bubble.user .content {
+#chat-messages[data-theme="yellow_white"] .message-bubble.user .content {
   background-color: #ffeb3b;
   color: #5d4037;
 }
-#chat-messages[data-theme='yellow_white'] .message-bubble.ai .content {
+#chat-messages[data-theme="yellow_white"] .message-bubble.ai .content {
   background-color: #f8f9fa;
   color: #383d41;
 }
-#chat-messages[data-theme='red_black'] .message-bubble.user .content {
+#chat-messages[data-theme="red_black"] .message-bubble.user .content {
   background-color: #c62828;
   color: #ffffff;
 }
-#chat-messages[data-theme='red_black'] .message-bubble.ai .content {
+#chat-messages[data-theme="red_black"] .message-bubble.ai .content {
   background-color: #212121;
   color: #ffffff;
 }
-#chat-messages[data-theme='blue_yellow'] .message-bubble.user .content {
+#chat-messages[data-theme="blue_yellow"] .message-bubble.user .content {
   background-color: #a0d2eb;
   color: #153243;
 }
-#chat-messages[data-theme='blue_yellow'] .message-bubble.ai .content {
+#chat-messages[data-theme="blue_yellow"] .message-bubble.ai .content {
   background-color: #fef9e7;
   color: #5d4037;
 }
-#chat-messages[data-theme='pink_yellow'] .message-bubble.user .content {
+#chat-messages[data-theme="pink_yellow"] .message-bubble.user .content {
   background-color: #fff0f6;
   color: #432531;
 }
-#chat-messages[data-theme='pink_yellow'] .message-bubble.ai .content {
+#chat-messages[data-theme="pink_yellow"] .message-bubble.ai .content {
   background-color: #fef9e7;
   color: #5d4037;
 }
-#chat-messages[data-theme='pink_purple'] .message-bubble.user .content {
+#chat-messages[data-theme="pink_purple"] .message-bubble.user .content {
   background-color: #fff0f6;
   color: #a78396;
 }
-#chat-messages[data-theme='pink_purple'] .message-bubble.ai .content {
+#chat-messages[data-theme="pink_purple"] .message-bubble.ai .content {
   background-color: #faf7ff;
   color: #827693;
 }
-#chat-messages[data-theme='gray_white'] .message-bubble.user .content {
+#chat-messages[data-theme="gray_white"] .message-bubble.user .content {
   background-color: #e9ecef;
   color: #495057;
 }
-#chat-messages[data-theme='gray_white'] .message-bubble.ai .content {
+#chat-messages[data-theme="gray_white"] .message-bubble.ai .content {
   background-color: #f8f9fa;
   color: #383d41;
 }
-#chat-messages[data-theme='blue_green'] .message-bubble.user .content {
+#chat-messages[data-theme="blue_green"] .message-bubble.user .content {
   background-color: #d1ecf1;
   color: #0c5460;
 }
-#chat-messages[data-theme='blue_green'] .message-bubble.ai .content {
+#chat-messages[data-theme="blue_green"] .message-bubble.ai .content {
   background-color: #d4edda;
   color: #155724;
 }
-#chat-messages[data-theme='pink_white'] .message-bubble.user .content {
+#chat-messages[data-theme="pink_white"] .message-bubble.user .content {
   background-color: #fff0f6;
   color: #a78396;
 }
-#chat-messages[data-theme='pink_white'] .message-bubble.ai .content {
+#chat-messages[data-theme="pink_white"] .message-bubble.ai .content {
   background-color: #f8f9fa;
   color: #383d41;
 }
-#chat-messages[data-theme='pink_black'] .message-bubble.user .content {
+#chat-messages[data-theme="pink_black"] .message-bubble.user .content {
   background-color: #f8bbd0;
   color: #5b2c6f;
 }
-#chat-messages[data-theme='pink_black'] .message-bubble.ai .content {
+#chat-messages[data-theme="pink_black"] .message-bubble.ai .content {
   background-color: #343a40;
   color: #f8f9fa;
 }
-#chat-messages[data-theme='pink_green'] .message-bubble.user .content {
+#chat-messages[data-theme="pink_green"] .message-bubble.user .content {
   background-color: #f8bbd0;
   color: #5b2c6f;
 }
-#chat-messages[data-theme='pink_green'] .message-bubble.ai .content {
+#chat-messages[data-theme="pink_green"] .message-bubble.ai .content {
   background-color: #c8e6c9;
   color: #1b5e20;
 }
-#chat-messages[data-theme='green_black'] .message-bubble.user .content {
+#chat-messages[data-theme="green_black"] .message-bubble.user .content {
   background-color: #d4edda;
   color: #155724;
 }
-#chat-messages[data-theme='green_black'] .message-bubble.ai .content {
+#chat-messages[data-theme="green_black"] .message-bubble.ai .content {
   background-color: #343a40;
   color: #f8f9fa;
 }
@@ -1591,7 +1592,7 @@ body {
   overflow: hidden;
 }
 .transfer-card::before {
-  content: '🐾';
+  content: "🐾";
   position: absolute;
   right: 10px;
   top: 5px;
@@ -2176,7 +2177,7 @@ body {
 
 /* 用伪元素创建分隔线 */
 .action-item:not(:last-child)::after {
-  content: '';
+  content: "";
   position: absolute;
   right: 0;
   top: 50%;
@@ -2948,7 +2949,7 @@ body {
 
 /* 选择框的样式 */
 .favorite-item-card::before {
-  content: '';
+  content: "";
   position: absolute;
   left: -25px; /* 把它放在卡片左边外面 */
   top: 50%;
@@ -2974,7 +2975,7 @@ body {
 #favorites-view.selection-mode .favorite-item-card.selected::before {
   background-color: var(--accent-color);
   border-color: var(--accent-color);
-  content: '✔';
+  content: "✔";
   color: white;
   font-size: 14px;
   text-align: center;
@@ -2989,7 +2990,9 @@ body {
   right: 0; /* ★ 新增 right: 0，和 left: 0 一起撑满宽度 */
   width: auto; /* ★ 改为 auto，让 left/right 决定宽度 */
   padding: 10px 15px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* 适配iPhone底部安全区 */
+  padding-bottom: calc(
+    10px + env(safe-area-inset-bottom)
+  ); /* 适配iPhone底部安全区 */
   background-color: rgba(247, 247, 247, 0.9);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -3074,7 +3077,7 @@ body {
 
 /* 预览区的背景，可以和真实聊天界面同步 */
 #settings-preview-area::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -3333,7 +3336,7 @@ body {
 .contact-picker-item.selected .checkbox {
   background-color: var(--accent-color);
   border-color: var(--accent-color);
-  content: '✔';
+  content: "✔";
   color: white;
   font-size: 14px;
   text-align: center;
@@ -3430,7 +3433,8 @@ body {
   overflow: hidden;
   background-color: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 .waimai-header {
@@ -3537,13 +3541,13 @@ body {
   border: 2px solid #28a745; /* 绿色边框 */
 }
 .message-bubble.status-paid .waimai-main .request-title::before {
-  content: '✅  ';
+  content: "✅  ";
 }
 .message-bubble.status-paid .waimai-main .request-title {
   color: #155724;
   font-weight: 600;
   /* 重写 request-title 的内容 */
-  content: '我已为您买单，请尽情享用吧～' !important;
+  content: "我已为您买单，请尽情享用吧～" !important;
   display: block;
   margin-bottom: 15px;
 }
@@ -3565,13 +3569,13 @@ body {
   background-color: #e9ecef;
 }
 .message-bubble.status-rejected .waimai-main .request-title::before {
-  content: '❌ ';
+  content: "❌ ";
 }
 .message-bubble.status-rejected .waimai-main .request-title {
   color: #721c24;
   font-weight: 600;
   /* 重写 request-title 的内容 */
-  content: '我拒绝了您的代付请求' !important;
+  content: "我拒绝了您的代付请求" !important;
   display: block;
   margin-bottom: 15px;
 }
@@ -3584,17 +3588,17 @@ body {
 }
 
 /* 强制重写 request-title 内容的技巧 */
-.message-bubble[class*='status-'] .request-title {
+.message-bubble[class*="status-"] .request-title {
   font-size: 0; /* 隐藏原始文本 */
 }
-.message-bubble[class*='status-'] .request-title::after {
+.message-bubble[class*="status-"] .request-title::after {
   font-size: 14px; /* 让伪元素显示新文本 */
 }
 .message-bubble.status-paid .request-title::after {
-  content: '我已为您买单，请尽情享用吧～';
+  content: "我已为您买单，请尽情享用吧～";
 }
 .message-bubble.status-rejected .request-title::after {
-  content: '我拒绝了您的代付请求';
+  content: "我拒绝了您的代付请求";
 }
 /* ▲▲▲ 新CSS粘贴结束 ▲▲▲ */
 
@@ -4014,7 +4018,9 @@ body {
 /* 2. 可滑动的内容卡片，增加一个平滑的过渡效果 */
 .qzone-post-item {
   transition: transform 0.3s ease;
-  background-color: var(--secondary-bg); /* 确保它有背景色，能盖住下面的删除按钮 */
+  background-color: var(
+    --secondary-bg
+  ); /* 确保它有背景色，能盖住下面的删除按钮 */
   position: relative; /* 确保它在最上层 */
   z-index: 2;
 }
@@ -4260,7 +4266,7 @@ body {
   flex-shrink: 0;
 }
 .countdown-card::before {
-  content: '✨';
+  content: "✨";
   position: absolute;
   top: -10px;
   left: -10px;
@@ -4354,7 +4360,7 @@ body {
 }
 
 .red-packet-card::before {
-  content: '🧧';
+  content: "🧧";
   position: absolute;
   top: -5px;
   left: -5px;
@@ -4450,7 +4456,7 @@ body {
   border-radius: 10px;
   border: 1px solid #e0e0e0;
   padding: 12px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .poll-card.closed {
@@ -4928,7 +4934,7 @@ body {
   text-align: center;
   position: relative;
   border: 1px solid #ffcce0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .transfer-actions-header {
@@ -5215,7 +5221,8 @@ body {
   opacity: 0;
   visibility: hidden;
   transform: translateY(-50px);
-  transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: opacity 0.4s ease-out,
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 #music-player-overlay.visible {
@@ -5288,7 +5295,7 @@ body {
   width: 35px;
   text-align: center;
   flex-shrink: 0;
-  font-family: 'SF Mono', 'Menlo', monospace;
+  font-family: "SF Mono", "Menlo", monospace;
 }
 .progress-bar {
   flex-grow: 1;
@@ -5309,7 +5316,12 @@ body {
   height: 192px;
   overflow: hidden;
   position: relative;
-  -webkit-mask-image: linear-gradient(transparent, black 20%, black 80%, transparent);
+  -webkit-mask-image: linear-gradient(
+    transparent,
+    black 20%,
+    black 80%,
+    transparent
+  );
   mask-image: linear-gradient(transparent, black 20%, black 80%, transparent);
 }
 
@@ -5580,22 +5592,34 @@ body {
 }
 
 /* 2. 为箭头设置一个漂亮的颜色循环 */
-#world-book-checkboxes-container .wb-category-header:nth-of-type(6n + 1) .arrow {
+#world-book-checkboxes-container
+  .wb-category-header:nth-of-type(6n + 1)
+  .arrow {
   color: #007bff;
 } /* 蓝色 */
-#world-book-checkboxes-container .wb-category-header:nth-of-type(6n + 2) .arrow {
+#world-book-checkboxes-container
+  .wb-category-header:nth-of-type(6n + 2)
+  .arrow {
   color: #28a745;
 } /* 绿色 */
-#world-book-checkboxes-container .wb-category-header:nth-of-type(6n + 3) .arrow {
+#world-book-checkboxes-container
+  .wb-category-header:nth-of-type(6n + 3)
+  .arrow {
   color: #fd7e14;
 } /* 橙色 */
-#world-book-checkboxes-container .wb-category-header:nth-of-type(6n + 4) .arrow {
+#world-book-checkboxes-container
+  .wb-category-header:nth-of-type(6n + 4)
+  .arrow {
   color: #6f42c1;
 } /* 紫色 */
-#world-book-checkboxes-container .wb-category-header:nth-of-type(6n + 5) .arrow {
+#world-book-checkboxes-container
+  .wb-category-header:nth-of-type(6n + 5)
+  .arrow {
   color: #dc3545;
 } /* 红色 */
-#world-book-checkboxes-container .wb-category-header:nth-of-type(6n + 6) .arrow {
+#world-book-checkboxes-container
+  .wb-category-header:nth-of-type(6n + 6)
+  .arrow {
   color: #ffc107;
 } /* 黄色 */
 
@@ -5651,7 +5675,10 @@ body {
 
 .frame-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); /* 每行自动填充，最小70px宽 */
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(70px, 1fr)
+  ); /* 每行自动填充，最小70px宽 */
   gap: 15px;
 }
 
@@ -6097,8 +6124,8 @@ body {
 }
 
 /* 3. 【核心修复】为分类和书目里的复选框“解绑”全局样式！ */
-.wb-category-header input[type='checkbox'],
-.wb-book-container input[type='checkbox'] {
+.wb-category-header input[type="checkbox"],
+.wb-book-container input[type="checkbox"] {
   width: auto !important; /* 让它恢复自己的天然大小，!important确保最高优先级 */
   flex-shrink: 0; /* 防止它被压缩，保持完整 */
 }
@@ -6582,7 +6609,9 @@ body {
   color: var(--accent-color);
 }
 #character-chat-history-messages {
-  background-color: var(--secondary-bg) !important; /* 使用变量 */ /* ★★★ 移除背景图片 ★★★ */
+  background-color: var(
+    --secondary-bg
+  ) !important; /* 使用变量 */ /* ★★★ 移除背景图片 ★★★ */
 }
 /* ▲▲▲ 样式修正结束 ▲▲▲ */
 
@@ -6634,7 +6663,7 @@ body {
 }
 /* 我方气泡的小尾巴 */
 .character-chat-bubble-container.sent .character-chat-bubble::after {
-  content: '';
+  content: "";
   position: absolute;
   right: -4px;
   top: 10px;
@@ -6651,7 +6680,7 @@ body {
 }
 /* 对方气泡的小尾巴 */
 .character-chat-bubble-container.received .character-chat-bubble::before {
-  content: '';
+  content: "";
   position: absolute;
   left: -4px;
   top: 10px;
@@ -6691,8 +6720,10 @@ body {
   padding: 0 !important;
   border-radius: 0;
 }
-.character-chat-bubble-container .character-chat-bubble:has(img.sticker-image)::before,
-.character-chat-bubble-container .character-chat-bubble:has(img.sticker-image)::after {
+.character-chat-bubble-container
+  .character-chat-bubble:has(img.sticker-image)::before,
+.character-chat-bubble-container
+  .character-chat-bubble:has(img.sticker-image)::after {
   content: none !important;
 }
 /* ▲▲▲ 样式添加结束 ▲▲▲ */
@@ -6909,12 +6940,12 @@ body {
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.06); /* 更柔和的阴影 */
   position: relative;
   padding: 20px 15px 15px 20px; /* 调整内边距，给“小东西”留出空间 */
-  font-family: Georgia, 'Times New Roman', 'Kaiti TC', 'STKaiti', serif; /* 使用更典雅的衬线字体 */
+  font-family: Georgia, "Times New Roman", "Kaiti TC", "STKaiti", serif; /* 使用更典雅的衬线字体 */
 }
 
 /* 2. 【小东西】用伪元素在左上角添加一个精致的纸夹 */
 #character-diary-list .character-data-item::before {
-  content: '📎'; /* 这是一个Emoji纸夹，简单又有效 */
+  content: "📎"; /* 这是一个Emoji纸夹，简单又有效 */
   position: absolute;
   top: -12px;
   left: 15px;
@@ -7055,7 +7086,7 @@ body {
 }
 /* 时间轴的竖线 */
 .character-trajectory-item::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 5px;
   left: -18px;
@@ -7068,7 +7099,7 @@ body {
 }
 /* 时间轴的圆点 */
 .character-trajectory-item::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 5px;
   left: -23px;
@@ -7123,7 +7154,7 @@ body {
 .char-list-item:last-child {
   border-bottom: none;
 }
-.char-list-item input[type='checkbox'] {
+.char-list-item input[type="checkbox"] {
   margin-right: 10px;
   width: 18px;
   height: 18px;
@@ -7238,7 +7269,12 @@ body {
   /* ★ 核心修改：彻底移除 backdrop-filter (模糊) 效果 */
 
   /* ★ 核心修改：提供一个简单的半透明黑色背景，以衬托文字 */
-  background-color: rgba(0, 0, 0, 0.3); /* 这是一个关键值，可以在 0.2 (更透) 到 0.4 (更深) 之间微调 */
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.3
+  ); /* 这是一个关键值，可以在 0.2 (更透) 到 0.4 (更深) 之间微调 */
 
   /* ★ 核心修改：使用更清晰的边框来定义气泡轮廓 */
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -7306,8 +7342,8 @@ body {
 }
 
 /* 3. 【核心修复】为分类文件夹和书目里的复选框“解绑”全局样式！ */
-.wb-category-header input[type='checkbox'],
-.wb-book-container input[type='checkbox'] {
+.wb-category-header input[type="checkbox"],
+.wb-book-container input[type="checkbox"] {
   width: auto !important; /* 让它恢复自己的天然大小，!important确保最高优先级 */
   flex-shrink: 0; /* 防止它被压缩 */
 }
@@ -7520,7 +7556,7 @@ body {
   align-items: center;
   gap: 10px;
 }
-#music-source-selector-modal .modal-body input[type='radio'] {
+#music-source-selector-modal .modal-body input[type="radio"] {
   width: 18px;
   height: 18px;
 }
@@ -7781,7 +7817,11 @@ body {
 /* 4d. 白色信息卡片：使用负外边距实现无缝拼接 */
 #profile-widget .profile-info {
   /* 【修改后】白色到透明的渐变背景，并加上一层柔和的阴影 */
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85) 20%, rgba(255, 255, 255, 0));
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.85) 20%,
+    rgba(255, 255, 255, 0)
+  );
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border-radius: 24px;
 
@@ -7955,7 +7995,7 @@ body {
 
 /* 用伪元素给气泡加一个小尾巴，指向下面的圆形图片 */
 .widget-bubble::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -6px; /* 尾巴在气泡下方 */
   left: 50%;
@@ -8108,7 +8148,11 @@ body {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); /* 加强阴影 */
 }
 #phone-screen.dark-mode #profile-widget .profile-info {
-  background: linear-gradient(to bottom, rgba(28, 28, 30, 0.85) 20%, rgba(28, 28, 30, 0)); /* 信息卡片深灰色渐变 */
+  background: linear-gradient(
+    to bottom,
+    rgba(28, 28, 30, 0.85) 20%,
+    rgba(28, 28, 30, 0)
+  ); /* 信息卡片深灰色渐变 */
   color: #f9fafb;
 }
 #phone-screen.dark-mode #profile-username,
@@ -8476,7 +8520,7 @@ body {
 }
 
 /* 隐藏原始的 checkbox */
-.toggle-switch-label input[type='checkbox'] {
+.toggle-switch-label input[type="checkbox"] {
   opacity: 0;
   width: 0;
   height: 0;
@@ -8497,7 +8541,7 @@ body {
 
 /* 开关的滑块 (那个白色圆点) */
 .toggle-switch-slider::before {
-  content: '';
+  content: "";
   position: absolute;
   height: 27px;
   width: 27px;
@@ -8727,7 +8771,7 @@ body {
 
 /* 2. 心声面板主内容样式 (已修复) */
 #inner-voice-avatar-wrapper::after {
-  content: '';
+  content: "";
   position: absolute;
   top: -3px;
   left: -3px;
@@ -9348,13 +9392,13 @@ body {
   flex-shrink: 0;
 }
 /* 前三名用不同的颜色突出显示 */
-.hot-search-item[data-rank='1'] .hot-search-rank {
+.hot-search-item[data-rank="1"] .hot-search-rank {
   color: #f44336;
 }
-.hot-search-item[data-rank='2'] .hot-search-rank {
+.hot-search-item[data-rank="2"] .hot-search-rank {
   color: #ff9800;
 }
-.hot-search-item[data-rank='3'] .hot-search-rank {
+.hot-search-item[data-rank="3"] .hot-search-rank {
   color: #ffc107;
 }
 
@@ -9847,7 +9891,12 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), transparent, rgba(0, 0, 0, 0.2));
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.4),
+    transparent,
+    rgba(0, 0, 0, 0.2)
+  );
 
   /* ▼▼▼ 核心修复：让这个遮罩层对鼠标事件“透明”！ ▼▼▼ */
   pointer-events: none;
@@ -9940,7 +9989,7 @@ body {
 
 /* 激活状态的下划线指示器 (保持不变) */
 .ls-tab-item.active::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 8px; /* 微调位置以适应更高的导航栏 */
   left: 50%;
@@ -10446,7 +10495,7 @@ body {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  font-family: 'Kaiti', 'STKaiti', serif; /* 使用更典雅的楷体 */
+  font-family: "Kaiti", "STKaiti", serif; /* 使用更典雅的楷体 */
 }
 .letter-viewer-header {
   padding: 15px;
@@ -10880,7 +10929,7 @@ body {
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
 #pomodoro-char-log::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 100%; /* <-- 修改这里 */
   left: 50%;
@@ -11562,7 +11611,7 @@ body {
 
 /* 当筛选生效时，图标上显示一个小点提示 */
 .header .filter-btn.active::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   right: 0;
@@ -11596,12 +11645,12 @@ body {
   background-color: #3a3a3c;
 }
 
-#forum-filter-category-list input[type='checkbox'] {
+#forum-filter-category-list input[type="checkbox"] {
   display: none; /* 隐藏原始的复选框 */
 }
 
 /* 选中后的样式 */
-#forum-filter-category-list input[type='checkbox']:checked + span {
+#forum-filter-category-list input[type="checkbox"]:checked + span {
   color: white;
   font-weight: 500;
 }
@@ -11698,7 +11747,7 @@ body {
 .player-selection-item:last-child {
   border-bottom: none;
 }
-.player-selection-item input[type='checkbox'] {
+.player-selection-item input[type="checkbox"] {
   width: 20px;
   height: 20px;
   margin-right: 15px;
@@ -12516,7 +12565,7 @@ body {
 #exit-ludo-game-btn::before,
 #exit-undercover-game-btn::before {
   /* <--- 还有这里 */
-  content: '‹';
+  content: "‹";
   font-size: 24px !important;
   color: var(--accent-color) !important;
 }
@@ -12577,8 +12626,12 @@ body {
 
 /* 4. 夜间模式适配 */
 #phone-screen.dark-mode #werewolf-action-area.speaking-mode #user-speech-input,
-#phone-screen.dark-mode #script-kill-action-area.speaking-mode #user-sk-speech-input,
-#phone-screen.dark-mode #undercover-action-area.speaking-mode #undercover-user-speech-input {
+#phone-screen.dark-mode
+  #script-kill-action-area.speaking-mode
+  #user-sk-speech-input,
+#phone-screen.dark-mode
+  #undercover-action-area.speaking-mode
+  #undercover-user-speech-input {
   background-color: #2c2c2e;
   color: var(--text-primary);
   border-color: #444; /* 夜间模式下的边框颜色 */
@@ -12673,10 +12726,18 @@ body {
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
 /* ▼▼▼ 【全新】宠物亲密度进度条颜色 ▼▼▼ */
 #pet-intimacy-user-bar .stat-bar-fill {
-  background: linear-gradient(135deg, #ff8fab, #ffc3a0); /* 对你：温暖的粉橙色 */
+  background: linear-gradient(
+    135deg,
+    #ff8fab,
+    #ffc3a0
+  ); /* 对你：温暖的粉橙色 */
 }
 #pet-intimacy-char-bar .stat-bar-fill {
-  background: linear-gradient(135deg, #a1c4fd, #c2e9fb); /* 对Ta：柔和的天蓝色 */
+  background: linear-gradient(
+    135deg,
+    #a1c4fd,
+    #c2e9fb
+  ); /* 对Ta：柔和的天蓝色 */
 }
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
 /* ▼▼▼ 【全新】宠物聊天界面样式 ▼▼▼ */
@@ -13019,7 +13080,11 @@ body {
 /* 2. 卡片主体样式 */
 .ls-diary-notification-card {
   width: 220px; /* 卡片宽度 */
-  background: linear-gradient(135deg, #fff5f8, #ffebee); /* 温柔的粉色渐变背景 */
+  background: linear-gradient(
+    135deg,
+    #fff5f8,
+    #ffebee
+  ); /* 温柔的粉色渐变背景 */
   border-radius: 12px;
   padding: 15px;
   cursor: pointer;
@@ -13036,7 +13101,7 @@ body {
 
 /* 3. 卡片右上角的装饰性图标 */
 .ls-diary-notification-card::before {
-  content: '💌';
+  content: "💌";
   position: absolute;
   top: -5px;
   right: 10px;
@@ -13235,7 +13300,7 @@ body {
 }
 
 /* 2. 单独为复选框设置样式，防止被全局样式影响 */
-.memory-link-option input[type='checkbox'] {
+.memory-link-option input[type="checkbox"] {
   width: 18px !important; /* 固定宽度 */
   height: 18px !important; /* 固定高度 */
   margin: 0 !important; /* 移除外边距 */
@@ -13279,7 +13344,7 @@ body {
   flex-shrink: 0; /* 11. 防止头像在空间不足时被压缩 */
 }
 
-#memory-link-checkboxes-container input[type='checkbox'] {
+#memory-link-checkboxes-container input[type="checkbox"] {
   /* 12. 调整复选框的大小和位置，使其更协调 */
   width: 18px;
   height: 18px;
@@ -13392,7 +13457,10 @@ body {
 /* 这是心声面板里，每个项目（例如“服装”的整个卡片）的样式 */
 #inner-voice-content-area > div {
   /* 核心修改：我们把颜色和透明度变成了可以被JS修改的变量 */
-  background-color: rgba(var(--iv-card-bg-rgb, 255, 255, 255), var(--iv-card-opacity, 0.7));
+  background-color: rgba(
+    var(--iv-card-bg-rgb, 255, 255, 255),
+    var(--iv-card-opacity, 0.7)
+  );
 
   border-radius: 16px;
   padding: 15px;
@@ -13675,7 +13743,7 @@ body {
   color: #ff5722; /* 淘宝橙 */
 }
 .taobao-tab.active::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -13771,7 +13839,7 @@ body {
   margin-top: 5px;
 }
 .product-card .product-price::before {
-  content: '¥';
+  content: "¥";
   font-size: 12px;
   margin-right: 2px;
 }
@@ -14051,7 +14119,7 @@ body {
   margin-bottom: 20px;
 }
 #product-detail-body .product-price::before {
-  content: '¥';
+  content: "¥";
   font-size: 16px;
 }
 
@@ -14181,7 +14249,7 @@ body {
 
 /* 时间轴的竖线 */
 .logistics-timeline::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 15px;
   top: 20px;
@@ -14206,7 +14274,7 @@ body {
 
 /* 时间轴上的圆点 */
 .logistics-step::before {
-  content: '';
+  content: "";
   position: absolute;
   left: -22px;
   top: 5px;
@@ -14270,7 +14338,7 @@ body {
   background-color: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   border: 2px solid transparent; /* 为不同状态准备的边框 */
   transition: all 0.3s ease;
 }
@@ -14362,7 +14430,7 @@ body {
   background-color: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 .gift-card-header {
   display: flex;
@@ -14817,7 +14885,8 @@ body {
 
 /* 关键：让所有App页面的内容列表背景变透明 */
 .character-phone-inner-screen.has-app-wallpaper .list-container,
-.character-phone-inner-screen.has-app-wallpaper #character-chat-history-messages {
+.character-phone-inner-screen.has-app-wallpaper
+  #character-chat-history-messages {
   background-color: transparent !important;
 }
 
@@ -14834,16 +14903,24 @@ body {
 }
 
 /* 同样为聊天气泡增加半透明效果 */
-.character-phone-inner-screen.has-app-wallpaper .character-chat-bubble-container.received .character-chat-bubble {
+.character-phone-inner-screen.has-app-wallpaper
+  .character-chat-bubble-container.received
+  .character-chat-bubble {
   background-color: rgba(255, 255, 255, 0.85);
 }
-.character-phone-inner-screen.has-app-wallpaper .character-chat-bubble-container.sent .character-chat-bubble {
+.character-phone-inner-screen.has-app-wallpaper
+  .character-chat-bubble-container.sent
+  .character-chat-bubble {
   background-color: rgba(149, 236, 105, 0.85); /* 微信绿，但带一点透明 */
 }
 
 /* 适配夜间模式的半透明颜色 */
-#phone-screen.dark-mode .character-phone-inner-screen.has-app-wallpaper .character-data-item,
-#phone-screen.dark-mode .character-phone-inner-screen.has-app-wallpaper .chat-list-item {
+#phone-screen.dark-mode
+  .character-phone-inner-screen.has-app-wallpaper
+  .character-data-item,
+#phone-screen.dark-mode
+  .character-phone-inner-screen.has-app-wallpaper
+  .chat-list-item {
   background-color: rgba(28, 28, 30, 0.7);
 }
 #phone-screen.dark-mode
@@ -15340,7 +15417,9 @@ body {
   color: white;
   border: none;
 }
-#phone-screen.dark-mode #undercover-action-area.speaking-mode #undercover-user-speech-input {
+#phone-screen.dark-mode
+  #undercover-action-area.speaking-mode
+  #undercover-user-speech-input {
   background-color: #2c2c2e;
   color: var(--text-primary);
 }
@@ -15362,7 +15441,11 @@ body {
 /* 2. 卡片主体样式 */
 .lovers-space-disconnect-card {
   width: 220px; /* 宽度可以自己调整 */
-  background: linear-gradient(135deg, #f5f7fa, #e9ecef); /* 浅灰色渐变，更有质感 */
+  background: linear-gradient(
+    135deg,
+    #f5f7fa,
+    #e9ecef
+  ); /* 浅灰色渐变，更有质感 */
   border-radius: 12px;
   border: 1px solid #ced4da;
   display: flex;
@@ -15483,10 +15566,16 @@ body {
 }
 
 /* 夜间模式适配 */
-#phone-screen.dark-mode #user-dm-messages-container .message-wrapper.fan .content {
+#phone-screen.dark-mode
+  #user-dm-messages-container
+  .message-wrapper.fan
+  .content {
   background-color: #2c2c2e;
 }
-#phone-screen.dark-mode #user-dm-messages-container .message-wrapper.user-self .content {
+#phone-screen.dark-mode
+  #user-dm-messages-container
+  .message-wrapper.user-self
+  .content {
   background-color: #e67300;
 }
 
@@ -15643,7 +15732,9 @@ body {
 #user-dm-messages-container .message-wrapper.fan .user-dm-message-delete-btn {
   right: -28px; /* 放在气泡右边 */
 }
-#user-dm-messages-container .message-wrapper.user-self .user-dm-message-delete-btn {
+#user-dm-messages-container
+  .message-wrapper.user-self
+  .user-dm-message-delete-btn {
   left: -28px; /* 放在气泡左边 */
 }
 
@@ -15963,7 +16054,7 @@ body {
 
 /* 2. 为表情格子添加选择框的视觉效果 */
 .sticker-item.in-selection-mode::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 5px;
   right: 5px;
@@ -15979,7 +16070,7 @@ body {
 .sticker-item.selected::before {
   background-color: var(--accent-color); /* 使用你的主题色 */
   border-color: var(--accent-color);
-  content: '✔';
+  content: "✔";
   color: white;
   font-size: 14px;
   text-align: center;
@@ -16236,7 +16327,7 @@ body {
   overflow: hidden;
 }
 .borrow-card::before {
-  content: '💸'; /* 飞钱的Emoji作为装饰 */
+  content: "💸"; /* 飞钱的Emoji作为装饰 */
   position: absolute;
   top: -5px;
   right: 10px;
@@ -16463,7 +16554,7 @@ body {
 .position-controls label {
   flex-shrink: 0;
 }
-.position-controls input[type='range'] {
+.position-controls input[type="range"] {
   flex-grow: 1;
 }
 
@@ -16576,7 +16667,7 @@ body {
 }
 
 /* 这是滑块本身的样式 */
-.sprite-edit-card .position-controls input[type='range'] {
+.sprite-edit-card .position-controls input[type="range"] {
   flex-grow: 1; /* 让滑块占据所有剩余空间 */
   width: 100%; /* 确保它能撑满 */
 }
@@ -16612,7 +16703,12 @@ body {
   display: flex;
   align-items: center;
   gap: 4px; /* 心与心之间的间距 */
-  background-color: rgba(0, 0, 0, 0.2); /* 给一个半透明的深色背景板，让心形更突出 */
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.2
+  ); /* 给一个半透明的深色背景板，让心形更突出 */
   padding: 4px 8px;
   border-radius: 12px;
   backdrop-filter: blur(5px);
@@ -16745,7 +16841,11 @@ body {
 /* 正面样式 */
 .card-front {
   color: white;
-  background: linear-gradient(135deg, #a8b2c5, #8e9eab); /* 期待之夜的默认灰色渐变 */
+  background: linear-gradient(
+    135deg,
+    #a8b2c5,
+    #8e9eab
+  ); /* 期待之夜的默认灰色渐变 */
   transition: background 0.3s;
 }
 
@@ -16754,7 +16854,11 @@ body {
   background: linear-gradient(135deg, #ff8fab, #fb6f92); /* 粉色渐变 */
 }
 .card-front.passionate {
-  background: linear-gradient(135deg, #fff9c4, #fff176); /* 全新修改：这是一个非常漂亮的淡黄色渐变 */
+  background: linear-gradient(
+    135deg,
+    #fff9c4,
+    #fff176
+  ); /* 全新修改：这是一个非常漂亮的淡黄色渐变 */
 }
 
 /* ▼▼▼ 这是为你定制的“完美之夜”薰衣草色，请用它替换旧的 .card-front.perfect 样式 ▼▼▼ */
@@ -16878,7 +16982,7 @@ body {
   overflow: hidden;
 }
 .dating-summary-chat-card::before {
-  content: '💖';
+  content: "💖";
   position: absolute;
   top: -10px;
   left: -10px;
@@ -17039,7 +17143,7 @@ body {
 
 /* 5. 【已修复】选择模式下的勾选标记样式 */
 .sticker-image.in-selection-mode::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 4px;
   right: 4px;
@@ -17057,7 +17161,7 @@ body {
 .sticker-image.selected::before {
   background-color: var(--accent-color);
   border-color: var(--accent-color);
-  content: '✔';
+  content: "✔";
   color: white;
   font-size: 14px;
   font-weight: bold;
@@ -17390,7 +17494,9 @@ body {
 /* ▲▲▲ 替换结束 ▲▲▲ */
 
 /* 4. 【核心】当表情面板处于编辑模式时，才显示删除按钮 */
-#sticker-panel.selection-mode .sticker-category-btn:not(:first-child) .sticker-category-delete-btn {
+#sticker-panel.selection-mode
+  .sticker-category-btn:not(:first-child)
+  .sticker-category-delete-btn {
   display: block; /* 在编辑模式下显示 */
 }
 
@@ -17507,7 +17613,11 @@ body {
 /* 亲密值面板整体样式 */
 #intimacy-panel .modal-content {
   background-color: #f7f3f8; /* 温柔的淡紫色背景 */
-  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 100%);
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
   border: 1px solid #e1dbe6;
   max-width: 340px;
   width: 90%;
@@ -18027,7 +18137,7 @@ body {
   overflow: hidden;
   background-color: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* 2. 统一设置头部的样式（美团黄！） */
@@ -18272,8 +18382,8 @@ body {
   border-radius: 12px;
   background-color: #ffffff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
-    'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   color: #333;
 }
 
@@ -18285,7 +18395,7 @@ body {
 }
 .movie-ticket::before,
 .movie-ticket::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 20px;
   height: 20px;
@@ -18331,7 +18441,7 @@ body {
   padding: 10px;
   background-color: #fffaf0; /* 淡黄色背景 */
   border: 1px solid #eee;
-  font-family: 'Courier New', Courier, monospace; /* 使用等宽字体，更像小票 */
+  font-family: "Courier New", Courier, monospace; /* 使用等宽字体，更像小票 */
 }
 .receipt .receipt-header {
   text-align: center;
@@ -18523,8 +18633,12 @@ body {
 #studio-play-screen {
   /* 核心：使用深色渐变背景，并叠加一层噪点纹理，营造电影感 */
   background-color: #1f2023;
-  background-image: radial-gradient(ellipse at 50% 0%, rgba(61, 64, 77, 0.9), transparent),
-    url('https://www.transparenttextures.com/patterns/black-felt.png');
+  background-image: radial-gradient(
+      ellipse at 50% 0%,
+      rgba(61, 64, 77, 0.9),
+      transparent
+    ),
+    url("https://www.transparenttextures.com/patterns/black-felt.png");
   color: #fff;
   display: flex; /* 确保flex布局生效 */
   flex-direction: column;
@@ -18561,7 +18675,7 @@ body {
   max-width: 90%;
   text-align: left; /* 改为左对齐，更像字幕 */
   line-height: 1.7;
-  font-family: Georgia, 'Times New Roman', serif; /* 使用衬线字体，更有故事感 */
+  font-family: Georgia, "Times New Roman", serif; /* 使用衬线字体，更有故事感 */
   font-style: italic; /* 斜体，增加叙事感 */
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -19135,7 +19249,7 @@ body {
 .contact-picker-list label:hover {
   background-color: var(--secondary-bg);
 }
-.contact-picker-list input[type='checkbox'] {
+.contact-picker-list input[type="checkbox"] {
   margin-right: 10px;
   width: 18px;
   height: 18px;
@@ -19426,7 +19540,10 @@ body {
   background-color: var(--accent-color-light, #eaf2ff);
   border-radius: 8px;
 }
-.dark-mode #tukey-record-input-card .category-grid .tukey-category-item.selected {
+.dark-mode
+  #tukey-record-input-card
+  .category-grid
+  .tukey-category-item.selected {
   background-color: rgba(var(--accent-color-rgb), 0.2);
 }
 
@@ -20043,7 +20160,7 @@ body {
   padding-left: 40px;
 }
 .kk-file-item::before {
-  content: '📄'; /* 文件图标 */
+  content: "📄"; /* 文件图标 */
   position: absolute;
   left: 15px;
   top: 50%;
@@ -20114,7 +20231,7 @@ body {
   border-radius: 8px;
   padding: 10px;
   color: #00ff41;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -20351,7 +20468,7 @@ body {
 
 /* 复选框的外圈 */
 #world-book-list.selection-mode .list-item::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 20px;
   top: 50%;
@@ -20372,7 +20489,7 @@ body {
 
 /* 选中状态下，复选框中间的“√” */
 #world-book-list.selection-mode .list-item.selected::after {
-  content: '✔';
+  content: "✔";
   position: absolute;
   left: 25px;
   top: 50%;
@@ -20443,7 +20560,7 @@ body {
 
 /* 悬浮球正在通话中的动画效果（呼吸灯边框） */
 #video-call-floating-bubble::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -20765,7 +20882,11 @@ body {
       transparent 1px,
       transparent 10px
     ),
-    radial-gradient(circle at center, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
+    radial-gradient(
+      circle at center,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
 }
 
 #bookshelf-container {
@@ -20785,7 +20906,13 @@ body {
   padding: 15px 20px 14px 20px; /* 调整内边距 */
 
   /* 复杂的渐变模拟木质凹槽阴影 */
-  background: linear-gradient(to bottom, #150f0b 0%, #2d1e16 20%, #2d1e16 80%, #150f0b 100%);
+  background: linear-gradient(
+    to bottom,
+    #150f0b 0%,
+    #2d1e16 20%,
+    #2d1e16 80%,
+    #150f0b 100%
+  );
 
   /* 实木层板厚度与投影 */
   border-bottom: 12px solid #3e2723;
@@ -20793,7 +20920,8 @@ body {
   border-right: 8px solid #281a15;
 
   /* 深度阴影，制造“盒子”感 */
-  box-shadow: inset 0 10px 30px rgba(0, 0, 0, 0.8), /* 内部深邃阴影 */ 0 15px 20px rgba(0, 0, 0, 0.5); /* 外部投影 */
+  box-shadow: inset 0 10px 30px rgba(0, 0, 0, 0.8),
+    /* 内部深邃阴影 */ 0 15px 20px rgba(0, 0, 0, 0.5); /* 外部投影 */
 
   border-radius: 4px;
   min-height: 135px; /* 稍微增高 */
@@ -20802,7 +20930,7 @@ body {
 
 /* 层板边缘的高光，增加立体感 */
 .bookshelf-row::before {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -12px;
   left: 0;
@@ -20832,7 +20960,7 @@ body {
   /* 文字样式：更精致的衬线体，金色 */
   color: #e6c88a; /* 哑光金 */
   font-size: 11px;
-  font-family: 'Songti SC', 'SimSun', 'Georgia', serif; /* 宋体/衬线体 */
+  font-family: "Songti SC", "SimSun", "Georgia", serif; /* 宋体/衬线体 */
   font-weight: 600;
   letter-spacing: 1px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); /* 文字凹陷感 */
@@ -20841,14 +20969,15 @@ body {
   overflow: hidden;
 
   /* ★★★ 核心：模拟书脊的圆柱体光影 + 皮革纹理 ★★★ */
-  box-shadow: inset 3px 0 5px rgba(255, 255, 255, 0.15), /* 左侧高光 */ inset -3px 0 8px rgba(0, 0, 0, 0.6),
+  box-shadow: inset 3px 0 5px rgba(255, 255, 255, 0.15),
+    /* 左侧高光 */ inset -3px 0 8px rgba(0, 0, 0, 0.6),
     /* 右侧阴影 */ 3px 5px 8px rgba(0, 0, 0, 0.6); /* 外部投影 */
 }
 
 /* 烫金装饰线：复古书必备 */
 .retro-book::before,
 .retro-book::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   width: 100%;
@@ -20869,8 +20998,8 @@ body {
 .retro-book:hover {
   transform: translateY(-12px) scale(1.02);
   z-index: 100;
-  box-shadow: inset 3px 0 5px rgba(255, 255, 255, 0.25), inset -3px 0 8px rgba(0, 0, 0, 0.6),
-    5px 15px 20px rgba(0, 0, 0, 0.7); /* 悬浮时的深阴影 */
+  box-shadow: inset 3px 0 5px rgba(255, 255, 255, 0.25),
+    inset -3px 0 8px rgba(0, 0, 0, 0.6), 5px 15px 20px rgba(0, 0, 0, 0.7); /* 悬浮时的深阴影 */
   margin: 0 3px; /* 挤开旁边的书 */
 }
 
@@ -21729,9 +21858,9 @@ body {
   color: #fff !important;
 }
 /* === 弹窗输入框高级美化 === */
-#forum-group-editor-modal input[type='text'],
+#forum-group-editor-modal input[type="text"],
 #forum-group-editor-modal textarea,
-#create-post-modal input[type='text'],
+#create-post-modal input[type="text"],
 #create-post-modal textarea {
   background-color: #f7f9fc;
   border: 1px solid #eef2f7;
@@ -21909,7 +22038,7 @@ body {
 /* 评论区分割线装饰 */
 .post-comments-section h3::before,
 .post-comments-section h3::after {
-  content: '';
+  content: "";
   display: inline-block;
   width: 30px;
   height: 1px;
@@ -22152,7 +22281,7 @@ body {
 
 /* 输入框通用样式 */
 #fanfic-preference-bar select,
-#fanfic-preference-bar input[type='text'],
+#fanfic-preference-bar input[type="text"],
 #fanfic-preference-bar textarea {
   width: 100%;
   background: #f7f9fc !important;
@@ -22839,7 +22968,8 @@ body {
   margin-bottom: 20px;
 
   /* 柔和的彩色阴影 */
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05), 0 4px 10px rgba(200, 200, 255, 0.2) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
+    0 4px 10px rgba(200, 200, 255, 0.2) !important;
   border: 1px solid rgba(255, 255, 255, 0.8) !important;
 }
 
@@ -22969,7 +23099,7 @@ body {
 }
 
 /* 隐藏原始的 checkbox */
-.toggle-switch-label input[type='checkbox'] {
+.toggle-switch-label input[type="checkbox"] {
   opacity: 0;
   width: 0;
   height: 0;
@@ -22993,7 +23123,7 @@ body {
 
 /* --- 开关的滑块 (圆点) --- */
 .toggle-switch-slider::before {
-  content: '';
+  content: "";
   position: absolute;
   height: 20px;
   width: 20px;
@@ -23321,7 +23451,11 @@ body {
 }
 .moe-fab-save {
   right: 25px;
-  background: linear-gradient(135deg, #a1c4fd, #c2e9fb) !important; /* 蓝色渐变 */
+  background: linear-gradient(
+    135deg,
+    #a1c4fd,
+    #c2e9fb
+  ) !important; /* 蓝色渐变 */
   color: white !important;
   border: 3px solid rgba(255, 255, 255, 0.5) !important;
 }
@@ -23460,11 +23594,11 @@ body {
 #dating-bgm-modal .form-group label {
   color: #8e809c;
 }
-#dating-bgm-modal input[type='range'] {
+#dating-bgm-modal input[type="range"] {
   -webkit-appearance: none;
   background: #e1dbe6;
 }
-#dating-bgm-modal input[type='range']::-webkit-slider-thumb {
+#dating-bgm-modal input[type="range"]::-webkit-slider-thumb {
   background: #a98bc4;
 }
 
@@ -23513,7 +23647,8 @@ body {
   border: 1px solid rgba(255, 192, 203, 0.5) !important;
   position: relative;
   overflow: visible !important;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   display: flex !important;
   flex-direction: column !important;
 }
@@ -23524,7 +23659,7 @@ body {
 }
 
 .dating-scene-card::before {
-  content: '💖';
+  content: "💖";
   position: absolute;
   top: -15px;
   left: 20px;
@@ -23573,7 +23708,7 @@ body {
   margin-top: 8px !important;
 }
 .dating-scene-info .cost::after {
-  content: ' 🪙';
+  content: " 🪙";
 }
 
 .dating-scene-delete-btn {
@@ -23872,7 +24007,7 @@ body {
   letter-spacing: 0.5px;
 }
 
-#dating-game-settings-modal input[type='text'],
+#dating-game-settings-modal input[type="text"],
 #dating-game-settings-modal textarea,
 #dating-game-settings-modal select {
   background-color: #f9f5f6 !important;
@@ -23943,7 +24078,9 @@ body {
   color: #eee;
 }
 
-#phone-screen.dark-mode #dating-game-settings-modal #cancel-dating-settings-btn {
+#phone-screen.dark-mode
+  #dating-game-settings-modal
+  #cancel-dating-settings-btn {
   background-color: #3e3e42;
   color: #ccc;
 }
@@ -24052,7 +24189,11 @@ body {
 }
 /* === KK查岗 - 线索分享卡片样式 === */
 .kk-share-card {
-  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); /* 淡黄色背景 */
+  background: linear-gradient(
+    135deg,
+    #fff8e1 0%,
+    #ffecb3 100%
+  ); /* 淡黄色背景 */
   border-radius: 12px;
   padding: 12px 15px;
   color: #5d4037; /* 深褐色文字 */
@@ -24065,7 +24206,7 @@ body {
 
 /* 卡片左侧装饰线条 */
 .kk-share-card::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 15px;
@@ -24461,7 +24602,8 @@ body {
   border-radius: 24px !important;
 
   /* 阴影：深邃的悬浮阴影 */
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
   color: #fff !important;
   overflow: hidden !important;
 }
@@ -24472,7 +24614,11 @@ body {
 #kk-file-viewer-modal .modal-header,
 #kk-steam-modal .modal-header,
 #kk-item-share-modal .modal-header {
-  background: linear-gradient(to right, rgba(255, 255, 255, 0.05), transparent) !important;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  ) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
   padding: 15px 20px !important;
   font-size: 17px !important;
@@ -24496,7 +24642,11 @@ body {
 /* 桌面背景 */
 #kk-computer-modal .modal-content {
   /* 换一个更有科技感的渐变背景 */
-  background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.3) 0px, transparent 50%),
+  background-image: radial-gradient(
+      at 0% 0%,
+      rgba(99, 102, 241, 0.3) 0px,
+      transparent 50%
+    ),
     radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.3) 0px, transparent 50%),
     linear-gradient(135deg, #111827 0%, #0f172a 100%) !important;
 }
@@ -24531,7 +24681,8 @@ body {
   height: 58px !important;
   border-radius: 14px !important;
   /* 给图标加一点投影和内发光 */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
   background: rgba(255, 255, 255, 0.1); /* 图标底板 */
   backdrop-filter: blur(5px);
   padding: 8px; /* 图标留白 */
@@ -24564,12 +24715,20 @@ body {
 #wardrobe-preview-area {
   background: none !important; /* 移除旧背景 */
   /* 新背景：柔和的光晕 */
-  background-image: radial-gradient(circle at 50% 30%, rgba(255, 192, 203, 0.2) 0%, transparent 60%),
+  background-image: radial-gradient(
+      circle at 50% 30%,
+      rgba(255, 192, 203, 0.2) 0%,
+      transparent 60%
+    ),
     linear-gradient(to bottom, #fff0f5 0%, #f3e7e9 100%) !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 #phone-screen.dark-mode #wardrobe-preview-area {
-  background-image: radial-gradient(circle at 50% 30%, rgba(100, 50, 100, 0.3) 0%, transparent 60%),
+  background-image: radial-gradient(
+      circle at 50% 30%,
+      rgba(100, 50, 100, 0.3) 0%,
+      transparent 60%
+    ),
     linear-gradient(to bottom, #1a1a1a 0%, #111 100%) !important;
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
@@ -24698,7 +24857,12 @@ body {
   padding: 30px 15px 15px 15px !important; /* 顶部留出空间给渐变过渡 */
 
   /* 核心：黑色渐变背景，保证文字清晰 */
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 20%, rgba(0, 0, 0, 0.6) 80%, transparent 100%) !important;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.95) 20%,
+    rgba(0, 0, 0, 0.6) 80%,
+    transparent 100%
+  ) !important;
   border: none !important;
   border-radius: 0 !important;
   backdrop-filter: none !important;
@@ -24712,7 +24876,7 @@ body {
 
 /* 3. 监控描述文字 (修复：可滚动，不被截断) */
 .monitor-content-text {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   font-size: 13px !important;
   line-height: 1.5 !important;
   color: rgba(255, 255, 255, 0.9) !important;
@@ -24784,7 +24948,7 @@ body {
   border: 2px solid rgba(255, 255, 255, 0.3) !important; /* 给当前房间加个亮边框 */
 }
 .kk-monitor-item.active-character-location::after {
-  content: 'LIVE';
+  content: "LIVE";
   position: absolute;
   top: 12px;
   right: 12px;
@@ -24881,76 +25045,315 @@ body {
 
 /* 1. 头部容器：垂直排列，先标题，后用户信息 */
 .post-detail-header {
-    display: flex !important;
-    flex-direction: column !important; /* 垂直排列 */
-    gap: 15px !important; /* 标题和用户信息之间的间距 */
-    align-items: flex-start !important; /* 左对齐 */
-    
-    background-color: #fff !important;
-    padding: 25px 20px 15px 20px !important;
-    border-radius: 16px 16px 0 0 !important;
-    border-bottom: 1px solid #f0f0f0 !important;
+  display: flex !important;
+  flex-direction: column !important; /* 垂直排列 */
+  gap: 15px !important; /* 标题和用户信息之间的间距 */
+  align-items: flex-start !important; /* 左对齐 */
+
+  background-color: #fff !important;
+  padding: 25px 20px 15px 20px !important;
+  border-radius: 16px 16px 0 0 !important;
+  border-bottom: 1px solid #f0f0f0 !important;
 }
 
 /* 2. 标题样式：大号、加粗、黑色 */
 .post-main-title {
-    font-size: 22px !important;
-    font-weight: 800 !important;
-    color: #1f1f1f !important;
-    line-height: 1.4 !important;
-    margin: 0 !important; /* 移除默认边距 */
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: #1f1f1f !important;
+  line-height: 1.4 !important;
+  margin: 0 !important; /* 移除默认边距 */
 }
 
 /* 3. 用户信息行容器：横向排列 (头像 + 信息) */
 .post-user-info-row {
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important; /* 头像和文字的间距 */
-    width: 100%;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important; /* 头像和文字的间距 */
+  width: 100%;
 }
 
 /* 4. 头像样式 */
 .post-author-avatar {
-    width: 42px !important;
-    height: 42px !important;
-    border-radius: 50% !important;
-    object-fit: cover !important;
-    flex-shrink: 0;
-    border: 1px solid rgba(0,0,0,0.05);
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* 5. 信息组 (昵称 + 时间) 垂直排列 */
 .post-detail-meta-group {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    gap: 2px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 2px !important;
 }
 
 /* 6. 作者昵称样式 */
 .post-author-name {
-    font-size: 15px !important;
-    font-weight: 600 !important;
-    color: #333 !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #333 !important;
 }
 
 /* 7. 发布时间样式 */
 .post-publish-time {
-    font-size: 12px !important;
-    color: #999 !important;
+  font-size: 12px !important;
+  color: #999 !important;
 }
 
 /* --- 夜间模式适配 --- */
 #phone-screen.dark-mode .post-detail-header {
-    background-color: #1c1c1e !important;
-    border-bottom-color: #333 !important;
+  background-color: #1c1c1e !important;
+  border-bottom-color: #333 !important;
 }
 #phone-screen.dark-mode .post-main-title {
-    color: #eee !important;
+  color: #eee !important;
 }
 #phone-screen.dark-mode .post-author-name {
-    color: #ddd !important;
+  color: #ddd !important;
 }
 #phone-screen.dark-mode .post-publish-time {
-    color: #777 !important;
+  color: #777 !important;
+}
+/* ================================================================= */
+/* === 💎 情侣空间 V10.0 (显著右移 + 高位布局 + 樱花粉呼吸) 💎 === */
+/* ================================================================= */
+
+/* --- 1. 全局容器与背景 --- */
+#lovers-space-screen {
+  background-color: transparent !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+}
+
+/* 顶部加深渐变 */
+#lovers-space-screen::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 400px;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.05) 60%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* --- 2. 头部区域 --- */
+#ls-header {
+  height: 340px !important; /* 稍微增加高度以适应上移的内容 */
+  position: relative;
+  z-index: 2;
+  overflow: visible !important;
+}
+
+/* 顶部按钮栏 */
+.ls-header-top-bar {
+  padding: 20px 25px !important;
+  padding-top: calc(20px + env(safe-area-inset-top)) !important;
+}
+
+#ls-header .action-btn,
+#ls-header .back-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #fff !important;
+  width: 36px !important;
+  height: 36px !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+#ls-char-name {
+  color: #fff !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* --- 3. 头像与计数器：位置显著调整 --- */
+.ls-avatar-and-counter-wrapper {
+  position: absolute !important;
+
+  /* ⚡️ 核心修改：左距 110px (视觉偏中左，绝对安全) */
+  left: 110px !important;
+
+  /* ⚡️ 核心修改：底距 90px (大幅上提) */
+  bottom: 90px !important;
+
+  width: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important; /* 内容本身左对齐 */
+  gap: 15px !important;
+  z-index: 10;
+}
+
+/* 头像容器 */
+.ls-header-avatars {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 20px !important;
+  height: auto !important;
+  margin: 0 !important;
+  position: relative;
+}
+
+/* 头像样式 */
+.ls-header-avatars img {
+  width: 74px !important;
+  height: 74px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+
+  /* 边框：半透明白 */
+  border: 2px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* ⚡️ 浅粉色动态爱心 */
+.ls-header-avatars .heart-icon {
+  position: absolute !important;
+  /* 居中计算 */
+  left: 70px;
+  top: 50%;
+
+  width: 28px !important;
+  height: 28px !important;
+
+  /* 🌸 浅粉色 (#ffc0cb 偏一点深) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffb6c1'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+
+  z-index: 5;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
+
+  /* 柔和呼吸动画 */
+  animation: soft-breathe 2.5s infinite ease-in-out !important;
+}
+
+@keyframes soft-breathe {
+  0% {
+    transform: translateY(-50%) scale(1);
+    filter: drop-shadow(0 0 4px rgba(255, 182, 193, 0.5));
+  }
+  50% {
+    transform: translateY(-50%) scale(1.15);
+    filter: drop-shadow(0 0 12px rgba(255, 182, 193, 0.9));
+  }
+  100% {
+    transform: translateY(-50%) scale(1);
+    filter: drop-shadow(0 0 4px rgba(255, 182, 193, 0.5));
+  }
+}
+
+/* 纪念日文字 */
+#ls-days-counter {
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+
+  font-size: 17px !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.6);
+
+  border-left: 3px solid rgba(255, 255, 255, 0.9) !important;
+  padding-left: 12px !important;
+  margin-left: 5px !important;
+  line-height: 1.4 !important;
+}
+
+/* --- 4. 悬浮 Tab 栏 --- */
+#ls-tab-bar {
+  position: relative !important;
+  margin: -40px 20px 25px 20px !important; /* 稍微加大负margin，让它跟Header重叠更自然 */
+  z-index: 20 !important;
+  border-radius: 24px !important;
+
+  background: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(25px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+  padding: 6px !important;
+}
+
+.ls-tab-item.active {
+  background: #fff !important;
+  color: #ff8fa3 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 18px !important;
+}
+
+/* --- 5. 内容卡片 --- */
+#ls-content-area,
+.ls-view {
+  background: transparent !important;
+  padding: 0 20px 40px 20px !important;
+}
+
+.ls-moment-card,
+.ls-question-card,
+.ls-share-item,
+.ls-album-item .cover,
+.ls-love-letter-item,
+.ls-calendar-wrapper {
+  background: rgba(
+    255,
+    255,
+    255,
+    0.75
+  ) !important; /* 稍微加深一点背景不透明度 */
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
+  margin-bottom: 20px !important;
+}
+
+.ls-moment-card .author {
+  color: #222 !important;
+  font-weight: 700 !important;
+}
+.ls-moment-card .content {
+  color: #333 !important;
+}
+.ls-moment-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 浮动按钮 FAB - 浅粉色 */
+.ls-fab-btn {
+  bottom: 50px !important;
+  right: 30px !important;
+  background: #ffb6c1 !important;
+  color: #fff !important;
+  box-shadow: 0 8px 20px rgba(255, 182, 193, 0.5) !important;
+  border-radius: 50% !important;
+}
+
+/* 夜间模式 */
+#phone-screen.dark-mode .ls-moment-card,
+#phone-screen.dark-mode #ls-tab-bar {
+  background: rgba(30, 30, 30, 0.65) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #eee !important;
 }
