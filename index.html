@@ -11909,6 +11909,90 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           <span>编辑心声面板样式</span>
         </div>
         <div class="modal-body">
+          <!-- === 替换开始：自定义心声字段 === -->
+          <div class="form-group">
+            <label>自定义心声字段 (标签名 + AI生成指令)</label>
+            <div style="font-size: 12px; color: #666; margin-bottom: 10px">
+              左边填显示的标题，右边填给AI的具体要求。
+            </div>
+
+            <!-- 字段 1: clothing -->
+            <div style="display: flex; gap: 5px; margin-bottom: 8px">
+              <input
+                type="text"
+                id="iv-label-clothing"
+                placeholder="标题 (如: 服装)"
+                class="moe-input"
+                style="flex: 1"
+              />
+              <textarea
+                id="iv-prompt-clothing"
+                rows="1"
+                placeholder="指令 (如: 描述你现在的穿着)"
+                class="moe-input"
+                style="flex: 2; resize: vertical"
+              ></textarea>
+            </div>
+
+            <!-- 字段 2: behavior -->
+            <div style="display: flex; gap: 5px; margin-bottom: 8px">
+              <input
+                type="text"
+                id="iv-label-behavior"
+                placeholder="标题 (如: 行为)"
+                class="moe-input"
+                style="flex: 1"
+              />
+              <textarea
+                id="iv-prompt-behavior"
+                rows="1"
+                placeholder="指令 (如: 描述你的动作神态)"
+                class="moe-input"
+                style="flex: 2; resize: vertical"
+              ></textarea>
+            </div>
+
+            <!-- 字段 3: thoughts -->
+            <div style="display: flex; gap: 5px; margin-bottom: 8px">
+              <input
+                type="text"
+                id="iv-label-thoughts"
+                placeholder="标题 (如: 心声)"
+                class="moe-input"
+                style="flex: 1"
+              />
+              <textarea
+                id="iv-prompt-thoughts"
+                rows="1"
+                placeholder="指令 (如: 描述你的内心想法)"
+                class="moe-input"
+                style="flex: 2; resize: vertical"
+              ></textarea>
+            </div>
+
+            <!-- 字段 4: naughty -->
+            <div style="display: flex; gap: 5px; margin-bottom: 8px">
+              <input
+                type="text"
+                id="iv-label-naughty"
+                placeholder="标题 (如: 坏心思)"
+                class="moe-input"
+                style="flex: 1"
+              />
+              <textarea
+                id="iv-prompt-naughty"
+                rows="1"
+                placeholder="指令 (如: 描述你的腹黑想法)"
+                class="moe-input"
+                style="flex: 2; resize: vertical"
+              ></textarea>
+            </div>
+          </div>
+          <hr style="opacity: 0.2" />
+          <!-- === 替换结束 === -->
+
+          <hr style="opacity: 0.2" />
+          <!-- === 新增结束 === -->
           <!-- 卡片背景颜色 -->
           <div class="form-group">
             <label for="iv-card-bg-color">卡片背景颜色</label>
@@ -20056,13 +20140,11 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               ? chat.settings.remarkName
               : chat.name;
 
-          // --- 新增：尝试发送系统原生通知 ---
           if (
             "Notification" in window &&
-            Notification.permission === "granted"
+            Notification.permission === "granted" &&
+            state.globalSettings.enableSystemNotifications === true // <--- 核心修改
           ) {
-            // 为了防止在前台聊天时也被弹窗轰炸，我们可以加一个判断
-            // 只有当页面不可见(后台) 或者 当前不在该角色的聊天界面时，才发送系统通知
             const isChatActive =
               document
                 .getElementById("chat-interface-screen")
@@ -21057,53 +21139,69 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               ).toFixed(1);
             });
           }
-          // 放在 init() 调用之前
           const sysNotifSwitch = document.getElementById(
             "system-notification-switch",
           );
 
-          if (sysNotifSwitch) {
-            // 1. 初始化状态：如果已经授权，就自动打勾
-            if (
-              "Notification" in window &&
-              Notification.permission === "granted"
-            ) {
-              sysNotifSwitch.checked = true;
+          // ★★★【修改点2：重写开关加载与交互逻辑】★★★
+          const oldSysSwitch = document.getElementById(
+            "system-notification-switch",
+          );
+          if (oldSysSwitch) {
+            // 1. 使用克隆大法，彻底移除所有之前可能重复绑定的事件监听器
+            const newSysSwitch = oldSysSwitch.cloneNode(true);
+            oldSysSwitch.parentNode.replaceChild(newSysSwitch, oldSysSwitch);
+
+            // 2. 读取保存的状态
+            const savedNotifState =
+              state.globalSettings.enableSystemNotifications;
+            const hasPerm =
+              "Notification" in window && Notification.permission === "granted";
+
+            // 3. 智能判断开关状态：
+            // - 如果有保存的记录，就严格听记录的（是true就是true，是false就是false）
+            // - 如果从没保存过（undefined），但浏览器已经有权限，默认开启
+            if (typeof savedNotifState !== "undefined") {
+              newSysSwitch.checked = savedNotifState;
+            } else {
+              newSysSwitch.checked = hasPerm;
             }
 
-            // 2. 绑定点击事件
-            sysNotifSwitch.addEventListener("change", (e) => {
+            // 4. 绑定新的、唯一的点击事件
+            newSysSwitch.addEventListener("change", async (e) => {
               if (e.target.checked) {
-                // 用户尝试开启
+                // --- 用户想开启 ---
                 if (!("Notification" in window)) {
-                  alert("抱歉，你的设备不支持系统通知。");
-                  e.target.checked = false; // 失败则取消打勾
+                  alert("抱歉，设备不支持系统通知。");
+                  e.target.checked = false;
                 } else if (Notification.permission === "granted") {
-                  // 已经是授权状态
+                  // 已有权限，直接开启成功
                   new Notification("EPhone", {
-                    body: "测试通知：系统通知已开启！",
+                    body: "系统通知已开启！别忘了点击底部的【保存】按钮哦。",
                   });
                 } else if (Notification.permission !== "denied") {
                   // 请求权限
-                  Notification.requestPermission().then((permission) => {
-                    if (permission === "granted") {
-                      new Notification("EPhone", {
-                        body: "成功开启！以后会有弹窗通知哦。",
-                      });
-                      // 保持打勾状态
-                    } else {
-                      e.target.checked = false; // 拒绝则取消打勾
-                      alert("你拒绝了权限，开关无法开启。");
-                    }
-                  });
+                  const permission = await Notification.requestPermission();
+                  if (permission === "granted") {
+                    new Notification("EPhone", {
+                      body: "权限获取成功！请点击【保存】。",
+                    });
+                  } else {
+                    e.target.checked = false;
+                    alert("权限被拒绝，无法开启。");
+                  }
                 } else {
                   // 之前被永久拒绝
-                  alert("权限已被拒绝。请去手机设置里手动开启通知权限。");
-                  e.target.checked = false; // 取消打勾
+                  e.target.checked = false;
+                  alert(
+                    "权限已被拒绝。请去手机/浏览器设置中手动开启通知权限。",
+                  );
                 }
+              } else {
               }
             });
           }
+
           calculateTotalImageSize();
         }
 
@@ -25001,6 +25099,26 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 // ---------------- [修改结束] ----------------
               }
 
+              const savedTags = chat.settings.innerVoiceTags || {};
+              const ivTags = {
+                clothing_label: savedTags.clothing_label || "服装",
+                clothing_prompt:
+                  savedTags.clothing_prompt ||
+                  "详细描述你当前从头到脚的全身服装。",
+                behavior_label: savedTags.behavior_label || "行为",
+                behavior_prompt:
+                  savedTags.behavior_prompt ||
+                  "描述你当前符合聊天情景的细微动作或表情。",
+                thoughts_label: savedTags.thoughts_label || "心声",
+                thoughts_prompt:
+                  savedTags.thoughts_prompt ||
+                  "描述你此刻丰富、细腻的内心真实想法（50字左右）。",
+                naughty_label: savedTags.naughty_label || "坏心思",
+                naughty_prompt:
+                  savedTags.naughty_prompt ||
+                  "描述你此刻与情境相关的腹黑或色色的坏心思，必须符合人设。",
+              };
+
               // --- 获取饿了么菜单，为AI点单提供上下文 ---
               let elemeContext =
                 "\n# 饿了么外卖菜单 (你可以从中选择为用户点单)\n";
@@ -25067,14 +25185,14 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			- **内容**: 包含一条或多条你希望发送给用户的消息对象。这允许你模拟真人的聊天习惯，一次性发送多条短消息。
 			- **格式**: 消息对象的具体格式见下方的【第五部分：可使用的操作指令】。
 
-			**3. "innerVoice" 键:**
-			- **类型**: JSON对象 {}。
-			- **内容**: 描绘你此刻未曾说出口的内心活动。
-			- **必含字段**:
-			    - "clothing": (字符串) 详细描述你当前从头到脚的**全身服装**。
-			    - "behavior": (字符串) 描述你当前符合聊天情景的**细微动作或表情**。
-			    - "thoughts": (字符串) 描述你此刻**丰富、细腻的内心真实想法**（50字左右）。
-			    - "naughtyThoughts": (字符串) 描述你此刻与情境相关的**腹黑或色色的坏心思**，必须符合人设。
+            **3. "innerVoice" 键:**
+            - **类型**: JSON对象 {}。
+            - **必含字段**:
+                - "clothing": (字符串) 对应标签【${ivTags.clothing_label}】。指令：${ivTags.clothing_prompt}
+                - "behavior": (字符串) 对应标签【${ivTags.behavior_label}】。指令：${ivTags.behavior_prompt}
+                - "thoughts": (字符串) 对应标签【${ivTags.thoughts_label}】。指令：${ivTags.thoughts_prompt}
+                - "naughtyThoughts": (字符串) 对应标签【${ivTags.naughty_label}】。指令：${ivTags.naughty_prompt}
+
 
 			**4. 标准输出格式示例:**
 			{
@@ -30941,6 +31059,25 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             console.error("生成微博后台活动上下文时出错:", e);
           }
 
+          const savedTags = chat.settings.innerVoiceTags || {};
+          const ivTags = {
+            clothing_label: savedTags.clothing_label || "服装",
+            clothing_prompt:
+              savedTags.clothing_prompt || "详细描述你当前从头到脚的全身服装。",
+            behavior_label: savedTags.behavior_label || "行为",
+            behavior_prompt:
+              savedTags.behavior_prompt ||
+              "描述你当前符合聊天情景的细微动作或表情。",
+            thoughts_label: savedTags.thoughts_label || "心声",
+            thoughts_prompt:
+              savedTags.thoughts_prompt ||
+              "描述你此刻丰富、细腻的内心真实想法（50字左右）。",
+            naughty_label: savedTags.naughty_label || "坏心思",
+            naughty_prompt:
+              savedTags.naughty_prompt ||
+              "描述你此刻与情境相关的腹黑或色色的坏心思，必须符合人设。",
+          };
+
           const summaryContext = chat.history
             .filter((msg) => msg.type === "summary")
             .map((s) => s.content)
@@ -30974,15 +31111,14 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			- **内容**: 包含一条或多条你希望发送给用户的消息对象。这允许你模拟真人的聊天习惯，一次性发送多条短消息。
 			- **格式**: 消息对象的具体格式见下方的【第五部分：可使用的操作指令】。
 
-			**3. "innerVoice" 键:**
-			- **类型**: JSON对象 {}。
-			- **内容**: 描绘你此刻未曾说出口的内心活动。
-			- **必含字段**:
-			    - "type": "innervoice"
-			    - "clothing": (字符串) 详细描述你当前从头到脚的**全身服装**。
-			    - "behavior": (字符串) 描述你当前符合聊天情景的**细微动作或表情**。
-			    - "thoughts": (字符串) 描述你此刻**丰富、细腻的内心真实想法**（50字左右）。
-			    - "naughtyThoughts": (字符串) 描述你此刻与情境相关的**腹黑或色色的坏心思**，必须符合人设。
+            **3. "innerVoice" 键:**
+            - **类型**: JSON对象 {}。
+            - **必含字段**:
+                - "clothing": (字符串) 对应标签【${ivTags.clothing_label}】。指令：${ivTags.clothing_prompt}
+                - "behavior": (字符串) 对应标签【${ivTags.behavior_label}】。指令：${ivTags.behavior_prompt}
+                - "thoughts": (字符串) 对应标签【${ivTags.thoughts_label}】。指令：${ivTags.thoughts_prompt}
+                - "naughtyThoughts": (字符串) 对应标签【${ivTags.naughty_label}】。指令：${ivTags.naughty_prompt}
+
 
 			**4. 标准输出格式示例:**
 			{
@@ -41002,15 +41138,47 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             header.classList.toggle("no-border", shouldHideBorder);
           }
 
-          // --- 心声内容填充 ---
+          // === 【修复重点开始】：获取标签并设置默认值 ===
+          // 防止 chat.settings.innerVoiceTags 为空或部分字段缺失
+          const tags = chat.settings.innerVoiceTags || {};
+
+          const label1 = tags.clothing_label || "服装";
+          const label2 = tags.behavior_label || "行为";
+          const label3 = tags.thoughts_label || "心声";
+          const label4 = tags.naughty_label || "坏心思";
+
+          // 1. 设置第一个标签
+          const clothingLabel = document.querySelector(
+            "#inner-voice-content-area div:nth-child(1) strong",
+          );
+          if (clothingLabel) clothingLabel.textContent = label1 + ":";
           document.getElementById("inner-voice-clothing").textContent =
             data.clothing || "...";
+
+          // 2. 设置第二个标签
+          const behaviorLabel = document.querySelector(
+            "#inner-voice-content-area div:nth-child(2) strong",
+          );
+          if (behaviorLabel) behaviorLabel.textContent = label2 + ":";
           document.getElementById("inner-voice-behavior").textContent =
             data.behavior || "...";
+
+          // 3. 设置第三个标签
+          const thoughtsLabel = document.querySelector(
+            "#inner-voice-content-area div:nth-child(3) strong",
+          );
+          if (thoughtsLabel) thoughtsLabel.textContent = label3 + ":";
           document.getElementById("inner-voice-thoughts").textContent =
             data.thoughts || "...";
+
+          // 4. 设置第四个标签
+          const naughtyLabel = document.querySelector(
+            "#inner-voice-content-area div:nth-child(4) strong",
+          );
+          if (naughtyLabel) naughtyLabel.textContent = label4 + ":";
           document.getElementById("inner-voice-naughty-thoughts").textContent =
             data.naughtyThoughts || "...";
+          // === 【修复重点结束】 ===
 
           // --- 显示面板 ---
           modal.classList.add("visible");
@@ -46660,7 +46828,32 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             ?.classList.remove("visible");
 
           const styles = chat.settings.innerVoiceStyles;
+          // === 【修复重点】：安全获取标签配置 ===
+          const tags = chat.settings.innerVoiceTags || {};
           const modal = document.getElementById("inner-voice-editor-modal");
+
+          // 加载标签名和指令（如果为空则显示默认值）
+          document.getElementById("iv-label-clothing").value =
+            tags.clothing_label || "服装";
+          document.getElementById("iv-prompt-clothing").value =
+            tags.clothing_prompt || "详细描述你当前从头到脚的全身服装。";
+
+          document.getElementById("iv-label-behavior").value =
+            tags.behavior_label || "行为";
+          document.getElementById("iv-prompt-behavior").value =
+            tags.behavior_prompt || "描述你当前符合聊天情景的细微动作或表情。";
+
+          document.getElementById("iv-label-thoughts").value =
+            tags.thoughts_label || "心声";
+          document.getElementById("iv-prompt-thoughts").value =
+            tags.thoughts_prompt ||
+            "描述你此刻丰富、细腻的内心真实想法（50字左右）。";
+
+          document.getElementById("iv-label-naughty").value =
+            tags.naughty_label || "坏心思";
+          document.getElementById("iv-prompt-naughty").value =
+            tags.naughty_prompt ||
+            "描述你此刻与情境相关的腹黑或色色的坏心思，必须符合人设。";
 
           // 加载当前样式到编辑器
           document.getElementById("iv-color-clothing").value =
@@ -46686,13 +46879,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         }
 
         /**
-         * 保存用户修改的样式
+         * 保存用户修改的样式、标签和指令
          */
         async function saveInnerVoiceStyles() {
           if (!state.activeChatId) return;
           const chat = state.chats[state.activeChatId];
 
-          // 从编辑器读取新值
+          // 1. 保存样式 (保持不变)
           const newStyles = {
             clothingColor: document.getElementById("iv-color-clothing").value,
             behaviorColor: document.getElementById("iv-color-behavior").value,
@@ -46705,8 +46898,42 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             iconColor: document.getElementById("iv-icon-color").value,
           };
 
+          // 2. 保存标签名和指令 (新增)
+          // 如果用户留空，就使用默认值兜底
+          const newTags = {
+            clothing_label:
+              document.getElementById("iv-label-clothing").value.trim() ||
+              "服装",
+            clothing_prompt:
+              document.getElementById("iv-prompt-clothing").value.trim() ||
+              "详细描述你当前从头到脚的全身服装。",
+
+            behavior_label:
+              document.getElementById("iv-label-behavior").value.trim() ||
+              "行为",
+            behavior_prompt:
+              document.getElementById("iv-prompt-behavior").value.trim() ||
+              "描述你当前符合聊天情景的细微动作或表情。",
+
+            thoughts_label:
+              document.getElementById("iv-label-thoughts").value.trim() ||
+              "心声",
+            thoughts_prompt:
+              document.getElementById("iv-prompt-thoughts").value.trim() ||
+              "描述你此刻丰富、细腻的内心真实想法（50字左右）。",
+
+            naughty_label:
+              document.getElementById("iv-label-naughty").value.trim() ||
+              "坏心思",
+            naughty_prompt:
+              document.getElementById("iv-prompt-naughty").value.trim() ||
+              "描述你此刻与情境相关的腹黑或色色的坏心思，必须符合人设。",
+          };
+
           // 更新到state和数据库
           chat.settings.innerVoiceStyles = newStyles;
+          chat.settings.innerVoiceTags = newTags;
+
           await db.chats.put(chat);
 
           // 关闭弹窗
@@ -46714,10 +46941,22 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             .getElementById("inner-voice-editor-modal")
             .classList.remove("visible");
 
-          // 重新应用一下最终保存的样式，以防万一
+          // 重新应用样式
           applySavedInnerVoiceStyles();
 
-          await showCustomAlert("保存成功", "心声面板的样式已更新！");
+          // 如果面板开着，重新打开一下以刷新标签文字
+          if (
+            document
+              .getElementById("inner-voice-modal")
+              .classList.contains("visible")
+          ) {
+            openInnerVoiceModal();
+          }
+
+          await showCustomAlert(
+            "保存成功",
+            "心声配置已更新！\nAI将在下次回复时遵循你的新指令。",
+          );
         }
 
         /**
@@ -52417,13 +52656,17 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               // 如果开启了自动备份，立即重启定时器
               handleAutoBackupTimer();
               await db.apiConfig.put(state.apiConfig);
-
-              // 在 'save-api-settings-btn' 的 click 事件监听器内部
-              // await db.apiConfig.put(state.apiConfig); 这行之后
+              state.globalSettings.enableSystemNotifications =
+                document.getElementById("system-notification-switch").checked;
+              console.log(
+                "保存系统通知开关状态:",
+                state.globalSettings.enableSystemNotifications,
+              );
               state.globalSettings.imageCompressionQuality = parseFloat(
                 document.getElementById("image-quality-slider").value,
               );
-
+              state.globalSettings.enableSystemNotifications =
+                document.getElementById("system-notification-switch").checked;
               const backgroundSwitch = document.getElementById(
                 "background-activity-switch",
               );
