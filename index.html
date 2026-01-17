@@ -5282,22 +5282,69 @@
               </div>
             </div>
 
+            <!-- 替换原来的 id="couple-avatar-group" -->
             <div class="form-group" id="couple-avatar-group">
               <div class="moe-divider"></div>
-              <label class="toggle-switch-label">
-                <span class="toggle-switch-text">情侣头像模式</span>
-                <input type="checkbox" id="couple-avatar-toggle" />
-                <span class="toggle-switch-slider"></span>
-              </label>
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 8px;
+                "
+              >
+                <label class="toggle-switch-label" style="margin: 0">
+                  <span
+                    class="toggle-switch-text"
+                    style="font-weight: 600; color: #ff6b81"
+                    >❤️ 情侣头像模式</span
+                  >
+                  <input type="checkbox" id="couple-avatar-toggle" />
+                  <span class="toggle-switch-slider"></span>
+                </label>
+
+                <!-- 修改后的按钮样式 -->
+                <button
+                  id="manage-couple-avatar-library-btn"
+                  class="moe-btn-secondary"
+                  style="
+                    margin: 0;
+                    padding: 4px 12px;
+                    font-size: 12px;
+                    background-color: #fff0f3;
+                    color: #ff6b81;
+                    border: 1px solid #ffc2d1;
+                    border-radius: 15px;
+                  "
+                >
+                  📂 管理情头库
+                </button>
+              </div>
+
               <div
                 id="couple-avatar-desc-container"
-                style="display: none; margin-top: 10px"
+                style="
+                  display: none;
+                  margin-top: 10px;
+                  background: #fff0f3;
+                  padding: 8px;
+                  border-radius: 8px;
+                "
               >
-                <label style="font-size: 12px; color: #aaa">情侣头像描述</label>
+                <label
+                  style="
+                    font-size: 12px;
+                    color: #ff8fa3;
+                    display: block;
+                    margin-bottom: 4px;
+                  "
+                  >当前情头描述 (AI依据)</label
+                >
                 <input
                   type="text"
                   id="couple-avatar-description"
                   class="moe-input"
+                  style="background: #fff; border-color: #ffc2d1"
                   placeholder="例如：一只小猫在看月亮"
                 />
               </div>
@@ -14482,6 +14529,136 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         </div>
       </div>
     </div>
+    <!-- 情侣头像库管理模态框 -->
+    <div id="couple-avatar-library-modal" class="modal">
+      <div class="modal-content" style="height: 70%">
+        <div class="modal-header">
+          <span>情侣头像库</span>
+          <button id="add-couple-avatar-btn" class="action-button">添加</button>
+        </div>
+        <div class="modal-body" style="padding: 15px; background: #f5f5f5">
+          <div
+            id="couple-avatar-library-list"
+            style="display: flex; flex-direction: column; gap: 15px"
+          >
+            <!-- 情头列表将由JS动态生成 -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="save"
+            id="close-couple-avatar-library-btn"
+            style="width: 100%"
+          >
+            关闭
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- 替换原来的 id="add-couple-avatar-modal" -->
+    <div id="add-couple-avatar-modal" class="modal" style="z-index: 1002">
+      <div class="modal-content" style="height: auto">
+        <div class="modal-header">
+          <span>添加情侣头像</span>
+        </div>
+        <div class="modal-body">
+          <div
+            class="moe-grid-row"
+            style="
+              margin-bottom: 15px;
+              display: flex;
+              justify-content: space-around;
+            "
+          >
+            <!-- 你的头像 -->
+            <div class="form-group" style="text-align: center; width: 45%">
+              <label style="font-size: 12px; color: #666">我的头像</label>
+              <div
+                class="avatar-upload"
+                style="width: 80px; height: 80px; margin: 5px auto"
+              >
+                <img
+                  id="new-couple-my-avatar-preview"
+                  src="https://i.postimg.cc/pT2xKzPz/album-cover-placeholder.png"
+                  style="
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border-radius: 12px;
+                    border: 1px dashed #ccc;
+                  "
+                />
+                <!-- 隐藏的文件输入框 -->
+                <input
+                  type="file"
+                  id="new-couple-my-avatar-input"
+                  accept="image/*"
+                  hidden
+                />
+              </div>
+              <!-- 这里的按钮现在有 ID 了 -->
+              <button
+                id="upload-couple-my-btn"
+                class="moe-btn-mini"
+                style="width: 100%"
+              >
+                上传/URL
+              </button>
+            </div>
+
+            <!-- 对方头像 -->
+            <div class="form-group" style="text-align: center; width: 45%">
+              <label style="font-size: 12px; color: #666">对方头像</label>
+              <div
+                class="avatar-upload"
+                style="width: 80px; height: 80px; margin: 5px auto"
+              >
+                <img
+                  id="new-couple-char-avatar-preview"
+                  src="https://i.postimg.cc/pT2xKzPz/album-cover-placeholder.png"
+                  style="
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border-radius: 12px;
+                    border: 1px dashed #ccc;
+                  "
+                />
+                <!-- 隐藏的文件输入框 -->
+                <input
+                  type="file"
+                  id="new-couple-char-avatar-input"
+                  accept="image/*"
+                  hidden
+                />
+              </div>
+              <!-- 这里的按钮现在有 ID 了 -->
+              <button
+                id="upload-couple-char-btn"
+                class="moe-btn-mini"
+                style="width: 100%"
+              >
+                上传/URL
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>情头描述 (重要：AI将根据此描述选择头像)</label>
+            <textarea
+              id="new-couple-desc-input"
+              rows="3"
+              class="moe-input"
+              placeholder="例如：甜蜜的拥抱，我在左边抱着你..."
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel" id="cancel-add-couple-avatar-btn">取消</button>
+          <button class="save" id="save-couple-avatar-btn">保存</button>
+        </div>
+      </div>
+    </div>
 
     <div id="inner-voice-modal" class="modal">
       <!-- 心声主面板 -->
@@ -16888,6 +17065,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               resolve(null);
               hideCustomModal();
             };
+            document.getElementById("custom-modal-overlay").style.zIndex =
+              "10005";
             showCustomModal();
             setTimeout(() => input.focus(), 100);
           });
@@ -19917,7 +20096,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 chat.settings.speed = 1.0; // 默认为1.0
               }
             }
-
+            // 为旧数据补全情侣头像库
+            if (!chat.isGroup && !chat.settings.coupleAvatarLibrary) {
+              chat.settings.coupleAvatarLibrary = [];
+              console.log(
+                `为旧角色 "${chat.name}" 补全了情侣头像库(coupleAvatarLibrary)属性。`,
+              );
+            }
             acc[chat.id] = chat;
             return acc;
           }, {});
@@ -20226,7 +20411,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               resolve(null); // 用户取消，返回 null
             };
             footer.appendChild(cancelButton);
-
+            modal.style.zIndex = "10005";
             modal.classList.add("visible");
           });
         }
@@ -25118,6 +25303,26 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   savedTags.naughty_prompt ||
                   "描述你此刻与情境相关的腹黑或色色的坏心思，必须符合人设。",
               };
+              // ... 在 triggerAiResponse 函数内 ...
+
+              // --- 注入情侣头像库上下文 ---
+              let coupleAvatarLibraryContext = "";
+              if (
+                !chat.isGroup &&
+                chat.settings.coupleAvatarLibrary &&
+                chat.settings.coupleAvatarLibrary.length > 0
+              ) {
+                const libraryList = chat.settings.coupleAvatarLibrary
+                  .map((pair) => `- (ID: ${pair.id}) 描述: ${pair.description}`)
+                  .join("\n");
+
+                coupleAvatarLibraryContext = `
+# 可用的情侣头像库
+你可以根据当前的对话氛围、情感状态或剧情发展，主动更换我们两人的情侣头像。
+可用列表:
+${libraryList}
+`;
+              }
 
               // --- 获取饿了么菜单，为AI点单提供上下文 ---
               let elemeContext =
@@ -25150,6 +25355,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			- **核心人设**: ${chat.settings.aiPersona}
 			- **总结**:${summaryContext}
 			- **情侣头像**: ${coupleAvatarContext}
+      -情侣头像库：${coupleAvatarLibraryContext}
 			- **世界观/NPC**: ${npcContext}
 			${petContext}
 			**2. 你的当前状态:**
@@ -25328,6 +25534,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			- **更换头像**: \`{"type": "change_avatar", "name": "头像名"}\`(头像名需在头像库列表中)
 			- **切换歌曲**: \`{"type": "change_music", "song_name": "歌曲名"}\` (歌曲名需在播放列表中)
 			- **发送定位**: \`[SEND_LOCATION] 我的位置: (你的位置) | 你的位置: (用户的位置) | 相距: (你们的距离) | 途经点: (地点A, 地点B)\` (注意: 这是纯文本格式)
+      - **更换情侣头像(库中已有)**: \`{"type": "change_couple_avatar", "avatar_id": "情头ID"}\` (根据上下文选择最合适的一对)
+- **【设置新情头】**: 当用户发送了图片（一张或两张）并表示想换情头时使用。指令：\`{"type": "set_new_couple_avatar", "description": "描述", "user_img_index": 0, "char_img_index": 1}\`。
+              * 规则：**如果用户只发了一张图，系统默认该图是给你的，用户的头像保持不变（此时忽略index参数）。** 如果发了两张，请根据用户描述分配 index。
 
 			**三、 社交与关系指令**
 			- **记录回忆**: \`{"type": "create_memory", "description": "用你的话记录下这个特殊瞬间。"}\` (此为秘密日记，用户不可见)
@@ -26171,6 +26380,152 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   }
                   break;
                 }
+                case "change_couple_avatar": {
+                  const pairId = msgData.avatar_id;
+                  const library = chat.settings.coupleAvatarLibrary || [];
+                  const targetPair = library.find((p) => p.id === pairId);
+
+                  if (targetPair) {
+                    // 1. 更新双方头像
+                    chat.settings.aiAvatar = targetPair.charAvatar;
+                    chat.settings.myAvatar = targetPair.userAvatar;
+
+                    // 2. 自动开启情侣模式并更新描述
+                    chat.settings.isCoupleAvatar = true;
+                    chat.settings.coupleAvatarDescription =
+                      targetPair.description;
+
+                    // 3. 生成系统提示消息
+                    const sysMsg = {
+                      role: "system",
+                      type: "pat_message",
+                      content: `[${chat.name} 觉得现在的氛围很适合，将情侣头像更换为：${targetPair.description}]`,
+                      timestamp: Date.now(),
+                    };
+                    chat.history.push(sysMsg);
+
+                    // 4. 保存并刷新
+                    await db.chats.put(chat);
+
+                    if (isViewingThisChat) {
+                      appendMessage(sysMsg, chat);
+                      renderChatInterface(chatId); // 刷新界面以显示新头像
+                    }
+                  }
+                  continue; // 继续处理其他消息
+                }
+                // ▼▼▼▼▼▼ 在 switch 语句中插入/替换此段代码 ▼▼▼▼▼▼
+                case "set_new_couple_avatar": {
+                  // 1. 搜集用户最近发送的所有图片
+                  const recentUserImages = [];
+                  // 向回查找最近 10 条消息，收集里面的所有图片
+                  const recentUserMsgs = chat.history
+                    .filter((m) => m.role === "user" && !m.isHidden)
+                    .slice(-10)
+                    .reverse(); // 翻转：变成 [最新消息, ..., 较旧消息]
+
+                  recentUserMsgs.forEach((msg) => {
+                    // 支持多模态消息 (数组结构)
+                    if (Array.isArray(msg.content)) {
+                      msg.content.forEach((part) => {
+                        if (part.type === "image_url") {
+                          // unshift: 插入到数组开头
+                          // 因为我们遍历的是“从新到旧”，unshift 会让最终数组变成 [旧图1, 旧图2, ..., 最新图]
+                          // 这样 index 0 就是用户先发的那张
+                          recentUserImages.unshift(part.image_url.url);
+                        }
+                      });
+                    }
+                    // 兼容旧的单图片格式
+                    else if (
+                      msg.type === "user_photo" ||
+                      msg.type === "ai_image"
+                    ) {
+                      if (msg.content && msg.content.startsWith("data:image")) {
+                        recentUserImages.unshift(msg.content);
+                      }
+                    }
+                  });
+
+                  let userAvatarUrl, charAvatarUrl;
+                  let success = false;
+
+                  // 2. 根据图片数量决定策略
+                  if (recentUserImages.length === 0) {
+                    // 一张图都没找到
+                    aiMessage = {
+                      ...baseMessage,
+                      content: "（挠头）我没找到图片呀？你再发一次试试？",
+                    };
+                  } else if (recentUserImages.length === 1) {
+                    // === 策略 A：只有一张图 ===
+                    // 默认：这张图是给 Char 的，User 保持原样
+                    charAvatarUrl = recentUserImages[0];
+                    userAvatarUrl = chat.settings.myAvatar || defaultAvatar; // 获取用户当前头像
+                    success = true;
+                  } else {
+                    // === 策略 B：有两张及以上图 ===
+                    // 使用 AI 指定的索引，默认为 0 和 1
+                    const userIdx =
+                      typeof msgData.user_img_index === "number"
+                        ? msgData.user_img_index
+                        : 0;
+                    const charIdx =
+                      typeof msgData.char_img_index === "number"
+                        ? msgData.char_img_index
+                        : 1;
+
+                    userAvatarUrl =
+                      recentUserImages[userIdx] || recentUserImages[0];
+                    charAvatarUrl =
+                      recentUserImages[charIdx] || recentUserImages[1];
+                    success = true;
+                  }
+
+                  if (success) {
+                    // 3. 更新当前设置
+                    chat.settings.myAvatar = userAvatarUrl;
+                    chat.settings.aiAvatar = charAvatarUrl;
+                    chat.settings.isCoupleAvatar = true;
+                    chat.settings.coupleAvatarDescription =
+                      msgData.description || "甜蜜的情侣头像";
+
+                    // 4. 存入情头库
+                    if (!chat.settings.coupleAvatarLibrary) {
+                      chat.settings.coupleAvatarLibrary = [];
+                    }
+                    const newPair = {
+                      id: "couple_" + Date.now(),
+                      userAvatar: userAvatarUrl,
+                      charAvatar: charAvatarUrl,
+                      description:
+                        msgData.description ||
+                        `保存于 ${new Date().toLocaleString()}`,
+                    };
+                    chat.settings.coupleAvatarLibrary.push(newPair);
+
+                    // 5. 保存数据库
+                    await db.chats.put(chat);
+
+                    // 6. 发送系统提示消息 (视觉反馈)
+                    const successTip = {
+                      role: "system",
+                      type: "pat_message",
+                      content: `[已更换情侣头像，并存入库中]`,
+                      timestamp: Date.now(),
+                    };
+                    chat.history.push(successTip);
+
+                    if (isViewingThisChat) {
+                      appendMessage(successTip, chat);
+                      renderChatInterface(chatId); // 立即刷新界面头像
+                    }
+                  }
+
+                  // 继续处理 (continue)，以便 AI 可以发出它生成的文本消息 (content)
+                  continue;
+                }
+                // ▲▲▲▲▲▲ 代码结束 ▲▲▲▲▲▲
 
                 case "waimai_response":
                   const requestMessageIndex = chat.history.findIndex(
@@ -51612,6 +51967,61 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
         }
 
+        // 1. 通用处理函数：点击上传按钮时触发
+        async function handleCoupleImageSelect(previewImgId, fileInputId) {
+          const choice = await showChoiceModal("选择图片来源", [
+            { text: "📁 从本地上传", value: "local" },
+            { text: "🌐 使用网络URL", value: "url" },
+          ]);
+
+          if (!choice) return;
+
+          if (choice === "local") {
+            // 触发本地文件选择
+            document.getElementById(fileInputId).click();
+          } else if (choice === "url") {
+            // 弹出输入框获取URL
+            const url = await showCustomPrompt(
+              "输入图片链接",
+              "请粘贴以 http 开头的图片地址",
+              "",
+              "url",
+            );
+            if (url && url.trim()) {
+              document.getElementById(previewImgId).src = url.trim();
+            }
+          }
+        }
+
+        // 2. 绑定两个上传按钮的点击事件 (使用上面定义的新ID)
+        document
+          .getElementById("upload-couple-my-btn")
+          .addEventListener("click", () => {
+            handleCoupleImageSelect(
+              "new-couple-my-avatar-preview",
+              "new-couple-my-avatar-input",
+            );
+          });
+
+        document
+          .getElementById("upload-couple-char-btn")
+          .addEventListener("click", () => {
+            handleCoupleImageSelect(
+              "new-couple-char-avatar-preview",
+              "new-couple-char-avatar-input",
+            );
+          });
+
+        // 3. 绑定本地文件选择后的预览 (复用之前的逻辑，保持不变)
+        // 这里的 setupFileUpload 是你代码里已有的辅助函数
+        setupFileUpload("new-couple-my-avatar-input", (base64) => {
+          document.getElementById("new-couple-my-avatar-preview").src = base64;
+        });
+        setupFileUpload("new-couple-char-avatar-input", (base64) => {
+          document.getElementById("new-couple-char-avatar-preview").src =
+            base64;
+        });
+
         // 4. 初始化函数 init()
         // ===================================================================
         async function init() {
@@ -60417,7 +60827,201 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               }
             });
           }
+          // --- 情侣头像库功能事件 ---
 
+          // 1. 打开管理弹窗
+          document
+            .getElementById("manage-couple-avatar-library-btn")
+            .addEventListener("click", (e) => {
+              // 阻止冒泡防止关闭设置弹窗（视情况而定，这里建议先不关闭设置弹窗，或者层叠显示）
+              // 为了体验更好，我们可以先隐藏聊天设置弹窗
+              document
+                .getElementById("chat-settings-modal")
+                .classList.remove("visible");
+              openCoupleAvatarLibraryModal();
+            });
+
+          // 2. 关闭管理弹窗 (返回设置)
+          document
+            .getElementById("close-couple-avatar-library-btn")
+            .addEventListener("click", () => {
+              document
+                .getElementById("couple-avatar-library-modal")
+                .classList.remove("visible");
+              // 重新打开设置弹窗
+              document.getElementById("chat-settings-btn").click();
+            });
+
+          // 3. 打开添加弹窗
+          document
+            .getElementById("add-couple-avatar-btn")
+            .addEventListener("click", () => {
+              // 清空输入
+              document.getElementById("new-couple-my-avatar-preview").src =
+                "https://i.postimg.cc/pT2xKzPz/album-cover-placeholder.png";
+              document.getElementById("new-couple-char-avatar-preview").src =
+                "https://i.postimg.cc/pT2xKzPz/album-cover-placeholder.png";
+              document.getElementById("new-couple-desc-input").value = "";
+              document.getElementById("new-couple-my-avatar-input").value = "";
+              document.getElementById("new-couple-char-avatar-input").value =
+                "";
+
+              document
+                .getElementById("add-couple-avatar-modal")
+                .classList.add("visible");
+            });
+
+          // 4. 关闭添加弹窗
+          document
+            .getElementById("cancel-add-couple-avatar-btn")
+            .addEventListener("click", () => {
+              document
+                .getElementById("add-couple-avatar-modal")
+                .classList.remove("visible");
+            });
+
+          // 5. 保存新情头
+          document
+            .getElementById("save-couple-avatar-btn")
+            .addEventListener("click", async () => {
+              const myAvatarSrc = document.getElementById(
+                "new-couple-my-avatar-preview",
+              ).src;
+              const charAvatarSrc = document.getElementById(
+                "new-couple-char-avatar-preview",
+              ).src;
+              const desc = document
+                .getElementById("new-couple-desc-input")
+                .value.trim();
+
+              if (
+                myAvatarSrc.includes("placeholder") ||
+                charAvatarSrc.includes("placeholder")
+              ) {
+                alert("请上传两张头像！");
+                return;
+              }
+              if (!desc) {
+                alert("请输入描述，这很重要，AI靠它来选择头像！");
+                return;
+              }
+
+              const chat = state.chats[state.activeChatId];
+              if (!chat.settings.coupleAvatarLibrary)
+                chat.settings.coupleAvatarLibrary = [];
+
+              const newPair = {
+                id: "couple_" + Date.now(),
+                userAvatar: myAvatarSrc,
+                charAvatar: charAvatarSrc,
+                description: desc,
+              };
+
+              chat.settings.coupleAvatarLibrary.push(newPair);
+              await db.chats.put(chat);
+
+              document
+                .getElementById("add-couple-avatar-modal")
+                .classList.remove("visible");
+              renderCoupleAvatarLibraryList(); // 刷新列表
+              alert("情侣头像添加成功！");
+            });
+
+          // 6. 图片上传预览绑定 (复用通用的上传函数)
+          setupFileUpload("new-couple-my-avatar-input", (base64) => {
+            document.getElementById("new-couple-my-avatar-preview").src =
+              base64;
+          });
+          setupFileUpload("new-couple-char-avatar-input", (base64) => {
+            document.getElementById("new-couple-char-avatar-preview").src =
+              base64;
+          });
+
+          // 核心函数：打开管理弹窗
+          function openCoupleAvatarLibraryModal() {
+            if (!state.activeChatId) return;
+            renderCoupleAvatarLibraryList();
+            document
+              .getElementById("couple-avatar-library-modal")
+              .classList.add("visible");
+          }
+
+          // 核心函数：渲染列表
+          function renderCoupleAvatarLibraryList() {
+            const listEl = document.getElementById(
+              "couple-avatar-library-list",
+            );
+            const chat = state.chats[state.activeChatId];
+            const library = chat.settings.coupleAvatarLibrary || [];
+
+            listEl.innerHTML = "";
+
+            if (library.length === 0) {
+              listEl.innerHTML =
+                '<p style="text-align:center; color:#999; padding:20px;">这里空空如也，快去添加第一对情头吧！</p>';
+              return;
+            }
+
+            library.forEach((pair, index) => {
+              const item = document.createElement("div");
+              item.style.cssText = `
+            background: #fff; padding: 10px; border-radius: 12px; 
+            display: flex; flex-direction: column; gap: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        `;
+
+              item.innerHTML = `
+            <div style="display:flex; justify-content:center; gap: 15px; align-items:center;">
+                <div style="text-align:center;">
+                    <img src="${pair.userAvatar}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid #eee;">
+                    <div style="font-size:10px; color:#666; margin-top:2px;">我</div>
+                </div>
+                <div style="font-size:20px;">❤️</div>
+                <div style="text-align:center;">
+                    <img src="${pair.charAvatar}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid #eee;">
+                    <div style="font-size:10px; color:#666; margin-top:2px;">Ta</div>
+                </div>
+            </div>
+            <div style="font-size:13px; color:#333; background:#f9f9f9; padding:8px; border-radius:6px;">
+                <strong>描述：</strong>${pair.description}
+            </div>
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="moe-btn-mini apply-pair-btn" style="background:#4caf50; color:white;">应用</button>
+                <button class="moe-btn-mini delete-pair-btn" style="background:#ff3b30; color:white;">删除</button>
+            </div>
+        `;
+
+              // 绑定删除
+              item.querySelector(".delete-pair-btn").onclick = async () => {
+                if (confirm("确定要删除这对情头吗？")) {
+                  chat.settings.coupleAvatarLibrary.splice(index, 1);
+                  await db.chats.put(chat);
+                  renderCoupleAvatarLibraryList();
+                }
+              };
+
+              // 绑定手动应用
+              item.querySelector(".apply-pair-btn").onclick = async () => {
+                chat.settings.aiAvatar = pair.charAvatar;
+                chat.settings.myAvatar = pair.userAvatar;
+                chat.settings.isCoupleAvatar = true;
+                chat.settings.coupleAvatarDescription = pair.description;
+                await db.chats.put(chat);
+
+                // 如果聊天界面开着，刷新它
+                if (
+                  document
+                    .getElementById("chat-interface-screen")
+                    .classList.contains("active")
+                ) {
+                  renderChatInterface(chat.id);
+                }
+                alert("已应用此情侣头像！");
+              };
+
+              listEl.appendChild(item);
+            });
+          }
           initAuroraDrag(); // 初始化拖拽
           initAuroraFontControl();
           initAuroraResize();
