@@ -28998,7 +28998,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 // 1. 将新消息存入历史记录
                 chat.history.push(aiMessage);
 
-                if (!isViewingThisChat && !notificationShown) {
+                if (!isViewingThisChat || document.hidden) {
                   let notificationText;
                   switch (aiMessage.type) {
                     case "transfer":
@@ -29024,12 +29024,12 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   const finalNotifText = chat.isGroup
                     ? `${aiMessage.senderName}: ${notificationText}`
                     : notificationText;
+
                   showNotification(
                     chatId,
-                    finalNotifText.substring(0, 40) +
-                      (finalNotifText.length > 40 ? "..." : ""),
+                    finalNotifText.substring(0, 60) + // 稍微加长了预览文字
+                      (finalNotifText.length > 60 ? "..." : ""),
                   );
-                  notificationShown = true; // 确保只通知一次
                 }
 
                 if (!isViewingThisChat) {
@@ -29040,7 +29040,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 // 2. 只有在当前聊天界面时，才执行带动画的添加
                 if (isViewingThisChat) {
                   appendMessage(aiMessage, chat);
-
+                  playNotificationSound();
                   await new Promise((resolve) =>
                     setTimeout(resolve, Math.random() * 1800 + 1000),
                   );
@@ -29062,7 +29062,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 alert("无人接听群聊邀请。");
               }
             }
-            playNotificationSound();
             await db.chats.put(chat);
             checkAndTriggerSummary(chatId);
 
