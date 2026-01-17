@@ -15,8 +15,15 @@ html {
 
 body {
   margin: 0;
-  font-family: "bulangni", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  font-family:
+    "bulangni",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
   font-weight: normal;
   background-color: #f0f2f5;
   height: 100%;
@@ -126,7 +133,9 @@ body {
   overflow: hidden;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s, visibility 0.3s;
+  transition:
+    opacity 0.3s,
+    visibility 0.3s;
 }
 .screen.active {
   opacity: 1;
@@ -219,17 +228,6 @@ body {
   box-sizing: border-box;
 }
 
-/* 2. (核心) 单独处理锁屏的文字，让它自动贴底 (这是本次的唯一修改) */
-#lock-screen-content {
-  margin-top: auto; /* 关键：自动将此元素推到容器底部 */
-  margin-bottom: 40px; /* ★ 核心修正：使用 margin-bottom 向上推开，而不是padding */
-  text-align: center;
-  color: white;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-  font-size: 16px;
-  font-weight: 500;
-}
-
 /* 3. 保持主屏幕的时钟和App图标布局不变 */
 #clock-container {
   text-align: center;
@@ -239,25 +237,7 @@ body {
   flex-shrink: 0;
   margin-top: 60px;
 }
-.app-grid {
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-  padding: 20px;
-  margin-bottom: 30px;
-}
-
 /* ▲▲▲ 替换结束 ▲▲▲ */
-
-.app-row {
-  display: flex;
-  justify-content: center;
-  gap: 25px;
-  width: 100%;
-}
 .app-icon {
   display: flex;
   flex-direction: column;
@@ -1042,7 +1022,9 @@ body {
   -webkit-backdrop-filter: blur(5px);
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: opacity 0.2s, transform 0.1s;
+  transition:
+    opacity 0.2s,
+    transform 0.1s;
   cursor: pointer;
 }
 #wait-reply-btn:hover {
@@ -1266,7 +1248,9 @@ body {
   border-radius: 12px;
   display: block;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 .ai-generated-image:hover {
   transform: scale(1.05);
@@ -1861,7 +1845,9 @@ body {
   background-size: cover;
   background-position: center;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 .persona-preset-item:hover {
@@ -1945,7 +1931,9 @@ body {
   flex-direction: column;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s, visibility 0.2s;
+  transition:
+    opacity 0.2s,
+    visibility 0.2s;
   z-index: 1;
 }
 .chat-list-view.active {
@@ -2077,41 +2065,6 @@ body {
   padding-bottom: 5px; /* 微调位置 */
 }
 
-/* 编辑按钮的通用样式 */
-.qzone-edit-btn {
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.4);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 4px 8px;
-  font-size: 12px;
-  cursor: pointer;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-}
-
-#change-qzone-banner-btn {
-  bottom: 10px;
-  right: 10px;
-}
-
-#change-qzone-avatar-btn {
-  bottom: 5px;
-  right: 5px;
-}
-
-#change-qzone-nickname-btn {
-  font-size: 14px;
-  padding: 2px 6px;
-  margin-left: 5px; /* 与昵称的间距 */
-  color: var(--text-primary);
-  background-color: rgba(255, 255, 255, 0.7);
-  border-radius: 5px;
-  position: relative; /* 脱离flex布局的对齐 */
-  bottom: 5px; /* 微调垂直位置 */
-}
-
 /* === 让编辑功能更“隐形” === */
 #qzone-banner-container,
 #qzone-avatar-container,
@@ -2125,10 +2078,6 @@ body {
   opacity: 0.85; /* 悬停时稍微变暗，给用户反馈 */
 }
 /* 隐藏掉旧的、独立的编辑按钮 */
-.qzone-edit-btn {
-  display: none;
-}
-
 /* === 控制 Header 和 Bottom Nav 的显隐 === */
 /* 默认隐藏动态界面的 Header */
 #qzone-screen .qzone-header {
@@ -2137,12 +2086,6 @@ body {
 /* 当动态视图激活时，显示它的Header */
 #qzone-screen.active .qzone-header {
   display: flex;
-}
-
-/* 当进入动态视图时，隐藏主Header和底部导航栏 */
-#chat-list-screen.in-qzone-view > .header,
-#chat-list-screen.in-qzone-view > #chat-list-bottom-nav {
-  display: none;
 }
 
 .chat-group-container:first-child {
@@ -2360,7 +2303,9 @@ body {
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   border-radius: 8px; /* 给整个项目也加个圆角 */
 }
 
@@ -2860,28 +2805,6 @@ body {
   margin-top: 8px; /* 图片和文字的间距 */
 }
 
-/* 删除按钮 */
-.fav-delete-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 28px;
-  height: 28px;
-  background: #f0f2f5;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 18px;
-  color: var(--text-secondary);
-  line-height: 28px;
-  text-align: center;
-}
-
-.fav-delete-btn:hover {
-  background-color: #e9ecef;
-  color: #ff3b30;
-}
-
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
 
 /* ▼▼▼ 请将这段新样式粘贴到 <style> 的末尾 ▼▼▼ */
@@ -2944,7 +2867,9 @@ body {
 
 /* === 收藏页面多选模式样式 === */
 #favorites-view.selection-mode .favorite-item-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 /* 选择框的样式 */
@@ -3377,20 +3302,6 @@ body {
   font-weight: 500;
 }
 
-.member-management-item .remove-member-btn {
-  background-color: #ff3b30;
-  color: white;
-  border: none;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  font-size: 20px;
-  line-height: 28px;
-  text-align: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
 #member-management-actions {
   flex-shrink: 0;
   padding: 15px;
@@ -3433,8 +3344,9 @@ body {
   overflow: hidden;
   background-color: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
 }
 
 .waimai-header {
@@ -3718,7 +3630,9 @@ body {
   background-size: 50%;
   background-repeat: no-repeat;
   background-position: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 .call-action-btn:active {
@@ -3907,7 +3821,9 @@ body {
   cursor: pointer;
   background-repeat: no-repeat;
   background-position: center;
-  transition: transform 0.2s, background-color 0.2s;
+  transition:
+    transform 0.2s,
+    background-color 0.2s;
 }
 .control-btn:active {
   transform: scale(0.9);
@@ -4074,19 +3990,6 @@ body {
 
 .pat-animation {
   animation: pat-shake 0.4s ease-in-out;
-}
-
-/* 2. “拍一拍”系统提示消息的样式 */
-.system-message {
-  align-self: center; /* 居中显示 */
-  padding: 4px 12px;
-  margin: 5px 0;
-  background-color: rgba(0, 0, 0, 0.1);
-  color: var(--text-secondary);
-  font-size: 12px;
-  border-radius: 10px;
-  text-align: center;
-  max-width: 80%;
 }
 
 /* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
@@ -4456,7 +4359,8 @@ body {
   border-radius: 10px;
   border: 1px solid #e0e0e0;
   padding: 12px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .poll-card.closed {
@@ -4718,6 +4622,12 @@ body {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
+.message-bubble.is-book-share .content {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
 
 .link-share-card {
   width: 210px;
@@ -4769,6 +4679,61 @@ body {
   width: 14px;
   height: 14px;
   flex-shrink: 0; /* 防止图标被压缩 */
+}
+
+/* 连载分享专用卡片 */
+.book-share-card {
+  display: grid;
+  grid-template-columns: 8px 1fr;
+  background: #fff;
+  border: 1px solid #e6d8c6;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  width: 240px;
+}
+.book-share-card .book-spine {
+  background: linear-gradient(180deg, #c69c6d 0%, #b38658 100%);
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1) inset;
+}
+.book-share-card .book-body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.book-share-card .book-tag {
+  display: inline-block;
+  font-size: 11px;
+  color: #8c6239;
+  background: #f6e9d8;
+  padding: 2px 6px;
+  border-radius: 6px;
+  width: fit-content;
+}
+.book-share-card .book-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: #2b1a10;
+  line-height: 1.3;
+}
+.book-share-card .book-meta {
+  font-size: 12px;
+  color: #8a8a8a;
+}
+.book-share-card .book-desc {
+  font-size: 13px;
+  color: #5a4a3c;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.book-share-card .book-latest {
+  font-size: 12px;
+  color: #8c6239;
+  font-weight: 600;
 }
 
 /* ▲▲▲ 新CSS粘贴结束 ▲▲▲ */
@@ -4905,7 +4870,9 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background-color: #f0f2f5; /* 统一为更浅的灰色，然后让夜间模式CSS去覆盖 */
-  transition: background-color 0.3s, border-color 0.3s;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
 }
 
 /* 预览框里的文字颜色，默认是黑色 */
@@ -4934,7 +4901,8 @@ body {
   text-align: center;
   position: relative;
   border: 1px solid #ffcce0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .transfer-actions-header {
@@ -4965,7 +4933,9 @@ body {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   color: white;
 }
 
@@ -5043,7 +5013,9 @@ body {
   padding: 15px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   border-left: 5px solid var(--accent-color);
 }
 .call-record-card:hover {
@@ -5221,7 +5193,8 @@ body {
   opacity: 0;
   visibility: hidden;
   transform: translateY(-50px);
-  transition: opacity 0.4s ease-out,
+  transition:
+    opacity 0.4s ease-out,
     transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -5764,7 +5737,9 @@ body {
   position: relative;
   z-index: 2;
   background-color: var(--secondary-bg);
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
   width: 100%;
   flex-shrink: 0;
 }
@@ -6207,7 +6182,8 @@ body {
 .location-map-area {
   height: 90px;
   background-color: #f0f2f5;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
   background-size: 20px 20px;
   padding: 5px; /* 给SVG一点呼吸空间 */
@@ -6305,7 +6281,9 @@ body {
   box-shadow: none;
 
   /* 保留原有的交互动效 */
-  transition: opacity 0.2s, transform 0.1s;
+  transition:
+    opacity 0.2s,
+    transform 0.1s;
 }
 
 #reroll-btn:hover {
@@ -6342,7 +6320,9 @@ body {
   background-color: rgba(0, 0, 0, 0);
 
   /* 【问题3需要】为字体颜色和背景透明度添加过渡动画 */
-  transition: background-color 0.3s, opacity 0.3s;
+  transition:
+    background-color 0.3s,
+    opacity 0.3s;
 
   color: white;
   font-size: 14px;
@@ -6448,7 +6428,9 @@ body {
   margin: 8px 10px; /* 增加外边距，形成卡片感 */
   border-radius: 8px; /* 增加圆角 */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* 增加非常淡的阴影 */
-  transition: transform 0.2s, box-shadow 0.2s; /* 增加悬浮动画 */
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s; /* 增加悬浮动画 */
   background-color: var(--secondary-bg);
 }
 
@@ -6547,7 +6529,9 @@ body {
   flex-direction: column;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s, visibility 0.3s;
+  transition:
+    opacity 0.3s,
+    visibility 0.3s;
 }
 .character-phone-page.active {
   opacity: 1;
@@ -6874,34 +6858,6 @@ body {
   color: #bfa87a;
 }
 
-/* 4. 删除按钮的样式 */
-.diary-delete-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.05);
-  color: #bfa87a;
-  border: none;
-  cursor: pointer;
-  font-size: 20px;
-  line-height: 26px;
-  text-align: center;
-  opacity: 0; /* 默认隐藏 */
-  transition: opacity 0.2s ease-in-out;
-}
-/* 鼠标悬停在日记上时显示按钮 */
-#character-diary-list .character-data-item:hover .diary-delete-btn {
-  opacity: 1;
-}
-.diary-delete-btn:hover {
-  background-color: #ff3b30;
-  color: white;
-}
-/* ▲▲▲ 样式添加结束 ▲▲▲ */
-
 /* ▼▼▼ 【V6最终修复版】角色手机相册布局防溢出 ▼▼▼ */
 
 /* 1. 【核心】为相册网格的容器强制禁止水平滚动 */
@@ -6940,7 +6896,8 @@ body {
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.06); /* 更柔和的阴影 */
   position: relative;
   padding: 20px 15px 15px 20px; /* 调整内边距，给“小东西”留出空间 */
-  font-family: Georgia, "Times New Roman", "Kaiti TC", "STKaiti", serif; /* 使用更典雅的衬线字体 */
+  font-family:
+    Georgia, "Times New Roman", "Kaiti TC", "STKaiti", serif; /* 使用更典雅的衬线字体 */
 }
 
 /* 2. 【小东西】用伪元素在左上角添加一个精致的纸夹 */
@@ -6977,20 +6934,6 @@ body {
   font-style: italic; /* 斜体更有手写感 */
   border-top: none;
   padding-top: 0;
-}
-
-/* 5. 美化删除按钮，让它更融入信纸风格 */
-#character-diary-list .character-data-item .diary-delete-btn {
-  background-color: transparent;
-  color: #c9bbae;
-  font-size: 22px;
-  transition: all 0.2s ease;
-}
-
-#character-diary-list .character-data-item .diary-delete-btn:hover {
-  background-color: #e44d44;
-  color: white;
-  transform: scale(1.1);
 }
 
 /* ▲▲▲ 样式添加结束 ▲▲▲ */
@@ -7727,8 +7670,7 @@ body {
 
 /* --- 1. 隐藏旧的主屏幕元素 --- */
 /* 我们不再需要旧的锁屏时钟和图标网格了，新的布局会完全取代它们 */
-#home-screen #clock-container,
-#home-screen .app-grid {
+#home-screen #clock-container {
   display: none !important;
 }
 
@@ -8350,7 +8292,9 @@ body {
   margin-bottom: 8px; /* 按钮之间的垂直间距 */
   background-color: #f0f0f0; /* 统一的浅灰色背景 */
   color: var(--text-primary);
-  transition: background-color 0.2s, transform 0.1s; /* 添加动画 */
+  transition:
+    background-color 0.2s,
+    transform 0.1s; /* 添加动画 */
 }
 
 /* 鼠标悬停和点击效果 */
@@ -8431,7 +8375,9 @@ body {
   opacity: 0;
   visibility: hidden;
   transform: scale(0.8); /* 配合动画，让出现效果更自然 */
-  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+  transition:
+    opacity 0.2s ease-in-out,
+    transform 0.2s ease-in-out;
 }
 
 /* 3. 当鼠标悬停在任何一个列表项上时，显示它内部的删除按钮 */
@@ -8496,8 +8442,7 @@ body {
 /* ▼▼▼ 【全新添加】强制修正所有设置页面的底部安全区 ▼▼▼ */
 #font-settings-screen .form-container,
 #wallpaper-screen .form-container,
-#api-settings-screen .form-container,
-#css-editor-screen .form-container {
+#api-settings-screen .form-container {
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 /* ▲▲▲ 添加结束 ▲▲▲ */
@@ -8722,7 +8667,9 @@ body {
 /* 设置垃圾桶图标的默认样式 */
 #delete-expired-songs-btn svg {
   color: inherit; /* 核心修改1: 平时颜色继承父元素，和"本地"等文字颜色一样，保持低调 */
-  transition: color 0.2s, transform 0.2s; /* 添加transform过渡效果 */
+  transition:
+    color 0.2s,
+    transform 0.2s; /* 添加transform过渡效果 */
   transform: translateY(3px); /* 核心修改2: 让图标整体下移3像素，视觉上更对齐 */
 }
 
@@ -9684,15 +9631,8 @@ body {
   flex-shrink: 0; /* 防止被压缩 */
 }
 
-/* 3. 包裹作者名字和时间的容器 */
-.post-author-info {
-  display: flex;
-  flex-direction: column;
-}
-
-/* 4. 移除旧的标题和meta外边距，因为flex布局会处理间距 */
-#post-detail-content .post-detail-header h1,
-#post-detail-content .post-detail-meta {
+/* 4. 移除旧的标题外边距，因为flex布局会处理间距 */
+#post-detail-content .post-detail-header h1 {
   margin: 0;
 }
 #post-detail-content .post-detail-header h1 {
@@ -9891,12 +9831,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.4),
-    transparent,
-    rgba(0, 0, 0, 0.2)
-  );
+  background: transparent;
 
   /* ▼▼▼ 核心修复：让这个遮罩层对鼠标事件“透明”！ ▼▼▼ */
   pointer-events: none;
@@ -10161,21 +10096,6 @@ body {
   object-fit: cover;
   border-radius: 6px;
 }
-.ls-photo-preview-item .remove-btn {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 20px;
-  height: 20px;
-  background-color: #ff3b30;
-  color: white;
-  border-radius: 50%;
-  border: none;
-  line-height: 20px;
-  text-align: center;
-  cursor: pointer;
-}
-
 /* 情书和分享列表 */
 .ls-list-item {
   background-color: var(--secondary-bg);
@@ -10421,7 +10341,9 @@ body {
   padding: 15px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   display: flex;
   gap: 12px;
   align-items: center;
@@ -10562,6 +10484,162 @@ body {
   background-color: #ff8fab;
   color: white;
   border-color: #ff8fab;
+}
+
+/* Love letter viewer override – airy ribbon paper */
+#ls-letter-viewer-modal {
+  z-index: 1001;
+}
+.ls-letter-viewer-content {
+  position: relative;
+  background:
+    radial-gradient(
+      circle at 18% 12%,
+      rgba(255, 205, 220, 0.4),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 85% 18%,
+      rgba(196, 228, 255, 0.32),
+      transparent 40%
+    ),
+    linear-gradient(150deg, #fffaf6 0%, #fff3f8 45%, #fff7ef 100%);
+  width: 92%;
+  max-width: 360px;
+  height: 76%;
+  border-radius: 18px;
+  border: 2px solid rgba(255, 190, 210, 0.7);
+  box-shadow:
+    0 16px 42px rgba(255, 155, 176, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  font-family: "Kaiti", "STKaiti", serif;
+  overflow: hidden;
+}
+.ls-letter-viewer-content::after {
+  content: "";
+  position: absolute;
+  inset: 14px 12px 12px;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 170, 195, 0.55);
+  pointer-events: none;
+}
+.ls-letter-viewer-content::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64%;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffd8e6, #c7e7ff);
+  box-shadow: 0 8px 18px rgba(255, 169, 191, 0.35);
+  opacity: 0.75;
+}
+.letter-viewer-header {
+  padding: 16px 18px;
+  border-bottom: 1px dashed #f2c1d4;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #6a4a53;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 232, 242, 0.95),
+    rgba(255, 247, 230, 0.92)
+  );
+}
+.letter-viewer-header .meta-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgba(255, 143, 171, 0.35);
+  object-fit: cover;
+}
+.letter-viewer-header .recipient-info .label {
+  font-size: 13px;
+  color: #b37b8c;
+  letter-spacing: 0.2px;
+}
+.letter-viewer-header .recipient-info .name {
+  font-size: 17px;
+  font-weight: 700;
+}
+.letter-viewer-body {
+  flex-grow: 1;
+  margin: 12px 14px;
+  padding: 18px 16px;
+  font-size: 16px;
+  line-height: 1.9;
+  color: #4f3f45;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 232, 240, 0.62) 0,
+    rgba(255, 232, 240, 0.62) 28px,
+    rgba(255, 255, 255, 0.9) 28px,
+    rgba(255, 255, 255, 0.9) 56px
+  );
+  border-radius: 12px;
+  box-shadow: inset 0 1px 8px rgba(255, 170, 195, 0.18);
+}
+.letter-viewer-body em,
+.letter-viewer-body strong {
+  color: #d66c93;
+}
+.letter-viewer-footer {
+  padding: 14px 16px;
+  border-top: 1px dashed #f2c1d4;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 240, 245, 0.92),
+    rgba(255, 250, 240, 0.94)
+  );
+}
+.letter-viewer-footer .sender-info {
+  font-size: 14px;
+  color: #6a4a53;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.letter-viewer-footer .sender-info .timestamp {
+  font-size: 11px;
+  color: #b37b8c;
+  font-weight: normal;
+}
+.letter-viewer-footer .letter-actions {
+  display: flex;
+  gap: 10px;
+}
+.letter-viewer-footer .letter-actions button {
+  padding: 9px 16px;
+  border-radius: 18px;
+  border: 1px solid #ffcde0;
+  background: #fff;
+  color: #d36d93;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 6px 16px rgba(255, 143, 171, 0.2);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.letter-viewer-footer .letter-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(255, 143, 171, 0.28);
+}
+.letter-viewer-footer .letter-actions button.primary {
+  background: linear-gradient(135deg, #ff9ab3, #ffd2e4);
+  color: #fff;
+  border-color: transparent;
 }
 
 /* ▲▲▲ 样式替换结束 ▲▲▲ */
@@ -10814,7 +10892,9 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   text-align: center;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 #ls-pomodoro-start-btn-container:hover {
   transform: translateY(-5px);
@@ -10921,7 +11001,10 @@ body {
   width: max-content; /* <-- 新增！确保气泡宽度根据内容自适应，但不会超过80% */
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s, visibility 0.3s, margin-top 0.3s; /* margin-top让动画更平滑 */
+  transition:
+    opacity 0.3s,
+    visibility 0.3s,
+    margin-top 0.3s; /* margin-top让动画更平滑 */
   pointer-events: none;
   white-space: pre-wrap;
   box-sizing: border-box; /* 新增！防止内边距导致布局问题 */
@@ -11699,7 +11782,9 @@ body {
   align-items: center;
   gap: 15px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .game-card:hover {
@@ -13092,7 +13177,9 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   position: relative;
   overflow: hidden; /* 隐藏溢出的装饰元素 */
-  transition: transform 0.2s, box-shadow 0.2s; /* 添加点击动效 */
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s; /* 添加点击动效 */
 }
 .ls-diary-notification-card:hover {
   transform: translateY(-2px);
@@ -13288,70 +13375,6 @@ body {
   background-color: rgba(255, 255, 255, 0.2);
 }
 /* ▲▲▲ 新增样式结束 ▲▲▲ */
-/* ▼▼▼ 【全新】记忆互通选择框美化样式 ▼▼▼ */
-
-/* 1. 让每个选项的标签(label)成为一个flex容器 */
-.memory-link-option {
-  display: flex;
-  align-items: center; /* 垂直居中对齐 */
-  gap: 10px; /* 元素之间的间距 */
-  padding: 8px 12px !important; /* 增加内边距，!important确保生效 */
-  cursor: pointer;
-}
-
-/* 2. 单独为复选框设置样式，防止被全局样式影响 */
-.memory-link-option input[type="checkbox"] {
-  width: 18px !important; /* 固定宽度 */
-  height: 18px !important; /* 固定高度 */
-  margin: 0 !important; /* 移除外边距 */
-  flex-shrink: 0; /* 防止被压缩 */
-}
-
-/* 3. 设置头像的样式 */
-.memory-link-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%; /* 圆形头像 */
-  object-fit: cover; /* 保证图片不变形 */
-  flex-shrink: 0; /* 防止被压缩 */
-}
-
-/* 4. 设置名字的样式 */
-.memory-link-name {
-  /* 默认样式即可，它会自动填充剩余空间 */
-}
-
-/* ▲▲▲ 新样式粘贴结束 ▲▲▲ */
-/* ▼▼▼ 【全新】记忆互通选择框美化样式 ▼▼▼ */
-#memory-link-checkboxes-container label {
-  display: flex; /* 1. 使用Flex布局，让头像和文字横向排列 */
-  align-items: center; /* 2. 垂直居中对齐 */
-  gap: 10px; /* 3. 在头像、复选框和文字之间创建间距 */
-  padding: 10px 12px; /* 4. 增加内边距，让每一行更高、更易于点击 */
-  cursor: pointer; /* 5. 鼠标放上去时显示小手图标 */
-  transition: background-color 0.2s; /* 6. 添加悬停效果 */
-}
-
-#memory-link-checkboxes-container label:hover {
-  background-color: #f0f2f5; /* 7. 鼠标悬停时给一个淡淡的背景色 */
-}
-
-#memory-link-checkboxes-container .avatar-preview {
-  width: 30px; /* 8. 设置头像的尺寸 */
-  height: 30px;
-  border-radius: 50%; /* 9. 圆形头像 */
-  object-fit: cover; /* 10. 确保图片不变形 */
-  flex-shrink: 0; /* 11. 防止头像在空间不足时被压缩 */
-}
-
-#memory-link-checkboxes-container input[type="checkbox"] {
-  /* 12. 调整复选框的大小和位置，使其更协调 */
-  width: 18px;
-  height: 18px;
-  margin: 0;
-}
-/* ▲▲▲ 新增CSS结束 ▲▲▲ */
-
 /* ▼▼▼ 【V6 最终修正版】心声面板（边框问题修复） ▼▼▼ */
 
 /* 1. 基础布局 (保持不变) */
@@ -15007,16 +15030,6 @@ body {
 .ludo-cell.event-truth {
   background-color: #ffb6c1;
 } /* 真心话 */
-.ludo-cell.event-dare {
-  background-color: #add8e6;
-} /* 大冒险 */
-.ludo-cell.event-kiss {
-  background-color: #ff69b4;
-} /* 亲亲 */
-.ludo-cell.event-hug {
-  background-color: #ffdab9;
-} /* 抱抱 */
-
 .ludo-cell .cell-number {
   font-size: 10px;
   position: absolute;
@@ -15368,19 +15381,6 @@ body {
 }
 /* ▲▲▲ 新增CSS结束 ▲▲▲ */
 /* ▼▼▼ 【全新】“谁是卧底”游戏样式 ▼▼▼ */
-
-/* 玩家头像上显示角色身份的小图标 */
-.player-seat .player-role-display {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  font-size: 10px;
-  padding: 2px 5px;
-  border-radius: 5px;
-  font-weight: bold;
-}
 
 /* “你说我猜”发言输入区的美化 */
 #undercover-action-area.speaking-mode {
@@ -15806,16 +15806,6 @@ body {
 /* ▼▼▼ 把这一整块全新的CSS，粘贴到 <style> 的最末尾 ▼▼▼ */
 
 /* --- 【全新】群成员管理列表样式 --- */
-#member-management-list .list-container-title {
-  padding: 10px 15px;
-  font-size: 14px;
-  color: var(--text-secondary);
-  background-color: #f0f2f5;
-}
-#phone-screen.dark-mode #member-management-list .list-container-title {
-  background-color: #1c1c1e;
-}
-
 #member-management-list .member-management-item {
   background-color: var(--secondary-bg);
 }
@@ -16221,7 +16211,9 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   position: relative;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 
   /* 保持卡片内部为垂直flex布局，确保图片在上，文字在下 */
   display: flex;
@@ -16387,7 +16379,9 @@ body {
   height: 100%;
   background-size: cover;
   background-position: center;
-  transition: background-image 0.5s ease-in-out, filter 0.5s ease-in-out;
+  transition:
+    background-image 0.5s ease-in-out,
+    filter 0.5s ease-in-out;
   filter: blur(3px) brightness(0.8);
   transform: scale(1.05);
   z-index: 1; /* ★★★ 核心修改：明确指定层级为 1 ★★★ */
@@ -16432,7 +16426,9 @@ body {
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   min-height: 120px; /* 3. 设置一个固定的最小高度 */
-  transition: opacity 0.5s, transform 0.5s;
+  transition:
+    opacity 0.5s,
+    transform 0.5s;
   cursor: pointer;
   /* 4. 移除 overflow: auto，禁止其自身滚动 */
 }
@@ -16489,7 +16485,9 @@ body {
   cursor: pointer;
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
-  transition: background-color 0.2s, transform 0.1s;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
 }
 
 .dating-game-choice-btn.input-action {
@@ -16734,14 +16732,6 @@ body {
   stroke: #ffeda6; /* 描边用更淡的黄色 */
 }
 
-/* “空心”状态：填充色为透明 */
-.value-display svg .heart-fill {
-  fill: transparent;
-}
-/* “实心”状态：填充色为图标的颜色 */
-.value-display svg.filled .heart-fill {
-  fill: currentColor;
-}
 /* ▲▲▲ 新增CSS样式结束 ▲▲▲ */
 /* ▼▼▼ 【全新】约会完成度进度条样式 ▼▼▼ */
 
@@ -17261,7 +17251,9 @@ body {
   text-align: center;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, background-color 0.2s; /* 添加背景色过渡 */
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s; /* 添加背景色过渡 */
   z-index: 1;
 }
 
@@ -17482,7 +17474,9 @@ body {
   text-align: center;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, background-color 0.2s; /* 添加背景色过渡 */
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s; /* 添加背景色过渡 */
   z-index: 1;
 }
 
@@ -17501,100 +17495,6 @@ body {
 }
 
 /* ▲▲▲ 新增CSS结束 ▲▲▲ */
-/* 1. 亲密记录按钮 ✨ */
-.intimacy-panel-btn {
-  font-size: 14px; /* 图标大小 */
-  margin-left: 6px; /* 和火花图标的间距 */
-  cursor: pointer;
-  opacity: 0.7;
-  transition: all 0.2s ease;
-  vertical-align: middle; /* 确保和火花图标垂直对齐 */
-  display: inline-block; /* 允许 transform */
-}
-.intimacy-panel-btn:hover {
-  opacity: 1;
-  transform: scale(1.3) rotate(20deg); /* 悬浮时放大并旋转，增加趣味性 */
-}
-
-/* 2. 亲密记录面板整体 */
-#intimacy-panel .modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 20px; /* 各个区块之间的间距 */
-  padding: 15px 20px;
-}
-
-/* 3. 面板内的各个区块 */
-.intimacy-summary {
-  text-align: center;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border-color);
-}
-.intimacy-summary h3 {
-  margin: 0 0 5px 0;
-  color: var(--accent-color); /* 使用你的主题色 */
-  font-size: 24px;
-}
-.intimacy-summary p {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 14px;
-}
-.intimacy-section h4 {
-  margin-bottom: 15px;
-  border-left: 4px solid var(--accent-color);
-  padding-left: 10px;
-  font-size: 16px;
-}
-
-/* 4. 每日互动记录列表 */
-#intimacy-daily-log {
-  background-color: var(--secondary-bg);
-  border-radius: 8px;
-}
-#intimacy-daily-log .log-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 15px;
-  font-size: 14px;
-  border-bottom: 1px solid var(--border-color);
-}
-#intimacy-daily-log .log-item:last-child {
-  border-bottom: none;
-}
-#intimacy-daily-log .date {
-  color: var(--text-secondary);
-}
-#intimacy-daily-log .count {
-  font-weight: 500;
-}
-
-/* 5. 成就徽章网格 */
-.achievements-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
-  gap: 20px;
-  text-align: center;
-}
-.achievement-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
-.achievement-item .icon {
-  font-size: 36px;
-  line-height: 1;
-}
-.achievement-item .name {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-/* 给未获得的成就一个置灰效果 */
-.achievement-item.locked {
-  opacity: 0.3;
-  filter: grayscale(1);
-}
 /* ▼▼▼ 【全新】亲密值系统相关CSS样式 ▼▼▼ */
 
 /* 聊天列表里的亲密值按钮 */
@@ -17860,27 +17760,8 @@ body {
   color: #fff;
 }
 /* ▲▲▲ 新增CSS样式结束 ▲▲▲ */
-/* 让“饿了么”的美食卡片在鼠标悬浮时有交互效果 */
-.eleme-food-card {
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.eleme-food-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-}
 /* ▼▼▼ 在 <style> 标签内粘贴 ▼▼▼ */
 
-/* 这是外卖卡片专属的透明气泡样式 */
-.message-bubble.is-waimai-gift-from-char {
-  background-color: transparent !important;
-  padding: 0 !important;
-  box-shadow: none !important;
-  max-width: 250px; /* 让卡片宽度适中 */
-}
-
-/* ▲▲▲ 粘贴结束 ▲▲▲ */
 /* 这是为异步加载图片新增的容器样式 */
 .product-card .product-image-container {
   width: 100%;
@@ -18130,19 +18011,18 @@ body {
 /* ======================================= */
 
 /* 1. 将两个卡片的样式合并，确保宽度一致 */
-.waimai-meituan-card,
-.waimai-gift-card {
+.waimai-meituan-card {
   width: 240px; /* 统一宽度为240px */
   border-radius: 12px;
   overflow: hidden;
   background-color: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* 2. 统一设置头部的样式（美团黄！） */
-.waimai-meituan-card .gift-card-header,
-.waimai-gift-card .header {
+.waimai-meituan-card .gift-card-header {
   /* 兼容两种不同的头部class名 */
   background-color: #ffd100; /* 美团黄 */
   color: #333333;
@@ -18152,15 +18032,13 @@ body {
   gap: 10px;
 }
 
-.waimai-meituan-card .gift-card-header .icon,
-.waimai-gift-card .header .icon {
+.waimai-meituan-card .gift-card-header .icon {
   font-size: 24px;
   line-height: 1;
 }
 
 /* 3. 【核心修复】让标题可以自动换行 */
-.waimai-meituan-card .gift-card-header .title,
-.waimai-gift-card .header .title {
+.waimai-meituan-card .gift-card-header .title {
   font-weight: 600;
   font-size: 15px;
   flex-grow: 1; /* 允许标题占据剩余空间 */
@@ -18169,28 +18047,24 @@ body {
 }
 
 /* 4. 统一内容区域的样式 */
-.waimai-meituan-card .gift-card-body,
-.waimai-gift-card .body {
+.waimai-meituan-card .gift-card-body {
   padding: 15px;
 }
 
-.waimai-meituan-card .greeting,
-.waimai-gift-card .body .food-name {
+.waimai-meituan-card .greeting {
   font-weight: bold;
   font-size: 16px;
   color: #333;
   margin: 0 0 4px 0;
 }
 
-.waimai-meituan-card .gift-card-body p:not(.greeting),
-.waimai-gift-card .body .restaurant {
+.waimai-meituan-card .gift-card-body p:not(.greeting) {
   font-size: 13px;
   color: #888;
   margin: 0;
 }
 
-.waimai-meituan-card .waimai-remark,
-.waimai-gift-card .footer {
+.waimai-meituan-card .waimai-remark {
   margin-top: 12px;
   padding-top: 8px;
   border-top: 1px dashed #e0e0e0;
@@ -18382,8 +18256,9 @@ body {
   border-radius: 12px;
   background-color: #ffffff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   color: #333;
 }
 
@@ -18539,7 +18414,9 @@ body {
   padding: 15px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .studio-script-item:hover {
   transform: translateY(-2px);
@@ -18633,11 +18510,8 @@ body {
 #studio-play-screen {
   /* 核心：使用深色渐变背景，并叠加一层噪点纹理，营造电影感 */
   background-color: #1f2023;
-  background-image: radial-gradient(
-      ellipse at 50% 0%,
-      rgba(61, 64, 77, 0.9),
-      transparent
-    ),
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(61, 64, 77, 0.9), transparent),
     url("https://www.transparenttextures.com/patterns/black-felt.png");
   color: #fff;
   display: flex; /* 确保flex布局生效 */
@@ -18889,10 +18763,6 @@ body {
   padding: 12px 15px;
   border-bottom: 1px solid var(--border-color);
 }
-.tukey-account-category-card .category-icon {
-  width: 36px;
-  height: 36px;
-}
 .tukey-account-category-card .category-title {
   display: flex;
   flex-direction: column;
@@ -18926,10 +18796,6 @@ body {
 }
 .tukey-account-item .account-name {
   font-size: 15px;
-}
-.tukey-account-item .account-remarks {
-  font-size: 12px;
-  color: var(--text-secondary);
 }
 .tukey-account-item .account-balance {
   font-weight: 500;
@@ -19075,34 +18941,11 @@ body {
   background-color: var(--secondary-bg);
 }
 
-/* 单条记账卡片 */
-.tukey-record-card {
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  padding: 12px 15px;
-  border-left: 5px solid;
-}
-.tukey-record-card.expense {
-  border-color: #4caf50;
-}
-.tukey-record-card.income {
-  border-color: #ffc107;
-}
-
 .record-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
-}
-.record-category {
-  font-weight: 500;
-  font-size: 15px;
-}
-.record-time {
-  font-size: 12px;
-  color: var(--text-secondary);
 }
 .record-body {
   display: flex;
@@ -19113,12 +18956,6 @@ body {
 .record-amount {
   font-size: 24px;
   font-weight: bold;
-}
-.tukey-record-card.expense .record-amount {
-  color: #4caf50;
-}
-.tukey-record-card.income .record-amount {
-  color: #ffc107;
 }
 
 .record-remarks {
@@ -19403,26 +19240,6 @@ body {
   background-color: #3a3a3c;
 }
 
-/* 记账输入气泡 (分类选择) */
-.tukey-input-bubble {
-  background-color: var(--secondary-bg, #f7f7f7);
-  padding: 15px;
-  border-radius: 12px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.tukey-input-bubble .input-header {
-  font-weight: bold;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.tukey-category-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
-  gap: 15px;
-}
 .tukey-category-item {
   display: flex;
   flex-direction: column;
@@ -19442,19 +19259,6 @@ body {
 }
 .tukey-category-item span {
   font-size: 12px;
-}
-
-.tukey-input-bubble .input-actions {
-  margin-top: 15px;
-  text-align: center;
-}
-#tukey-income-switch-btn {
-  background: none;
-  border: 1px solid var(--border-color, #ccc);
-  padding: 5px 15px;
-  border-radius: 15px;
-  cursor: pointer;
-  color: var(--text-secondary);
 }
 /* ▲▲▲ CSS样式结束 ▲▲▲ */
 /* ▼▼▼ 【兔k记账】V2版记账卡片CSS样式 ▼▼▼ */
@@ -19980,89 +19784,6 @@ body {
   color: #333;
 }
 
-/* Bilibili 搜索结果 */
-#bilibili-results-container {
-  margin-top: 10px;
-  max-height: calc(100% - 60px);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.bilibili-video-card {
-  display: flex;
-  gap: 10px;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
-}
-.bilibili-video-card:hover {
-  background-color: #f0f0f0;
-}
-.bilibili-video-card .thumbnail {
-  width: 120px;
-  height: 75px;
-  object-fit: cover;
-  border-radius: 6px;
-  flex-shrink: 0;
-}
-.bilibili-video-card .info {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  overflow: hidden;
-}
-.bilibili-video-card .title {
-  font-weight: 500;
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.bilibili-video-card .user {
-  font-size: 12px;
-  color: #888;
-}
-
-/* 文件浏览器 */
-#kk-file-list {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.kk-file-item {
-  padding: 12px 15px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: monospace;
-}
-.kk-file-item:hover {
-  background-color: #e9e9e9;
-}
-
-/* ▼▼▼ "kk查岗" V2 新增样式 ▼▼▼ */
-
-.kk-search-history-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
-}
-.kk-history-item {
-  background-color: #f0f2f5;
-  padding: 6px 12px;
-  border-radius: 15px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-.kk-history-item:hover {
-  background-color: #e4e6e9;
-}
-
-/* ▲▲▲ 样式结束 ▲▲▲ */
 /* --- “kk查岗” 电脑功能专属样式 --- */
 #kk-computer-desktop {
   display: flex;
@@ -20100,50 +19821,6 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
-}
-
-/* Bilibili 搜索结果卡片 */
-#bilibili-results-container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.bilibili-video-card {
-  display: flex;
-  gap: 10px;
-  cursor: pointer;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 10px;
-}
-.bilibili-video-card:last-child {
-  border-bottom: none;
-}
-.bilibili-video-card .thumbnail {
-  width: 120px;
-  height: 75px;
-  object-fit: cover;
-  border-radius: 6px;
-  flex-shrink: 0;
-}
-.bilibili-video-card .info {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.bilibili-video-card .title {
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 1.4;
-  color: var(--text-primary);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.bilibili-video-card .user {
-  font-size: 12px;
-  color: var(--text-secondary);
 }
 
 /* 私人文件列表 */
@@ -20222,82 +19899,6 @@ body {
   gap: 10px;
   padding: 15px;
   align-content: start;
-}
-
-/* 3. 单个监控画面的样式 (增加点击效果) */
-.monitor-feed {
-  background-color: black;
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 10px;
-  color: #00ff41;
-  font-family: "Courier New", Courier, monospace;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  aspect-ratio: 4 / 3;
-  box-shadow: 0 0 5px rgba(0, 255, 65, 0.3);
-  transition: all 0.2s ease-in-out; /* 新增：平滑过渡效果 */
-  cursor: pointer; /* 新增：鼠标悬浮时显示为小手 */
-}
-.monitor-feed:hover {
-  transform: scale(1.05); /* 新增：悬浮时放大一点 */
-  box-shadow: 0 0 15px rgba(0, 255, 65, 0.5); /* 新增：悬浮时辉光更强 */
-}
-
-/* ★★★★★ 这就是我们本次最核心的新增样式！ ★★★★★ */
-/* 4. 角色所在区域的【高亮】样式 */
-.monitor-feed.active-character-location {
-  border-color: #ff5722; /* 边框变为醒目的橙色 */
-  color: #ff9800; /* 文字颜色也变为橙色 */
-  box-shadow: 0 0 15px rgba(255, 87, 34, 0.7); /* 橙色辉光 */
-  animation: pulse-orange 2s infinite; /* 添加脉冲动画 */
-}
-.monitor-feed.active-character-location:hover {
-  box-shadow: 0 0 25px rgba(255, 87, 34, 1);
-}
-.monitor-feed.active-character-location .monitor-feed-header {
-  text-shadow: 0 0 5px #ff9800;
-  border-bottom-color: #583424;
-}
-
-/* 5. 监控画面头部 (保持不变) */
-.monitor-feed-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 14px;
-  border-bottom: 1px solid #2a2a2a;
-  padding-bottom: 5px;
-  margin-bottom: 8px;
-  text-shadow: 0 0 3px #00ff41;
-}
-.monitor-feed-header .rec-dot {
-  width: 8px;
-  height: 8px;
-  background-color: red;
-  border-radius: 50%;
-  animation: blink 1.5s infinite;
-  box-shadow: 0 0 5px red;
-}
-
-/* 6. 监控画面内容区域 (保持不变) */
-.monitor-feed-content {
-  flex-grow: 1;
-  font-size: 12px;
-  line-height: 1.6;
-  overflow-y: auto;
-  white-space: pre-wrap;
-}
-.monitor-feed-content::-webkit-scrollbar {
-  width: 4px;
-}
-.monitor-feed-content::-webkit-scrollbar-track {
-  background: #111;
-}
-.monitor-feed-content::-webkit-scrollbar-thumb {
-  background: #00ff41;
-  border-radius: 2px;
 }
 
 /* 7. 动画定义 */
@@ -20454,11 +20055,6 @@ body {
   cursor: not-allowed;
 }
 
-/* 编辑模式激活时，操作栏从下方滑入 */
-#world-book-screen.selection-mode #world-book-action-bar {
-  transform: translateY(0);
-}
-
 /* 编辑模式下，为列表项左侧留出空间 */
 #world-book-list.selection-mode .list-item {
   cursor: pointer;
@@ -20600,29 +20196,6 @@ body {
 .quick-reply-item:hover {
   background-color: rgba(0, 0, 0, 0.05);
 }
-.quick-reply-text {
-  flex-grow: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-right: 10px;
-  font-size: 14px;
-}
-.quick-reply-delete {
-  padding: 5px 10px;
-  color: #ff3b30;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 18px;
-}
-/* 快捷回复列表项布局 */
-.quick-reply-item {
-  display: flex;
-  justify-content: space-between; /* 内容和按钮分居两侧 */
-  align-items: center;
-  /* 保持原本的 padding 等样式... */
-}
-
 /* 右侧操作按钮组 */
 .quick-reply-actions {
   display: flex;
@@ -20653,40 +20226,6 @@ body {
 .btn-delete {
   color: #f44336;
 } /* 删除是红色 */
-/* ▼▼▼ 时间轴分线栏样式 ▼▼▼ */
-#chat-branching-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 15px;
-  background: transparent;
-  cursor: pointer;
-  margin-bottom: 2px;
-  opacity: 0.8;
-  transition: opacity 0.2s;
-}
-#chat-branching-bar:hover {
-  opacity: 1;
-}
-.branch-line {
-  flex-grow: 1;
-  height: 1px;
-  background-color: var(--border-color, #e0e0e0);
-}
-.branch-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px 10px;
-  font-size: 11px;
-  color: var(--text-secondary, #888);
-  background-color: var(--secondary-bg, #f9f9f9);
-  border: 1px solid var(--border-color, #e0e0e0);
-  border-radius: 12px;
-  margin: 0 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
 /* 存档列表项样式 */
 .branch-item {
   background-color: var(--card-bg, #fff);
@@ -20875,7 +20414,8 @@ body {
 #aurora-bookshelf-screen {
   background-color: #1a120b !important; /* 极深褐色 */
   /* 模拟老式墙纸或木纹背景 */
-  background-image: repeating-linear-gradient(
+  background-image:
+    repeating-linear-gradient(
       45deg,
       rgba(255, 255, 255, 0.02) 0px,
       rgba(255, 255, 255, 0.02) 1px,
@@ -20920,7 +20460,8 @@ body {
   border-right: 8px solid #281a15;
 
   /* 深度阴影，制造“盒子”感 */
-  box-shadow: inset 0 10px 30px rgba(0, 0, 0, 0.8),
+  box-shadow:
+    inset 0 10px 30px rgba(0, 0, 0, 0.8),
     /* 内部深邃阴影 */ 0 15px 20px rgba(0, 0, 0, 0.5); /* 外部投影 */
 
   border-radius: 4px;
@@ -20969,7 +20510,8 @@ body {
   overflow: hidden;
 
   /* ★★★ 核心：模拟书脊的圆柱体光影 + 皮革纹理 ★★★ */
-  box-shadow: inset 3px 0 5px rgba(255, 255, 255, 0.15),
+  box-shadow:
+    inset 3px 0 5px rgba(255, 255, 255, 0.15),
     /* 左侧高光 */ inset -3px 0 8px rgba(0, 0, 0, 0.6),
     /* 右侧阴影 */ 3px 5px 8px rgba(0, 0, 0, 0.6); /* 外部投影 */
 }
@@ -20998,8 +20540,10 @@ body {
 .retro-book:hover {
   transform: translateY(-12px) scale(1.02);
   z-index: 100;
-  box-shadow: inset 3px 0 5px rgba(255, 255, 255, 0.25),
-    inset -3px 0 8px rgba(0, 0, 0, 0.6), 5px 15px 20px rgba(0, 0, 0, 0.7); /* 悬浮时的深阴影 */
+  box-shadow:
+    inset 3px 0 5px rgba(255, 255, 255, 0.25),
+    inset -3px 0 8px rgba(0, 0, 0, 0.6),
+    5px 15px 20px rgba(0, 0, 0, 0.7); /* 悬浮时的深阴影 */
   margin: 0 3px; /* 挤开旁边的书 */
 }
 
@@ -21425,7 +20969,9 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.5) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
 
-  transition: transform 0.2s ease, background-color 0.2s !important;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s !important;
   position: relative;
 }
 
@@ -21513,11 +21059,6 @@ body {
 }
 
 /* 楼主信息栏 */
-.post-detail-header .post-author-info h1 {
-  font-size: 20px !important;
-  color: #333;
-}
-
 /* 2. 评论区容器 */
 .post-comments-section {
   display: flex;
@@ -21928,7 +21469,9 @@ body {
   box-shadow: 0 8px 20px -5px rgba(100, 100, 200, 0.06) !important;
 
   margin-bottom: 0 !important;
-  transition: transform 0.2s, box-shadow 0.2s !important;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s !important;
 }
 
 .forum-post-item:hover {
@@ -22165,7 +21708,9 @@ body {
 
 /* 2. 折叠动画 */
 #fanfic-bar-content {
-  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transition:
+    max-height 0.3s ease-in-out,
+    opacity 0.3s ease-in-out;
   overflow: hidden;
   max-height: 1000px; /* 展开时的最大高度 */
   opacity: 1;
@@ -22301,12 +21846,6 @@ body {
   box-shadow: 0 0 0 3px rgba(161, 196, 253, 0.1) !important;
 }
 
-/* 预设行 */
-.fanfic-preset-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 15px;
-}
 .mini-btn {
   padding: 0 12px !important;
   font-size: 12px !important;
@@ -22322,54 +21861,199 @@ body {
   border-color: #ffccc7 !important;
   background: #fff2f0 !important;
 }
+.mini-btn.primary {
+  background: var(--accent-color) !important;
+  color: #fff !important;
+  border-color: var(--accent-color) !important;
+}
+.mini-btn.disabled {
+  background: #f2f2f2 !important;
+  color: #999 !important;
+  border-color: #e0e0e0 !important;
+  cursor: not-allowed !important;
+}
 
-/* CP 选择行 */
-.fanfic-cp-row {
+.post-series-bar {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 10px 0 14px;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 15px;
-}
-.cp-symbol {
-  color: #ff9a9e;
-  font-weight: 900;
-  font-size: 18px;
-}
-
-/* 参数网格 (字数/类型/文风) */
-.fanfic-params-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr; /* 三列 */
+  justify-content: space-between;
   gap: 10px;
-  margin-bottom: 15px;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
-.param-item label {
-  display: block;
-  font-size: 11px !important;
-  color: #888 !important;
-  margin-bottom: 4px !important;
-  font-weight: 500 !important;
+.post-series-bar .series-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
-.param-item.full-width {
-  width: 100%;
+.post-series-bar .series-title {
+  font-weight: 700;
+  color: #333;
+}
+.post-series-bar .series-status {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.post-series-bar .series-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-/* 生成按钮 */
-.generate-btn {
-  width: 100% !important;
-  background: linear-gradient(90deg, #a1c4fd 0%, #c2e9fb 100%) !important;
-  color: #2c3e50 !important;
-  font-weight: 700 !important;
-  border: none !important;
-  padding: 12px !important;
-  border-radius: 10px !important;
-  box-shadow: 0 4px 10px rgba(161, 196, 253, 0.4) !important;
-  cursor: pointer;
-  transition: transform 0.1s;
+.forum-bookshelf-list,
+.forum-series-chapter-list {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
-.generate-btn:active {
-  transform: scale(0.98);
+
+.forum-bookshelf-card,
+.forum-series-card,
+.forum-chapter-item {
+  background: #fff;
+  border: 1px solid rgba(76, 51, 31, 0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
 }
+
+.forum-bookshelf-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(76, 51, 31, 0.08)
+  );
+  pointer-events: none;
+}
+
+.forum-bookshelf-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(180deg, #c69c6d 0%, #a67c52 100%);
+  box-shadow: 3px 0 8px rgba(0, 0, 0, 0.1) inset;
+}
+
+.forum-bookshelf-list {
+  background: linear-gradient(135deg, #f7f2ec, #efe4d8);
+  border-radius: 18px;
+  border: 1px solid rgba(124, 85, 52, 0.16);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.forum-bookshelf-list .forum-bookshelf-card {
+  background: #fff9f3;
+}
+.forum-bookshelf-list .forum-bookshelf-card:nth-child(2n) {
+  background: #fff4e8;
+}
+
+.series-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.series-card-title {
+  font-weight: 800;
+  font-size: 16px;
+  color: #333;
+}
+.series-card-meta {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.series-card-actions,
+.chapter-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.forum-chapter-item .chapter-title {
+  font-weight: 700;
+  color: #333;
+}
+.forum-chapter-item .chapter-summary {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+#forum-bookshelf-screen {
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 255, 255, 0.25),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 80% 10%,
+      rgba(255, 255, 255, 0.18),
+      transparent 32%
+    ),
+    linear-gradient(135deg, #e7d9c8, #d5bea3);
+}
+
+#forum-series-detail-screen {
+  background: linear-gradient(160deg, #f4ede5, #e3d3c2);
+}
+
+#phone-screen.dark-mode .forum-bookshelf-card,
+#phone-screen.dark-mode .forum-series-card,
+#phone-screen.dark-mode .forum-chapter-item,
+#phone-screen.dark-mode .post-series-bar {
+  background: rgba(30, 30, 30, 0.85);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+#phone-screen.dark-mode .series-card-title,
+#phone-screen.dark-mode .post-series-bar .series-title {
+  color: #f3f3f3;
+}
+#phone-screen.dark-mode .series-card-meta,
+#phone-screen.dark-mode .post-series-bar .series-status,
+#phone-screen.dark-mode .forum-chapter-item .chapter-summary {
+  color: #b3b3b3;
+}
+
+#phone-screen.dark-mode .forum-bookshelf-list {
+  background: rgba(20, 20, 20, 0.85);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+#phone-screen.dark-mode .forum-bookshelf-card::before {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(0, 0, 0, 0.08)
+  );
+}
+#phone-screen.dark-mode .forum-bookshelf-card {
+  background: rgba(30, 30, 30, 0.9);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+#phone-screen.dark-mode .forum-bookshelf-card:nth-child(2n) {
+  background: rgba(34, 34, 34, 0.9);
+}
+
 /* ================================================= */
 /* === ✨ 圈子 UI 终极美化包 v3.0 (合并修复版) ✨ === */
 /* ================================================= */
@@ -22510,23 +22194,6 @@ body {
   gap: 8px;
   margin-bottom: 12px;
 }
-.select-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.label-mini {
-  font-size: 10px;
-  color: #999;
-  font-weight: bold;
-}
-.cp-cross {
-  padding-bottom: 8px;
-  color: #ccc;
-  font-weight: bold;
-}
-
 /* 参数行 (字数/类型/文风) */
 .params-row {
   display: grid;
@@ -22534,27 +22201,6 @@ body {
   gap: 8px;
   margin-bottom: 12px;
 }
-.input-wrapper label {
-  font-size: 10px;
-  color: #888;
-  margin-bottom: 4px;
-  display: block;
-}
-.input-wrapper input {
-  width: 100%;
-  background: #f7f8fa !important;
-  border: 1px solid transparent !important;
-  border-radius: 8px !important;
-  padding: 8px !important;
-  font-size: 12px;
-  box-sizing: border-box;
-}
-.input-wrapper input:focus {
-  background: #fff !important;
-  border-color: var(--accent-color) !important;
-  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb), 0.1);
-}
-
 /* 世界观 */
 #fanfic-worldview-input {
   background: #f7f8fa !important;
@@ -22563,24 +22209,6 @@ body {
   padding: 10px !important;
   font-size: 13px;
   resize: none;
-}
-
-/* 生成按钮 */
-.generate-btn {
-  width: 100%;
-  background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 20px;
-  font-weight: bold;
-  font-size: 15px;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(255, 154, 158, 0.3);
-  transition: transform 0.1s;
-}
-.generate-btn:active {
-  transform: scale(0.98);
 }
 
 /* 夜间模式适配 */
@@ -22592,7 +22220,6 @@ body {
   color: #ddd;
 }
 #phone-screen.dark-mode .presets-row select,
-#phone-screen.dark-mode .input-wrapper input,
 #phone-screen.dark-mode #fanfic-worldview-input {
   background: #333 !important;
   color: #fff;
@@ -22837,11 +22464,6 @@ body {
   padding: 0;
   background: none;
 }
-.color-hint {
-  font-size: 13px;
-  color: #666;
-}
-
 /* 9. 紧凑网格 */
 .icon-grid-compact {
   display: grid;
@@ -22937,14 +22559,6 @@ body {
 }
 
 /* 颜色输入框微调 */
-.small-text-input {
-  padding: 8px !important;
-  text-align: center;
-  font-family: monospace;
-  letter-spacing: 1px;
-  flex-grow: 1; /* 让它填满剩余空间 */
-  text-transform: uppercase; /* 强制大写 */
-}
 /* 1. 设置页背景：给一个柔和的高级渐变底色 */
 #wallpaper-screen {
   background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%) !important;
@@ -22968,7 +22582,8 @@ body {
   margin-bottom: 20px;
 
   /* 柔和的彩色阴影 */
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
+  box-shadow:
+    0 10px 30px -10px rgba(0, 0, 0, 0.05),
     0 4px 10px rgba(200, 200, 255, 0.2) !important;
   border: 1px solid rgba(255, 255, 255, 0.8) !important;
 }
@@ -23647,7 +23262,8 @@ body {
   border: 1px solid rgba(255, 192, 203, 0.5) !important;
   position: relative;
   overflow: visible !important;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   display: flex !important;
   flex-direction: column !important;
@@ -23907,46 +23523,6 @@ body {
 }
 #dating-completion-text {
   font-size: 10px;
-}
-.nai-image-container {
-  position: relative;
-  display: inline-block;
-  line-height: 0;
-}
-
-.reroll-nai-button {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  opacity: 0; /* 默认隐藏 */
-  transition: opacity 0.2s ease;
-  z-index: 5;
-}
-
-.nai-image-container:hover .reroll-nai-button {
-  opacity: 1;
-}
-.reroll-nai-button.is-loading svg {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 .moe-settings-content {
   position: relative !important;
@@ -24602,7 +24178,8 @@ body {
   border-radius: 24px !important;
 
   /* 阴影：深邃的悬浮阴影 */
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.5),
     inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
   color: #fff !important;
   overflow: hidden !important;
@@ -24642,11 +24219,8 @@ body {
 /* 桌面背景 */
 #kk-computer-modal .modal-content {
   /* 换一个更有科技感的渐变背景 */
-  background-image: radial-gradient(
-      at 0% 0%,
-      rgba(99, 102, 241, 0.3) 0px,
-      transparent 50%
-    ),
+  background-image:
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.3) 0px, transparent 50%),
     radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.3) 0px, transparent 50%),
     linear-gradient(135deg, #111827 0%, #0f172a 100%) !important;
 }
@@ -24681,7 +24255,8 @@ body {
   height: 58px !important;
   border-radius: 14px !important;
   /* 给图标加一点投影和内发光 */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3),
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.3),
     inset 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
   background: rgba(255, 255, 255, 0.1); /* 图标底板 */
   backdrop-filter: blur(5px);
@@ -24715,7 +24290,8 @@ body {
 #wardrobe-preview-area {
   background: none !important; /* 移除旧背景 */
   /* 新背景：柔和的光晕 */
-  background-image: radial-gradient(
+  background-image:
+    radial-gradient(
       circle at 50% 30%,
       rgba(255, 192, 203, 0.2) 0%,
       transparent 60%
@@ -24724,7 +24300,8 @@ body {
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 #phone-screen.dark-mode #wardrobe-preview-area {
-  background-image: radial-gradient(
+  background-image:
+    radial-gradient(
       circle at 50% 30%,
       rgba(100, 50, 100, 0.3) 0%,
       transparent 60%
@@ -24876,7 +24453,8 @@ body {
 
 /* 3. 监控描述文字 (修复：可滚动，不被截断) */
 .monitor-content-text {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   font-size: 13px !important;
   line-height: 1.5 !important;
   color: rgba(255, 255, 255, 0.9) !important;
@@ -25020,8 +24598,7 @@ body {
 }
 
 /* 浏览器/文件列表项 */
-.kk-file-item,
-.kk-history-item {
+.kk-file-item {
   background: rgba(255, 255, 255, 0.08) !important;
   color: #ddd !important;
   border-radius: 8px !important;
@@ -25119,7 +24696,7 @@ body {
   color: #777 !important;
 }
 /* ================================================================= */
-/* === 💎 情侣空间 V10.0 (显著右移 + 高位布局 + 樱花粉呼吸) 💎 === */
+/* === 💎 情侣空间 V11.0 (整体大幅上移 + 紧凑高位布局) 💎 === */
 /* ================================================================= */
 
 /* --- 1. 全局容器与背景 --- */
@@ -25150,7 +24727,7 @@ body {
 
 /* --- 2. 头部区域 --- */
 #ls-header {
-  height: 340px !important; /* 稍微增加高度以适应上移的内容 */
+  height: 340px !important;
   position: relative;
   z-index: 2;
   overflow: visible !important;
@@ -25180,20 +24757,20 @@ body {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* --- 3. 头像与计数器：位置显著调整 --- */
+/* --- 3. 头像与计数器：大幅上移 --- */
 .ls-avatar-and-counter-wrapper {
   position: absolute !important;
 
-  /* ⚡️ 核心修改：左距 110px (视觉偏中左，绝对安全) */
+  /* 保持右移位置 */
   left: 110px !important;
 
-  /* ⚡️ 核心修改：底距 90px (大幅上提) */
-  bottom: 90px !important;
+  /* ⚡️ 核心修改：大幅上提至 140px */
+  bottom: 140px !important;
 
   width: auto !important;
   display: flex !important;
   flex-direction: column !important;
-  align-items: flex-start !important; /* 内容本身左对齐 */
+  align-items: flex-start !important;
   gap: 15px !important;
   z-index: 10;
 }
@@ -25215,31 +24792,26 @@ body {
   height: 74px !important;
   border-radius: 50% !important;
   object-fit: cover !important;
-
-  /* 边框：半透明白 */
   border: 2px solid rgba(255, 255, 255, 0.9) !important;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
 }
 
-/* ⚡️ 浅粉色动态爱心 */
+/* 浅粉色动态爱心 */
 .ls-header-avatars .heart-icon {
   position: absolute !important;
-  /* 居中计算 */
   left: 70px;
   top: 50%;
 
   width: 28px !important;
   height: 28px !important;
 
-  /* 🌸 浅粉色 (#ffc0cb 偏一点深) */
+  /* 🌸 浅粉色 */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffb6c1'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
 
   z-index: 5;
   filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
-
-  /* 柔和呼吸动画 */
   animation: soft-breathe 2.5s infinite ease-in-out !important;
 }
 
@@ -25278,10 +24850,13 @@ body {
   line-height: 1.4 !important;
 }
 
-/* --- 4. 悬浮 Tab 栏 --- */
+/* --- 4. 悬浮 Tab 栏：也跟着往上提 --- */
 #ls-tab-bar {
   position: relative !important;
-  margin: -40px 20px 25px 20px !important; /* 稍微加大负margin，让它跟Header重叠更自然 */
+
+  /* ⚡️ 核心修改：margin-top 改为 -60px，让它插得更高 */
+  margin: -100px 20px 25px 20px !important;
+
   z-index: 20 !important;
   border-radius: 24px !important;
 
@@ -25314,12 +24889,7 @@ body {
 .ls-album-item .cover,
 .ls-love-letter-item,
 .ls-calendar-wrapper {
-  background: rgba(
-    255,
-    255,
-    255,
-    0.75
-  ) !important; /* 稍微加深一点背景不透明度 */
+  background: rgba(255, 255, 255, 0.75) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   border: 1px solid rgba(255, 255, 255, 0.5) !important;
@@ -25340,7 +24910,6 @@ body {
   background: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* 浮动按钮 FAB - 浅粉色 */
 .ls-fab-btn {
   bottom: 50px !important;
   right: 30px !important;
@@ -25356,4 +24925,1207 @@ body {
   background: rgba(30, 30, 30, 0.65) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #eee !important;
+}
+/* 休息聊天弹窗的消息气泡样式 */
+.pomodoro-break-bubble {
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 80%;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.pomodoro-break-bubble.ai {
+  background-color: #fff;
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+.pomodoro-break-bubble.user {
+  background-color: #95ec69; /* 微信绿 */
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+}
+/* --- 番茄钟休息聊天专用样式 --- */
+
+/* 1. 修复输入框固定到底部：将模态框内容设为 Flex 布局 */
+#pomodoro-break-modal .modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 70%; /* 或者 80%，根据你的喜好 */
+  max-height: 80%;
+  overflow: hidden; /* 防止外层滚动 */
+  padding: 0; /* 清除默认内边距 */
+}
+
+/* 2. 消息列表占据剩余空间，并允许内部滚动 */
+#pomodoro-break-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  background-color: #f0f2f5;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* 3. 输入框区域固定在底部 (Flex布局自然实现) */
+#pomodoro-break-modal .chat-input-area {
+  flex-shrink: 0; /* 防止被挤压 */
+  background: #fff;
+  border-top: 1px solid #eee;
+  padding: 10px;
+  position: relative; /* 重置可能存在的 absolute */
+  bottom: auto;
+  left: auto;
+  width: auto;
+}
+
+/* 4. 消息行样式 (包含头像和气泡) */
+.break-message-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.break-message-row.user {
+  flex-direction: row-reverse; /* 用户消息反向排列 (头像在右) */
+}
+
+.break-message-row.ai {
+  flex-direction: row; /* AI消息正向排列 (头像在左) */
+}
+
+/* 5. 头像样式 */
+.break-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* 6. 气泡样式微调 */
+.pomodoro-break-bubble {
+  padding: 10px 14px;
+  border-radius: 12px;
+  max-width: 70%;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.5;
+  position: relative;
+  top: 4px; /* 稍微下沉一点以对齐头像 */
+}
+
+.pomodoro-break-bubble.ai {
+  background-color: #fff;
+  border-top-left-radius: 2px;
+}
+
+.pomodoro-break-bubble.user {
+  background-color: #95ec69;
+  border-top-right-radius: 2px;
+}
+/* 1. 调整底部容器：增加内边距，让元素不贴边 */
+#pomodoro-break-modal .chat-input-area {
+  background-color: #fff;
+  padding: 12px 15px; /* 上下左右留白 */
+  border-top: 1px solid #f0f0f0;
+}
+
+/* 2. 调整布局行：让输入框和按钮水平排列 */
+#pomodoro-break-modal .chat-input-main-row {
+  display: flex;
+  align-items: center; /* 垂直居中 */
+  gap: 12px; /* 输入框和按钮之间的间距 */
+}
+
+/* 3. 输入框美化：变长、圆角胶囊、软萌风格 */
+#pomodoro-break-input {
+  flex: 1; /* 【核心】自动变长，占满剩余空间 */
+  height: 44px; /* 固定高度，方便做成胶囊 */
+  padding: 10px 20px; /* 内部文字留白 */
+  border-radius: 22px; /* 高度的一半，形成完美胶囊圆角 */
+  border: 2px solid #f0f2f5; /* 默认浅灰色边框 */
+  background-color: #f7f8fa; /* 默认浅灰背景 */
+  font-size: 14px;
+  resize: none; /* 禁止手动拖拽改变大小 */
+  outline: none; /* 去掉点击时的默认黑框 */
+  transition: all 0.3s ease; /* 添加平滑过渡动画 */
+  box-sizing: border-box;
+  line-height: 20px; /* 保证单行文字垂直居中 */
+}
+
+/* 输入框聚焦时的效果：变白、变粉、发光 */
+#pomodoro-break-input:focus {
+  background-color: #fff;
+  border-color: #ff9a9e; /* 聚焦变成樱花粉边框 */
+  box-shadow: 0 0 10px rgba(255, 154, 158, 0.2); /* 柔和的粉色光晕 */
+}
+
+/* 4. 发送按钮美化：可爱、渐变、有质感 */
+#pomodoro-break-send-btn {
+  width: auto;
+  min-width: 70px; /* 保证最小宽度 */
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 20px; /* 胶囊圆角 */
+
+  /* 樱花粉 -> 奶油粉 渐变 */
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+
+  color: white;
+  border: none;
+  font-size: 14px;
+  font-weight: 600; /* 字体加粗 */
+  cursor: pointer;
+
+  /* 投影让按钮“浮”起来 */
+  box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+
+  transition:
+    transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    box-shadow 0.2s;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); /* 文字微投影，更清晰 */
+
+  /* 强制重置一些可能被全局样式覆盖的属性 */
+  margin: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 鼠标悬停效果 */
+#pomodoro-break-send-btn:hover {
+  transform: translateY(-2px); /* 微微上浮 */
+  box-shadow: 0 6px 20px rgba(255, 154, 158, 0.6); /* 投影加深 */
+}
+
+/* 点击按下效果 */
+#pomodoro-break-send-btn:active {
+  transform: scale(0.95); /* 微微缩小，有按压感 */
+  box-shadow: 0 2px 5px rgba(255, 154, 158, 0.3);
+}
+/* --- 1. 暂停/继续按钮 (像果冻一样Q弹) --- */
+#pomodoro-pause-btn {
+  /* 基础形状 */
+  border: none;
+  border-radius: 25px; /* 大圆角 */
+  padding: 0 25px;
+  height: 44px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  /* 默认颜色 (JS会修改背景色，这里设置通用特效) */
+  color: white;
+  /* 给JS设置的背景色加一个渐变滤镜，增加质感 */
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.15),
+    rgba(0, 0, 0, 0.05)
+  );
+
+  /* 阴影和光泽 */
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+
+  /* Q弹动画过渡 */
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* 布局 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#pomodoro-pause-btn:hover {
+  transform: translateY(-3px) scale(1.02); /* 悬停上浮变大 */
+  box-shadow:
+    0 6px 15px rgba(0, 0, 0, 0.2),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+#pomodoro-pause-btn:active {
+  transform: translateY(1px) scale(0.95); /* 点击下压变小 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 同步美化旁边的“结束专注”按钮，保持风格一致 */
+#pomodoro-end-btn {
+  border-radius: 25px;
+  height: 44px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* --- 2. 休息聊天弹窗整体 (圆润卡片风) --- */
+
+/* 弹窗容器 */
+#pomodoro-break-modal .modal-content {
+  border-radius: 24px; /* 更大的圆角 */
+  border: 4px solid #fff; /* 白边框，像拍立得照片 */
+  box-shadow: 0 10px 40px rgba(255, 182, 193, 0.4); /* 粉色氛围光晕 */
+  background-color: #fff;
+  overflow: hidden;
+}
+
+/* 顶部标题栏 */
+#pomodoro-break-modal .modal-header {
+  /* 樱花粉渐变背景 */
+  background: linear-gradient(135deg, #fff0f5 0%, #ffe4e1 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 15px 20px;
+  color: #db7093; /* 玫瑰红文字 */
+}
+
+#pomodoro-break-modal .modal-header span:first-child {
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+
+/* 关闭按钮 */
+#close-pomodoro-break-btn {
+  background: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff9a9e;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+#close-pomodoro-break-btn:hover {
+  transform: rotate(90deg);
+}
+
+/* --- 3. 聊天内容区域 (温馨背景) --- */
+#pomodoro-break-messages {
+  /* 暖白色背景，带一点点纹理感 */
+  background-color: #fffafb;
+  /* 可选：加一点点可爱的圆点背景图 */
+  background-image: radial-gradient(#ffe4e1 1px, transparent 1px);
+  background-size: 20px 20px;
+
+  padding: 20px;
+}
+
+/* 滚动条美化 (Chrome/Safari) */
+#pomodoro-break-messages::-webkit-scrollbar {
+  width: 6px;
+}
+#pomodoro-break-messages::-webkit-scrollbar-thumb {
+  background-color: #ffc2d1;
+  border-radius: 10px;
+}
+#pomodoro-break-messages::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* --- 4. 气泡与头像深度美化 --- */
+
+/* 头像：增加白边和投影 */
+.break-avatar {
+  width: 40px; /*稍微大一点*/
+  height: 40px;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+.break-avatar:hover {
+  transform: scale(1.1) rotate(-5deg); /* 悬停时歪头杀 */
+}
+
+/* AI 气泡 (左侧) */
+.pomodoro-break-bubble.ai {
+  background: #fff;
+  color: #555;
+  border-radius: 18px; /* 圆润 */
+  border-top-left-radius: 4px; /* 尖角指向头像 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  border: 1px solid #fff0f5; /* 淡淡的粉边 */
+}
+
+/* 用户 气泡 (右侧) */
+.pomodoro-break-bubble.user {
+  /* 渐变粉色背景 */
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  color: white;
+  border-radius: 18px;
+  border-top-right-radius: 4px; /* 尖角指向头像 */
+  box-shadow: 0 4px 10px rgba(255, 154, 158, 0.25);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* 顶部提示语 (累了吗...) */
+#pomodoro-break-messages div[style*="text-align: center"] {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 5px 15px;
+  border-radius: 15px;
+  display: inline-block;
+  margin: 10px auto;
+  align-self: center; /* Flex布局居中 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  color: #ffb7b2 !important;
+}
+
+/* 底部输入框容器微调 (配合之前的胶囊代码) */
+#pomodoro-break-modal .chat-input-area {
+  background: #fff;
+  box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.02); /* 向上投射淡淡的阴影 */
+  z-index: 10;
+}
+/* 1. 强制覆盖 JS 中的内联样式，重塑按钮外观 */
+.pomodoro-delete-btn {
+  /* 定位调整 */
+  position: absolute !important;
+  right: 15px !important; /* 稍微往里挪一点，呼吸感更好 */
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+
+  /* 尺寸与形状：可爱的胶囊 */
+  width: auto !important;
+  height: 26px !important;
+  border-radius: 13px !important; /* 高度的一半，圆圆的 */
+  padding: 0 12px !important;
+
+  /* 视觉风格：默认低调灰色 */
+  border: none !important; /* 去掉那个突兀的红框 */
+  background-color: rgba(0, 0, 0, 0.05) !important; /* 浅浅的灰色背景 */
+  color: #999 !important; /* 浅灰色文字 */
+  font-size: 12px !important;
+  font-weight: 600 !important;
+
+  /* 交互体验 */
+  cursor: pointer !important;
+  box-shadow: none !important;
+
+  /* 动画：添加Q弹的过渡效果 */
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+
+  /* 核心：默认隐藏，保持界面整洁 */
+  opacity: 0 !important;
+  pointer-events: none !important; /* 隐藏时不可点击 */
+  transform: translateY(-50%) scale(0.8) !important; /* 缩小的初始状态 */
+}
+
+/* 2. 当鼠标悬停在整条记录上时，让按钮浮现 */
+.pomodoro-history-item:hover .pomodoro-delete-btn {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translateY(-50%) scale(1) !important; /* 恢复正常大小 */
+}
+
+/* 3. 当鼠标悬停在按钮本身时，变成萌萌的粉色 */
+.pomodoro-delete-btn:hover {
+  background-color: #ffeff2 !important; /* 樱花粉背景 */
+  color: #ff6b81 !important; /* 珊瑚粉文字 */
+  box-shadow: 0 2px 8px rgba(255, 107, 129, 0.3) !important; /* 粉色光晕 */
+  transform: translateY(-50%) scale(1.05) !important; /* 微微放大 */
+}
+
+/* 4. 点击时的按压效果 */
+.pomodoro-delete-btn:active {
+  transform: translateY(-50%) scale(0.95) !important;
+  box-shadow: none !important;
+}
+
+/* 5. 夜间模式适配 */
+#phone-screen.dark-mode .pomodoro-delete-btn {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #777 !important;
+}
+#phone-screen.dark-mode .pomodoro-delete-btn:hover {
+  background-color: #4a2a30 !important; /* 深红色背景 */
+  color: #ff8fab !important; /* 亮粉色文字 */
+}
+/* === Cute viewer refresh: letter, diary, pomodoro history === */
+#ls-letter-viewer-modal .ls-letter-viewer-content {
+  position: relative;
+  width: 92%;
+  max-width: 360px;
+  height: 76%;
+  background:
+    radial-gradient(
+      circle at 12% 10%,
+      rgba(255, 205, 220, 0.35),
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 88% 18%,
+      rgba(189, 224, 255, 0.3),
+      transparent 45%
+    ),
+    linear-gradient(145deg, rgba(255, 251, 255, 0.9), rgba(255, 242, 248, 0.96));
+  border: 2px solid rgba(255, 190, 210, 0.7);
+  border-radius: 18px;
+  box-shadow:
+    0 16px 40px rgba(255, 155, 176, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+}
+#ls-letter-viewer-modal .ls-letter-viewer-content::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffd8e6, #c7e7ff);
+  opacity: 0.6;
+}
+#ls-letter-viewer-modal .ls-letter-viewer-content::after {
+  content: "";
+  position: absolute;
+  inset: 14px 12px 12px;
+  border: 1px dashed rgba(255, 170, 195, 0.5);
+  border-radius: 14px;
+  pointer-events: none;
+}
+#ls-letter-viewer-modal .letter-viewer-header {
+  background: linear-gradient(
+    120deg,
+    rgba(255, 232, 242, 0.95),
+    rgba(255, 247, 230, 0.92)
+  );
+  border-bottom: 1px dashed #f3c5d8;
+  color: #754b55;
+  padding: 16px 18px;
+  gap: 12px;
+}
+#ls-letter-viewer-modal .letter-viewer-header .meta-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgba(255, 143, 171, 0.35);
+}
+#ls-letter-viewer-modal .letter-viewer-body {
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 232, 240, 0.6) 0,
+    rgba(255, 232, 240, 0.6) 28px,
+    rgba(255, 255, 255, 0.85) 28px,
+    rgba(255, 255, 255, 0.85) 56px
+  );
+  border-radius: 12px;
+  margin: 12px 14px;
+  padding: 18px 16px;
+  box-shadow: inset 0 1px 8px rgba(255, 170, 195, 0.18);
+  color: #514349;
+  line-height: 1.9;
+}
+#ls-letter-viewer-modal .letter-viewer-footer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 240, 245, 0.9),
+    rgba(255, 250, 240, 0.92)
+  );
+  border-top: 1px dashed #f3c5d8;
+  padding: 14px 16px;
+}
+#ls-letter-viewer-modal .letter-actions button {
+  border-radius: 18px;
+  border: 1px solid #ffcde0;
+  background: #fff;
+  color: #d36d93;
+  box-shadow: 0 6px 16px rgba(255, 143, 171, 0.2);
+}
+#ls-letter-viewer-modal .letter-actions button.primary {
+  background: linear-gradient(135deg, #ff9ab3, #ffd2e4);
+  color: #fff;
+  border-color: transparent;
+}
+#ls-letter-viewer-modal .letter-actions button:hover {
+  transform: translateY(-1px);
+}
+
+/* Diary viewer */
+#ls-diary-viewer-modal .modal-content {
+  position: relative;
+  background: linear-gradient(135deg, #fff6fb 0%, #f7f9ff 55%, #fffaf2 100%);
+  border: 2px solid #ffe0ed;
+  border-radius: 18px;
+  box-shadow: 0 16px 42px rgba(255, 156, 193, 0.2);
+  overflow: hidden;
+}
+#ls-diary-viewer-modal .modal-content::before,
+#ls-diary-viewer-modal .modal-content::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(0.5px);
+}
+#ls-diary-viewer-modal .modal-content::before {
+  width: 160px;
+  height: 160px;
+  right: -40px;
+  top: -50px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 208, 224, 0.35),
+    rgba(255, 208, 224, 0)
+  );
+}
+#ls-diary-viewer-modal .modal-content::after {
+  width: 140px;
+  height: 140px;
+  left: -30px;
+  bottom: -30px;
+  background: radial-gradient(
+    circle,
+    rgba(185, 222, 255, 0.3),
+    rgba(185, 222, 255, 0)
+  );
+}
+#ls-diary-viewer-modal .modal-header {
+  background: transparent;
+  color: #e07fb0;
+  border-bottom: 1px dashed #ffd6e8;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+#ls-diary-viewer-body {
+  padding: 18px 16px 22px;
+  background:
+    radial-gradient(
+      circle at 14% 18%,
+      rgba(255, 225, 239, 0.4),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 85% 24%,
+      rgba(192, 228, 255, 0.3),
+      transparent 40%
+    );
+  gap: 16px !important;
+}
+#ls-diary-viewer-modal .ls-diary-entry-block {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 14px;
+  border-left: 5px solid #ffb7ce;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+#ls-diary-viewer-modal .ls-diary-entry-block + .ls-diary-entry-block {
+  border-left-color: #a6d8ff;
+}
+#ls-diary-viewer-modal .ls-diary-entry-block .entry-header .author {
+  color: #e07fb0;
+}
+#ls-diary-viewer-modal .ls-diary-entry-block .entry-content {
+  color: #524454;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 240, 246, 0.7),
+    rgba(255, 255, 255, 0.9)
+  );
+  padding: 12px 14px;
+  border-radius: 10px;
+  line-height: 1.8;
+}
+
+/* Pomodoro history */
+#ls-pomodoro-history-viewer-modal .modal-content {
+  background: linear-gradient(135deg, #fff4f8 0%, #fef6ff 55%, #fffaf2 100%);
+  border: 2px solid #ffd8e6;
+  border-radius: 18px;
+  box-shadow: 0 14px 36px rgba(255, 149, 180, 0.22);
+}
+#ls-pomodoro-history-viewer-modal .modal-header {
+  background: transparent;
+  color: #ff7aa2;
+  border-bottom: 1px dashed #ffd6e8;
+  font-weight: 800;
+}
+#pomodoro-history-viewer-content {
+  position: relative;
+  gap: 16px;
+  padding: 14px 16px 18px 16px;
+}
+#pomodoro-history-viewer-content::before {
+  content: "";
+  position: absolute;
+  left: 20px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: linear-gradient(#ffd6e8, #b7e0ff);
+  opacity: 0.6;
+}
+.pomodoro-log-bubble {
+  position: relative;
+  margin-left: 32px;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 14px;
+  border: 1px solid #ffd6e8;
+  box-shadow: 0 8px 18px rgba(255, 143, 171, 0.16);
+  padding: 10px 14px;
+  color: #524454;
+}
+.pomodoro-log-bubble::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 16px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff9ab3;
+  box-shadow: 0 0 0 6px rgba(255, 154, 179, 0.25);
+}
+
+/* Dark mode tweaks */
+#phone-screen.dark-mode #ls-letter-viewer-modal .ls-letter-viewer-content,
+#phone-screen.dark-mode #ls-diary-viewer-modal .modal-content,
+#phone-screen.dark-mode #ls-pomodoro-history-viewer-modal .modal-content {
+  background: linear-gradient(135deg, #2f2a35, #2a2731);
+  border-color: #4d3c55;
+  box-shadow: none;
+}
+#phone-screen.dark-mode .letter-viewer-body,
+#phone-screen.dark-mode .ls-diary-entry-block,
+#phone-screen.dark-mode .pomodoro-log-bubble {
+  background: rgba(48, 43, 56, 0.9);
+  color: #f4e8f7;
+  border-color: #5a4566;
+  box-shadow: none;
+}
+#phone-screen.dark-mode #pomodoro-history-viewer-content::before {
+  background: linear-gradient(#5a4566, #3d3345);
+  opacity: 0.8;
+}
+/* ================================================================= */
+/* === 💌 情书查看器 V3.0 (梦幻·高级·软萌限定版) === */
+/* ================================================================= */
+
+/* 1. 遮罩层：加一点粉色的氛围光 */
+#ls-letter-viewer-modal {
+  z-index: 2000 !important;
+  background-color: rgba(20, 0, 10, 0.3); /* 深色微红背景 */
+  backdrop-filter: blur(8px); /* 背景模糊 */
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* 2. 信纸主体：像一张厚实的高级卡纸 */
+#ls-letter-viewer-modal .ls-letter-viewer-content {
+  position: relative;
+  width: 88%;
+  max-width: 350px;
+  height: 78%;
+
+  /* 背景：极光般的柔和渐变，模拟高级纸张的反光 */
+  background:
+    radial-gradient(
+      circle at 0% 0%,
+      rgba(255, 235, 240, 0.8) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 100% 100%,
+      rgba(255, 218, 224, 0.6) 0%,
+      transparent 50%
+    ),
+    #fffafb; /* 底色是温暖的樱花白 */
+
+  /* 边框：双层边框设计，内实外虚，增加精致感 */
+  border: 4px solid #fff;
+  outline: 1px dashed #ffc2d1; /* 外圈虚线，像缝纫线 */
+  outline-offset: -10px; /* 虚线在内部 */
+
+  border-radius: 24px; /* 更大的圆角 */
+
+  /* 阴影：多层阴影营造悬浮感和光晕 */
+  box-shadow:
+    0 10px 40px rgba(255, 143, 171, 0.25),
+    /* 粉色氛围光 */ 0 0 0 8px rgba(255, 255, 255, 0.4); /* 外圈半透明白边 */
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: "Kaiti", "STKaiti", "Georgia", serif; /* 字体保持书卷气 */
+}
+
+/* 装饰：顶部的小爱心夹子 (拟物化) */
+#ls-letter-viewer-modal .ls-letter-viewer-content::before {
+  content: "♥";
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 40px;
+  color: #ff8fab;
+  z-index: 10;
+  text-shadow: 0 4px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 3. 头部：像信纸的抬头 */
+#ls-letter-viewer-modal .letter-viewer-header {
+  padding: 30px 25px 15px 25px; /* 顶部留多点空间给夹子 */
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 182, 193, 0.3);
+}
+
+/* 对方头像：像个小徽章 */
+#ls-letter-viewer-modal .letter-viewer-header .meta-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(255, 182, 193, 0.4);
+  object-fit: cover;
+}
+
+#ls-letter-viewer-modal .recipient-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+#ls-letter-viewer-modal .recipient-info .label {
+  font-size: 10px;
+  color: #ffb7c5;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+#ls-letter-viewer-modal .recipient-info .name {
+  font-size: 20px;
+  color: #6d4c41; /* 摩卡棕色 */
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* 4. 正文：信纸线条与手写感 */
+#ls-letter-viewer-modal .letter-viewer-body {
+  flex-grow: 1;
+  padding: 20px 30px;
+  overflow-y: auto;
+
+  /* 核心：更细腻的信纸横线 */
+  background-image: linear-gradient(
+    rgba(200, 100, 100, 0.1) 1px,
+    transparent 1px
+  );
+  background-size: 100% 30px; /* 行高控制 */
+  background-attachment: local;
+
+  font-size: 16px;
+  line-height: 30px; /* 严格对齐横线 */
+  color: #5d4037; /* 深咖啡色 */
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  /* 增加底部留白 */
+  mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+}
+
+/* 5. 底部：精致的落款与按钮 */
+#ls-letter-viewer-modal .letter-viewer-footer {
+  padding: 15px 25px 25px 25px;
+  background: linear-gradient(to top, #fff0f5 0%, rgba(255, 255, 255, 0) 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end; /* 底部对齐 */
+  flex-shrink: 0;
+}
+
+/* 发信人信息 */
+#ls-letter-viewer-modal .sender-info {
+  text-align: left;
+  font-size: 14px;
+  color: #8d6e63;
+  font-family: sans-serif; /* 用无衬线体做对比 */
+}
+#ls-letter-viewer-modal .sender-info .timestamp {
+  display: block;
+  font-size: 10px;
+  color: #bcaaa4;
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+/* 按钮组 */
+#ls-letter-viewer-modal .letter-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* 通用按钮样式 */
+#ls-letter-viewer-modal .letter-actions button {
+  border: none;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* "关闭" 按钮 */
+#ls-letter-viewer-modal #ls-close-letter-viewer-btn {
+  background: #fff;
+  color: #999;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eee;
+}
+#ls-letter-viewer-modal #ls-close-letter-viewer-btn:hover {
+  background: #f5f5f5;
+  transform: translateY(-2px);
+}
+
+/* "回信" 按钮 (高光重点) */
+#ls-letter-viewer-modal #ls-reply-letter-btn {
+  /* 糖果渐变色 */
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  color: white;
+  box-shadow: 0 6px 15px rgba(255, 154, 158, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+#ls-letter-viewer-modal #ls-reply-letter-btn::before {
+  content: "✎";
+  font-size: 14px;
+}
+#ls-letter-viewer-modal #ls-reply-letter-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(255, 154, 158, 0.6);
+}
+#ls-letter-viewer-modal #ls-reply-letter-btn:active {
+  transform: scale(0.95);
+}
+
+/* --- 6. 夜间模式适配 (保持暗色高级感) --- */
+#phone-screen.dark-mode #ls-letter-viewer-modal .ls-letter-viewer-content {
+  background: #231e1e; /* 深红褐底色 */
+  border-color: #3e2723;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+  outline-color: #4e342e;
+}
+#phone-screen.dark-mode #ls-letter-viewer-modal .letter-viewer-body {
+  background-image: linear-gradient(
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px
+  );
+  color: #d7ccc8; /* 浅米色文字 */
+}
+#phone-screen.dark-mode #ls-letter-viewer-modal .letter-viewer-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+#phone-screen.dark-mode #ls-letter-viewer-modal .recipient-info .name {
+  color: #ef9a9a; /* 浅粉色名字 */
+}
+#phone-screen.dark-mode #ls-letter-viewer-modal .sender-info {
+  color: #a1887f;
+}
+#phone-screen.dark-mode #ls-letter-viewer-modal .letter-viewer-footer {
+  background: linear-gradient(to top, #1a1a1a 0%, transparent 100%);
+}
+#phone-screen.dark-mode #ls-letter-viewer-modal #ls-close-letter-viewer-btn {
+  background: #333;
+  color: #ccc;
+  border-color: #444;
+}
+/* ================================================================= */
+/* === 📚 圈子书架 & 目录 - 实体书信息流版 (V6.0 Fixed) === */
+/* ================================================================= */
+
+/* --- 1. 背景：柔和的高级灰/纸张色 --- */
+#forum-bookshelf-screen {
+  background-color: #f7f9fc !important;
+  background-image: none !important;
+}
+
+#forum-series-detail-screen {
+  background-color: #ffffff !important;
+}
+
+/* --- 2. 书架列表容器 --- */
+#forum-bookshelf-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  padding: 20px 16px !important;
+
+  /* 清除旧样式 */
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  grid-template-columns: none !important;
+}
+
+/* --- 3. 书籍卡片：左图右文布局 --- */
+.forum-bookshelf-card {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important; /* 保持内部垂直排列，但我们用padding腾出位置 */
+  justify-content: center !important;
+
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  padding: 16px !important;
+  padding-left: 100px !important; /* ★★★ 核心：左侧留出 100px 给封面 */
+
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid rgba(0, 0, 0, 0.02) !important;
+  min-height: 110px !important; /* 保证高度足够放封面 */
+  overflow: visible !important; /* 允许封面稍微突出一点点立体感 */
+  transition: transform 0.2s ease !important;
+}
+
+.forum-bookshelf-card:active {
+  transform: scale(0.98);
+}
+
+/* --- 4. CSS 绘制的拟真封面 (左侧) --- */
+/* 使用伪元素 ::before 制作封面，不再占用 DOM 结构 */
+.forum-bookshelf-card::before {
+  content: "BOOK"; /* 默认装饰文字 */
+  position: absolute !important;
+  left: 16px !important;
+  top: 16px !important;
+  width: 70px !important;
+  height: 100px !important; /* 3:4 比例 */
+
+  /* 封面外观：渐变色 + 阴影 */
+  background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%) !important;
+  border-radius: 6px 10px 10px 6px !important; /* 书脊左侧直角，右侧圆角 */
+
+  /* 核心：书本的光影质感 */
+  box-shadow:
+    inset 4px 0 10px rgba(255, 255, 255, 0.3),
+    /* 书脊高光 */ inset -2px 0 5px rgba(0, 0, 0, 0.1),
+    /* 书口阴影 */ 5px 5px 15px rgba(0, 0, 0, 0.15) !important; /* 外部投影 */
+
+  /* 封面上的文字装饰 */
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 2px;
+  writing-mode: vertical-rl; /* 竖排文字 */
+  z-index: 1;
+}
+
+/* 书脊装饰线 (伪元素 ::after) */
+.forum-bookshelf-card::after {
+  content: "";
+  position: absolute !important;
+  left: 22px !important; /* 距离左边缘一点距离 */
+  top: 16px !important;
+  width: 1px !important;
+  height: 100px !important;
+  background: rgba(255, 255, 255, 0.4) !important;
+  z-index: 2;
+}
+
+/* 给不同的书随机分配封面颜色 */
+.forum-bookshelf-card:nth-child(4n + 1)::before {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%) !important;
+}
+.forum-bookshelf-card:nth-child(4n + 2)::before {
+  background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%) !important;
+}
+.forum-bookshelf-card:nth-child(4n + 3)::before {
+  background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%) !important;
+}
+.forum-bookshelf-card:nth-child(4n + 4)::before {
+  background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%) !important;
+}
+
+/* --- 5. 右侧信息区域 (Header) --- */
+.series-card-header {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  margin-bottom: 10px !important;
+  width: 100% !important;
+  /* 恢复可见性 */
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* 书名 */
+.series-card-title {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #333 !important;
+  line-height: 1.4 !important;
+  margin: 0 !important;
+
+  /* 限制显示两行 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 第一行 Meta：CP信息 (胶囊标签) */
+.series-card-meta:nth-of-type(1) {
+  display: inline-flex !important;
+  align-self: flex-start !important;
+  font-size: 11px !important;
+  color: var(--accent-color) !important;
+  background-color: rgba(0, 123, 255, 0.08) !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+}
+
+/* 第二行 Meta：进度信息 (灰色小字) */
+.series-card-meta:nth-of-type(2) {
+  font-size: 12px !important;
+  color: #999 !important;
+  margin-top: 2px !important;
+}
+
+/* --- 6. 按钮操作区 (Actions) --- */
+.series-card-actions {
+  display: flex !important;
+  gap: 8px !important;
+  margin-top: auto !important; /* 推到底部 */
+  padding-top: 5px !important;
+}
+
+/* 按钮统一样式 */
+.series-card-actions .mini-btn {
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  border-radius: 14px !important; /* 椭圆按钮 */
+  border: 1px solid #eee !important;
+  background-color: #fff !important;
+  color: #666 !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  flex: 1; /* 按钮均分宽度 */
+  text-align: center;
+}
+
+/* 主按钮 (阅读/追更) */
+.series-card-actions .mini-btn.primary {
+  background-color: var(--accent-color) !important;
+  color: white !important;
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.25) !important;
+  flex: 1.5; /* 主按钮宽一点 */
+}
+/* 1. 详情页主容器：确保是垂直 Flex 布局，且禁止整体滚动 */
+#forum-series-detail-screen {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  overflow: hidden !important; /* 禁止整个屏幕滚动 */
+}
+
+/* 2. 顶部书籍信息区域 (Meta) */
+/* 让它根据内容自动撑开高度，不许伸展，不许滚动 */
+#forum-series-meta {
+  flex-grow: 0 !important; /* 不要抢占剩余空间 */
+  flex-shrink: 0 !important; /* 防止被下面的列表挤扁 */
+  overflow: visible !important; /* 不需要滚动条 */
+  height: auto !important; /* 高度自适应 */
+  min-height: 0 !important;
+  background: transparent !important; /* 保持透明，显示背景色 */
+  padding-bottom: 0 !important;
+}
+
+/* 3. 底部目录列表 (Chapter List) */
+/* 让它吃掉所有剩下的空间，并且内容溢出时自己内部滚动 */
+#forum-series-chapter-list {
+  flex-grow: 1 !important; /* 占据所有剩余空间 */
+  height: 0 !important; /* 【关键】配合flex-grow，强制触发滚动计算 */
+  min-height: 0 !important; /* 【关键】防止Flex子项溢出 */
+  overflow-y: auto !important; /* 开启垂直滚动条 */
+
+  /* 美化一下列表的间距 */
+  padding: 10px 15px 30px 15px !important;
+  gap: 10px !important;
+
+  /* 移除之前可能设置的 max-height */
+  max-height: none !important;
+  background: transparent !important;
+}
+
+/* 4. 单个章节条目的样式微调 (防止太挤) */
+.forum-chapter-item {
+  flex-shrink: 0 !important; /* 防止在列表里被挤扁 */
+}
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+  margin-left: auto; /* 靠右对齐 */
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc; /* 默认灰色 */
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+/* 开启状态：背景变绿 */
+input:checked + .slider {
+  background-color: #34c759; /* iOS 绿色 */
+}
+
+/* 开启状态：圆球右移 */
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* ★★★ 核心：开启时显示对勾 ★★★ */
+input:checked + .slider::after {
+  content: "✔";
+  position: absolute;
+  color: white;
+  font-size: 16px;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
 }
