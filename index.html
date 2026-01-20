@@ -1255,8 +1255,35 @@
                   <span class="toggle-switch-text" style="font-weight: bold"
                     >开启系统弹窗</span
                   >
-                  <div style="font-size: 12px; color: #888; margin-top: 4px">
-                    iOS需添加到主屏幕，安卓需授权
+                  <!-- ▼▼▼ 修改后的布局：将按钮和提示语放在一行，样式更精致 ▼▼▼ -->
+                  <div
+                    style="
+                      font-size: 12px;
+                      color: #888;
+                      margin-top: 6px;
+                      display: flex;
+                      align-items: center;
+                    "
+                  >
+                    <span>iOS需添加到主屏幕，安卓需授权</span>
+                    <button
+                      id="check-notification-perm-btn"
+                      style="
+                        margin-left: 10px;
+                        padding: 2px 10px;
+                        background-color: rgba(0, 123, 255, 0.1);
+                        color: #007bff;
+                        border: 1px solid rgba(0, 123, 255, 0.2);
+                        border-radius: 12px;
+                        font-size: 11px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 3px;
+                      "
+                    >
+                      <span>🔍</span> 检测权限
+                    </button>
                   </div>
                 </div>
                 <label class="toggle-switch">
@@ -1389,6 +1416,27 @@
                     测试
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+          <!-- 4.5. Pollinations 生图卡片 (新增) -->
+          <div class="moe-card">
+            <div class="moe-card-header">
+              <span class="icon">🌸</span>
+              <h3>Pollinations 生图</h3>
+            </div>
+            <div class="moe-card-body">
+              <div class="form-group">
+                <label>API Key (可选，用于高级功能/去水印)</label>
+                <input
+                  type="password"
+                  id="pollinations-api-key"
+                  placeholder="Bearer ..."
+                  class="moe-input"
+                />
+                <p style="font-size: 12px; color: #888; margin-top: 5px">
+                  * 如果留空，将使用免费公开接口 (可能包含水印或受限)。
+                </p>
               </div>
             </div>
           </div>
@@ -1619,6 +1667,27 @@
             >
               <span>📖</span> 兔k写的一些教程
             </a>
+          </div>
+
+          <div style="margin: 10px 0; text-align: center">
+            <button
+              onclick="window.openBugStation()"
+              style="
+                background: #fff0f6;
+                color: #eb2f96;
+                border: 2px dashed #ffadd2;
+                border-radius: 15px;
+                padding: 8px 20px;
+                font-size: 13px;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+              "
+            >
+              🚑 报错急救站
+              <span style="font-size: 10px; opacity: 0.7">(点我复制错误)</span>
+            </button>
           </div>
 
           <!-- 底部留白，防止被悬浮按钮遮挡 -->
@@ -2820,6 +2889,13 @@
               >
                 重置
               </button>
+              <button
+                id="manage-char-css-btn"
+                class="upload-btn-pill"
+                style="background-color: #ff9800; color: white"
+              >
+                清理角色CSS
+              </button>
               <input
                 type="file"
                 id="import-theme-input"
@@ -2969,6 +3045,25 @@
                   />
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ★★★ 新增：路人头像库卡片 ★★★ -->
+        <div class="settings-group-card">
+          <div class="settings-section-title">👥 全局路人头像库</div>
+          <div class="setting-item">
+            <label>用于生成随机NPC、评论区的头像</label>
+            <div class="moe-btn-group">
+              <button
+                id="manage-passerby-avatars-btn"
+                class="moe-btn-secondary"
+              >
+                📂 管理图库
+              </button>
+              <button id="add-passerby-avatar-btn" class="moe-btn-secondary">
+                ➕ 添加头像
+              </button>
             </div>
           </div>
         </div>
@@ -6471,6 +6566,11 @@
 
     <audio id="ringtone-player" loop></audio>
     <audio id="notification-sound-player" preload="auto"></audio>
+    <audio
+      id="strong-keep-alive-player"
+      loop
+      src="https://files.catbox.moe/7jn7bp.mp3"
+    ></audio>
 
     <div id="create-post-modal" class="modal">
       <div class="modal-content" style="height: auto; max-height: 90%">
@@ -14659,6 +14759,105 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         </div>
       </div>
     </div>
+    <!-- ★★★ 新增：路人头像库管理弹窗 ★★★ -->
+    <div id="passerby-avatar-manager-modal" class="modal">
+      <div class="modal-content" style="height: 70%">
+        <div class="modal-header">
+          <span>路人头像库 (<span id="passerby-count">0</span>)</span>
+          <div class="header-actions">
+            <button
+              id="bulk-add-passerby-btn"
+              class="action-button"
+              style="font-size: 14px"
+            >
+              批量添加
+            </button>
+          </div>
+        </div>
+        <div
+          class="modal-body"
+          style="padding: 15px; background-color: #f5f5f5"
+        >
+          <div
+            id="passerby-avatar-grid"
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+              gap: 10px;
+            "
+          >
+            <!-- JS动态生成 -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="save"
+            id="close-passerby-manager-btn"
+            style="width: 100%"
+          >
+            关闭
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- 隐藏的文件上传控件 -->
+    <input
+      type="file"
+      id="passerby-upload-input"
+      accept="image/*"
+      multiple
+      hidden
+    />
+
+    <div id="bug-report-modal" class="modal">
+      <div class="modal-content" style="height: 70%; max-height: 600px">
+        <!-- 头部 -->
+        <div class="modal-header">
+          <span>🏩 报错急救站</span>
+          <button
+            class="nurse-btn nurse-btn-clear"
+            onclick="window.clearBugReport()"
+          >
+            🧹 清扫
+          </button>
+        </div>
+
+        <!-- 内容区 -->
+        <div
+          class="modal-body"
+          style="
+            padding: 15px;
+            background: #fff0f6;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <p style="font-size: 12px; color: #eb2f96; margin-bottom: 5px">
+            👇 如果遇到问题，请复制下方的红字发给开发者：
+          </p>
+          <textarea id="error-log-viewer" readonly></textarea>
+        </div>
+
+        <!-- 底部按钮 -->
+        <div
+          class="modal-footer"
+          style="background: #fff0f6; justify-content: space-between"
+        >
+          <button
+            class="nurse-btn nurse-btn-close"
+            onclick="window.closeBugStation()"
+          >
+            关 闭
+          </button>
+          <button
+            class="nurse-btn nurse-btn-copy"
+            onclick="window.copyBugReport()"
+          >
+            📋 一键复制报错
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div id="inner-voice-modal" class="modal">
       <!-- 心声主面板 -->
@@ -14852,8 +15051,100 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
     </div>
 
     <script>
-      // ▼▼▼ 把这一整块超长的塔罗牌数据，粘贴到 const GEMINI_API_URL 的正上方 ▼▼▼
+      (function () {
+        window.errorLogs = [];
 
+        // === 核心逻辑：只抓错误 ===
+        function captureError(source, msg) {
+          const time = new Date().toLocaleTimeString();
+          const logLine = `⏰ [${time}] ${source}\n❌ ${msg}\n----------------------------------\n`;
+          window.errorLogs.push(logLine);
+
+          // 实时更新UI
+          const textarea = document.getElementById("error-log-viewer");
+          if (textarea) {
+            textarea.value = window.errorLogs.join("");
+            textarea.scrollTop = textarea.scrollHeight;
+          }
+        }
+
+        // 1. 劫持 console.error (代码里主动打印的红字)
+        const originalError = console.error;
+        console.error = function (...args) {
+          // 将对象转为字符串，防止显示 [object Object]
+          const msg = args
+            .map((a) => {
+              try {
+                return typeof a === "object" ? JSON.stringify(a) : String(a);
+              } catch (e) {
+                return String(a);
+              }
+            })
+            .join(" ");
+          captureError("Console Error", msg);
+          originalError.apply(console, args);
+        };
+
+        // 2. 捕获运行时的崩溃 (语法错误、未定义变量等)
+        window.addEventListener("error", function (event) {
+          captureError(
+            "System Crash",
+            `${event.message}\n📍 位置: ${event.filename}:${event.lineno}`,
+          );
+        });
+
+        // 3. 捕获 Promise 报错 (API请求失败等)
+        window.addEventListener("unhandledrejection", function (event) {
+          let reason = event.reason;
+          if (typeof reason === "object")
+            reason = reason.message || JSON.stringify(reason);
+          captureError("Unhandled Promise", reason);
+        });
+      })();
+
+      // 打开面板
+      window.openBugStation = function () {
+        const modal = document.getElementById("bug-report-modal");
+        const textarea = document.getElementById("error-log-viewer");
+        const emptyTip = "✨ 一切正常！没有检测到任何报错 (好耶！)";
+
+        if (window.errorLogs.length === 0) {
+          textarea.value = emptyTip;
+          textarea.style.color = "#52c41a"; // 绿色
+          textarea.style.textAlign = "center";
+          textarea.style.paddingTop = "50px";
+        } else {
+          textarea.value = window.errorLogs.join("");
+          textarea.style.color = "#ff4d4f"; // 红色
+          textarea.style.textAlign = "left";
+          textarea.style.paddingTop = "15px";
+        }
+
+        modal.classList.add("visible");
+      };
+
+      // 复制
+      window.copyBugReport = function () {
+        const textarea = document.getElementById("error-log-viewer");
+        if (textarea.value.includes("一切正常")) {
+          alert("没有报错，不用复制啦~");
+          return;
+        }
+        textarea.select();
+        document.execCommand("copy");
+        alert("💉 报错信息已复制！快发给开发者急救！");
+      };
+
+      // 清空
+      window.clearBugReport = function () {
+        window.errorLogs = [];
+        window.openBugStation(); // 刷新显示
+      };
+
+      // 关闭
+      window.closeBugStation = function () {
+        document.getElementById("bug-report-modal").classList.remove("visible");
+      };
       const TAROT_DECK = [
         {
           name: "愚人",
@@ -15655,9 +15946,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             } else if (itemType === "update_status") {
               return [
                 {
-                  text: `${time}[${text}] ${obj.status_text}(${
-                    obj.is_busy ? "忙碌/离开" : "空闲"
-                  })`,
+                  text: `${time}[${text}] ${obj.status_text}(${obj.is_busy ? "忙碌/离开" : "空闲"})`,
                 },
               ];
             } else if (itemType === "change_music") {
@@ -15691,9 +15980,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             } else if (itemType === "waimai_response") {
               return [
                 {
-                  text: `${time}[${text[obj.status]}] ${
-                    obj.status === "paid" ? "同意" : "拒绝"
-                  }`,
+                  text: `${time}[${text[obj.status]}] ${obj.status === "paid" ? "同意" : "拒绝"}`,
                 },
               ];
             } else if (itemType === "video_call_request") {
@@ -15701,9 +15988,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             } else if (itemType === "video_call_request") {
               return [
                 {
-                  text: `${time}[${text[obj.decision]}] ${
-                    obj.decision === "accept" ? "同意" : "拒绝"
-                  }`,
+                  text: `${time}[${text[obj.decision]}] ${obj.decision === "accept" ? "同意" : "拒绝"}`,
                 },
               ];
             } else if (itemType === "qzone_post") {
@@ -15712,9 +15997,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   text: `${time}[${text[obj.postType]}] ${
                     obj.postType === "shuoshuo"
                       ? `${obj.content}`
-                      : `图片描述是:${obj.hiddenContent} ${
-                          obj.publicText ? `文案是: ${obj.publicText}` : ""
-                        }`
+                      : `图片描述是:${obj.hiddenContent} ${obj.publicText ? `文案是: ${obj.publicText}` : ""}`
                   }`,
                 },
               ];
@@ -15735,9 +16018,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             } else if (itemType === "friend_request_response") {
               return [
                 {
-                  text: `${time}[${text}] 结果是:${
-                    obj.decision === "accept" ? "同意" : "拒绝"
-                  }`,
+                  text: `${time}[${text}] 结果是:${obj.decision === "accept" ? "同意" : "拒绝"}`,
                 },
               ];
             } else if (itemType === "change_avatar") {
@@ -15990,7 +16271,12 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           },
         ];
 
-        const BLOCKED_API_SITES = ["api.pisces.ink", "aiapi.qzz.io"];
+        const BLOCKED_API_SITES = [
+          "api.pisces.ink",
+          "aiapi.qzz.io",
+          "api520.pro",
+          "api521.pro",
+        ];
 
         // --- 已修正 ---
 
@@ -16089,9 +16375,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               searchTerm += ` ${singer.replace(/\s/g, "")}`;
             }
 
-            const apiUrl = `https://api.vkeys.cn/v2/music/netease?word=${encodeURIComponent(
-              searchTerm,
-            )}`;
+            const apiUrl = `https://api.vkeys.cn/v2/music/netease?word=${encodeURIComponent(searchTerm)}`;
 
             console.log("正在尝试直接请求:", apiUrl); // 添加一条日志，方便我们调试
 
@@ -16200,9 +16484,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           try {
             name = name.replace(/\s/g, "");
             const result = await Http_Get(
-              `https://api.vkeys.cn/v2/music/tencent?word=${encodeURIComponent(
-                name,
-              )}`,
+              `https://api.vkeys.cn/v2/music/tencent?word=${encodeURIComponent(name)}`,
             );
             if (!result?.data?.length) return [];
             return result.data
@@ -17187,6 +17469,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             tukeyUserSettings: "&id",
             tukeyCustomConfig: "&id",
             auroraBooks: "++id, title, content, addedAt",
+            passerbyAvatars: "++id, url",
           });
           // 到这里加下面三行
           window.db = db;
@@ -18116,10 +18399,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 
             let contentHtml = "";
             const publicTextHtml = post.publicText
-              ? `<div class="post-content">${post.publicText.replace(
-                  /\n/g,
-                  "<br>",
-                )}</div>`
+              ? `<div class="post-content">${post.publicText.replace(/\n/g, "<br>")}</div>`
               : "";
 
             if (post.type === "shuoshuo") {
@@ -18252,9 +18532,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                                 <span class="action-icon favorite ${
                                   isFavoritedByUser ? "active" : ""
                                 }"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg></span>
-                                <span class="action-icon summon-npc" data-post-id="${
-                                  post.id
-                                }" data-author-id="${
+                                <span class="action-icon summon-npc" data-post-id="${post.id}" data-author-id="${
                                   post.authorId
                                 }" title="召唤NPC评论"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
                                 </div>
@@ -18407,16 +18685,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               headerHtml = `<img src="${authorAvatar}" class="avatar"><div class="info"><div class="name">${authorNickname}</div></div>`;
 
               const publicTextHtml = post.publicText
-                ? `<div class="post-content">${post.publicText.replace(
-                    /\n/g,
-                    "<br>",
-                  )}</div>`
+                ? `<div class="post-content">${post.publicText.replace(/\n/g, "<br>")}</div>`
                 : "";
               if (post.type === "shuoshuo") {
-                contentHtml = `<div class="post-content">${post.content.replace(
-                  /\n/g,
-                  "<br>",
-                )}</div>`;
+                contentHtml = `<div class="post-content">${post.content.replace(/\n/g, "<br>")}</div>`;
               } else if (post.type === "image_post" && post.imageUrl) {
                 contentHtml = publicTextHtml
                   ? `${publicTextHtml}<div style="margin-top:10px;"><img src="${post.imageUrl}" class="chat-image"></div>`
@@ -18840,9 +19112,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const url = URL.createObjectURL(blob);
             const link = Object.assign(document.createElement("a"), {
               href: url,
-              download: `EPhone-Full-Backup-${
-                new Date().toISOString().split("T")[0]
-              }.json`,
+              download: `EPhone-Full-Backup-${new Date().toISOString().split("T")[0]}.json`,
             });
             document.body.appendChild(link);
             link.click();
@@ -19051,9 +19321,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
 
             console.log(
-              `[GitHub] 文件大小: ${(totalSize / 1024 / 1024).toFixed(
-                2,
-              )} MB, 分片数: ${totalChunks}`,
+              `[GitHub] 文件大小: ${(totalSize / 1024 / 1024).toFixed(2)} MB, 分片数: ${totalChunks}`,
             );
 
             // 如果只有1片，走普通上传；如果多片，走分片上传
@@ -19078,10 +19346,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 const end = Math.min(start + CHUNK_SIZE, totalSize);
                 const chunkContent = fullBase64.substring(start, end);
 
-                const partName = `${githubPath}.${String(i + 1).padStart(
-                  3,
-                  "0",
-                )}`;
+                const partName = `${githubPath}.${String(i + 1).padStart(3, "0")}`;
 
                 if (!isAuto) {
                   console.log(`正在上传分片 ${i + 1}/${totalChunks} ...`);
@@ -20117,6 +20382,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             minimaxApiKey: "",
             minimaxProvider: "cn",
             minimaxSpeechModel: "speech-01-turbo",
+            pollinationsApiKey: "", // <--- 新增这一行
           };
 
           // 兼容旧数据，如果加载的设置里没有温度，也给一个默认值
@@ -20826,9 +21092,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const negativePrompt = prompts.negative;
 
           console.log(
-            `📝 使用${
-              prompts.source === "character" ? "角色专属" : "系统"
-            }提示词配置`,
+            `📝 使用${prompts.source === "character" ? "角色专属" : "系统"}提示词配置`,
           );
           console.log("正面提示词:", finalPrompt);
           console.log("负面提示词:", negativePrompt);
@@ -21266,6 +21530,8 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           document.getElementById("novelai-api-key").value = novelaiApiKey;
           document.getElementById("novelai-details").style.display =
             novelaiEnabled ? "block" : "none";
+          document.getElementById("pollinations-api-key").value =
+            state.apiConfig.pollinationsApiKey || "";
 
           // 2. 更新后台活动相关的开关和输入框
           document.getElementById("background-activity-switch").checked =
@@ -21386,7 +21652,47 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               }
             });
           }
+          const checkPermBtn = document.getElementById(
+            "check-notification-perm-btn",
+          );
+          if (checkPermBtn) {
+            const newBtn = checkPermBtn.cloneNode(true);
+            checkPermBtn.parentNode.replaceChild(newBtn, checkPermBtn);
 
+            newBtn.addEventListener("click", async () => {
+              if (!("Notification" in window)) {
+                alert(
+                  '❌ 你的浏览器/环境完全不支持系统通知 API。\n(如果是iOS，必须点击"添加到主屏幕"作为PWA运行才支持)',
+                );
+                return;
+              }
+
+              const permission = Notification.permission;
+
+              if (permission === "granted") {
+                try {
+                  new Notification("权限测试", {
+                    body: "恭喜！系统通知功能正常工作。",
+                  });
+                  alert(
+                    "✅ 权限状态: 已授权 (granted)\n\n系统尝试发送了一条测试通知，请查看手机通知栏。\n如果没收到，请检查手机系统的“通知管理”是否屏蔽了浏览器/本应用。",
+                  );
+                } catch (e) {
+                  alert(
+                    `⚠️ 权限显示已授权，但发送失败。\n错误信息: ${e.message}`,
+                  );
+                }
+              } else if (permission === "denied") {
+                alert(
+                  "🚫 权限状态: 已拒绝 (denied)\n\n原因：你之前点击了“禁止”或系统默认禁止。\n\n解决方法：\n1. 请在浏览器地址栏点击锁图标或设置。\n2. 找到“通知”权限并重置为“询问”或“允许”。\n3. 刷新页面重试。",
+                );
+              } else if (permission === "default") {
+                alert(
+                  "❓ 权限状态: 未询问 (default)\n\n请点击右侧开关，并在弹出的浏览器窗口中点击“允许”。",
+                );
+              }
+            });
+          }
           calculateTotalImageSize();
         }
 
@@ -21616,9 +21922,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           container.dataset.chatId = chat.id;
 
           const content = document.createElement("div");
-          content.className = `chat-list-item-content ${
-            chat.isPinned ? "pinned" : ""
-          }`;
+          content.className = `chat-list-item-content ${chat.isPinned ? "pinned" : ""}`;
 
           const avatar = chat.isGroup
             ? chat.settings.groupAvatar
@@ -21837,9 +22141,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                                   ? '<span style="color: green;">运行中</span>'
                                   : '<span style="color: red;">未运行</span>'
                               }<br>
-			                        - 当前角色状态: <strong>${
-                                chat.relationship.status
-                              }</strong><br>
+			                        - 当前角色状态: <strong>${chat.relationship.status}</strong><br>
 			                        - 需要冷静(小时): <strong>${cooldownHours}</strong><br>
 			                        - 冷静期是否结束: ${
                                 isCooldownOver
@@ -22220,9 +22522,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const item = document.createElement("div");
             item.className = "list-item";
             item.dataset.bookId = book.id;
-            item.innerHTML = `<div class="item-title">${
-              book.name
-            }</div><div class="item-content">${(
+            item.innerHTML = `<div class="item-title">${book.name}</div><div class="item-content">${(
               book.content || "暂无内容..."
             ).substring(0, 50)}</div>`;
             item.addEventListener("click", () => openWorldBookEditor(book.id));
@@ -22588,10 +22888,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             // 这里给它加个小图标，让它看起来更有“剧情感”
             bubble.innerHTML = `
 			                            <div style="font-weight:bold; color:#5f6368;">📝 旁白</div>
-			                            <div style="line-height: 1.5;">${msg.content.replace(
-                                    /\n/g,
-                                    "<br>",
-                                  )}</div>
+			                            <div style="line-height: 1.5;">${msg.content.replace(/\n/g, "<br>")}</div>
 			                        `;
 
             wrapper.appendChild(bubble);
@@ -22755,9 +23052,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             contentHtml = `
 			            <div class="link-share-card" data-timestamp="${msg.timestamp}">
 			                <div class="title">${msg.title || "无标题"}</div>
-			                <div class="description">${
-                        msg.description || "点击查看详情..."
-                      }</div>
+			                <div class="description">${msg.description || "点击查看详情..."}</div>
 			                <div class="footer">
 			                    <svg class="footer-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
 			                    <span>${msg.source_name || "链接分享"}</span>
@@ -22875,9 +23170,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const latest = payload.latestChapterIndex
               ? `第${payload.latestChapterIndex}章 ${payload.latestTitle || ""}`
               : "最新章节";
-            const meta = `${payload.pairing || ""} · ${payload.statusText || ""} · 共${
-              payload.chapterCount || "?"
-            }章`;
+            const meta = `${payload.pairing || ""} · ${payload.statusText || ""} · 共${payload.chapterCount || "?"}章`;
             contentHtml = `
         <div class="book-share-card" style="cursor: pointer;" data-post-id="${payload.latestPostId || ""}">
           <div class="book-spine"></div>
@@ -22974,18 +23267,11 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			                <!-- 2. 清晰列出有什么商品 -->
 			                <div class="gift-card-items">
 			                    <strong>商品列表:</strong><br>
-			                    ${payload.itemSummary.replace(
-                            /、/g,
-                            "<br>",
-                          )} <!-- 将顿号替换为换行，让列表更清晰 -->
+			                    ${payload.itemSummary.replace(/、/g, "<br>")} <!-- 将顿号替换为换行，让列表更清晰 -->
 			                </div>
 			                <!-- 3. 清晰标明总金额 -->
 			                <div class="gift-card-footer">
-			                    共 ${
-                            payload.itemCount
-                          } 件，合计: <span class="total-price">¥${payload.totalPrice.toFixed(
-                            2,
-                          )}</span>
+			                    共 ${payload.itemCount} 件，合计: <span class="total-price">¥${payload.totalPrice.toFixed(2)}</span>
 			                </div>
 			            </div>
 			        </div>
@@ -23074,14 +23360,10 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             // 4. 构建地点信息HTML
             const userLocationHtml = `<p class="${
               !msg.userLocation ? "hidden" : ""
-            }"><span class="name-tag">${myNickname}:</span> ${
-              msg.userLocation
-            }</p>`;
+            }"><span class="name-tag">${myNickname}:</span> ${msg.userLocation}</p>`;
             const aiLocationHtml = `<p class="${
               !msg.aiLocation ? "hidden" : ""
-            }"><span class="name-tag">${aiNickname}:</span> ${
-              msg.aiLocation
-            }</p>`;
+            }"><span class="name-tag">${aiNickname}:</span> ${msg.aiLocation}</p>`;
 
             // 5. 拼接最终的 contentHtml
             contentHtml = `
@@ -23119,10 +23401,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               1,
               Math.round((msg.content || "").length / 5),
             );
-            const durationFormatted = `0:${String(duration).padStart(
-              2,
-              "0",
-            )}''`;
+            const durationFormatted = `0:${String(duration).padStart(2, "0")}''`;
             const waveformHTML =
               "<div></div><div></div><div></div><div></div><div></div>";
 
@@ -23191,9 +23470,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             contentHtml = `
 			        <div class="transfer-card">
 			            <div class="transfer-title">${heartIcon} ${titleText}</div>
-			            <div class="transfer-amount">¥ ${Number(msg.amount).toFixed(
-                    2,
-                  )}</div>
+			            <div class="transfer-amount">¥ ${Number(msg.amount).toFixed(2)}</div>
 			            <div class.transfer-note">${noteText}</div>
 			        </div>
 			    `;
@@ -23237,13 +23514,9 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			                    <div class="request-title">${requestTitle}</div>
 			                    <div class="payment-box">
 			                        <div class="payment-label">需付款</div>
-			                        <div class="amount">¥${Number(msg.amount).toFixed(
-                                2,
-                              )}</div>
+			                        <div class="amount">¥${Number(msg.amount).toFixed(2)}</div>
 			                        <div class="countdown-label">剩余支付时间
-			                            <div class="countdown-timer" id="waimai-timer-${
-                                    msg.timestamp
-                                  }"></div>
+			                            <div class="countdown-timer" id="waimai-timer-${msg.timestamp}"></div>
 			                        </div>
 			                    </div>
 			                    <button class="waimai-details-btn">查看详情</button>
@@ -23278,9 +23551,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                     : "";
                   showCustomAlert(
                     "订单详情",
-                    `<b>商品：</b>${msg.productInfo}<br><b>金额：</b>¥${Number(
-                      msg.amount,
-                    ).toFixed(2)}${paidByText}`,
+                    `<b>商品：</b>${msg.productInfo}<br><b>金额：</b>¥${Number(msg.amount).toFixed(2)}${paidByText}`,
                   );
                 });
               }
@@ -23340,9 +23611,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			        <div class="red-packet-card ${cardClass}">
 			            <div class="rp-header">
 			                <img src="https://files.catbox.moe/lo9xhc.png" class="rp-icon">
-			                <span class="rp-greeting">${
-                        msg.greeting || "恭喜发财，大吉大利！"
-                      }</span>
+			                <span class="rp-greeting">${msg.greeting || "恭喜发财，大吉大利！"}</span>
 			            </div>
 			            <div class="rp-type">${typeText}</div>
 			            ${claimedInfoHtml}
@@ -23353,9 +23622,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const cardData = msg.content;
 
             contentHtml = `
-			        <div class="ls-diary-notification-card" onclick="openLoversSpaceFromCard('${
-                chat.id
-              }', 'ls-diary-view')">
+			        <div class="ls-diary-notification-card" onclick="openLoversSpaceFromCard('${chat.id}', 'ls-diary-view')">
 			            <div class="ls-diary-card-header">
 			                <span>${cardData.userEmoji || "💌"}</span>
 			                <span>一封来自心情日记的提醒</span>
@@ -23457,9 +23724,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               const isVotedByMe = myVote === optionText;
 
               optionsHtml += `
-			            <div class="poll-option-item ${
-                    isVotedByMe ? "voted" : ""
-                  }" data-option="${optionText}">
+			            <div class="poll-option-item ${isVotedByMe ? "voted" : ""}" data-option="${optionText}">
 			                <div class="poll-option-bar" style="width: ${percentage}%;"></div>
 			                <div class="poll-option-content">
 			                    <span class="poll-option-text">${optionText}</span>
@@ -23481,9 +23746,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             }
 
             contentHtml = `
-			        <div class="poll-card ${
-                msg.isClosed ? "closed" : ""
-              }" data-poll-timestamp="${msg.timestamp}">
+			        <div class="poll-card ${msg.isClosed ? "closed" : ""}" data-poll-timestamp="${msg.timestamp}">
 			            <div class="poll-question">${msg.question}</div>
 			            ${optionsHtml}
 			            ${footerHtml}
@@ -23494,9 +23757,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             const reading = msg.payload;
             let cardsText = reading.cards
               .map((card) => {
-                return `[${card.position}] ${card.name} ${
-                  card.isReversed ? "(逆位)" : ""
-                }`;
+                return `[${card.position}] ${card.name} ${card.isReversed ? "(逆位)" : ""}`;
               })
               .join("\n");
 
@@ -23524,9 +23785,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           } else if (msg.type === "sticker" && msg.content) {
             bubble.classList.add("is-sticker");
             // 直接从消息对象中获取 url 和 meaning
-            contentHtml = `<img src="${msg.content}" alt="${
-              msg.meaning || "Sticker"
-            }" class="sticker-image">`;
+            contentHtml = `<img src="${msg.content}" alt="${msg.meaning || "Sticker"}" class="sticker-image">`;
           }
 
           // 旧的逻辑保持不变，作为兼容
@@ -23535,9 +23794,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             STICKER_REGEX.test(msg.content)
           ) {
             bubble.classList.add("is-sticker");
-            contentHtml = `<img src="${msg.content}" alt="${
-              msg.meaning || "Sticker"
-            }" class="sticker-image">`;
+            contentHtml = `<img src="${msg.content}" alt="${msg.meaning || "Sticker"}" class="sticker-image">`;
           } else if (
             Array.isArray(msg.content) &&
             msg.content[0]?.type === "image_url"
@@ -23719,9 +23976,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           } else if (msg.type === "voice_message") {
             contentText = `[语音]: ${msg.content}`;
           } else if (msg.type === "transfer") {
-            contentText = `[转账] 金额: ${msg.amount}, 备注: ${
-              msg.note || "无"
-            }`;
+            contentText = `[转账] 金额: ${msg.amount}, 备注: ${msg.note || "无"}`;
           } else {
             contentText = String(msg.content || "");
           }
@@ -23746,9 +24001,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           if (summaries.length > 0) {
             summaryContext = `
 			# 对话记忆总结 (这是你和用户的长期记忆，必须严格遵守)
-			${summaries
-        .map((summary, index) => `- 总结${index + 1}: ${summary.content}`)
-        .join("\n")}
+			${summaries.map((summary, index) => `- 总结${index + 1}: ${summary.content}`).join("\n")}
 			`;
           }
           // 将世界书读取提到这里，确保线下模式也能生效
@@ -23762,9 +24015,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 const book = state.worldBooks.find((b) => b.id === id);
                 // 这里使用了 stripHtmlAndCode 清理函数，确保纯文本
                 return book && book.content
-                  ? `\n\n## 世界书条目: ${book.name}\n${stripHtmlAndCode(
-                      book.content,
-                    )}`
+                  ? `\n\n## 世界书条目: ${book.name}\n${stripHtmlAndCode(book.content)}`
                   : "";
               })
               .filter(Boolean)
@@ -23873,9 +24124,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               let isGemini = proxyUrl === GEMINI_API_URL;
               let requestBody;
               let requestUrl = isGemini
-                ? `${GEMINI_API_URL}/${model}:generateContent?key=${getRandomValue(
-                    apiKey,
-                  )}`
+                ? `${GEMINI_API_URL}/${model}:generateContent?key=${getRandomValue(apiKey)}`
                 : `${proxyUrl}/v1/chat/completions`;
               let requestHeaders = isGemini
                 ? { "Content-Type": "application/json" }
@@ -24465,19 +24714,14 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 .slice(-10, -5) // 获取拉黑前的最后5条消息
                 .map((msg) => {
                   const sender = msg.role === "user" ? "用户" : chat.name;
-                  return `${sender}: ${String(msg.content).substring(
-                    0,
-                    50,
-                  )}...`;
+                  return `${sender}: ${String(msg.content).substring(0, 50)}...`;
                 })
                 .join("\n");
 
               // 2. 构建一个强制AI给出理由的Prompt
               const decisionPrompt = `
 			# 你的任务
-			你现在是角色“${
-        chat.name
-      }”。用户之前被你拉黑了，现在TA向你发送了好友申请，希望和好。
+			你现在是角色“${chat.name}”。用户之前被你拉黑了，现在TA向你发送了好友申请，希望和好。
 
 			# 供你决策的上下文信息:
 			- **你的角色设定**: ${chat.settings.aiPersona}
@@ -24698,9 +24942,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   );
 
                   return worldBook && worldBook.content
-                    ? `\n\n## 世界书: ${worldBook.name}\n${stripHtmlAndCode(
-                        worldBook.content,
-                      )}`
+                    ? `\n\n## 世界书: ${worldBook.name}\n${stripHtmlAndCode(worldBook.content)}`
                     : "";
                 })
                 .filter(Boolean)
@@ -24750,19 +24992,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                   );
                   lyricsContext += `- **当前歌词**: "${currentLine.text}"\n`;
                   if (upcomingLines.length > 0) {
-                    lyricsContext += `- **即将演唱**: ${upcomingLines
-                      .map((line) => `"${line.text}"`)
-                      .join(" / ")}\n`;
+                    lyricsContext += `- **即将演唱**: ${upcomingLines.map((line) => `"${line.text}"`).join(" / ")}\n`;
                   }
                 }
 
                 musicContext = `\n\n# 当前音乐情景
                     -   **当前状态**: 你正在和用户一起听歌。
-                    -   **正在播放**: ${
-                      currentTrack
-                        ? `《${currentTrack.name}》 - ${currentTrack.artist}`
-                        : "无"
-                    }
+                    -   **正在播放**: ${currentTrack ? `《${currentTrack.name}》 - ${currentTrack.artist}` : "无"}
                     -   **可用播放列表**: [${playlistInfo}]
                     -   **你的任务**: 你可以根据对话内容和氛围，使用 "change_music" 指令切换到播放列表中的任何一首歌，以增强互动体验。
                     ${lyricsContext}`;
@@ -24938,12 +25174,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			    -   缺少 "name" 字段的回复是无效的，会被系统拒绝。
 			5.  **角色扮演**: 严格遵守下方“群成员列表及人设”中的每一个角色的设定。
 			# 群成员列表及人设 (name字段是你要使用的【本名】)
-			${chat.members
-        .map(
-          (m) =>
-            `- **${m.originalName}**: (群昵称为: ${m.groupNickname}) 人设: ${m.persona}`,
-        )
-        .join("\n")}
+			${chat.members.map((m) => `- **${m.originalName}**: (群昵称为: ${m.groupNickname}) 人设: ${m.persona}`).join("\n")}
 			6.  **禁止出戏**: 绝不能透露你是AI、模型，或提及“扮演”、“生成”等词语。并且不能一直要求和用户见面，这是线上聊天，决不允许出现或者发展线下剧情！！
 			7.  **情景感知**: 注意当前时间是 ${currentTime}。
 			8.  **红包互动**:
@@ -25090,9 +25321,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                       msg.timestamp
                     }) [系统提示：用户 (${myNickname}) 发起了一个投票。问题：“${
                       msg.question
-                    }”, 选项：“${msg.options.join(
-                      '", "',
-                    )}”。你可以使用 'vote' 指令参与投票。]`;
+                    }”, 选项：“${msg.options.join('", "')}”。你可以使用 'vote' 指令参与投票。]`;
                     // 3. 返回一个被AI识别为用户发出的、但内容是指令的消息
                     return { role: "user", content: pollInfoText };
                   }
@@ -25364,9 +25593,7 @@ ${libraryList}
 			- **微博身份**:
 			    - **职业**: ${chat.settings.weiboProfession || "无"}
 			    - **特殊指令**: ${chat.settings.weiboInstruction || "无特殊指令"}
-			- 你的钱包余额: ${
-        chat.characterPhoneData?.bank?.balance?.toFixed(2) || "0.00"
-      } 金币
+			- 你的钱包余额: ${chat.characterPhoneData?.bank?.balance?.toFixed(2) || "0.00"} 金币
 			**3. 你的头像库:**
 			你可以根据对话内容或心情，从下方选择更换头像。
 			- **可用头像列表**:
@@ -25745,10 +25972,7 @@ ${libraryList}
                   .slice(-10)
                   .map((msg) => {
                     const sender = msg.role === "user" ? "用户" : chat.name;
-                    return `${sender}: ${String(msg.content).substring(
-                      0,
-                      50,
-                    )}...`;
+                    return `${sender}: ${String(msg.content).substring(0, 50)}...`;
                   })
                   .join("\n");
 
@@ -25894,9 +26118,7 @@ ${libraryList}
 
                 // 在每一条动态前面，都加上了由 formatPostTimestamp() 函数生成的时间差提示
                 const timeAgo = formatPostTimestamp(post.timestamp); // 例如："3天前" 或 "刚刚"
-                postsContext += `- (ID: ${
-                  post.id
-                }) [${timeAgo}] 作者: ${authorName}, 内容: "${(
+                postsContext += `- (ID: ${post.id}) [${timeAgo}] 作者: ${authorName}, 内容: "${(
                   post.publicText ||
                   post.content ||
                   "图片动态"
@@ -26039,9 +26261,7 @@ ${libraryList}
                 // 尝试解析错误信息体为JSON
                 const errorData = await response.json();
                 // 安全地获取错误信息，如果结构不符合预期，就将整个错误对象转为字符串
-                errorMsg += ` - ${
-                  errorData?.error?.message || JSON.stringify(errorData)
-                }`;
+                errorMsg += ` - ${errorData?.error?.message || JSON.stringify(errorData)}`;
               } catch (jsonError) {
                 // 如果连JSON都不是，就直接读取文本
                 errorMsg += ` - ${await response.text()}`;
@@ -26055,9 +26275,7 @@ ${libraryList}
                 // 尝试解析错误信息体为JSON
                 const errorData = await response.json();
                 // 安全地获取错误信息，如果结构不符合预期，就将整个错误对象转为字符串
-                errorMsg += ` - ${
-                  errorData?.error?.message || JSON.stringify(errorData)
-                }`;
+                errorMsg += ` - ${errorData?.error?.message || JSON.stringify(errorData)}`;
               } catch (jsonError) {
                 // 如果连JSON都不是，就直接读取文本
                 errorMsg += ` - ${await response.text()}`;
@@ -27216,9 +27434,7 @@ ${libraryList}
                     }
 
                     // 创建对用户可见的系统日志
-                    const visibleLog = `[系统：“${chat.name}”对宠物“${
-                      pet.name
-                    }”说：“${charMessageContent}”，它回应：“${
+                    const visibleLog = `[系统：“${chat.name}”对宠物“${pet.name}”说：“${charMessageContent}”，它回应：“${
                       petResponseToChar || "(没有回应)"
                     }”。]`;
                     const visibleMessage = {
@@ -27365,9 +27581,7 @@ ${libraryList}
                       itemCount: 1,
                     },
                     // 这是给AI自己看的、用于形成记忆的文本内容
-                    content: `我给你买了礼物“${productToBuy.name}”。${
-                      msgData.greeting || ""
-                    }`,
+                    content: `我给你买了礼物“${productToBuy.name}”。${msgData.greeting || ""}`,
                   };
 
                   // 4d. 模拟一个10秒后的“已发货”物流更新
@@ -27638,22 +27852,62 @@ ${libraryList}
                       ? msgData.prompt.slice(0, 9)
                       : [msgData.prompt];
 
-                    // 生成多个图片URL（添加nologo参数去除水印）
-                    newPost.imageUrls = prompts.map((prompt) => {
-                      const encodedPrompt = encodeURIComponent(prompt);
-                      return `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true&width=1024&height=1024`;
-                    });
+                    const pollApiKey = state.apiConfig.pollinationsApiKey;
+                    const generatedImageUrls = [];
+
+                    // 使用 Promise.all 并行处理请求，提高速度
+                    await Promise.all(
+                      prompts.map(async (prompt) => {
+                        const encodedPrompt = encodeURIComponent(prompt);
+                        const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true&width=1024&height=1024`;
+
+                        try {
+                          if (pollApiKey) {
+                            // 如果有 Key，使用 fetch 获取并转为 Base64
+                            const res = await fetch(url, {
+                              headers: {
+                                Authorization: `Bearer ${pollApiKey}`,
+                              },
+                            });
+                            if (res.ok) {
+                              const blob = await res.blob();
+                              const base64 = await new Promise((resolve) => {
+                                const reader = new FileReader();
+                                reader.onloadend = () => resolve(reader.result);
+                                reader.readAsDataURL(blob);
+                              });
+                              generatedImageUrls.push(base64);
+                            } else {
+                              console.warn(
+                                `Pollinations fetch failed: ${res.status}, falling back to URL`,
+                              );
+                              generatedImageUrls.push(url);
+                            }
+                          } else {
+                            // 没有 Key，直接使用 URL
+                            generatedImageUrls.push(url);
+                          }
+                        } catch (e) {
+                          console.error(
+                            "Pollinations image generation error:",
+                            e,
+                          );
+                          generatedImageUrls.push(url); // 出错时回退到 URL 尝试
+                        }
+                      }),
+                    );
+
+                    newPost.imageUrls = generatedImageUrls;
 
                     // 保持向后兼容，单张图片时也设置 imageUrl
-                    if (prompts.length === 1) {
-                      newPost.imageUrl = newPost.imageUrls[0];
+                    if (generatedImageUrls.length === 1) {
+                      newPost.imageUrl = generatedImageUrls[0];
                     }
 
                     newPost.prompt = msgData.prompt;
-                    newPost.imageCount = prompts.length;
+                    newPost.imageCount = generatedImageUrls.length;
                     console.log(
-                      `动态RealImag图片生成: ${prompts.length}张`,
-                      newPost.imageUrls,
+                      `动态RealImag图片生成完成: ${generatedImageUrls.length}张`,
                     );
                   }
 
@@ -27686,11 +27940,7 @@ ${libraryList}
                         const finalNegativePrompt = naiPrompts.negative;
 
                         console.log(
-                          `📝 使用${
-                            naiPrompts.source === "character"
-                              ? "角色专属"
-                              : "系统"
-                          }提示词配置`,
+                          `📝 使用${naiPrompts.source === "character" ? "角色专属" : "系统"}提示词配置`,
                         );
                         console.log("最终正面提示词:", finalPositivePrompt);
                         console.log("最终负面提示词:", finalNegativePrompt);
@@ -28117,9 +28367,7 @@ ${libraryList}
                     const finalNegativePrompt = naiPrompts.negative;
 
                     console.log(
-                      `📝 使用${
-                        naiPrompts.source === "character" ? "角色专属" : "系统"
-                      }提示词配置`,
+                      `📝 使用${naiPrompts.source === "character" ? "角色专属" : "系统"}提示词配置`,
                     );
                     console.log("最终正面提示词:", finalPositivePrompt);
                     console.log("最终负面提示词:", finalNegativePrompt);
@@ -28522,9 +28770,7 @@ ${libraryList}
                   const suffix = msgData.suffix
                     ? ` ${msgData.suffix.trim()}`
                     : "";
-                  const patText = `${
-                    msgData.name || chat.name
-                  } 拍了拍我${suffix}`;
+                  const patText = `${msgData.name || chat.name} 拍了拍我${suffix}`;
                   const patMessage = {
                     role: "system",
                     type: "pat_message",
@@ -28702,14 +28948,10 @@ ${libraryList}
                       : "我";
                     pollInfoText = `[系统提示：用户 (${myNickname}) 发起了一个投票。问题：“${
                       msg.question
-                    }”, 选项：“${msg.options.join(
-                      '", "',
-                    )}”。你可以使用 'vote' 指令参与投票。]`;
+                    }”, 选项：“${msg.options.join('", "')}”。你可以使用 'vote' 指令参与投票。]`;
                   } else {
                     // 如果是AI发的
-                    pollInfoText = `[系统提示：${
-                      msg.senderName
-                    } 发起了一个投票。问题：“${
+                    pollInfoText = `[系统提示：${msg.senderName} 发起了一个投票。问题：“${
                       msg.question
                     }”, 选项：“${msg.options.join('", "')}”。]`;
                   }
@@ -28785,9 +29027,7 @@ ${libraryList}
                   };
 
                   // 同步到角色钱包（支出）
-                  const rpDescription = `发出红包 - ${
-                    msgData.greeting || "恭喜发财"
-                  }`;
+                  const rpDescription = `发出红包 - ${msgData.greeting || "恭喜发财"}`;
                   await updateCharacterBankBalance(
                     chatId,
                     -msgData.amount,
@@ -29439,9 +29679,7 @@ ${libraryList}
                   };
 
                   // 【全新】同步到角色钱包（支出）
-                  const transferDescription = `转账给 ${
-                    msgData.receiver || "我"
-                  }`;
+                  const transferDescription = `转账给 ${msgData.receiver || "我"}`;
                   await updateCharacterBankBalance(
                     chatId,
                     -msgData.amount,
@@ -30606,9 +30844,7 @@ ${libraryList}
             const albumItem = document.createElement("div");
             albumItem.className = "album-item";
             albumItem.innerHTML = `
-			                    <div class="album-cover" style="background-image: url(${
-                            album.coverUrl
-                          });"></div>
+			                    <div class="album-cover" style="background-image: url(${album.coverUrl});"></div>
 			                    <div class="album-info">
 			                        <p class="album-name">${album.name}</p>
 			                        <p class="album-count">${album.photoCount || 0} 张</p>
@@ -31358,9 +31594,7 @@ ${libraryList}
               )
                 interactionStatus += " [你已评论]";
               const timeAgo = formatPostTimestamp(post.timestamp);
-              postsContext += `- (ID: ${
-                post.id
-              }) [${timeAgo}] 作者: ${authorName}, 内容: "${(
+              postsContext += `- (ID: ${post.id}) [${timeAgo}] 作者: ${authorName}, 内容: "${(
                 post.publicText ||
                 post.content ||
                 "图片动态"
@@ -31372,9 +31606,7 @@ ${libraryList}
                 state.chats,
                 userNickname,
               );
-              postsContext += ` ${visibilityFlag} [当前观众: ${audience.join(
-                ", ",
-              )}]\n`;
+              postsContext += ` ${visibilityFlag} [当前观众: ${audience.join(", ")}]\n`;
               postsContext += commentsContext;
             }
           }
@@ -31445,9 +31677,7 @@ ${libraryList}
             : infinity;
           const systemPrompt = `
 			# 任务
-			你现在【就是】角色 "${
-        chat.name
-      }"。这是一个秘密的、后台的独立行动。你的所有思考和决策都必须以 "${
+			你现在【就是】角色 "${chat.name}"。这是一个秘密的、后台的独立行动。你的所有思考和决策都必须以 "${
         chat.name
       }" 的第一人称视角进行。
 			当前时间是（${currentTime}），你和用户（${userNickname}）已经有${Math.round(
@@ -32262,18 +32492,10 @@ ${libraryList}
 
           const helpersHtml = `
 			        <div class="format-helpers">
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.voice,
-                  )}'>语音</button>
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.image,
-                  )}'>图片</button>
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.transfer,
-                  )}'>转账</button>
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.link,
-                  )}'>链接</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.voice)}'>语音</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.image)}'>图片</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.transfer)}'>转账</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.link)}'>链接</button>
 			        </div>
 			    `;
 
@@ -32345,19 +32567,11 @@ ${libraryList}
 			        <button class="delete-block-btn" title="删除此条">×</button>
 			        <textarea>${initialContent}</textarea>
 			        <div class="format-helpers">
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.voice,
-                  )}'>语音</button>
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.image,
-                  )}'>图片</button>
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.transfer,
-                  )}'>转账</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.voice)}'>语音</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.image)}'>图片</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.transfer)}'>转账</button>
 			            
-			            <button class="format-btn" data-template='${JSON.stringify(
-                    templates.link,
-                  )}'>链接</button>
+			            <button class="format-btn" data-template='${JSON.stringify(templates.link)}'>链接</button>
 			        </div>
 			    `;
 
@@ -32971,9 +33185,7 @@ ${libraryList}
           // 创建群聊后，发送一条系统通知
           await logSystemMessage(
             newChatId,
-            `你创建了群聊，并邀请了 ${members
-              .map((m) => `“${m.groupNickname}”`)
-              .join("、")} 加入群聊。`,
+            `你创建了群聊，并邀请了 ${members.map((m) => `“${m.groupNickname}”`).join("、")} 加入群聊。`,
           );
 
           // 后续逻辑不变
@@ -33710,9 +33922,7 @@ ${libraryList}
             } else {
               systemPromptForCall = `
 			# 你的任务
-			你正在扮演角色 "${chat.name}"。用户 (${
-        chat.settings.myNickname || "我"
-      }) 刚刚向你发起了视频通话请求。
+			你正在扮演角色 "${chat.name}"。用户 (${chat.settings.myNickname || "我"}) 刚刚向你发起了视频通话请求。
 			你的任务是根据你的人设和我们最近的聊天内容，决定是否接受。
 
 			# 核心规则
@@ -33993,9 +34203,7 @@ ${libraryList}
           const duration = Math.floor(
             (Date.now() - videoCallState.startTime) / 1000,
           );
-          const durationText = `${Math.floor(duration / 60)}分${
-            duration % 60
-          }秒`;
+          const durationText = `${Math.floor(duration / 60)}分${duration % 60}秒`;
           const endCallText = `通话结束，时长 ${durationText}`;
 
           const chat = state.chats[videoCallState.activeChatId];
@@ -34055,11 +34263,7 @@ ${libraryList}
             const callTranscriptForAI = videoCallState.callHistory
               .map(
                 (h) =>
-                  `${
-                    h.role === "user"
-                      ? chat.settings.myNickname || "我"
-                      : h.role
-                  }: ${h.content}`,
+                  `${h.role === "user" ? chat.settings.myNickname || "我" : h.role}: ${h.content}`,
               )
               .join("\n");
 
@@ -34307,9 +34511,7 @@ ${libraryList}
           );
           const minutes = Math.floor(elapsed / 60);
           const seconds = elapsed % 60;
-          const timeString = `${String(minutes).padStart(2, "0")}:${String(
-            seconds,
-          ).padStart(2, "0")}`;
+          const timeString = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
           // 同时更新两个界面的计时器
           document.getElementById("call-timer").textContent = timeString;
@@ -34772,9 +34974,7 @@ ${libraryList}
           ).padStart(2, "0")}-${String(memoryDate.getDate()).padStart(
             2,
             "0",
-          )} ${String(memoryDate.getHours()).padStart(2, "0")}:${String(
-            memoryDate.getMinutes(),
-          ).padStart(2, "0")}`;
+          )} ${String(memoryDate.getHours()).padStart(2, "0")}:${String(memoryDate.getMinutes()).padStart(2, "0")}`;
 
           let titleHtml, contentHtml;
 
@@ -34782,9 +34982,7 @@ ${libraryList}
           if (memory.type === "countdown" && memory.targetDate) {
             // 如果是已到期的约定
             titleHtml = `[约定达成] ${memory.description}`;
-            contentHtml = `在 ${new Date(
-              memory.targetDate,
-            ).toLocaleString()}，我们一起见证了这个约定。`;
+            contentHtml = `在 ${new Date(memory.targetDate).toLocaleString()}，我们一起见证了这个约定。`;
           } else {
             // 如果是普通的日记式回忆
             titleHtml = memory.authorName
@@ -35229,9 +35427,7 @@ ${libraryList}
               // 显示成功提示
               await showCustomAlert(
                 "恭喜！",
-                `你领取了 ${
-                  packet.senderName
-                } 的红包，金额为 ${claimedAmount.toFixed(2)} 元。`,
+                `你领取了 ${packet.senderName} 的红包，金额为 ${claimedAmount.toFixed(2)} 元。`,
               );
             }
 
@@ -35377,9 +35573,7 @@ ${libraryList}
             (sum, val) => sum + val,
             0,
           );
-          let summaryText = `${claimedCount}/${
-            packet.count
-          }个红包，共${claimedAmountSum.toFixed(
+          let summaryText = `${claimedCount}/${packet.count}个红包，共${claimedAmountSum.toFixed(
             2,
           )}/${packet.totalAmount.toFixed(2)}元。`;
           if (!packet.isFullyClaimed && claimedCount < packet.count) {
@@ -35657,9 +35851,7 @@ ${libraryList}
               const voters = poll.votes[option] || [];
               resultsHtml += `
 			                <div style="margin-bottom: 15px;">
-			                    <p style="font-weight: 500; margin: 0 0 5px 0;">${option} (${
-                            voters.length
-                          }票)</p>
+			                    <p style="font-weight: 500; margin: 0 0 5px 0;">${option} (${voters.length}票)</p>
 			                    <p style="font-size: 13px; color: #555; margin: 0; line-height: 1.5;">
 			                        ${voters.length > 0 ? voters.join("、 ") : "无人投票"}
 			                    </p>
@@ -36031,9 +36223,7 @@ ${libraryList}
             // updated by lrq 251027
             const systemPrompt = `
 			# 任务
-			你是一个群聊后台模拟器。当前时间是${currentTime}，群聊 "${
-        chat.name
-      }" 已经沉寂了 ${Math.round(
+			你是一个群聊后台模拟器。当前时间是${currentTime}，群聊 "${chat.name}" 已经沉寂了 ${Math.round(
         timeSinceLastMessage,
       )} 分钟，用户(昵称: "${chat.settings.myNickname || "我"}")不在线。
 			你的任务是根据下方每个角色的人设，在他们之间【自发地】生成一段自然的对话。
@@ -36043,12 +36233,7 @@ ${libraryList}
 			# 核心规则
 			1.  **【【【身份铁律】】】**: 用户【绝对不在场】。你【绝对不能】生成与用户对话的内容。整段对话必须是AI角色之间的互动。你的唯一任务是扮演【且仅能扮演】下方“群成员列表”中明确列出的角色。【绝对禁止】扮演任何未在“群成员列表”中出现的角色。
 			    # 群成员列表及人设 (name字段是你要使用的【本名】)
-			    ${chat.members
-            .map(
-              (m) =>
-                `- **${m.originalName}**: (群昵称为: ${m.groupNickname}) 人设: ${m.persona}`,
-            )
-            .join("\n")}
+			    ${chat.members.map((m) => `- **${m.originalName}**: (群昵称为: ${m.groupNickname}) 人设: ${m.persona}`).join("\n")}
 			2.  **【【【输出格式】】】**: 你的回复【必须】是一个JSON数组格式的字符串。数组中的【每一个元素都必须是一个带有 "type" 和 "name" 字段的JSON对象】。
 			3.  **角色扮演**: 严格遵守下方“群成员列表及人设”中的每一个角色的设定。
 			4.  **禁止出戏**: 绝不能透露你是AI、模型，或提及“扮演”、“生成”等词语。
@@ -36345,10 +36530,7 @@ ${libraryList}
 			            <span>来源: ${message.source_name || "未知"}</span>
 			        </div>
 			        <div class="article-body">
-			            <p>${(message.content || "内容为空。").replace(
-                    /\n/g,
-                    "</p><p>",
-                  )}</p>
+			            <p>${(message.content || "内容为空。").replace(/\n/g, "</p><p>")}</p>
 			        </div>
 			    `;
 
@@ -36793,17 +36975,15 @@ ${libraryList}
           const chatName = chatInfo ? chatInfo.name : "未知会话";
 
           const callDate = new Date(record.timestamp);
-          const dateString = `${callDate.getFullYear()}-${String(
-            callDate.getMonth() + 1,
-          ).padStart(2, "0")}-${String(callDate.getDate()).padStart(
+          const dateString = `${callDate.getFullYear()}-${String(callDate.getMonth() + 1).padStart(2, "0")}-${String(
+            callDate.getDate(),
+          ).padStart(
             2,
             "0",
           )} ${String(callDate.getHours()).padStart(2, "0")}:${String(
             callDate.getMinutes(),
           ).padStart(2, "0")}`;
-          const durationText = `${Math.floor(record.duration / 60)}分${
-            record.duration % 60
-          }秒`;
+          const durationText = `${Math.floor(record.duration / 60)}分${record.duration % 60}秒`;
 
           const avatarsHtml = record.participants
             .map(
@@ -36819,11 +36999,7 @@ ${libraryList}
 			        </div>
 			        <div class="card-body">
 			            
-			            ${
-                    record.customName
-                      ? `<div class="custom-title">${record.customName}</div>`
-                      : ""
-                  }
+			            ${record.customName ? `<div class="custom-title">${record.customName}</div>` : ""}
 
 			            <div class="participants-info"> <!-- 新增一个容器方便布局 -->
 			                <div class="participants-avatars">${avatarsHtml}</div>
@@ -36848,9 +37024,7 @@ ${libraryList}
 
           titleEl.textContent = `通话于 ${new Date(
             record.timestamp,
-          ).toLocaleString()} (时长: ${Math.floor(record.duration / 60)}分${
-            record.duration % 60
-          }秒)`;
+          ).toLocaleString()} (时长: ${Math.floor(record.duration / 60)}分${record.duration % 60}秒)`;
           bodyEl.innerHTML = "";
 
           if (!record.transcript || record.transcript.length === 0) {
@@ -36950,9 +37124,7 @@ ${libraryList}
             const item = document.createElement("div");
             item.className = "contact-picker-item";
             item.innerHTML = `
-			            <input type="checkbox" class="share-target-checkbox" data-chat-id="${
-                    chat.id
-                  }" style="margin-right: 15px;">
+			            <input type="checkbox" class="share-target-checkbox" data-chat-id="${chat.id}" style="margin-right: 15px;">
 			            <img src="${
                     chat.isGroup
                       ? chat.settings.groupAvatar
@@ -37401,9 +37573,7 @@ ${libraryList}
         async function deleteNpc(npcId, npcName) {
           const confirmed = await showCustomConfirm(
             "删除NPC",
-            `确定要从“${
-              state.chats[state.activeChatId].name
-            }”的NPC库中删除 “${npcName}” 吗？`,
+            `确定要从“${state.chats[state.activeChatId].name}”的NPC库中删除 “${npcName}” 吗？`,
             { confirmButtonClass: "btn-danger" },
           );
 
@@ -37587,11 +37757,7 @@ ${libraryList}
           item.title = frame.name;
           item.innerHTML = `
 			        <img src="${previewAvatarSrc}" class="preview-avatar">
-			        ${
-                frame.url
-                  ? `<img src="${frame.url}" class="preview-frame" style="pointer-events: none;">`
-                  : ""
-              }
+			        ${frame.url ? `<img src="${frame.url}" class="preview-frame" style="pointer-events: none;">` : ""}
 			    `;
           item.addEventListener("click", () => {
             document
@@ -37858,6 +38024,166 @@ ${libraryList}
 
           alert(`方案 "${themeName}" 已成功保存！`);
         }
+        /**
+         * 打开清除角色CSS的管理菜单
+         */
+        async function openCharCssManager() {
+          const choice = await showChoiceModal("清理角色气泡样式", [
+            { text: "🧹 一键清除所有角色的CSS", value: "clear_all" },
+            { text: "🔍 选择特定角色清除", value: "select_char" },
+          ]);
+
+          if (!choice) return;
+
+          if (choice === "clear_all") {
+            await clearAllCharsCustomCss();
+          } else if (choice === "select_char") {
+            await openCharCssSelector();
+          }
+        }
+
+        /**
+         * 清除所有单聊角色的自定义CSS
+         */
+        async function clearAllCharsCustomCss() {
+          // 检查是否有任何角色设置了CSS
+          let hasAny = false;
+          for (const chatId in state.chats) {
+            const chat = state.chats[chatId];
+            if (!chat.isGroup && chat.settings && chat.settings.customCss) {
+              hasAny = true;
+              break;
+            }
+          }
+
+          if (!hasAny) {
+            alert("当前没有任何角色设置了自定义CSS，无需清理。");
+            return;
+          }
+
+          const confirmed = await showCustomConfirm(
+            "确认全清",
+            "确定要清除【所有】角色的自定义气泡样式(CSS)吗？\n此操作将使所有角色恢复默认或全局样式，且不可恢复。",
+            { confirmButtonClass: "btn-danger" },
+          );
+
+          if (!confirmed) return;
+
+          let count = 0;
+          for (const chatId in state.chats) {
+            const chat = state.chats[chatId];
+            if (!chat.isGroup && chat.settings && chat.settings.customCss) {
+              chat.settings.customCss = ""; // 清空
+              count++;
+              await db.chats.put(chat);
+            }
+          }
+
+          // 如果当前正在聊天的角色被清除了，刷新一下界面
+          if (state.activeChatId && !state.chats[state.activeChatId].isGroup) {
+            renderChatInterface(state.activeChatId);
+          }
+
+          alert(`已清除 ${count} 个角色的自定义样式。`);
+        }
+
+        /**
+         * 打开选择器，勾选要清除的角色
+         */
+        async function openCharCssSelector() {
+          // 1. 筛选出所有设置了customCss的角色
+          const chatsWithCss = Object.values(state.chats).filter(
+            (c) => !c.isGroup && c.settings && c.settings.customCss,
+          );
+
+          if (chatsWithCss.length === 0) {
+            alert("当前没有任何角色设置了自定义CSS。");
+            return;
+          }
+
+          // 2. 复用现有的自定义模态框来显示列表
+          const modal = document.getElementById("custom-modal-overlay");
+          const modalTitle = document.getElementById("custom-modal-title");
+          const modalBody = document.getElementById("custom-modal-body");
+          const confirmBtn = document.getElementById("custom-modal-confirm");
+          const cancelBtn = document.getElementById("custom-modal-cancel");
+
+          modalTitle.textContent = "选择要清除样式的角色";
+          modalBody.innerHTML =
+            '<div id="css-char-list" style="max-height: 300px; overflow-y: auto; text-align: left;"></div>';
+
+          const listEl = document.getElementById("css-char-list");
+
+          // 3. 生成列表
+          chatsWithCss.forEach((chat) => {
+            const item = document.createElement("div");
+            item.style.cssText =
+              "display:flex; align-items:center; padding:10px; border-bottom:1px solid #eee; cursor:pointer;";
+            item.innerHTML = `
+            <input type="checkbox" class="css-clear-checkbox" value="${
+              chat.id
+            }" style="margin-right:10px; transform: scale(1.2);">
+            <img src="${
+              chat.settings.aiAvatar || defaultAvatar
+            }" style="width:30px; height:30px; border-radius:50%; margin-right:10px; object-fit: cover;">
+            <div style="flex:1;">
+                <div style="font-weight:bold;">${chat.name}</div>
+                <div style="font-size:10px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 150px;">
+                    ${chat.settings.customCss.substring(0, 30).replace(/\n/g, "")}...
+                </div>
+            </div>
+        `;
+            // 点击行即可勾选
+            item.addEventListener("click", (e) => {
+              if (e.target.type !== "checkbox") {
+                const cb = item.querySelector("input");
+                cb.checked = !cb.checked;
+              }
+            });
+            listEl.appendChild(item);
+          });
+
+          // 4. 设置按钮样式和事件
+          confirmBtn.textContent = "清除选中";
+          confirmBtn.classList.add("btn-danger");
+          cancelBtn.style.display = "block";
+
+          // 克隆按钮以移除旧的监听器
+          const newConfirmBtn = confirmBtn.cloneNode(true);
+          confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+          newConfirmBtn.addEventListener("click", async () => {
+            const selectedCheckboxes = document.querySelectorAll(
+              ".css-clear-checkbox:checked",
+            );
+            if (selectedCheckboxes.length === 0) {
+              alert("请至少选择一个角色。");
+              return;
+            }
+
+            const ids = Array.from(selectedCheckboxes).map((cb) => cb.value);
+            for (const id of ids) {
+              const chat = state.chats[id];
+              if (chat) {
+                chat.settings.customCss = ""; // 清空
+                await db.chats.put(chat);
+              }
+            }
+
+            modal.classList.remove("visible");
+            confirmBtn.classList.remove("btn-danger"); // 恢复样式
+
+            // 如果当前聊天的角色被清除了，刷新界面
+            if (state.activeChatId && ids.includes(state.activeChatId)) {
+              renderChatInterface(state.activeChatId);
+            }
+
+            alert(`已清除 ${ids.length} 个角色的样式。`);
+          });
+
+          // 显示模态框
+          modal.classList.add("visible");
+        }
 
         /**
          * 重命名当前选中的主题
@@ -37891,10 +38217,7 @@ ${libraryList}
           }
           const confirmed = await showCustomConfirm(
             "确认删除",
-            `确定要删除方案 "${
-              document.getElementById("theme-selector").selectedOptions[0]
-                .textContent
-            }" 吗？`,
+            `确定要删除方案 "${document.getElementById("theme-selector").selectedOptions[0].textContent}" 吗？`,
             { confirmButtonClass: "btn-danger" },
           );
           if (confirmed) {
@@ -38076,9 +38399,7 @@ ${libraryList}
 
           footer.innerHTML = `
 			        <button id="preset-action-save-new">保存当前配置为新预设</button>
-			        <button id="preset-action-update-current" ${
-                !selectedPreset ? "disabled" : ""
-              }>更新当前配置</button>
+			        <button id="preset-action-update-current" ${!selectedPreset ? "disabled" : ""}>更新当前配置</button>
 			        <button id="preset-action-delete-current" class="btn-danger" ${
                 !selectedPreset ? "disabled" : ""
               }>删除当前配置</button>
@@ -38262,12 +38583,8 @@ ${libraryList}
 
           footer.innerHTML = `
 			        <button id="preset-action-save-new">保存</button>
-			        <button id="preset-action-update-current" ${
-                !selectedPreset ? "disabled" : ""
-              }>更新</button>
-			        <button id="preset-action-delete-current" class="btn-danger" ${
-                !selectedPreset ? "disabled" : ""
-              }>删除</button>
+			        <button id="preset-action-update-current" ${!selectedPreset ? "disabled" : ""}>更新</button>
+			        <button id="preset-action-delete-current" class="btn-danger" ${!selectedPreset ? "disabled" : ""}>删除</button>
 			        <button id="preset-action-cancel" style="margin-top: 8px; border-radius: 8px; background-color: #f0f0f0;">取消</button>
 			    `;
 
@@ -38793,9 +39110,7 @@ ${libraryList}
 
           let reportMessage = `批量导入完成！\n\n成功导入：${successCount} 个表情。`;
           if (errorLines.length > 0) {
-            reportMessage += `\n失败行号：${errorLines.join(
-              ", ",
-            )}。\n\n请检查这些行的格式是否正确。`;
+            reportMessage += `\n失败行号：${errorLines.join(", ")}。\n\n请检查这些行的格式是否正确。`;
           }
           await showCustomAlert("导入报告", reportMessage);
         }
@@ -39058,9 +39373,7 @@ ${libraryList}
           // 应用样式
           bar.style.fontSize = `${lyricsBarSettings.fontSize}px`;
           bar.style.color = lyricsBarSettings.fontColor;
-          bar.style.backgroundColor = `rgba(0, 0, 0, ${
-            lyricsBarSettings.bgOpacity / 100
-          })`;
+          bar.style.backgroundColor = `rgba(0, 0, 0, ${lyricsBarSettings.bgOpacity / 100})`;
 
           // 更新设置模态框里的控件值
           document.getElementById("lyrics-font-size-slider").value =
@@ -39128,11 +39441,7 @@ ${libraryList}
               timeText = "就是现在！";
             }
 
-            context += `- **${
-              item.description
-            }**: ${timeText} (目标: ${new Date(
-              item.targetDate,
-            ).toLocaleString()})\n`;
+            context += `- **${item.description}**: ${timeText} (目标: ${new Date(item.targetDate).toLocaleString()})\n`;
           });
 
           return context;
@@ -39169,9 +39478,7 @@ ${libraryList}
             item.className = "character-select-item";
             item.dataset.chatId = char.id;
             item.innerHTML = `
-			            <img src="${char.settings.aiAvatar || defaultAvatar}" alt="${
-                    char.name
-                  }">
+			            <img src="${char.settings.aiAvatar || defaultAvatar}" alt="${char.name}">
 			            <span class="name">${char.name}</span>
 			        `;
             listEl.appendChild(item);
@@ -39501,9 +39808,7 @@ ${libraryList}
                             用户指定了你必须生成与以下角色的对话。你【必须】为列表中的**每一位**角色生成一段独立的对话，不能遗漏，也不能编造列表以外的人。
 
                             # 指定角色列表
-                            ${specificTargets
-                              .map((t) => `- **${t.name}**: ${t.persona}`)
-                              .join("\n")}
+                            ${specificTargets.map((t) => `- **${t.name}**: ${t.persona}`).join("\n")}
 
                             # 格式要求
                             请在返回的 JSON "chats" 数组中，严格按照上述指定的 "contactName" 生成对应的聊天记录。
@@ -39704,9 +40009,7 @@ ${libraryList}
                 });
 
             if (!response.ok) {
-              let errorMsg = `API请求失败: ${
-                response.status
-              } - ${await response.text()}`;
+              let errorMsg = `API请求失败: ${response.status} - ${await response.text()}`;
               throw new Error(errorMsg);
             }
 
@@ -39806,9 +40109,7 @@ ${libraryList}
 
             await db.chats.put(chat);
             alert(
-              `“${chat.name}”的${
-                dataTypeMap[dataType].description.split("。")[0]
-              }已更新！`,
+              `“${chat.name}”的${dataTypeMap[dataType].description.split("。")[0]}已更新！`,
             );
 
             switch (dataType) {
@@ -40142,9 +40443,7 @@ ${libraryList}
 			# 【【【重要指令：关于聊天记录生成】】】
 			- 你正在续写这段对话。你提供的聊天记录是上下文，你【绝对不能】重复或改写其中的任何内容。你的生成必须从【全新的、下一条】消息开始。
 			- 你必须严格遵守本提示词最上方的【绝对禁止事项】。
-			- 如果“你的专属NPC好友列表”不为空，你【必须】为列表中的【每一个NPC】都生成一段与你（${
-        chat.name
-      }）的对话。
+			- 如果“你的专属NPC好友列表”不为空，你【必须】为列表中的【每一个NPC】都生成一段与你（${chat.name}）的对话。
 			- 如果列表为空，你可以虚构2-3个普通朋友并生成对话。
 			- 你必须为每个联系人生成一段【至少包含5条消息】的对话。
 			- 对话内容应该自然流畅，可以包含连续发言、表情包和表情符号等，以体现真实感。
@@ -40404,9 +40703,7 @@ ${libraryList}
 			                        <img src="${myAvatar}" class="avatar" style="border-radius: 6px;">
 			                        <div class="info">
 			                            <span class="name">${remarkNameForMe}</span>
-			                            <div class="last-msg">${stripHtmlAndCode(
-                                    String(lastMsg.content),
-                                  ).substring(0, 30)}</div>
+			                            <div class="last-msg">${stripHtmlAndCode(String(lastMsg.content)).substring(0, 30)}</div>
 			                        </div>
 			                    `;
           listEl.appendChild(myChatItem);
@@ -40543,9 +40840,7 @@ ${libraryList}
             }
 
             const isSentByCharacter = sender === characterName;
-            container.className = `character-chat-bubble-container ${
-              isSentByCharacter ? "sent" : "received"
-            }`;
+            container.className = `character-chat-bubble-container ${isSentByCharacter ? "sent" : "received"}`;
 
             let avatarHtml = "";
             if (isSentByCharacter) {
@@ -40826,15 +41121,11 @@ ${libraryList}
 			                <div class="transaction-icon" style="background-color: ${iconBg};">${iconSvg}</div>
 			                <div>
 			                    <div class="title">${displayDescription}</div>
-			                    <div class="meta" style="border:none; padding:0; margin-top:4px;"><span>${
-                            item.type
-                          }</span></div>
+			                    <div class="meta" style="border:none; padding:0; margin-top:4px;"><span>${item.type}</span></div>
 			                </div>
 			            </div>
 			            <div style="display: flex; align-items: center; gap: 10px;">
-			                <span class="transaction-amount ${
-                        isIncome ? "income" : "expense"
-                      }">
+			                <span class="transaction-amount ${isIncome ? "income" : "expense"}">
 			                    ${isIncome ? "+" : "-"} ${item.amount.toFixed(2)}
 			                </span>
 			                <button class="item-delete-btn" data-type="bank.transactions" data-index="${originalIndex}">×</button>
@@ -41340,14 +41631,10 @@ ${libraryList}
             let bubble;
             if (isVisualMode) {
               bubble = document.createElement("div");
-              bubble.className = `visual-call-bubble ${
-                msg.role === "user" ? "user" : "ai"
-              }`;
+              bubble.className = `visual-call-bubble ${msg.role === "user" ? "user" : "ai"}`;
             } else {
               bubble = document.createElement("div");
-              bubble.className = `call-message-bubble ${
-                msg.role === "user" ? "user-speech" : "ai-speech"
-              }`;
+              bubble.className = `call-message-bubble ${msg.role === "user" ? "user-speech" : "ai-speech"}`;
             }
             bubble.textContent = msg.content;
             callFeed.appendChild(bubble);
@@ -41568,6 +41855,7 @@ ${libraryList}
 
         /**
          * 渲染心声的历史记录列表
+         * (已修复：支持显示自定义标签名)
          */
         function renderInnerVoiceHistory() {
           const listEl = document.getElementById("inner-voice-history-list");
@@ -41581,15 +41869,25 @@ ${libraryList}
             return;
           }
 
+          // === 新增：获取当前自定义标签 ===
+          // 防止 chat.settings.innerVoiceTags 为空
+          const tags = chat.settings.innerVoiceTags || {};
+          // 如果用户没设置过，就用默认值
+          const label1 = tags.clothing_label || "服装";
+          const label2 = tags.behavior_label || "行为";
+          const label3 = tags.thoughts_label || "心声";
+          const label4 = tags.naughty_label || "坏心思";
+          // ==============================
+
           // 从新到旧显示
           [...history].reverse().forEach((item) => {
             const itemEl = document.createElement("div");
             itemEl.className = "inner-voice-history-item";
 
             const date = new Date(item.timestamp);
-            const dateString = `${date.getFullYear()}-${String(
-              date.getMonth() + 1,
-            ).padStart(2, "0")}-${String(date.getDate()).padStart(
+            const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+              date.getDate(),
+            ).padStart(
               2,
               "0",
             )} ${String(date.getHours()).padStart(2, "0")}:${String(
@@ -41597,21 +41895,21 @@ ${libraryList}
             ).padStart(2, "0")}`;
 
             // 在HTML中加入删除按钮
+            // 关键修改点：将原来的中文写死，替换为上面获取的变量 ${labelX}
             itemEl.innerHTML = `
-			            <button class="history-item-delete-btn" data-timestamp="${
-                    item.timestamp
-                  }">×</button>
+			            <button class="history-item-delete-btn" data-timestamp="${item.timestamp}">×</button>
 			            <div class="history-item-timestamp">${dateString}</div>
 			            <div class="history-item-content">
-			                <p><strong>服装:</strong> ${item.clothing || "..."}</p>
-			                <p><strong>行为:</strong> ${item.behavior || "..."}</p>
-			                <p><strong>心声:</strong> ${item.thoughts || "..."}</p>
-			                <p><strong>坏心思:</strong> ${item.naughtyThoughts || "..."}</p>
+			                <p><strong>${label1}:</strong> ${item.clothing || "..."}</p>
+			                <p><strong>${label2}:</strong> ${item.behavior || "..."}</p>
+			                <p><strong>${label3}:</strong> ${item.thoughts || "..."}</p>
+			                <p><strong>${label4}:</strong> ${item.naughtyThoughts || "..."}</p>
 			            </div>
 			        `;
             listEl.appendChild(itemEl);
           });
         }
+
         /**
          * 删除单条心声记录
          * @param {number} timestamp - 要删除的心声的时间戳
@@ -42354,9 +42652,7 @@ ${libraryList}
 			            <div class="search-result-info">
 			                <div class="search-result-meta">
 			                    <span class="name">${senderName}</span>
-			                    <span class="timestamp">${formatDateStamp(
-                            msg.timestamp,
-                          )}</span>
+			                    <span class="timestamp">${formatDateStamp(msg.timestamp)}</span>
 			                </div>
 			                <div class="search-result-content">
 			                    ${highlightText(contentText, currentSearchKeyword)}
@@ -43368,9 +43664,7 @@ ${libraryList}
 
             cardWrapper.innerHTML = `
 			            <div class="tarot-card-position">[${card.position}]</div>
-			            <div class="tarot-card-name">${card.name} ${
-                    card.isReversed ? "(逆位)" : "(正位)"
-                  }</div>
+			            <div class="tarot-card-name">${card.name} ${card.isReversed ? "(逆位)" : "(正位)"}</div>
 			        `;
             container.appendChild(cardWrapper);
           });
@@ -43569,12 +43863,8 @@ ${libraryList}
             item.className = "tarot-history-item";
             item.innerHTML = `
 			            <div class="question">${reading.question}</div>
-			            <div class="details">${new Date(
-                    reading.timestamp,
-                  ).toLocaleString()}</div>
-			            <button class="tarot-history-delete-btn" data-id="${
-                    reading.id
-                  }">×</button>
+			            <div class="details">${new Date(reading.timestamp).toLocaleString()}</div>
+			            <button class="tarot-history-delete-btn" data-id="${reading.id}">×</button>
 			        `;
             listEl.appendChild(item);
           });
@@ -44791,17 +45081,10 @@ ${libraryList}
 			                    <button class="concise-summary-btn" data-timestamp="${
                             summary.timestamp
                           }" title="精简总结">✨</button>
-			                    <button class="edit-summary-btn" data-timestamp="${
-                            summary.timestamp
-                          }" title="编辑">✏️</button>
-			                    <button class="delete-summary-btn" data-timestamp="${
-                            summary.timestamp
-                          }" title="删除">🗑️</button>
+			                    <button class="edit-summary-btn" data-timestamp="${summary.timestamp}" title="编辑">✏️</button>
+			                    <button class="delete-summary-btn" data-timestamp="${summary.timestamp}" title="删除">🗑️</button>
 			                </div>
-			                <div class="summary-content">${summary.content.replace(
-                        /\n/g,
-                        "<br>",
-                      )}</div>
+			                <div class="summary-content">${summary.content.replace(/\n/g, "<br>")}</div>
 			                <div class="summary-meta">
 			                    <span>生成于: ${new Date(summary.timestamp).toLocaleString(
                             "zh-CN",
@@ -45145,9 +45428,7 @@ ${libraryList}
           await db.chats.put(chat);
 
           console.log(
-            `✅ 钱包同步成功: 角色[${
-              chat.name
-            }], 交易[${description}], 金额[${amount.toFixed(
+            `✅ 钱包同步成功: 角色[${chat.name}], 交易[${description}], 金额[${amount.toFixed(
               2,
             )}], 新余额[${chat.characterPhoneData.bank.balance.toFixed(2)}]`,
           );
@@ -47087,9 +47368,7 @@ ${libraryList}
 
           await showCustomAlert(
             "操作成功",
-            `分割线已${
-              chat.settings.innerVoiceHideHeaderBorder ? "隐藏" : "显示"
-            }。`,
+            `分割线已${chat.settings.innerVoiceHideHeaderBorder ? "隐藏" : "显示"}。`,
           );
         }
 
@@ -47135,10 +47414,7 @@ ${libraryList}
           if (!hex || hex.length < 4) return "255, 255, 255";
           let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
           return result
-            ? `${parseInt(result[1], 16)}, ${parseInt(
-                result[2],
-                16,
-              )}, ${parseInt(result[3], 16)}`
+            ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
             : "255, 255, 255";
         }
 
@@ -47357,9 +47633,7 @@ ${libraryList}
 
           const systemPrompt = `
 			# 任务
-			你是一个群聊成员生成器。请根据用户的要求，为群聊“${
-        chat.name
-      }”创建${count}个新成员。
+			你是一个群聊成员生成器。请根据用户的要求，为群聊“${chat.name}”创建${count}个新成员。
 
 			# 用户要求:
 			${requirements || "无特殊要求，请自由发挥。"}
@@ -47447,9 +47721,7 @@ ${libraryList}
                 await db.chats.put(chat);
                 await logSystemMessage(
                   chat.id,
-                  `邀请了 ${addedNames.length} 位新成员: ${addedNames.join(
-                    "、",
-                  )}加入了群聊。`,
+                  `邀请了 ${addedNames.length} 位新成员: ${addedNames.join("、")}加入了群聊。`,
                 );
                 await showCustomAlert(
                   "生成成功！",
@@ -48073,9 +48345,7 @@ ${libraryList}
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `EPhone-Partial-Backup-${
-              new Date().toISOString().split("T")[0]
-            }.json`;
+            link.download = `EPhone-Partial-Backup-${new Date().toISOString().split("T")[0]}.json`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -48802,9 +49072,7 @@ ${libraryList}
               }
             }
 
-            displayEl.textContent = `当前图片数据总量约: ${formatBytes(
-              totalSize,
-            )}`;
+            displayEl.textContent = `当前图片数据总量约: ${formatBytes(totalSize)}`;
             return totalSize; // 返回计算出的总大小
           } catch (error) {
             console.error("计算图片大小时出错:", error);
@@ -48897,13 +49165,9 @@ ${libraryList}
 
             await showCustomAlert(
               "压缩完成！",
-              `操作成功！\n原始大小: ${formatBytes(
-                originalTotalSize,
-              )}\n压缩后大小: ${formatBytes(
+              `操作成功！\n原始大小: ${formatBytes(originalTotalSize)}\n压缩后大小: ${formatBytes(
                 newTotalSize,
-              )}\n成功为您节省了 ${formatBytes(
-                savedSize,
-              )} 的空间！\n\n应用即将刷新以应用所有更改。`,
+              )}\n成功为您节省了 ${formatBytes(savedSize)} 的空间！\n\n应用即将刷新以应用所有更改。`,
             );
 
             setTimeout(() => window.location.reload(), 2000);
@@ -49055,9 +49319,7 @@ ${libraryList}
           const url = URL.createObjectURL(await response.blob());
           const link = document.createElement("a");
           link.href = url;
-          link.download = `EPhone-Stream-Backup-${
-            new Date().toISOString().split("T")[0]
-          }.json`;
+          link.download = `EPhone-Stream-Backup-${new Date().toISOString().split("T")[0]}.json`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -49222,9 +49484,8 @@ ${libraryList}
             (sum, count) => sum + count,
             0,
           );
-          document.getElementById("intimacy-streak-days").textContent = `${
-            chat.settings.streak?.currentDays || 0
-          } 天`;
+          document.getElementById("intimacy-streak-days").textContent =
+            `${chat.settings.streak?.currentDays || 0} 天`;
           document.getElementById("intimacy-today-msgs").textContent =
             `${todayMsgs} 条`;
           document.getElementById("intimacy-total-msgs").textContent =
@@ -49253,9 +49514,7 @@ ${libraryList}
               chat.settings.selectedIntimacyBadge === threshold.symbol;
 
             const item = document.createElement("div");
-            item.className = `symbol-item ${isUnlocked ? "unlocked" : ""} ${
-              isSelected ? "selected" : ""
-            }`;
+            item.className = `symbol-item ${isUnlocked ? "unlocked" : ""} ${isSelected ? "selected" : ""}`;
 
             // 使用 <img> 标签来显示图片
             item.innerHTML = `
@@ -49263,9 +49522,7 @@ ${libraryList}
 			                <img src="${threshold.symbol}" alt="${threshold.name}">
 			            </div>
 			            <div class="symbol-name">${threshold.name}</div>
-			            <div class="symbol-level">${
-                    isUnlocked ? "已解锁" : `${threshold.level}分解锁`
-                  }</div>
+			            <div class="symbol-level">${isUnlocked ? "已解锁" : `${threshold.level}分解锁`}</div>
 			        `;
 
             // 只有解锁了的徽章才能点击
@@ -49293,9 +49550,7 @@ ${libraryList}
                 record.symbol
               }" style="height:1em; vertical-align:middle;"></span><span>${
                 record.name
-              }</span><span class="date">${new Date(
-                record.unlockedAt,
-              ).toLocaleDateString()}</span>`;
+              }</span><span class="date">${new Date(record.unlockedAt).toLocaleDateString()}</span>`;
               recordsContainer.appendChild(recordItem);
             });
           } else {
@@ -49657,9 +49912,7 @@ ${libraryList}
             const item = document.createElement("div");
             item.className = "list-item";
             item.dataset.bookId = book.id;
-            item.innerHTML = `<div class="item-title">${
-              book.name
-            }</div><div class="item-content">${(
+            item.innerHTML = `<div class="item-title">${book.name}</div><div class="item-content">${(
               book.content || "暂无内容..."
             ).substring(0, 50)}</div>`;
 
@@ -49999,9 +50252,7 @@ ${libraryList}
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
           link.href = url;
-          link.download = `EPhone-QuickReplies-${
-            new Date().toISOString().split("T")[0]
-          }.json`;
+          link.download = `EPhone-QuickReplies-${new Date().toISOString().split("T")[0]}.json`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -50151,10 +50402,7 @@ ${libraryList}
 
             // 获取心声预览 (如果有)
             if (cp.latestInnerVoice && cp.latestInnerVoice.thoughts) {
-              previewText += ` | 心声: ${cp.latestInnerVoice.thoughts.substring(
-                0,
-                10,
-              )}...`;
+              previewText += ` | 心声: ${cp.latestInnerVoice.thoughts.substring(0, 10)}...`;
             }
 
             item.innerHTML = `
@@ -50855,9 +51103,7 @@ ${libraryList}
             rowBooks.forEach((book) => {
               const bookEl = document.createElement("div");
               // 随机分配一种颜色
-              const colorClass = `book-color-${
-                Math.floor(Math.random() * 5) + 1
-              }`;
+              const colorClass = `book-color-${Math.floor(Math.random() * 5) + 1}`;
               bookEl.className = `retro-book ${colorClass}`;
               bookEl.title = book.title; // 鼠标悬停显示全名
               bookEl.innerHTML = `<span class="book-spine-title">${book.title}</span>`;
@@ -51127,9 +51373,7 @@ ${libraryList}
               let data = null;
               if (task.type === "table") {
                 // 对于大表，这里读取可能会花一点时间，UI更新一下
-                loadingText.textContent = `[${
-                  i + 1
-                }/${totalTasks}] 读取本地数据: ${task.name}...`;
+                loadingText.textContent = `[${i + 1}/${totalTasks}] 读取本地数据: ${task.name}...`;
                 // 给UI一点渲染时间
                 await sleep(50);
                 data = await db[task.name].toArray();
@@ -51145,9 +51389,7 @@ ${libraryList}
 
               if (!data) continue;
 
-              loadingText.textContent = `[${i + 1}/${totalTasks}] 正在编码: ${
-                task.name
-              }...`;
+              loadingText.textContent = `[${i + 1}/${totalTasks}] 正在编码: ${task.name}...`;
               await sleep(20);
 
               // 序列化并转Base64
@@ -51171,10 +51413,7 @@ ${libraryList}
                   const start = c * CHUNK_SIZE;
                   const end = Math.min(start + CHUNK_SIZE, totalSize);
                   const chunkContent = contentBase64.substring(start, end);
-                  const partName = `${fileName}.${String(c + 1).padStart(
-                    3,
-                    "0",
-                  )}`;
+                  const partName = `${fileName}.${String(c + 1).padStart(3, "0")}`;
 
                   // 使用重试机制上传
                   await uploadWithRetry(partName, chunkContent);
@@ -51192,9 +51431,7 @@ ${libraryList}
                 const metaBase64 = btoa(JSON.stringify(metaInfo));
                 await uploadWithRetry(`${fileName}.meta`, metaBase64);
               } else {
-                loadingText.textContent = `[${i + 1}/${totalTasks}] 正在上传: ${
-                  task.name
-                }...`;
+                loadingText.textContent = `[${i + 1}/${totalTasks}] 正在上传: ${task.name}...`;
                 await uploadWithRetry(fileName, contentBase64);
                 await sleep(500); // 小文件也稍微休息一下
               }
@@ -51415,9 +51652,7 @@ ${libraryList}
             // 2. 循环处理所有任务
             for (let i = 0; i < totalTasks; i++) {
               const task = allTasks[i];
-              loadingText.textContent = `[${
-                completedTasks + 1
-              }/${totalTasks}] 正在恢复: ${task.name}...`;
+              loadingText.textContent = `[${completedTasks + 1}/${totalTasks}] 正在恢复: ${task.name}...`;
 
               try {
                 const data = await downloadAndMerge(task.name, task.type);
@@ -51586,9 +51821,7 @@ ${libraryList}
 
             // 3. 循环恢复表
             for (const tableName of tablesToImport) {
-              loadingText.textContent = `[${
-                completedTasks + 1
-              }/${totalTasks}] 正在下载并导入: ${tableName}...`;
+              loadingText.textContent = `[${completedTasks + 1}/${totalTasks}] 正在下载并导入: ${tableName}...`;
               const fileName = `${basePath}_${tableName}.json`;
               if (await downloadAndImport(fileName, tableName, false)) {
                 successCount++;
@@ -51598,9 +51831,7 @@ ${libraryList}
 
             // 4. 循环恢复配置
             for (const configName of singleObjects) {
-              loadingText.textContent = `[${
-                completedTasks + 1
-              }/${totalTasks}] 正在下载并导入配置: ${configName}...`;
+              loadingText.textContent = `[${completedTasks + 1}/${totalTasks}] 正在下载并导入配置: ${configName}...`;
               const fileName = `${basePath}_${configName}.json`;
               if (await downloadAndImport(fileName, configName, true)) {
                 successCount++;
@@ -52021,6 +52252,147 @@ ${libraryList}
           document.getElementById("new-couple-char-avatar-preview").src =
             base64;
         });
+        // ==========================================
+        // ★★★ 新增功能：全局路人头像库逻辑 ★★★
+        // ==========================================
+
+        // 1. 打开管理界面
+        async function openPasserbyManager() {
+          await renderPasserbyGrid();
+          document
+            .getElementById("passerby-avatar-manager-modal")
+            .classList.add("visible");
+        }
+
+        // 2. 渲染网格
+        async function renderPasserbyGrid() {
+          const grid = document.getElementById("passerby-avatar-grid");
+          const countSpan = document.getElementById("passerby-count");
+          grid.innerHTML = "";
+
+          // 从数据库获取所有
+          const avatars = await db.passerbyAvatars.toArray();
+          countSpan.textContent = avatars.length;
+
+          // 更新全局缓存 (重要)
+          window.state.passerbyAvatars = avatars;
+
+          if (avatars.length === 0) {
+            grid.innerHTML =
+              '<p style="grid-column:1/-1; text-align:center; color:#999;">图库为空，快去添加一些吧！</p>';
+            return;
+          }
+
+          avatars.forEach((item) => {
+            const div = document.createElement("div");
+            div.className = "sticker-item"; // 复用现有的贴纸样式
+            div.style.backgroundImage = `url(${item.url})`;
+            div.style.borderRadius = "8px";
+            div.style.aspectRatio = "1/1";
+
+            // 删除按钮
+            const delBtn = document.createElement("div");
+            delBtn.className = "delete-btn";
+            delBtn.innerHTML = "×";
+            delBtn.style.display = "block";
+            delBtn.onclick = async (e) => {
+              e.stopPropagation();
+              if (confirm("确定删除这张头像吗？")) {
+                await db.passerbyAvatars.delete(item.id);
+                renderPasserbyGrid();
+              }
+            };
+
+            div.appendChild(delBtn);
+            grid.appendChild(div);
+          });
+        }
+
+        // 3. 处理添加头像 (支持本地多选 和 URL)
+        async function handleAddPasserbyAvatar() {
+          const choice = await showChoiceModal("添加方式", [
+            { text: "📁 本地上传 (支持多选)", value: "local" },
+            { text: "🌐 网络图片URL", value: "url" },
+          ]);
+
+          if (!choice) return;
+
+          if (choice === "local") {
+            document.getElementById("passerby-upload-input").click();
+          } else if (choice === "url") {
+            const url = await showCustomPrompt("输入URL", "请输入图片链接");
+            if (url && url.trim()) {
+              await db.passerbyAvatars.add({ url: url.trim() });
+              alert("添加成功");
+              // 如果管理界面开着，就刷新它
+              if (
+                document
+                  .getElementById("passerby-avatar-manager-modal")
+                  .classList.contains("visible")
+              ) {
+                renderPasserbyGrid();
+              }
+            }
+          }
+        }
+
+        // 4. 处理本地文件选择
+        async function handlePasserbyFileChange(event) {
+          const files = event.target.files;
+          if (!files.length) return;
+
+          // 显示加载提示
+          const btn = document.getElementById("add-passerby-avatar-btn");
+          const originalText = btn.textContent;
+          btn.textContent = "处理中...";
+
+          const newItems = [];
+          for (const file of files) {
+            // 复用你的图片压缩函数 handleImageUploadAndCompress
+            try {
+              const base64 = await handleImageUploadAndCompress(file);
+              newItems.push({ url: base64 });
+            } catch (e) {
+              console.error("图片处理失败", e);
+            }
+          }
+
+          if (newItems.length > 0) {
+            await db.passerbyAvatars.bulkAdd(newItems);
+            alert(`成功添加 ${newItems.length} 张头像！`);
+            // 刷新缓存
+            window.state.passerbyAvatars = await db.passerbyAvatars.toArray();
+            // 如果管理界面开着，刷新
+            if (
+              document
+                .getElementById("passerby-avatar-manager-modal")
+                .classList.contains("visible")
+            ) {
+              renderPasserbyGrid();
+            }
+          }
+
+          btn.textContent = originalText;
+          event.target.value = null; // 清空
+        }
+
+        // 5. 【核心工具函数】根据名字获取头像
+        // 如果名字相同，尽量返回相同的头像（伪随机）；如果没有库，返回默认。
+        window.getAvatarForName = function (name) {
+          const lib = window.state.passerbyAvatars || [];
+          if (lib.length === 0)
+            return "https://i.postimg.cc/PxZrFFFL/o-o-1.jpg"; // 默认头像
+
+          // 简单的哈希算法，将名字转为数字
+          let hash = 0;
+          for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+          }
+
+          // 取绝对值并取模
+          const index = Math.abs(hash) % lib.length;
+          return lib[index].url;
+        };
 
         // 4. 初始化函数 init()
         // ===================================================================
@@ -52045,6 +52417,25 @@ ${libraryList}
           window.renderApiSettingsProxy = renderApiSettings;
           window.renderWallpaperScreenProxy = renderWallpaperScreen;
           window.renderWorldBookScreenProxy = renderWorldBookScreen;
+          const keepAliveUnlocker = () => {
+            const player = document.getElementById("strong-keep-alive-player");
+            if (player) {
+              player.volume = 0; // 确保静音
+              player
+                .play()
+                .then(() => {
+                  console.log("🔥 强力保活模式已激活：静音音频正在循环播放");
+                })
+                .catch((e) => {
+                  console.warn("保活启动失败 (需用户交互):", e);
+                });
+            }
+            document.removeEventListener("click", keepAliveUnlocker);
+            document.removeEventListener("touchstart", keepAliveUnlocker);
+          };
+
+          document.addEventListener("click", keepAliveUnlocker);
+          document.addEventListener("touchstart", keepAliveUnlocker);
 
           await loadAllDataFromDB();
           // 添加启动时加载CSS的逻辑
@@ -53062,6 +53453,9 @@ ${libraryList}
                 parseInt(
                   document.getElementById("github-backup-interval").value,
                 ) || 30;
+              state.apiConfig.pollinationsApiKey = document
+                .getElementById("pollinations-api-key")
+                .value.trim();
 
               // 如果开启了自动备份，立即重启定时器
               handleAutoBackupTimer();
@@ -54008,9 +54402,7 @@ ${libraryList}
                 : "none";
 
               document.querySelector(
-                `input[name="summary-mode"][value="${
-                  summarySettings.mode || "auto"
-                }"]`,
+                `input[name="summary-mode"][value="${summarySettings.mode || "auto"}"]`,
               ).checked = true;
               document.getElementById("summary-count-input").value =
                 summarySettings.count || 20;
@@ -54567,9 +54959,7 @@ ${libraryList}
 
               // 加载并更新所有预览相关控件
               const themeRadio = document.querySelector(
-                `input[name="theme-select"][value="${
-                  chat.settings.theme || "default"
-                }"]`,
+                `input[name="theme-select"][value="${chat.settings.theme || "default"}"]`,
               );
               if (themeRadio) themeRadio.checked = true;
               const fontSizeSlider =
@@ -55468,9 +55858,7 @@ ${libraryList}
                 // 3. 构建更具体的“遗忘指令”
                 let forgetReason = "一些之前的消息已被用户删除。";
                 if (deletedPollsInfo.length > 0) {
-                  forgetReason += ` 其中包括以下投票：${deletedPollsInfo.join(
-                    "；",
-                  )}。`;
+                  forgetReason += ` 其中包括以下投票：${deletedPollsInfo.join("；")}。`;
                 }
                 forgetReason +=
                   " 你应该像它们从未存在过一样继续对话，并相应地调整你的记忆和行为，不要再提及这些被删除的内容。";
@@ -55969,9 +56357,7 @@ ${libraryList}
                 if (chat.isGroup) continue;
                 const historyMessage = {
                   role: "system",
-                  content: `[系统提示：用户${
-                    editingId ? "编辑了" : "发布了"
-                  }一条动态(ID: ${
+                  content: `[系统提示：用户${editingId ? "编辑了" : "发布了"}一条动态(ID: ${
                     editingId || postData.id
                   })，内容摘要是：“${postSummary}”。]`,
                   timestamp: Date.now(),
@@ -56214,10 +56600,7 @@ ${libraryList}
               const commentText = post.comments[commentIndex].text;
               const confirmed = await showCustomConfirm(
                 "删除评论",
-                `确定要删除这条评论吗？\n\n“${commentText.substring(
-                  0,
-                  50,
-                )}...”`,
+                `确定要删除这条评论吗？\n\n“${commentText.substring(0, 50)}...”`,
                 { confirmButtonClass: "btn-danger" },
               );
               if (confirmed) {
@@ -58171,7 +58554,9 @@ ${libraryList}
                 alert("已重置为默认模板 (请点击'保存'以应用更改到系统)");
               }
             });
-
+          document
+            .getElementById("manage-char-css-btn")
+            .addEventListener("click", openCharCssManager);
           // 绑定导入按钮和隐藏的文件选择器
           document
             .getElementById("import-theme-btn")
@@ -61022,6 +61407,33 @@ ${libraryList}
               listEl.appendChild(item);
             });
           }
+          // 1. 加载数据到内存
+          state.passerbyAvatars = await db.passerbyAvatars.toArray();
+
+          // 2. 绑定设置页面的按钮
+          document
+            .getElementById("manage-passerby-avatars-btn")
+            .addEventListener("click", openPasserbyManager);
+          document
+            .getElementById("add-passerby-avatar-btn")
+            .addEventListener("click", handleAddPasserbyAvatar);
+
+          // 3. 绑定弹窗内的按钮
+          document
+            .getElementById("close-passerby-manager-btn")
+            .addEventListener("click", () => {
+              document
+                .getElementById("passerby-avatar-manager-modal")
+                .classList.remove("visible");
+            });
+          document
+            .getElementById("bulk-add-passerby-btn")
+            .addEventListener("click", handleAddPasserbyAvatar);
+
+          // 4. 绑定文件输入框
+          document
+            .getElementById("passerby-upload-input")
+            .addEventListener("change", handlePasserbyFileChange);
           initAuroraDrag(); // 初始化拖拽
           initAuroraFontControl();
           initAuroraResize();
