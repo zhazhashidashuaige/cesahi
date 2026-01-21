@@ -20608,12 +20608,13 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               ? chat.settings.remarkName
               : chat.name;
 
-          // --- 核心修复开始：完全重写发送逻辑 ---
+          // 2. 处理系统级弹窗 (System Notification)
           if (
             "Notification" in window &&
             Notification.permission === "granted" &&
             state.globalSettings.enableSystemNotifications === true
           ) {
+            // 判断当前是否处于聊天界面
             const isChatActive =
               document.getElementById("chat-interface-screen") &&
               document
@@ -20621,44 +20622,46 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 .classList.contains("active") &&
               state.activeChatId === chatId;
 
+            // 如果应用在后台，或者不在当前聊天界面，则发送通知
             if (document.hidden || !isChatActive) {
               const notifOptions = {
                 body: messageContent,
-                icon: avatarUrl,
-                tag: chatId,
-                silent: true, // 避免系统默认声音，使用我们自己的音效
-                badge: avatarUrl, // 安卓状态栏小图标
+                icon: avatarUrl, // Android通知栏右侧大图
+                badge:
+                  "https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg", // Android状态栏小图标(必须是透明背景单色图，这里用应用图标暂代)
+                tag: chatId, // 防止消息堆叠，同一个人只显示一条最新
+                renotify: true, // 新消息震动/响铃
+                silent: true, // 设为静音，使用网页自己的音效(playNotificationSound)
+                data: { chatId: chatId }, // 传递数据给点击事件
               };
 
-              // 【关键修复】优先使用 ServiceWorkerRegistration
+              // ▼▼▼▼▼▼ 核心修改：安卓兼容逻辑 ▼▼▼▼▼▼
               if ("serviceWorker" in navigator) {
                 navigator.serviceWorker.ready
                   .then(function (registration) {
-                    // 使用 SW 发送通知
+                    // Android 必须用这个方法
                     registration.showNotification(notifName, notifOptions);
                   })
                   .catch(function (err) {
-                    console.warn("无法获取 SW registration，尝试降级:", err);
-                    // 降级方案：普通尝试 (安卓 Chrome 可能会报错，但 PC 没事)
+                    console.error("SW Notification failed:", err);
+                    // 兜底尝试
                     try {
                       new Notification(notifName, notifOptions);
-                    } catch (e) {
-                      console.error("通知发送彻底失败", e);
-                    }
+                    } catch (e) {}
                   });
               } else {
-                // 不支持 SW 的环境（如 iOS Safari）
+                // iOS / PC 传统方式
                 try {
                   new Notification(notifName, notifOptions);
                 } catch (e) {
-                  console.warn("普通 Notification 发送失败:", e);
+                  console.error("New Notification failed:", e);
                 }
               }
+              // ▲▲▲▲▲▲ 修改结束 ▲▲▲▲▲▲
             }
           }
-          // --- 核心修复结束 ---
 
-          // 2. 原有的应用内顶部横幅逻辑 (保持不变)
+          // 3. 原有的应用内顶部横幅 (保持不变)
           const bar = document.getElementById("notification-bar");
           const avatarImg = document.getElementById("notification-avatar");
           if (avatarImg) avatarImg.src = avatarUrl;
@@ -21767,62 +21770,30 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
           // ▼▼▼ 在 check-notification-perm-btn 的监听器后面，添加这段代码 ▼▼▼
 
-          const testNotifBtn = document.getElementById(
-            "test-system-notification-btn",
-          );
-          if (testNotifBtn) {
-            testNotifBtn.addEventListener("click", async () => {
-              // 1. 检查浏览器是否支持
-              if (!("Notification" in window)) {
-                alert("抱歉，当前浏览器/环境不支持系统通知 API。");
-                return;
-              }
-
-              // 2. 检查权限
-              if (Notification.permission !== "granted") {
-                alert(
-                  "权限未开启！请先点击左侧的【🔍 检测权限】按钮并允许通知。",
-                );
-                return;
-              }
+          document
+            .getElementById("test-system-notification-btn")
+            .addEventListener("click", async () => {
+              if (!("Notification" in window)) return alert("设备不支持通知");
+              if (Notification.permission !== "granted")
+                return alert("请先授权通知！");
 
               const title = "测试弹窗";
               const options = {
-                body: "这是一条测试消息！如果你看到这个，说明系统弹窗功能正常 (๑•̀ㅂ•́)و✧",
-                icon: "https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg", // 使用你的应用图标
-                vibrate: [200, 100, 200], // 手机震动模式
-                tag: "test-notification",
+                body: "安卓测试成功！(ServiceWorker Mode)",
+                icon: "https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg",
               };
 
-              try {
-                // 3. 尝试发送通知
-                // 安卓/PWA 优先使用 ServiceWorker
-                if ("serviceWorker" in navigator) {
-                  const reg = await navigator.serviceWorker.getRegistration();
-                  if (reg) {
-                    await reg.showNotification(title, options);
-                  } else {
-                    // 如果没找到注册的 SW，尝试直接发送（备用方案）
-                    new Notification(title, options);
-                  }
-                } else {
-                  // PC / iOS Safari (非PWA模式)
-                  new Notification(title, options);
-                }
-
-                // 播放提示音 (如果你有这功能的话)
-                if (typeof playNotificationSound === "function") {
-                  playNotificationSound();
-                }
-              } catch (e) {
-                console.error("测试通知发送失败:", e);
-                alert(
-                  `发送失败: ${e.message}\n请检查手机是否开启了“通知”权限，或是否处于免打扰模式。`,
-                );
+              if ("serviceWorker" in navigator) {
+                navigator.serviceWorker.ready.then((reg) => {
+                  reg
+                    .showNotification(title, options)
+                    .then(() => console.log("SW 测试通知发送成功"))
+                    .catch((e) => alert("SW 发送失败: " + e.message));
+                });
+              } else {
+                new Notification(title, options);
               }
             });
-          }
-          // ▲▲▲ 新增结束 ▲▲▲
 
           calculateTotalImageSize();
         }
@@ -52528,25 +52499,24 @@ ${libraryList}
         // 4. 初始化函数 init()
         // ===================================================================
         async function init() {
-          // ▼▼▼▼▼▼▼▼▼▼▼▼ 新增/修改开始 ▼▼▼▼▼▼▼▼▼▼▼▼
-          // 1. 注册 Service Worker (修复 Illegal constructor 报错的核心)
+          // ▼▼▼▼▼▼▼▼▼▼▼▼ 修改开始：注册 Service Worker (解决安卓报错的核心) ▼▼▼▼▼▼▼▼▼▼▼▼
           if ("serviceWorker" in navigator) {
             try {
-              // 这里我们将“别人的代码”中的 SW 逻辑封装成字符串
+              // 定义 Service Worker 的逻辑：处理安装、激活和通知点击
               const swCode = `
                 self.addEventListener('install', (event) => {
-                    self.skipWaiting();
+                    self.skipWaiting(); // 强制跳过等待，立即激活
                 });
 
                 self.addEventListener('activate', (event) => {
-                    event.waitUntil(self.clients.claim());
+                    event.waitUntil(self.clients.claim()); // 立即接管页面
                 });
 
+                // 处理通知点击事件：点击后关闭通知并聚焦窗口
                 self.addEventListener('notificationclick', (event) => {
                     event.notification.close();
                     event.waitUntil(
                         clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-                            // 尝试聚焦已打开的窗口
                             if (clientList.length > 0) {
                                 let client = clientList[0];
                                 for (let i = 0; i < clientList.length; i++) {
@@ -52556,38 +52526,35 @@ ${libraryList}
                                 }
                                 return client.focus();
                             }
-                            // 如果没有窗口，打开新窗口
                             return clients.openWindow('/');
                         })
                     );
                 });
-              `;
+            `;
 
-              // 创建 Blob，模拟一个 sw.js 文件
+              // 创建 Blob 模拟 sw.js 文件
               const blob = new Blob([swCode], {
                 type: "application/javascript",
               });
               const workerUrl = URL.createObjectURL(blob);
 
-              const registration =
-                await navigator.serviceWorker.register(workerUrl);
+              // 注册 SW
+              const registration = await navigator.serviceWorker.register(
+                workerUrl,
+                { scope: "./" },
+              );
               console.log(
                 "Service Worker 注册成功，Scope:",
                 registration.scope,
               );
+
+              // 等待 SW 激活
+              await navigator.serviceWorker.ready;
             } catch (error) {
               console.warn("Service Worker 注册失败:", error);
             }
           }
-          // ▲▲▲▲▲▲▲▲▲▲▲▲ 新增/修改结束 ▲▲▲▲▲▲▲▲▲▲▲▲
-
-          // ... 原有的代码 ...
-          if ("serviceWorker" in navigator) {
-            // 注意：你原来的代码里可能有一段类似的 try...catch 注册代码
-            // 请删除你原有的那小段关于 emptyWorkerContent 的代码，防止冲突
-            // 或者直接用我上面的代码覆盖你原来的 try block
-          }
-
+          // ▲▲▲▲▲▲▲▲▲▲▲▲ 修改结束 ▲▲▲▲▲▲▲▲▲▲▲▲
           const savedTheme = localStorage.getItem("ephone-theme") || "light"; // 默认为日间模式
           applyTheme(savedTheme);
 
