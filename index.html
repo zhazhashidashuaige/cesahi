@@ -51249,13 +51249,14 @@ ${libraryList}
         }
 
         // 2. 验证与启动函数
-        function tryLogin() {
+        async function tryLogin() {
           // 获取元素
           const uidEl = document.getElementById('login-uid');
           const pwdEl = document.getElementById('login-pwd');
           const msgEl = document.getElementById('login-msg');
+          const submitBtn = document.getElementById('btn-login-submit');
 
-          // 安全检查：如果元素不存在（比如还没渲染），直接返回，防止报错
+          // 安全检查
           if (!uidEl || !pwdEl) {
             console.error('找不到登录输入框，请刷新页面');
             return;
@@ -51266,23 +51267,45 @@ ${libraryList}
 
           if (!uid || !pwd) {
             msgEl.textContent = '请输入完整的账号和密码';
+            if(msgEl) msgEl.style.color = '#ff453a'; // 红色警告
             return;
           }
 
-          // 验证逻辑
-          if (verifyLogin(uid, pwd)) {
-            msgEl.style.color = '#32d74b';
-            msgEl.textContent = '验证通过，正在进入...';
+          // 1. 设置加载状态
+          msgEl.style.color = '#fab1a0'; // 恢复默认颜色
+          msgEl.textContent = 'VERIFYING...'; 
+          if(submitBtn) submitBtn.disabled = true; // 防止重复点击
 
-            try {
+          try {
+            // 2. 发起网络请求 (你的新逻辑)
+            const res = await fetch('https://puppy-subscription-api.zeabur.app/api/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ account: uid, password: pwd })
+            });
+
+            // 处理网络层面的错误 (如404, 500)
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            // 3. 处理验证结果
+            if (data.success) {
+              // --- 验证成功 ---
+              msgEl.style.color = '#32d74b'; // 绿色成功
+              msgEl.textContent = '验证通过，正在进入...';
+
               // 保存登录状态
               localStorage.setItem('ephone_saved_uid', uid);
+              // 同时保存你的新验证标记
+              localStorage.setItem('ephone_auth', 'true');
 
-              // 【关键修改】使用固定数据库名，找回你的旧数据
-              // 确保 script.js 上方的 initDatabase 函数里写的是 db = new Dexie('GeminiChatDB');
+              // 初始化数据库 (使用 uid 作为数据库标识)
               initDatabase(uid);
 
-              // 移除遮罩
+              // 移除遮罩动画
               const overlay = document.getElementById('login-overlay');
               if (overlay) {
                 overlay.style.transition = 'opacity 0.5s ease';
@@ -51292,17 +51315,26 @@ ${libraryList}
 
               // 启动 App
               init();
-            } catch (e) {
-              console.error(e);
-              msgEl.style.color = '#ff453a';
-              msgEl.textContent = '初始化失败，请重试';
+
+            } else {
+              // --- 验证失败 (业务逻辑拒绝，如密码错误) ---
+              throw new Error(data.message || '账号或密码错误');
             }
-          } else {
-            msgEl.style.color = '#ff453a';
-            msgEl.textContent = '账号或密码错误';
-            const btn = document.getElementById('btn-login-submit');
-            btn.style.background = '#ff453a';
-            setTimeout(() => (btn.style.background = '#007aff'), 500);
+
+          } catch (error) {
+            // --- 错误处理 ---
+            console.error('登录出错:', error);
+            msgEl.style.color = '#ff453a'; // 红色警告
+            // 显示具体错误信息，如果是网络错误显示"网络连接失败"
+            msgEl.textContent = error.message.includes('fetch') ? '网络连接失败' : (error.message || '验证失败');
+            
+            // 按钮视觉反馈 (变红一下)
+            if(submitBtn) {
+                const originalBg = submitBtn.style.background;
+                submitBtn.style.background = '#ff453a';
+                setTimeout(() => (submitBtn.style.background = originalBg || ''), 500);
+                submitBtn.disabled = false; // 恢复按钮可用
+            }
           }
         }
 
