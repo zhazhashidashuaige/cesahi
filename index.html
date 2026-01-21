@@ -90,9 +90,12 @@
       </div>
       <div id="notification-bar">
         <img id="notification-avatar" src="" />
+        <!-- 这里就是头像 -->
         <div id="notification-content">
           <div class="name"></div>
+          <!-- 名字 -->
           <div class="message"></div>
+          <!-- 消息 -->
         </div>
       </div>
 
@@ -15905,8 +15908,14 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           const minutes = String(date.getMinutes()).padStart(2, '0');
           return `${hours}:${minutes}`;
         }
-        async function showNotification(chatId, messageContent) {
-          // 播放音效 (这是网页音频，不受通知API限制，总是可以运行)
+        /**
+         * 显示系统/应用内通知
+         * @param {string} chatId - 聊天ID
+         * @param {string} messageContent - 消息内容
+         * @param {string} specificAvatarUrl - [新增参数] 指定的具体头像URL（用于群聊显示发言人头像）
+         */
+        async function showNotification(chatId, messageContent, specificAvatarUrl = null) {
+          // 播放音效
           playNotificationSound();
 
           // 清除旧的应用内顶部横幅计时器
@@ -15916,65 +15925,59 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           if (!chat) return;
 
           // 1. 准备通知数据
-          const avatarUrl = chat.isGroup
-            ? chat.settings.groupAvatar || defaultGroupAvatar
-            : chat.settings.aiAvatar || defaultAvatar;
+          // 逻辑修改：如果传入了 specificAvatarUrl，就直接用；否则按原逻辑（群用群头像，单聊用AI头像）
+          let avatarUrl = specificAvatarUrl;
+
+          if (!avatarUrl) {
+            avatarUrl = chat.isGroup
+              ? chat.settings.groupAvatar || defaultGroupAvatar
+              : chat.settings.aiAvatar || defaultAvatar;
+          }
 
           const notifName = !chat.isGroup && chat.settings.remarkName ? chat.settings.remarkName : chat.name;
 
-          // 2. 检测是否需要发送系统弹窗
+          // 2. 检测是否需要发送系统弹窗 (原生通知)
           const isSystemNotifyEnabled = state.globalSettings.enableSystemNotifications === true;
           const hasPermission = 'Notification' in window && Notification.permission === 'granted';
 
           if (isSystemNotifyEnabled && hasPermission) {
-            // 判断当前是否处于聊天界面
             const isChatActive =
               document.getElementById('chat-interface-screen') &&
               document.getElementById('chat-interface-screen').classList.contains('active') &&
               state.activeChatId === chatId;
 
-            // 只有在后台或非当前聊天时才弹窗
             if (document.hidden || !isChatActive) {
               const options = {
                 body: messageContent,
-                icon: avatarUrl,
+                icon: avatarUrl, // 这里也会自动使用正确的头像
                 tag: chatId,
                 renotify: true,
-                silent: true, // 静音，因为我们手动播放了声音
-                badge: 'https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg', // 安卓小图标
+                silent: true,
+                badge: 'https://i.postimg.cc/Kj8JnRcp/267611-CC01-F8-A3-B4910-A2-C2-FFDE479-DC.jpg',
               };
 
-              // ▼▼▼▼▼▼▼▼ 核心修复：安卓防崩溃逻辑 ▼▼▼▼▼▼▼▼
               try {
-                // 1. 优先尝试 Service Worker (安卓唯一合法途径)
                 if ('serviceWorker' in navigator) {
                   const reg = await navigator.serviceWorker.getRegistration();
                   if (reg) {
-                    // 拿到 SW 了，发送通知
                     await reg.showNotification(notifName, options);
                   } else {
-                    console.warn('未找到 ServiceWorker，尝试回退...');
-                    // 没拿到 SW，如果是 PC/iOS，可以尝试普通方式
-                    // 但如果是安卓，这里调用 new Notification 可能会报错，所以加 try catch
                     new Notification(notifName, options);
                   }
                 } else {
-                  // 2. 不支持 SW 的环境 (iOS Safari / PC)
                   new Notification(notifName, options);
                 }
               } catch (e) {
-                // 3. 捕获所有错误，绝对不让页面崩溃
-                console.error('系统通知发送失败 (已拦截错误):', e.message);
-                // 可以在这里选择降级显示应用内横幅，或者什么都不做
+                console.error('系统通知发送失败:', e.message);
               }
-              // ▲▲▲▲▲▲▲▲ 修改结束 ▲▲▲▲▲▲▲▲
             }
           }
 
-          // 3. 应用内顶部横幅 (永远可靠的备用方案)
-          // 这里的代码保持不变，负责显示网页顶部的白色横条消息
+          // 3. 应用内顶部横幅 (网页内弹窗)
           const bar = document.getElementById('notification-bar');
           const avatarImg = document.getElementById('notification-avatar');
+
+          // 这里设置图片
           if (avatarImg) avatarImg.src = avatarUrl;
 
           const contentDiv = document.getElementById('notification-content');
@@ -15984,7 +15987,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
           }
 
           if (bar) {
-            // 克隆节点以重置动画和事件
             const newBar = bar.cloneNode(true);
             bar.parentNode.replaceChild(newBar, bar);
 
@@ -15993,7 +15995,6 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               newBar.classList.remove('visible');
             });
 
-            // 显示横幅
             newBar.classList.add('visible');
             notificationTimeout = setTimeout(() => {
               newBar.classList.remove('visible');
@@ -23991,11 +23992,24 @@ ${libraryList}
                   const finalNotifText = chat.isGroup
                     ? `${aiMessage.senderName}: ${notificationText}`
                     : notificationText;
+                  // 确定具体的头像URL
+                  let senderAvatarForNotify = null;
+
+                  if (chat.isGroup) {
+                    // 如果是群聊，尝试根据消息发送者名字找到对应的成员头像
+                    const member = chat.members.find(m => m.originalName === aiMessage.senderName);
+                    if (member) {
+                      senderAvatarForNotify = member.avatar;
+                    }
+                  } else {
+                    // 如果是单聊，直接用AI头像
+                    senderAvatarForNotify = chat.settings.aiAvatar;
+                  }
 
                   showNotification(
                     chatId,
-                    finalNotifText.substring(0, 60) + // 稍微加长了预览文字
-                      (finalNotifText.length > 60 ? '...' : ''),
+                    finalNotifText.substring(0, 60) + (finalNotifText.length > 60 ? '...' : ''),
+                    senderAvatarForNotify, // <--- 传入这个新参数
                   );
                 }
 
@@ -29728,7 +29742,19 @@ ${libraryList}
 
               // 给用户发通知
               chat.unreadCount = (chat.unreadCount || 0) + messagesArray.length;
-              showNotification(chatId, firstMessageContent);
+              // 获取该条消息发送者的头像
+              let bgSenderAvatar = null;
+              if (chat.isGroup) {
+                // 假设第一条消息包含了 senderName (在 messagesArray[0] 里可能是 name 字段)
+                // 注意：triggerInactiveAiAction 里的逻辑比较复杂，这里 messagesArray 的元素是 {name:..., message:...}
+                const senderName = messagesArray[0].name;
+                const member = chat.members.find(m => m.originalName === senderName);
+                if (member) bgSenderAvatar = member.avatar;
+              } else {
+                bgSenderAvatar = chat.settings.aiAvatar;
+              }
+
+              showNotification(chatId, firstMessageContent, bgSenderAvatar);
 
               // 保存并刷新UI
               await db.chats.put(chat);
