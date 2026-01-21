@@ -20608,7 +20608,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               ? chat.settings.remarkName
               : chat.name;
 
-          // --- 核心修复开始 ---
+          // --- 核心修复开始：完全重写发送逻辑 ---
           if (
             "Notification" in window &&
             Notification.permission === "granted" &&
@@ -20626,48 +20626,32 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
                 body: messageContent,
                 icon: avatarUrl,
                 tag: chatId,
-                silent: true,
+                silent: true, // 避免系统默认声音，使用我们自己的音效
+                badge: avatarUrl, // 安卓状态栏小图标
               };
 
-              // 安卓 Chrome 必须使用 ServiceWorkerRegistration.showNotification
+              // 【关键修复】优先使用 ServiceWorkerRegistration
               if ("serviceWorker" in navigator) {
-                navigator.serviceWorker
-                  .getRegistration()
+                navigator.serviceWorker.ready
                   .then(function (registration) {
-                    if (registration) {
-                      // 如果已经有注册的 SW，直接使用
-                      registration.showNotification(notifName, notifOptions);
-                    } else {
-                      // 如果没有注册 SW (极为罕见，因为 init 里已经注册了)，尝试现场注册一个空的
-                      // 注意：这里不再尝试 new Notification()，因为它在安卓上必挂
-                      const emptyWorkerContent =
-                        "self.addEventListener('install', () => self.skipWaiting());";
-                      const blob = new Blob([emptyWorkerContent], {
-                        type: "text/javascript",
-                      });
-                      const workerUrl = URL.createObjectURL(blob);
-                      navigator.serviceWorker
-                        .register(workerUrl)
-                        .then(function (newReg) {
-                          newReg.showNotification(notifName, notifOptions);
-                        });
-                    }
+                    // 使用 SW 发送通知
+                    registration.showNotification(notifName, notifOptions);
                   })
                   .catch(function (err) {
-                    console.warn("SW 获取失败，尝试降级:", err);
-                    // 只有在非安卓环境才尝试 new Notification
+                    console.warn("无法获取 SW registration，尝试降级:", err);
+                    // 降级方案：普通尝试 (安卓 Chrome 可能会报错，但 PC 没事)
                     try {
                       new Notification(notifName, notifOptions);
                     } catch (e) {
-                      console.error("无法发送系统通知", e);
+                      console.error("通知发送彻底失败", e);
                     }
                   });
               } else {
-                // 不支持 SW 的环境 (如 iOS Safari 桌面书签版) 继续使用传统方式
+                // 不支持 SW 的环境（如 iOS Safari）
                 try {
                   new Notification(notifName, notifOptions);
                 } catch (e) {
-                  console.warn("系统通知发送失败:", e);
+                  console.warn("普通 Notification 发送失败:", e);
                 }
               }
             }
@@ -52544,23 +52528,66 @@ ${libraryList}
         // 4. 初始化函数 init()
         // ===================================================================
         async function init() {
+          // ▼▼▼▼▼▼▼▼▼▼▼▼ 新增/修改开始 ▼▼▼▼▼▼▼▼▼▼▼▼
+          // 1. 注册 Service Worker (修复 Illegal constructor 报错的核心)
           if ("serviceWorker" in navigator) {
             try {
-              const emptyWorkerContent =
-                "self.addEventListener('install', () => self.skipWaiting()); self.addEventListener('activate', () => self.clients.claim());";
-              const blob = new Blob([emptyWorkerContent], {
-                type: "text/javascript",
+              // 这里我们将“别人的代码”中的 SW 逻辑封装成字符串
+              const swCode = `
+                self.addEventListener('install', (event) => {
+                    self.skipWaiting();
+                });
+
+                self.addEventListener('activate', (event) => {
+                    event.waitUntil(self.clients.claim());
+                });
+
+                self.addEventListener('notificationclick', (event) => {
+                    event.notification.close();
+                    event.waitUntil(
+                        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+                            // 尝试聚焦已打开的窗口
+                            if (clientList.length > 0) {
+                                let client = clientList[0];
+                                for (let i = 0; i < clientList.length; i++) {
+                                    if (clientList[i].focused) {
+                                        return client.focus();
+                                    }
+                                }
+                                return client.focus();
+                            }
+                            // 如果没有窗口，打开新窗口
+                            return clients.openWindow('/');
+                        })
+                    );
+                });
+              `;
+
+              // 创建 Blob，模拟一个 sw.js 文件
+              const blob = new Blob([swCode], {
+                type: "application/javascript",
               });
               const workerUrl = URL.createObjectURL(blob);
-              await navigator.serviceWorker.register(workerUrl);
+
+              const registration =
+                await navigator.serviceWorker.register(workerUrl);
               console.log(
-                "Service Worker registered for Android Notifications",
+                "Service Worker 注册成功，Scope:",
+                registration.scope,
               );
             } catch (error) {
-              console.warn("Service Worker registration failed:", error);
+              console.warn("Service Worker 注册失败:", error);
             }
           }
-          // === 新增结束 ===
+          // ▲▲▲▲▲▲▲▲▲▲▲▲ 新增/修改结束 ▲▲▲▲▲▲▲▲▲▲▲▲
+
+          // ... 原有的代码 ...
+          if ("serviceWorker" in navigator) {
+            // 注意：你原来的代码里可能有一段类似的 try...catch 注册代码
+            // 请删除你原有的那小段关于 emptyWorkerContent 的代码，防止冲突
+            // 或者直接用我上面的代码覆盖你原来的 try block
+          }
+
           const savedTheme = localStorage.getItem("ephone-theme") || "light"; // 默认为日间模式
           applyTheme(savedTheme);
 
