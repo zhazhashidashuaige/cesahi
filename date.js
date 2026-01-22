@@ -4,13 +4,13 @@
 let currentDatingScenes = []; // 存储所有已生成的约会场景
 let isGeneratingScenes = false; // 标记是否正在生成场景
 let currentDatingUISettings = null; // 存储约会界面设置
-const bgmPlayer = document.getElementById('dating-bgm-player');
+const bgmPlayer = document.getElementById("dating-bgm-player");
 /**
  * 打开"约会大作战"App，快速显示已保存数据
  */
 async function openDatingApp() {
-  console.log('打开约会大作战App...');
-  showScreen('date-a-live-screen');
+  console.log("打开约会大作战App...");
+  showScreen("date-a-live-screen");
   // 从数据库加载所有已保存的场景
   currentDatingScenes = await db.datingScenes.toArray();
   console.log(`从数据库加载了 ${currentDatingScenes.length} 个约会场景。`);
@@ -23,23 +23,23 @@ async function openDatingApp() {
  */
 async function refreshDatingScenes() {
   if (isGeneratingScenes) {
-    alert('正在加载中，请不要着急哦~');
+    alert("正在加载中，请不要着急哦~");
     return;
   }
   isGeneratingScenes = true;
 
-  const contentEl = document.getElementById('dating-scene-content');
-  const loadingIndicator = document.createElement('p');
-  loadingIndicator.textContent = 'AI正在构思新的约会方案...';
-  loadingIndicator.style.textAlign = 'center';
-  loadingIndicator.style.color = 'var(--text-secondary)';
-  contentEl.innerHTML = ''; // 先清空旧场景
+  const contentEl = document.getElementById("dating-scene-content");
+  const loadingIndicator = document.createElement("p");
+  loadingIndicator.textContent = "AI正在构思新的约会方案...";
+  loadingIndicator.style.textAlign = "center";
+  loadingIndicator.style.color = "var(--text-secondary)";
+  contentEl.innerHTML = ""; // 先清空旧场景
   contentEl.appendChild(loadingIndicator);
 
   const { proxyUrl, apiKey, model } = state.apiConfig;
   if (!proxyUrl || !apiKey || !model) {
-    loadingIndicator.textContent = 'API未配置，无法生成场景！';
-    loadingIndicator.style.color = 'red';
+    loadingIndicator.textContent = "API未配置，无法生成场景！";
+    loadingIndicator.style.color = "red";
     isGeneratingScenes = false;
     return;
   }
@@ -72,36 +72,47 @@ async function refreshDatingScenes() {
                     `;
 
   try {
-    const messagesForApi = [{ role: 'user', content: prompt }];
+    const messagesForApi = [{ role: "user", content: prompt }];
     let isGemini = proxyUrl === GEMINI_API_URL;
-    let geminiConfig = toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini);
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      prompt,
+      messagesForApi,
+      isGemini,
+    );
 
     const response = isGemini
       ? await fetch(geminiConfig.url, geminiConfig.data)
       : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
           body: JSON.stringify({
             model: model,
             messages: messagesForApi,
             temperature: 1.1,
-            response_format: { type: 'json_object' },
+            response_format: { type: "json_object" },
           }),
         });
 
     if (!response.ok) throw new Error(`API请求失败: ${await response.text()}`);
 
     const data = await response.json();
-    const rawContent = isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content;
-    const cleanedContent = rawContent.replace(/^```json\s*|```$/g, '').trim();
+    const rawContent = isGemini
+      ? data.candidates[0].content.parts[0].text
+      : data.choices[0].message.content;
+    const cleanedContent = rawContent.replace(/^```json\s*|```$/g, "").trim();
     const newScenes = JSON.parse(cleanedContent);
 
     if (Array.isArray(newScenes)) {
       // 核心修改：只添加uid和空的imageUrl，不再立即生成图片
       const scenesWithId = newScenes.map((scene, index) => ({
         ...scene,
-        uid: 'scene_' + Date.now() + index,
-        imageUrl: '', // 初始化时图片链接为空
+        uid: "scene_" + Date.now() + index,
+        imageUrl: "", // 初始化时图片链接为空
       }));
 
       await db.datingScenes.bulkAdd(scenesWithId);
@@ -110,10 +121,10 @@ async function refreshDatingScenes() {
       currentDatingScenes.push(...scenesWithId);
       renderDatingScenes();
     } else {
-      throw new Error('AI返回的数据不是有效的数组。');
+      throw new Error("AI返回的数据不是有效的数组。");
     }
   } catch (error) {
-    console.error('生成约会场景失败:', error);
+    console.error("生成约会场景失败:", error);
     contentEl.innerHTML = `<p style="text-align:center; color:red;">生成失败: ${error.message}</p>`;
   } finally {
     isGeneratingScenes = false;
@@ -124,8 +135,8 @@ async function refreshDatingScenes() {
  * 渲染所有约会场景卡片，并异步加载图片
  */
 function renderDatingScenes() {
-  const contentEl = document.getElementById('dating-scene-content');
-  contentEl.innerHTML = ''; // 每次都清空再渲染
+  const contentEl = document.getElementById("dating-scene-content");
+  contentEl.innerHTML = ""; // 每次都清空再渲染
 
   if (currentDatingScenes.length === 0) {
     // 如果数据库是空的，显示提示并触发一次生成
@@ -138,7 +149,7 @@ function renderDatingScenes() {
   }
 
   // 核心修改：使用 forEach 立即渲染所有卡片
-  currentDatingScenes.forEach(scene => {
+  currentDatingScenes.forEach((scene) => {
     const card = createDatingSceneCard(scene);
     contentEl.appendChild(card);
     // 核心修改：调用新的异步函数去处理图片
@@ -151,9 +162,11 @@ function renderDatingScenes() {
  * @param {object} scene - 约会场景对象
  */
 async function loadAndDisplaySceneImage(scene) {
-  const card = document.querySelector(`.dating-scene-card[data-uid="${scene.uid}"]`);
+  const card = document.querySelector(
+    `.dating-scene-card[data-uid="${scene.uid}"]`,
+  );
   if (!card) return;
-  const imageContainer = card.querySelector('.dating-scene-image-container');
+  const imageContainer = card.querySelector(".dating-scene-image-container");
 
   // 1. 如果数据库里已经有图片URL，直接使用它
   if (scene.imageUrl) {
@@ -186,14 +199,18 @@ async function loadAndDisplaySceneImage(scene) {
  * @param {string} sceneUid - 场景的唯一ID
  */
 async function deleteDatingScene(sceneUid) {
-  const cardToRemove = document.querySelector(`.dating-scene-card[data-uid="${sceneUid}"]`);
+  const cardToRemove = document.querySelector(
+    `.dating-scene-card[data-uid="${sceneUid}"]`,
+  );
   if (cardToRemove) {
-    cardToRemove.style.transition = 'transform 0.3s, opacity 0.3s';
-    cardToRemove.style.transform = 'scale(0.9)';
-    cardToRemove.style.opacity = '0';
+    cardToRemove.style.transition = "transform 0.3s, opacity 0.3s";
+    cardToRemove.style.transform = "scale(0.9)";
+    cardToRemove.style.opacity = "0";
     setTimeout(async () => {
       await db.datingScenes.delete(sceneUid);
-      currentDatingScenes = currentDatingScenes.filter(scene => scene.uid !== sceneUid);
+      currentDatingScenes = currentDatingScenes.filter(
+        (scene) => scene.uid !== sceneUid,
+      );
       cardToRemove.remove();
     }, 300);
   }
@@ -201,7 +218,7 @@ async function deleteDatingScene(sceneUid) {
 
 // 处理场景图片生成和加载
 async function processSceneImages(newScenes) {
-  const contentEl = document.getElementById('dating-scene-content');
+  const contentEl = document.getElementById("dating-scene-content");
 
   for (const scene of newScenes) {
     const card = createDatingSceneCard(scene);
@@ -209,13 +226,17 @@ async function processSceneImages(newScenes) {
 
     try {
       const imageUrl = await generateAndLoadImage(scene.imagePrompt);
-      const imageContainer = card.querySelector('.dating-scene-image-container');
+      const imageContainer = card.querySelector(
+        ".dating-scene-image-container",
+      );
       if (imageContainer) {
         imageContainer.innerHTML = `<img src="${imageUrl}" alt="${scene.name}">`;
       }
     } catch (error) {
       console.error(`场景 "${scene.name}" 图片生成失败:`, error);
-      const imageContainer = card.querySelector('.dating-scene-image-container');
+      const imageContainer = card.querySelector(
+        ".dating-scene-image-container",
+      );
       if (imageContainer) {
         imageContainer.innerHTML = `<span>图片生成失败</span>`;
       }
@@ -225,8 +246,8 @@ async function processSceneImages(newScenes) {
 
 // 创建约会场景卡片元素
 function createDatingSceneCard(scene) {
-  const card = document.createElement('div');
-  card.className = 'dating-scene-card';
+  const card = document.createElement("div");
+  card.className = "dating-scene-card";
   card.dataset.uid = scene.uid;
 
   card.innerHTML = `
@@ -241,26 +262,71 @@ function createDatingSceneCard(scene) {
                 `;
   return card;
 }
+// 生成并加载图片 (修改版：解决Chrome Header/Referer限制)
+async function generateAndLoadImage(prompt) {
+  while (true) {
+    try {
+      const encodedPrompt = encodeURIComponent(prompt);
+      const seed = Math.floor(Math.random() * 100000);
 
-// 生成并加载图片
-function generateAndLoadImage(prompt) {
-  return new Promise((resolve, reject) => {
-    const encodedPrompt = encodeURIComponent(prompt);
-    const seed = Math.floor(Math.random() * 100000);
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=640&seed=${seed}`;
+      // 1. 获取 API Key (从全局状态获取，兼容 window.state)
+      const pollApiKey = window.state?.apiConfig?.pollinationsApiKey;
 
-    const img = new Image();
-    img.src = imageUrl;
+      // 2. 构建基础 URL (根据你的要求使用 flux 模型)
+      // 加上 nologo=true 参数，去水印
+      let primaryUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=640&seed=${seed}&model=flux&nologo=true`;
 
-    img.onload = () => resolve(imageUrl);
-    img.onerror = () => {
-      console.warn(`主URL加载失败，尝试备用URL for: ${prompt}`);
-      const fallbackUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=640&seed=${seed}`;
-      img.src = fallbackUrl;
-      img.onload = () => resolve(fallbackUrl);
-      img.onerror = () => reject(new Error('主域名和备用域名均加载失败'));
-    };
-  });
+      // === 分支 A: 如果有 API Key，使用 fetch 发送请求获取 Blob ===
+      if (pollApiKey) {
+        // 将 Key 拼接到 URL 参数中 (根据你提供的参考代码逻辑)
+        primaryUrl += `&key=${pollApiKey}`;
+        console.log("正在使用 Pollinations API Key 生成图片...");
+
+        const response = await fetch(primaryUrl, {
+          method: "GET",
+          // 注意：由于 Key 已经在 URL 中了，通常不需要再加 Header，
+          // 这样可以避免 Chrome 发送预检请求 (OPTIONS) 导致的 CORS 问题
+        });
+
+        if (!response.ok) {
+          throw new Error(`API请求失败: ${response.status}`);
+        }
+
+        // 获取二进制数据并转换为 Blob URL
+        // 这种方式浏览器认为是本地资源，不会有跨域引用问题
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        return objectUrl; // 返回 Blob URL
+      }
+
+      // === 分支 B: 如果没有 API Key，走原来的公开接口逻辑 (Image加载) ===
+
+      // 定义内部加载器辅助函数
+      const loadImage = (url) =>
+        new Promise((resolve, reject) => {
+          const img = new Image();
+          img.src = url;
+          img.onload = () => resolve(url);
+          img.onerror = () => reject(new Error(`URL加载失败: ${url}`));
+        });
+
+      // 尝试加载
+      const imageUrl = await loadImage(primaryUrl).catch(async () => {
+        console.warn(`主URL加载失败，尝试备用URL for: ${prompt}`);
+        // 备用地址
+        const fallbackUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=640&seed=${seed}&model=flux&nologo=true`;
+        return await loadImage(fallbackUrl);
+      });
+
+      // 如果成功加载，返回 URL
+      return imageUrl;
+    } catch (error) {
+      // 如果彻底失败（Fetch失败 或 Image加载失败）
+      console.error(`图片生成失败，将在3秒后重试。错误: ${error.message}`);
+      // 等待3秒钟，然后循环继续，开始下一次尝试 (无限重试机制)
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+    }
+  }
 }
 
 /**
@@ -268,41 +334,44 @@ function generateAndLoadImage(prompt) {
  * @param {object} scene - 被选中的约会场景对象
  */
 async function openDatingCharacterSelector(scene) {
-  const modal = document.getElementById('dating-char-selector-modal');
-  const listEl = document.getElementById('dating-char-selector-list');
-  listEl.innerHTML = '';
+  const modal = document.getElementById("dating-char-selector-modal");
+  const listEl = document.getElementById("dating-char-selector-list");
+  listEl.innerHTML = "";
 
   // 找出所有可约会的单聊角色
-  const singleChats = Object.values(state.chats).filter(chat => !chat.isGroup);
+  const singleChats = Object.values(state.chats).filter(
+    (chat) => !chat.isGroup,
+  );
 
   // 检查是否存在可约会角色
   if (singleChats.length === 0) {
-    alert('你还没有任何可以约会的角色哦，先去创建一个吧！');
+    alert("你还没有任何可以约会的角色哦，先去创建一个吧！");
     return;
   }
 
   // 为每个角色创建列表项
-  singleChats.forEach(chat => {
-    const item = document.createElement('div');
-    item.className = 'character-select-item'; // 复用现有的样式
+  singleChats.forEach((chat) => {
+    const item = document.createElement("div");
+    item.className = "character-select-item"; // 复用现有的样式
     item.dataset.charId = chat.id; // 将角色ID存起来
     item.innerHTML = `
                             <img src="${chat.settings.aiAvatar || defaultAvatar}" alt="${chat.name}">
                             <span class="name">${chat.name}</span>
                         `;
     // 为每个角色项绑定点击事件
-    item.addEventListener('click', () => {
-      modal.classList.remove('visible'); // 点击后先关闭选择器
+    item.addEventListener("click", () => {
+      modal.classList.remove("visible"); // 点击后先关闭选择器
       openDatingInvitationModal(scene, chat.id); // 然后带着场景和角色ID，打开支付弹窗
     });
     listEl.appendChild(item);
   });
 
   // 绑定取消按钮
-  document.getElementById('dating-cancel-char-select-btn').onclick = () => modal.classList.remove('visible');
+  document.getElementById("dating-cancel-char-select-btn").onclick = () =>
+    modal.classList.remove("visible");
 
   // 显示角色选择弹窗
-  modal.classList.add('visible');
+  modal.classList.add("visible");
 }
 
 /**
@@ -311,58 +380,72 @@ async function openDatingCharacterSelector(scene) {
  * @param {string} targetCharId - 被邀请角色的ID
  */
 async function openDatingInvitationModal(scene, targetCharId) {
-  const modal = document.getElementById('dating-payment-modal');
-  document.getElementById('dating-modal-scene-name').textContent = scene.name;
-  document.getElementById('dating-modal-scene-cost').textContent = `预计花费: ${scene.cost}金币`;
+  const modal = document.getElementById("dating-payment-modal");
+  document.getElementById("dating-modal-scene-name").textContent = scene.name;
+  document.getElementById("dating-modal-scene-cost").textContent =
+    `预计花费: ${scene.cost}金币`;
 
-  const optionsContainer = document.getElementById('dating-payment-options');
-  optionsContainer.innerHTML = ''; // 清空旧按钮
+  const optionsContainer = document.getElementById("dating-payment-options");
+  optionsContainer.innerHTML = ""; // 清空旧按钮
 
   const chat = state.chats[targetCharId];
   if (!chat) return;
 
   // 创建"我来付全款"按钮
-  const userPayBtn = document.createElement('button');
-  userPayBtn.className = 'form-button';
-  userPayBtn.textContent = '我来付全款';
+  const userPayBtn = document.createElement("button");
+  userPayBtn.className = "form-button";
+  userPayBtn.textContent = "我来付全款";
   userPayBtn.onclick = async () => {
     const userBalance = state.globalSettings.userBalance || 0;
     // 检查用户余额是否足够
     if (userBalance < scene.cost) {
-      await showCustomAlert('余额不足', '你的钱包空空如也，无法支付这次约会的花费！');
+      await showCustomAlert(
+        "余额不足",
+        "你的钱包空空如也，无法支付这次约会的花费！",
+      );
       return;
     }
     // 扣除用户余额并记录交易
-    await updateUserBalanceAndLogTransaction(-scene.cost, `约会支出: ${scene.name}`);
-    await showCustomAlert('支付成功', `已成功支付 ${scene.cost}金币！`);
-    modal.classList.remove('visible');
-    startDatingScene(scene, targetCharId, 'user'); // 记录由user支付
+    await updateUserBalanceAndLogTransaction(
+      -scene.cost,
+      `约会支出: ${scene.name}`,
+    );
+    await showCustomAlert("支付成功", `已成功支付 ${scene.cost}金币！`);
+    modal.classList.remove("visible");
+    startDatingScene(scene, targetCharId, "user"); // 记录由user支付
   };
   optionsContainer.appendChild(userPayBtn);
 
   // 创建"让对方付全款"按钮
-  const charPayBtn = document.createElement('button');
-  charPayBtn.className = 'form-button';
+  const charPayBtn = document.createElement("button");
+  charPayBtn.className = "form-button";
   charPayBtn.textContent = `让 ${chat.name} 付全款`;
   charPayBtn.onclick = async () => {
     const charBalance = chat.characterPhoneData?.bank?.balance || 0;
     // 检查角色余额是否足够
     if (charBalance < scene.cost) {
-      await showCustomAlert('对方余额不足', `"${chat.name}"的钱包好像不够支付这次约会的费用哦。`);
+      await showCustomAlert(
+        "对方余额不足",
+        `"${chat.name}"的钱包好像不够支付这次约会的费用哦。`,
+      );
       return;
     }
     // 扣除角色余额并记录交易
-    await updateCharacterPhoneBankBalance(targetCharId, -scene.cost, `约会支出: ${scene.name}`);
-    await showCustomAlert('支付成功', `"${chat.name}"爽快地买单了！`);
-    modal.classList.remove('visible');
-    startDatingScene(scene, targetCharId, 'char'); // 记录由char支付
+    await updateCharacterPhoneBankBalance(
+      targetCharId,
+      -scene.cost,
+      `约会支出: ${scene.name}`,
+    );
+    await showCustomAlert("支付成功", `"${chat.name}"爽快地买单了！`);
+    modal.classList.remove("visible");
+    startDatingScene(scene, targetCharId, "char"); // 记录由char支付
   };
   optionsContainer.appendChild(charPayBtn);
 
   // 创建"AA制"按钮
-  const aaPayBtn = document.createElement('button');
-  aaPayBtn.className = 'form-button';
-  aaPayBtn.textContent = '我们AA制吧';
+  const aaPayBtn = document.createElement("button");
+  aaPayBtn.className = "form-button";
+  aaPayBtn.textContent = "我们AA制吧";
   aaPayBtn.onclick = async () => {
     const splitCost = scene.cost / 2;
     const userBalance = state.globalSettings.userBalance || 0;
@@ -370,41 +453,54 @@ async function openDatingInvitationModal(scene, targetCharId) {
 
     // 检查双方余额是否足够
     if (userBalance < splitCost) {
-      await showCustomAlert('余额不足', '你的钱包不够支付AA的费用哦！');
+      await showCustomAlert("余额不足", "你的钱包不够支付AA的费用哦！");
       return;
     }
     if (charBalance < splitCost) {
-      await showCustomAlert('对方余额不足', `"${chat.name}"的钱包不够支付AA的费用哦。`);
+      await showCustomAlert(
+        "对方余额不足",
+        `"${chat.name}"的钱包不够支付AA的费用哦。`,
+      );
       return;
     }
 
     // 扣除双方余额并记录交易
-    await updateUserBalanceAndLogTransaction(-splitCost, `约会AA支出: ${scene.name}`);
-    await updateCharacterPhoneBankBalance(targetCharId, -splitCost, `约会AA支出: ${scene.name}`);
+    await updateUserBalanceAndLogTransaction(
+      -splitCost,
+      `约会AA支出: ${scene.name}`,
+    );
+    await updateCharacterPhoneBankBalance(
+      targetCharId,
+      -splitCost,
+      `约会AA支出: ${scene.name}`,
+    );
 
-    await showCustomAlert('支付成功', `你们愉快地决定AA制！`);
-    modal.classList.remove('visible');
-    startDatingScene(scene, targetCharId, 'aa'); // 记录为AA制
+    await showCustomAlert("支付成功", `你们愉快地决定AA制！`);
+    modal.classList.remove("visible");
+    startDatingScene(scene, targetCharId, "aa"); // 记录为AA制
   };
   optionsContainer.appendChild(aaPayBtn);
 
   // 创建"找人借钱"按钮（如果存在其他角色）
-  const otherChars = Object.values(state.chats).filter(c => !c.isGroup && c.id !== targetCharId);
+  const otherChars = Object.values(state.chats).filter(
+    (c) => !c.isGroup && c.id !== targetCharId,
+  );
   if (otherChars.length > 0) {
-    const borrowBtn = document.createElement('button');
-    borrowBtn.className = 'form-button';
-    borrowBtn.textContent = '我钱不够，找别人借点...';
+    const borrowBtn = document.createElement("button");
+    borrowBtn.className = "form-button";
+    borrowBtn.textContent = "我钱不够，找别人借点...";
     borrowBtn.onclick = () => {
-      modal.classList.remove('visible');
+      modal.classList.remove("visible");
       openBorrowMoneyModal(scene, targetCharId);
     };
     optionsContainer.appendChild(borrowBtn);
   }
 
   // 绑定取消按钮
-  document.getElementById('dating-cancel-btn').onclick = () => modal.classList.remove('visible');
+  document.getElementById("dating-cancel-btn").onclick = () =>
+    modal.classList.remove("visible");
   // 显示弹窗
-  modal.classList.add('visible');
+  modal.classList.add("visible");
 }
 
 /**
@@ -418,17 +514,23 @@ async function handleUserPaysForDate(scene, targetCharId) {
 
   // 检查用户余额是否足够
   if (userBalance < cost) {
-    await showCustomAlert('余额不足', '你的钱包空空如也，无法支付这次约会的花费！');
+    await showCustomAlert(
+      "余额不足",
+      "你的钱包空空如也，无法支付这次约会的花费！",
+    );
     return;
   }
 
   // 扣除用户余额并记录交易
   await updateUserBalanceAndLogTransaction(-cost, `约会支出: ${scene.name}`);
-  await showCustomAlert('支付成功', `已成功支付 ${cost}金币！现在可以开始你们的约会了。`);
+  await showCustomAlert(
+    "支付成功",
+    `已成功支付 ${cost}金币！现在可以开始你们的约会了。`,
+  );
 
   // 创建系统消息通知AI约会开始
   const hiddenMessage = {
-    role: 'system',
+    role: "system",
     content: `[系统提示：用户已为约会"${scene.name}"付款，花费${cost}金币。现在约会正式开始，请根据场景和人设，开启一段浪漫的约会对话。]`,
     timestamp: Date.now(),
     isHidden: true,
@@ -455,7 +557,7 @@ async function requestCharToPay(scene, targetCharId) {
 
   // 创建系统指令消息请求AI决定是否支付
   const hiddenMessage = {
-    role: 'system',
+    role: "system",
     content: `[系统指令：用户邀请你进行约会"${
       scene.name
     }"，并希望由你来支付全部费用（${cost}金币）。你的钱包余额是 ${chat.characterPhoneData.bank.balance.toFixed(
@@ -470,7 +572,10 @@ async function requestCharToPay(scene, targetCharId) {
   await db.chats.put(chat);
 
   // 通知用户请求已发送
-  await showCustomAlert('请求已发送', `已向 ${chat.name} 发出请求，请到聊天中查看Ta的回应吧。`);
+  await showCustomAlert(
+    "请求已发送",
+    `已向 ${chat.name} 发出请求，请到聊天中查看Ta的回应吧。`,
+  );
   openChat(targetCharId);
   triggerAiResponse();
 }
@@ -487,13 +592,16 @@ async function requestAAsplit(scene, targetCharId) {
   const userBalance = state.globalSettings.userBalance || 0;
   // 检查用户余额是否足够支付AA费用
   if (userBalance < splitCost) {
-    await showCustomAlert('余额不足', `你的余额不足以支付AA制的费用（${splitCost.toFixed(2)}金币）！`);
+    await showCustomAlert(
+      "余额不足",
+      `你的余额不足以支付AA制的费用（${splitCost.toFixed(2)}金币）！`,
+    );
     return;
   }
 
   // 创建系统指令消息请求AI决定是否接受AA制
   const hiddenMessage = {
-    role: 'system',
+    role: "system",
     content: `[系统指令：用户邀请你进行约会"${scene.name}"，并提议AA制，即各自支付 ${splitCost.toFixed(
       2,
     )} 金币。你的钱包余额是 ${chat.characterPhoneData.bank.balance.toFixed(
@@ -508,7 +616,10 @@ async function requestAAsplit(scene, targetCharId) {
   await db.chats.put(chat);
 
   // 通知用户请求已发送
-  await showCustomAlert('请求已发送', `已向 ${chat.name} 发出AA制的提议，请到聊天中查看Ta的回应吧。`);
+  await showCustomAlert(
+    "请求已发送",
+    `已向 ${chat.name} 发出AA制的提议，请到聊天中查看Ta的回应吧。`,
+  );
   openChat(targetCharId);
   triggerAiResponse();
 }
@@ -519,46 +630,59 @@ async function requestAAsplit(scene, targetCharId) {
  * @param {string} dateTargetCharId - 你的约会对象ID
  */
 async function openBorrowMoneyModal(scene, dateTargetCharId) {
-  const modal = document.getElementById('borrow-money-modal');
-  const listEl = document.getElementById('borrow-money-char-list');
-  listEl.innerHTML = '';
+  const modal = document.getElementById("borrow-money-modal");
+  const listEl = document.getElementById("borrow-money-char-list");
+  listEl.innerHTML = "";
 
   // 获取除约会对象外的其他角色
-  const otherChars = Object.values(state.chats).filter(c => !c.isGroup && c.id !== dateTargetCharId);
+  const otherChars = Object.values(state.chats).filter(
+    (c) => !c.isGroup && c.id !== dateTargetCharId,
+  );
 
   // 检查是否存在可借款角色
   if (otherChars.length === 0) {
-    alert('没有其他可以借钱的朋友了。');
+    alert("没有其他可以借钱的朋友了。");
     return;
   }
 
   // 为每个可借款角色创建列表项
-  otherChars.forEach(char => {
-    const item = document.createElement('div');
-    item.className = 'character-select-item'; // 复用样式
+  otherChars.forEach((char) => {
+    const item = document.createElement("div");
+    item.className = "character-select-item"; // 复用样式
     item.dataset.charId = char.id;
     item.innerHTML = `
                             <img src="${char.settings.aiAvatar || defaultAvatar}" alt="${char.name}">
                             <span class="name">${char.name}</span>
                         `;
-    item.addEventListener('click', async () => {
-      modal.classList.remove('visible');
+    item.addEventListener("click", async () => {
+      modal.classList.remove("visible");
       // 获取用户输入的借款金额
-      const borrowAmountStr = await showCustomPrompt('借多少？', '请输入你想借的金额', '', 'number');
+      const borrowAmountStr = await showCustomPrompt(
+        "借多少？",
+        "请输入你想借的金额",
+        "",
+        "number",
+      );
       const borrowAmount = parseFloat(borrowAmountStr);
       // 验证借款金额有效性
       if (borrowAmount > 0) {
-        await requestToBorrowMoney(scene, dateTargetCharId, char.id, borrowAmount);
+        await requestToBorrowMoney(
+          scene,
+          dateTargetCharId,
+          char.id,
+          borrowAmount,
+        );
       } else if (borrowAmountStr !== null) {
-        alert('请输入有效的借款金额！');
+        alert("请输入有效的借款金额！");
       }
     });
     listEl.appendChild(item);
   });
 
   // 绑定取消按钮
-  document.getElementById('borrow-money-cancel-btn').onclick = () => modal.classList.remove('visible');
-  modal.classList.add('visible');
+  document.getElementById("borrow-money-cancel-btn").onclick = () =>
+    modal.classList.remove("visible");
+  modal.classList.add("visible");
 }
 
 /**
@@ -568,12 +692,17 @@ async function openBorrowMoneyModal(scene, dateTargetCharId) {
  * @param {string} lenderChatId - 借款人角色ID
  * @param {number} amount - 借款金额
  */
-async function requestToBorrowMoney(scene, dateTargetCharId, lenderChatId, amount) {
+async function requestToBorrowMoney(
+  scene,
+  dateTargetCharId,
+  lenderChatId,
+  amount,
+) {
   const dateTargetChat = state.chats[dateTargetCharId];
   const lenderChat = state.chats[lenderChatId];
   if (!lenderChat || !dateTargetChat) return;
 
-  const myNickname = dateTargetChat.settings.myNickname || '我';
+  const myNickname = dateTargetChat.settings.myNickname || "我";
 
   // 构建借款请求信息
   const reasonText = `用于和"${dateTargetChat.name}"在"${scene.name}"的约会。`;
@@ -587,8 +716,8 @@ async function requestToBorrowMoney(scene, dateTargetCharId, lenderChatId, amoun
 
   // 创建借款请求消息对象
   const borrowRequestMessage = {
-    role: 'user',
-    type: 'borrow_money_request',
+    role: "user",
+    type: "borrow_money_request",
     timestamp: Date.now(),
     payload: payloadData, // payload 用于渲染借条卡片
     content: textContent, // content 用于显示为文本消息
@@ -599,7 +728,7 @@ async function requestToBorrowMoney(scene, dateTargetCharId, lenderChatId, amoun
 
   // 创建给AI看的、带有详细信息的隐藏指令
   const hiddenMessage = {
-    role: 'system',
+    role: "system",
     content: `[系统指令：用户 "${myNickname}" 想向你借 ${amount.toFixed(2)} 金币，用于和 "${dateTargetChat.name}" 在 "${
       scene.name
     }" 约会。你的钱包余额是 ${lenderChat.characterPhoneData.bank.balance.toFixed(
@@ -612,7 +741,10 @@ async function requestToBorrowMoney(scene, dateTargetCharId, lenderChatId, amoun
   await db.chats.put(lenderChat);
 
   // 通知用户请求已发送
-  await showCustomAlert('借钱请求已发送', `已向"${lenderChat.name}"发起了借款请求，请到和Ta的聊天中查看结果。`);
+  await showCustomAlert(
+    "借钱请求已发送",
+    `已向"${lenderChat.name}"发起了借款请求，请到和Ta的聊天中查看结果。`,
+  );
 
   // 打开与"债主"的聊天并触发回应
   openChat(lenderChatId);
@@ -627,7 +759,7 @@ let datingGameState = {
   storyHistory: [],
   romance: 0,
   lust: 0,
-  currentStoryText: '',
+  currentStoryText: "",
   currentSentenceIndex: -1,
   sentences: [],
   isSwitchingSentence: false,
@@ -643,20 +775,20 @@ let currentDatingSummary = null; // 用于暂存当前结算卡片的数据
  * 使用SVG线性渐变实现动态填充效果
  */
 function renderDatingValues() {
-  const romanceContainer = document.getElementById('romance-value');
-  const lustContainer = document.getElementById('lust-value');
+  const romanceContainer = document.getElementById("romance-value");
+  const lustContainer = document.getElementById("lust-value");
   if (!romanceContainer || !lustContainer) return;
 
   // 清空旧的心形
-  romanceContainer.innerHTML = '';
-  lustContainer.innerHTML = '';
+  romanceContainer.innerHTML = "";
+  lustContainer.innerHTML = "";
 
   // 渲染单个数值条的辅助函数
   const renderValueBar = (container, value, type) => {
     // 定义颜色：粉色代表浪漫，黄色代表性欲
-    const fillColor = type === 'romance' ? '#ff8fab' : '#ffde59';
-    const emptyColor = '#ccc';
-    const emptyOpacity = '0.3';
+    const fillColor = type === "romance" ? "#ff8fab" : "#ffde59";
+    const emptyColor = "#ccc";
+    const emptyOpacity = "0.3";
 
     for (let i = 0; i < 5; i++) {
       // 计算当前心形的填充百分比
@@ -684,8 +816,8 @@ function renderDatingValues() {
   };
 
   // 渲染浪漫值和性欲值两个数值条
-  renderValueBar(romanceContainer, datingGameState.romance, 'romance');
-  renderValueBar(lustContainer, datingGameState.lust, 'lust');
+  renderValueBar(romanceContainer, datingGameState.romance, "romance");
+  renderValueBar(lustContainer, datingGameState.lust, "lust");
 }
 
 /**
@@ -695,8 +827,8 @@ function renderDatingValues() {
  */
 async function startDatingScene(scene, targetCharId) {
   stopDatingBgm(); // 确保开始新约会时，旧的BGM已停止
-  const bgmBtn = document.getElementById('dating-bgm-btn');
-  if (bgmBtn) bgmBtn.style.display = 'inline-flex'; // 显示BGM按钮
+  const bgmBtn = document.getElementById("dating-bgm-btn");
+  if (bgmBtn) bgmBtn.style.display = "inline-flex"; // 显示BGM按钮
   console.log(`开始约会: 场景="${scene.name}", 角色ID=${targetCharId}`);
 
   // 初始化约会状态
@@ -707,7 +839,7 @@ async function startDatingScene(scene, targetCharId) {
     storyHistory: [],
     romance: 0,
     lust: 0,
-    currentStoryText: '',
+    currentStoryText: "",
     currentSentenceIndex: -1,
     sentences: [],
     isSwitchingSentence: false,
@@ -720,41 +852,41 @@ async function startDatingScene(scene, targetCharId) {
   if (!chat) return;
 
   // 准备UI元素
-  const backgroundEl = document.getElementById('dating-game-background');
-  const charNameEl = document.getElementById('dating-game-char-name');
-  const textContentEl = document.getElementById('dating-game-text-content');
-  const choicesEl = document.getElementById('dating-game-choices');
+  const backgroundEl = document.getElementById("dating-game-background");
+  const charNameEl = document.getElementById("dating-game-char-name");
+  const textContentEl = document.getElementById("dating-game-text-content");
+  const choicesEl = document.getElementById("dating-game-choices");
 
   // 重置UI到初始状态
   charNameEl.textContent = chat.name;
-  backgroundEl.style.backgroundImage = 'none';
-  textContentEl.innerHTML = '<p>AI正在精心构筑你们的约会世界...</p>';
+  backgroundEl.style.backgroundImage = "none";
+  textContentEl.innerHTML = "<p>AI正在精心构筑你们的约会世界...</p>";
   textContentEl.parentElement.style.opacity = 1;
-  choicesEl.innerHTML = '';
+  choicesEl.innerHTML = "";
 
   // 显示游戏界面
-  showScreen('dating-game-screen');
+  showScreen("dating-game-screen");
 
   // 加载背景图
   const uiSettings = chat.settings.datingUISettings || {};
 
   // 优先使用用户设置的背景
   if (uiSettings.backgroundUrl) {
-    console.log('检测到自定义约会背景，正在加载...');
+    console.log("检测到自定义约会背景，正在加载...");
     backgroundEl.style.backgroundImage = `url(${uiSettings.backgroundUrl})`;
   } else {
     // 如果没有设置，调用AI生成
-    console.log('未检测到自定义背景，将由AI生成...');
+    console.log("未检测到自定义背景，将由AI生成...");
     const imagePrompt =
       scene.imagePrompt +
-      ', vertical, phone wallpaper, cinematic lighting, masterpiece, best quality, beautiful anime style art';
+      ", vertical, phone wallpaper, cinematic lighting, masterpiece, best quality, beautiful anime style art";
     generateAndLoadImage(imagePrompt)
-      .then(imageUrl => {
+      .then((imageUrl) => {
         backgroundEl.style.backgroundImage = `url(${imageUrl})`;
       })
-      .catch(error => {
-        console.error('约会背景图加载失败:', error);
-        backgroundEl.style.backgroundColor = '#1c1e26'; // 失败时的备用背景
+      .catch((error) => {
+        console.error("约会背景图加载失败:", error);
+        backgroundEl.style.backgroundColor = "#1c1e26"; // 失败时的备用背景
       });
   }
 
@@ -763,21 +895,22 @@ async function startDatingScene(scene, targetCharId) {
   datingGameState.lust = 0;
   datingGameState.completion = 0;
   renderDatingCompletion();
-  document.getElementById('dating-completion-bar-container').style.display = 'block';
+  document.getElementById("dating-completion-bar-container").style.display =
+    "block";
   renderDatingValues();
-  document.getElementById('dating-values-container').style.display = 'flex';
+  document.getElementById("dating-values-container").style.display = "flex";
 
   // 触发初始剧情
-  await triggerDatingStory('start');
+  await triggerDatingStory("start");
 }
 
 /**
  * 渲染并更新约会完成度进度条的UI
  */
 function renderDatingCompletion() {
-  const container = document.getElementById('dating-completion-bar-container');
-  const fill = document.getElementById('dating-completion-bar-fill');
-  const text = document.getElementById('dating-completion-text');
+  const container = document.getElementById("dating-completion-bar-container");
+  const fill = document.getElementById("dating-completion-bar-fill");
+  const text = document.getElementById("dating-completion-text");
 
   if (!container || !fill || !text) return;
 
@@ -794,26 +927,29 @@ function renderDatingCompletion() {
  * 打开BGM选择和控制面板
  */
 function openDatingBgmModal() {
-  const modal = document.getElementById('dating-bgm-modal');
-  const playlistEl = document.getElementById('dating-bgm-playlist');
-  playlistEl.innerHTML = '';
+  const modal = document.getElementById("dating-bgm-modal");
+  const playlistEl = document.getElementById("dating-bgm-playlist");
+  playlistEl.innerHTML = "";
 
   // ▼▼▼ 核心修改：从全局的 window.state.musicState 中读取播放列表 ▼▼▼
   const playlist = window.state.musicState?.playlist || [];
 
   // 过滤掉用于后台保活的特殊音轨
-  const playablePlaylist = playlist.filter(track => !track.isKeepAlive);
+  const playablePlaylist = playlist.filter((track) => !track.isKeepAlive);
 
   if (playablePlaylist.length === 0) {
     playlistEl.innerHTML =
       '<p style="text-align:center; color:#888; padding:20px;">“一起听”曲库是空的，请先去添加歌曲。</p>';
   } else {
-    playablePlaylist.forEach(track => {
-      const item = document.createElement('div');
-      item.className = 'dating-bgm-item';
+    playablePlaylist.forEach((track) => {
+      const item = document.createElement("div");
+      item.className = "dating-bgm-item";
       // 如果这首歌正在播放，就高亮它
-      if (datingGameState.currentBgm && datingGameState.currentBgm.src === track.src) {
-        item.classList.add('playing');
+      if (
+        datingGameState.currentBgm &&
+        datingGameState.currentBgm.src === track.src
+      ) {
+        item.classList.add("playing");
       }
       item.innerHTML = `
                 <div class="title">${track.name}</div>
@@ -830,26 +966,33 @@ function openDatingBgmModal() {
   }
 
   // 设置音量条的初始值
-  const volumeSlider = document.getElementById('dating-bgm-volume-slider');
-  bgmPlayer.volume = parseFloat(localStorage.getItem('datingBgmVolume')) || 1.0; // 读取保存的音量
+  const volumeSlider = document.getElementById("dating-bgm-volume-slider");
+  bgmPlayer.volume = parseFloat(localStorage.getItem("datingBgmVolume")) || 1.0; // 读取保存的音量
   volumeSlider.value = bgmPlayer.volume;
-  document.getElementById('dating-bgm-volume-value').textContent = `${Math.round(bgmPlayer.volume * 100)}%`;
+  document.getElementById("dating-bgm-volume-value").textContent =
+    `${Math.round(bgmPlayer.volume * 100)}%`;
 
-  modal.classList.add('visible');
+  modal.classList.add("visible");
 }
 
 /**
  * （辅助函数）重新渲染BGM播放列表以更新高亮状态
  */
 function renderDatingBgmPlaylist() {
-  const playlistEl = document.getElementById('dating-bgm-playlist');
-  playlistEl.querySelectorAll('.dating-bgm-item').forEach(item => {
-    const trackSrc = item.querySelector('.title').textContent; // 简化处理，实际应存data-*
-    const track = (window.musicState?.playlist || []).find(t => t.name === trackSrc);
-    if (track && datingGameState.currentBgm && datingGameState.currentBgm.src === track.src) {
-      item.classList.add('playing');
+  const playlistEl = document.getElementById("dating-bgm-playlist");
+  playlistEl.querySelectorAll(".dating-bgm-item").forEach((item) => {
+    const trackSrc = item.querySelector(".title").textContent; // 简化处理，实际应存data-*
+    const track = (window.musicState?.playlist || []).find(
+      (t) => t.name === trackSrc,
+    );
+    if (
+      track &&
+      datingGameState.currentBgm &&
+      datingGameState.currentBgm.src === track.src
+    ) {
+      item.classList.add("playing");
     } else {
-      item.classList.remove('playing');
+      item.classList.remove("playing");
     }
   });
 }
@@ -861,7 +1004,7 @@ function renderDatingBgmPlaylist() {
  */
 function playDatingBgm(src, name) {
   bgmPlayer.src = src;
-  bgmPlayer.play().catch(e => console.error('BGM播放失败:', e));
+  bgmPlayer.play().catch((e) => console.error("BGM播放失败:", e));
   datingGameState.currentBgm = { src, name };
   console.log(`约会BGM开始播放: ${name}`);
 }
@@ -871,7 +1014,9 @@ function playDatingBgm(src, name) {
  */
 function playRandomDatingBgm() {
   // ▼▼▼ 核心修改：从全局的 window.state.musicState 中读取播放列表 ▼▼▼
-  const playablePlaylist = (window.state.musicState?.playlist || []).filter(track => !track.isKeepAlive);
+  const playablePlaylist = (window.state.musicState?.playlist || []).filter(
+    (track) => !track.isKeepAlive,
+  );
 
   if (playablePlaylist.length > 0) {
     const randomIndex = Math.floor(Math.random() * playablePlaylist.length);
@@ -880,7 +1025,7 @@ function playRandomDatingBgm() {
     // 随机播放后，也需要刷新列表UI以高亮当前播放的歌曲
     openDatingBgmModal();
   } else {
-    alert('“一起听”曲库是空的，无法随机播放。');
+    alert("“一起听”曲库是空的，无法随机播放。");
   }
 }
 
@@ -889,11 +1034,13 @@ function playRandomDatingBgm() {
  */
 function stopDatingBgm() {
   bgmPlayer.pause();
-  bgmPlayer.src = '';
+  bgmPlayer.src = "";
   datingGameState.currentBgm = null;
-  console.log('约会BGM已停止。');
+  console.log("约会BGM已停止。");
   // 停止后也刷新列表，移除所有高亮
-  if (document.getElementById('dating-bgm-modal').classList.contains('visible')) {
+  if (
+    document.getElementById("dating-bgm-modal").classList.contains("visible")
+  ) {
     renderDatingBgmPlaylist();
   }
 }
@@ -904,9 +1051,10 @@ function stopDatingBgm() {
  */
 function setDatingBgmVolume(volume) {
   bgmPlayer.volume = volume;
-  document.getElementById('dating-bgm-volume-value').textContent = `${Math.round(volume * 100)}%`;
+  document.getElementById("dating-bgm-volume-value").textContent =
+    `${Math.round(volume * 100)}%`;
   // ▼▼▼ 新增：将音量设置保存到 localStorage ▼▼▼
-  localStorage.setItem('datingBgmVolume', volume);
+  localStorage.setItem("datingBgmVolume", volume);
 }
 
 /**
@@ -921,27 +1069,28 @@ async function triggerDatingStory(userAction) {
   const chat = state.chats[characterId];
   const { proxyUrl, apiKey, model } = state.apiConfig;
   if (!proxyUrl || !apiKey || !model) {
-    alert('API未配置，无法继续约会。');
+    alert("API未配置，无法继续约会。");
     return;
   }
 
   // 记录用户选择到历史中
-  if (userAction !== 'start') {
+  if (userAction !== "start") {
     storyHistory.push(`【你的选择】: ${userAction}`);
   }
 
-  const textContentEl = document.getElementById('dating-game-text-content');
-  const choicesEl = document.getElementById('dating-game-choices');
+  const textContentEl = document.getElementById("dating-game-text-content");
+  const choicesEl = document.getElementById("dating-game-choices");
   // 1. 获取角色的核心设定和最近聊天记录
-  const myNickname = chat.settings.myNickname || '我';
+  const myNickname = chat.settings.myNickname || "我";
   const recentChatHistory = chat.history
-    .filter(msg => !msg.isHidden)
+    .filter((msg) => !msg.isHidden)
     .slice(-10) // 获取最近10条
-    .map(msg => {
-      const sender = msg.role === 'user' ? myNickname : msg.senderName || chat.name;
-      return `${sender}: ${String(msg.content || '').substring(0, 50)}...`;
+    .map((msg) => {
+      const sender =
+        msg.role === "user" ? myNickname : msg.senderName || chat.name;
+      return `${sender}: ${String(msg.content || "").substring(0, 50)}...`;
     })
-    .join('\n');
+    .join("\n");
 
   const recentChatContext = `
 # 最近聊天记录摘要 (这是你们约会前的对话，供你参考)
@@ -949,7 +1098,7 @@ ${recentChatHistory}
 `;
 
   // 2. 获取所有需要加载的世界书内容
-  let worldBookContext = '';
+  let worldBookContext = "";
   const allWorldBookIds = new Set([
     ...(chat.settings.linkedWorldBookIds || []), // 角色自身绑定的世界书
     ...(chat.settings.datingUISettings?.linkedWorldBookIds || []),
@@ -958,13 +1107,17 @@ ${recentChatHistory}
 
   if (allWorldBookIds.size > 0) {
     const linkedContents = Array.from(allWorldBookIds)
-      .map(bookId => {
+      .map((bookId) => {
         // 注意：这里的 state.worldBooks 需要能被 date.js 访问，请确保它在 main-app.js 中是全局的
-        const worldBook = window.state.worldBooks.find(wb => wb.id === bookId);
-        return worldBook && worldBook.content ? `\n## 世界书: ${worldBook.name}\n${worldBook.content}` : '';
+        const worldBook = window.state.worldBooks.find(
+          (wb) => wb.id === bookId,
+        );
+        return worldBook && worldBook.content
+          ? `\n## 世界书: ${worldBook.name}\n${worldBook.content}`
+          : "";
       })
       .filter(Boolean)
-      .join('\n');
+      .join("\n");
 
     if (linkedContents) {
       worldBookContext = `\n# 核心世界观设定 (你必须严格遵守)\n${linkedContents}\n`;
@@ -974,27 +1127,30 @@ ${recentChatHistory}
   // 新增代码块结束 ▲▲▲
 
   // 显示等待状态
-  textContentEl.innerHTML = '<p><i>对方正在思考...</i></p>';
-  choicesEl.innerHTML = '';
+  textContentEl.innerHTML = "<p><i>对方正在思考...</i></p>";
+  choicesEl.innerHTML = "";
 
   // 获取角色立绘信息
   const uiSettings = chat.settings.datingUISettings || {};
-  const customPrompt = uiSettings.prompt || '';
+  const customPrompt = uiSettings.prompt || "";
   const customStyle =
     uiSettings.style ||
-    '你的回复必须是【第三人称】的旁白，详细描绘场景、角色的动作、神态、心理活动以及对话。让用户感觉像在看小说。';
+    "你的回复必须是【第三人称】的旁白，详细描绘场景、角色的动作、神态、心理活动以及对话。让用户感觉像在看小说。";
 
-  let spriteContext = '';
-  let spriteChoiceInstruction = '';
+  let spriteContext = "";
+  let spriteChoiceInstruction = "";
   const spriteGroupId = uiSettings.spriteGroupId;
 
   if (spriteGroupId) {
-    const sprites = await db.datingSprites.where('groupId').equals(spriteGroupId).toArray();
+    const sprites = await db.datingSprites
+      .where("groupId")
+      .equals(spriteGroupId)
+      .toArray();
     if (sprites.length > 0) {
       spriteContext = `
                 # 可用角色立绘
                 你有一个立绘库，请根据当前情景选择一个最能表达角色“${chat.name}”心情和动作的立绘描述。
-                - ${sprites.map(s => `[描述: ${s.description}]`).join('\n- ')}
+                - ${sprites.map((s) => `[描述: ${s.description}]`).join("\n- ")}
                 `;
       spriteChoiceInstruction = `"sprite": "【从上方列表中选择一个最合适的描述，并填在这里】",`;
     }
@@ -1045,33 +1201,46 @@ ${recentChatHistory}
                             "isDateOver": false
                             }
                         ## 故事历史 (供你参考)
-                        ${storyHistory.join('\n')}
+                        ${storyHistory.join("\n")}
                         现在，请根据用户的最新选择“${userAction}”，生成下一段故事、新的选项和智能评分。
                     `;
 
   try {
-    const messagesForApi = [{ role: 'user', content: systemPrompt }];
+    const messagesForApi = [{ role: "user", content: systemPrompt }];
     let isGemini = proxyUrl === GEMINI_API_URL;
-    let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      systemPrompt,
+      messagesForApi,
+      isGemini,
+    );
 
     const response = isGemini
       ? await fetch(geminiConfig.url, geminiConfig.data)
       : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
           body: JSON.stringify({
             model: model,
             messages: messagesForApi,
             temperature: 0.9,
-            response_format: { type: 'json_object' },
+            response_format: { type: "json_object" },
           }),
         });
 
     if (!response.ok) throw new Error(`API 请求失败: ${await response.text()}`);
 
     const data = await response.json();
-    const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content)
-      .replace(/^```json\s*|```$/g, '')
+    const rawContent = (
+      isGemini
+        ? data.candidates[0].content.parts[0].text
+        : data.choices[0].message.content
+    )
+      .replace(/^```json\s*|```$/g, "")
       .trim();
     const gameData = JSON.parse(rawContent);
 
@@ -1081,11 +1250,21 @@ ${recentChatHistory}
       if (gameData.valuesUpdate) {
         const romanceChange = gameData.valuesUpdate.romance || 0;
         const lustChange = gameData.valuesUpdate.lust || 0;
-        const completionIncrease = gameData.valuesUpdate.completion_increase || 0;
+        const completionIncrease =
+          gameData.valuesUpdate.completion_increase || 0;
 
-        datingGameState.romance = Math.max(0, Math.min(100, datingGameState.romance + romanceChange));
-        datingGameState.lust = Math.max(0, Math.min(100, datingGameState.lust + lustChange));
-        datingGameState.completion = Math.max(0, Math.min(100, datingGameState.completion + completionIncrease));
+        datingGameState.romance = Math.max(
+          0,
+          Math.min(100, datingGameState.romance + romanceChange),
+        );
+        datingGameState.lust = Math.max(
+          0,
+          Math.min(100, datingGameState.lust + lustChange),
+        );
+        datingGameState.completion = Math.max(
+          0,
+          Math.min(100, datingGameState.completion + completionIncrease),
+        );
 
         console.log(
           `数值更新 -> 浪漫: ${datingGameState.romance}/100, 性欲: ${datingGameState.lust}/100, 完成度: ${datingGameState.completion}% (本次变化: ${completionIncrease})`,
@@ -1104,14 +1283,16 @@ ${recentChatHistory}
       }
 
       // 更新立绘
-      const spriteContainer = document.getElementById('dating-game-sprite-container');
-      const spriteImg = document.getElementById('dating-game-sprite');
+      const spriteContainer = document.getElementById(
+        "dating-game-sprite-container",
+      );
+      const spriteImg = document.getElementById("dating-game-sprite");
       if (gameData.sprite && spriteGroupId) {
         const chosenSprite = await db.datingSprites
           .where({ groupId: spriteGroupId, description: gameData.sprite })
           .first();
         if (chosenSprite) {
-          spriteContainer.style.display = 'block';
+          spriteContainer.style.display = "block";
           spriteContainer.style.left = `${chosenSprite.x}%`;
           spriteContainer.style.bottom = `${100 - chosenSprite.y}%`;
           spriteContainer.style.width = `${chosenSprite.size}%`;
@@ -1122,10 +1303,10 @@ ${recentChatHistory}
             spriteImg.style.opacity = 1;
           }, 300);
         } else {
-          if (spriteContainer) spriteContainer.style.display = 'none';
+          if (spriteContainer) spriteContainer.style.display = "none";
         }
       } else {
-        if (spriteContainer) spriteContainer.style.display = 'none';
+        if (spriteContainer) spriteContainer.style.display = "none";
       }
 
       // 记录故事并显示
@@ -1137,10 +1318,10 @@ ${recentChatHistory}
         await triggerNsfwScene();
       }
     } else {
-      throw new Error('AI返回的数据格式不正确。');
+      throw new Error("AI返回的数据格式不正确。");
     }
   } catch (error) {
-    console.error('约会剧情生成失败:', error);
+    console.error("约会剧情生成失败:", error);
     textContentEl.innerHTML = `<p style="color: #ff8a80;">错误: 剧情加载失败，AI可能开小差了... \n(${error.message})</p>`;
   }
 }
@@ -1149,10 +1330,10 @@ ${recentChatHistory}
  * 当欲望值满时，触发并推进NSFW剧情
  * @param {string} userAction - 用户的选择或自定义行动
  */
-async function triggerNsfwScene(userAction = '故事自然发展') {
+async function triggerNsfwScene(userAction = "故事自然发展") {
   // 设置并确认NSFW模式标志
   datingGameState.isNsfwMode = true;
-  console.log('NSFW模式已激活，正在生成NSFW剧情...');
+  console.log("NSFW模式已激活，正在生成NSFW剧情...");
 
   if (!datingGameState.isActive) return;
 
@@ -1161,37 +1342,40 @@ async function triggerNsfwScene(userAction = '故事自然发展') {
   const chat = state.chats[characterId];
   const { proxyUrl, apiKey, model } = state.apiConfig;
   if (!proxyUrl || !apiKey || !model) {
-    alert('API未配置，无法继续约会。');
+    alert("API未配置，无法继续约会。");
     return;
   }
 
   storyHistory.push(`【你的选择】: ${userAction}`);
 
   // 更新UI为等待状态
-  const textContentEl = document.getElementById('dating-game-text-content');
-  const choicesEl = document.getElementById('dating-game-choices');
-  textContentEl.innerHTML = '<p><i>气氛变得有些不一样了...</i></p>';
-  choicesEl.innerHTML = '';
+  const textContentEl = document.getElementById("dating-game-text-content");
+  const choicesEl = document.getElementById("dating-game-choices");
+  textContentEl.innerHTML = "<p><i>气氛变得有些不一样了...</i></p>";
+  choicesEl.innerHTML = "";
 
   // 读取约会场景的通用设置
   const uiSettings = chat.settings.datingUISettings || {};
-  const customPrompt = uiSettings.prompt || '';
+  const customPrompt = uiSettings.prompt || "";
   const baseStyle =
     uiSettings.style ||
-    '你的回复必须是【第三人称】的旁白，详细描绘场景、角色的动作、神态、心理活动以及对话。让用户感觉像在看小说。';
+    "你的回复必须是【第三人称】的旁白，详细描绘场景、角色的动作、神态、心理活动以及对话。让用户感觉像在看小说。";
   const nsfwStyleInstruction = `
                 # NSFW剧情指令 (最高优先级)
                 接下来的故事【必须】包含详细、露骨、毫不避讳的性爱场面描写。你需要大胆地描绘角色的身体接触、动作、喘息、对话和内心感受，让故事进入高潮。叙事必须连贯、自然，符合角色性格。`;
   const customStyleWithNsfw = `${baseStyle}\n${nsfwStyleInstruction}`;
 
   // 立绘逻辑
-  let spriteContext = '';
-  let spriteChoiceInstruction = '';
+  let spriteContext = "";
+  let spriteChoiceInstruction = "";
   const spriteGroupId = uiSettings.spriteGroupId;
   if (spriteGroupId) {
-    const sprites = await db.datingSprites.where('groupId').equals(spriteGroupId).toArray();
+    const sprites = await db.datingSprites
+      .where("groupId")
+      .equals(spriteGroupId)
+      .toArray();
     if (sprites.length > 0) {
-      spriteContext = `\n# 可用角色立绘\n${sprites.map(s => `- [描述: ${s.description}]`).join('\n')}`;
+      spriteContext = `\n# 可用角色立绘\n${sprites.map((s) => `- [描述: ${s.description}]`).join("\n")}`;
       spriteChoiceInstruction = `"sprite": "【从上方列表中选择一个最合适的描述，并填在这里】",`;
     }
   }
@@ -1236,32 +1420,48 @@ async function triggerNsfwScene(userAction = '故事自然发展') {
                             "isDateOver": false
                             }
                         ## 故事历史 (供你参考)
-                        ${storyHistory.join('\n')}
+                        ${storyHistory.join("\n")}
 
                         现在，请根据用户的最新选择“${userAction}”，生成下一段NSFW故事、新的选项和智能评分。
                     `;
 
   try {
-    const messagesForApi = [{ role: 'user', content: systemPrompt }];
+    const messagesForApi = [{ role: "user", content: systemPrompt }];
     let isGemini = proxyUrl === GEMINI_API_URL;
-    let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      systemPrompt,
+      messagesForApi,
+      isGemini,
+    );
 
-    const response = await fetch(isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: model,
-        messages: messagesForApi,
-        temperature: 1.0,
-        response_format: { type: 'json_object' },
-      }),
-    });
+    const response = await fetch(
+      isGemini ? geminiConfig.url : `${proxyUrl}/v1/chat/completions`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: messagesForApi,
+          temperature: 1.0,
+          response_format: { type: "json_object" },
+        }),
+      },
+    );
 
     if (!response.ok) throw new Error(`API 请求失败: ${await response.text()}`);
 
     const data = await response.json();
-    const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content)
-      .replace(/^```json\s*|```$/g, '')
+    const rawContent = (
+      isGemini
+        ? data.candidates[0].content.parts[0].text
+        : data.choices[0].message.content
+    )
+      .replace(/^```json\s*|```$/g, "")
       .trim();
     const gameData = JSON.parse(rawContent);
 
@@ -1270,10 +1470,20 @@ async function triggerNsfwScene(userAction = '故事自然发展') {
       if (gameData.valuesUpdate) {
         const romanceChange = gameData.valuesUpdate.romance || 0;
         const lustChange = gameData.valuesUpdate.lust || 0;
-        const completionIncrease = gameData.valuesUpdate.completion_increase || 1;
-        datingGameState.romance = Math.max(0, Math.min(100, datingGameState.romance + romanceChange));
-        datingGameState.lust = Math.max(0, Math.min(100, datingGameState.lust + lustChange));
-        datingGameState.completion = Math.max(0, Math.min(100, datingGameState.completion + completionIncrease));
+        const completionIncrease =
+          gameData.valuesUpdate.completion_increase || 1;
+        datingGameState.romance = Math.max(
+          0,
+          Math.min(100, datingGameState.romance + romanceChange),
+        );
+        datingGameState.lust = Math.max(
+          0,
+          Math.min(100, datingGameState.lust + lustChange),
+        );
+        datingGameState.completion = Math.max(
+          0,
+          Math.min(100, datingGameState.completion + completionIncrease),
+        );
         renderDatingValues();
         renderDatingCompletion();
       }
@@ -1286,14 +1496,16 @@ async function triggerNsfwScene(userAction = '故事自然发展') {
       }
 
       // 更新立绘
-      const spriteContainer = document.getElementById('dating-game-sprite-container');
-      const spriteImg = document.getElementById('dating-game-sprite');
+      const spriteContainer = document.getElementById(
+        "dating-game-sprite-container",
+      );
+      const spriteImg = document.getElementById("dating-game-sprite");
       if (gameData.sprite && spriteGroupId) {
         const chosenSprite = await db.datingSprites
           .where({ groupId: spriteGroupId, description: gameData.sprite })
           .first();
         if (chosenSprite) {
-          spriteContainer.style.display = 'block';
+          spriteContainer.style.display = "block";
           spriteContainer.style.left = `${chosenSprite.x}%`;
           spriteContainer.style.bottom = `${100 - chosenSprite.y}%`;
           spriteContainer.style.width = `${chosenSprite.size}%`;
@@ -1304,20 +1516,20 @@ async function triggerNsfwScene(userAction = '故事自然发展') {
             spriteImg.style.opacity = 1;
           }, 300);
         } else {
-          if (spriteContainer) spriteContainer.style.display = 'none';
+          if (spriteContainer) spriteContainer.style.display = "none";
         }
       } else {
-        if (spriteContainer) spriteContainer.style.display = 'none';
+        if (spriteContainer) spriteContainer.style.display = "none";
       }
 
       // 记录故事并显示
       datingGameState.storyHistory.push(`【旁白】: ${gameData.story}`);
       displayStoryText(gameData.story, gameData.choices);
     } else {
-      throw new Error('AI返回的数据格式不正确。');
+      throw new Error("AI返回的数据格式不正确。");
     }
   } catch (error) {
-    console.error('NSFW剧情生成失败:', error);
+    console.error("NSFW剧情生成失败:", error);
     textContentEl.innerHTML = `<p style="color: #ff8a80;">错误: NSFW剧情加载失败... \n(${error.message})</p>`;
   }
 }
@@ -1329,7 +1541,9 @@ async function triggerNsfwScene(userAction = '故事自然发展') {
  */
 function displayStoryText(storyText, choices) {
   // 按标点符号分割句子
-  const sentences = storyText.match(/[^。！？\s][^。！？]*[。！？]?/g) || [storyText];
+  const sentences = storyText.match(/[^。！？\s][^。！？]*[。！？]?/g) || [
+    storyText,
+  ];
 
   // 更新游戏状态
   datingGameState.sentences = sentences;
@@ -1337,8 +1551,8 @@ function displayStoryText(storyText, choices) {
   datingGameState.choices = choices; // 暂存选项
 
   // 准备UI，但不显示选项
-  document.getElementById('dating-game-text-content').innerHTML = '';
-  document.getElementById('dating-game-choices').innerHTML = '';
+  document.getElementById("dating-game-text-content").innerHTML = "";
+  document.getElementById("dating-game-choices").innerHTML = "";
 
   // 显示第一句
   showNextSentence();
@@ -1355,25 +1569,27 @@ function showNextSentence() {
   datingGameState.isSwitchingSentence = true; // 加锁
 
   const { sentences, choices } = datingGameState;
-  const textContentEl = document.getElementById('dating-game-text-content');
-  const choicesEl = document.getElementById('dating-game-choices');
+  const textContentEl = document.getElementById("dating-game-text-content");
+  const choicesEl = document.getElementById("dating-game-choices");
   const textboxEl = textContentEl.parentElement;
 
   // 获取进度条元素
-  const progressBarContainer = document.getElementById('dating-completion-bar-container');
+  const progressBarContainer = document.getElementById(
+    "dating-completion-bar-container",
+  );
 
   // 句子索引+1
   datingGameState.currentSentenceIndex++;
   const nextIndex = datingGameState.currentSentenceIndex;
 
   // 用安全的方式移除旧的“点击继续”提示
-  const oldIndicator = textboxEl.querySelector('.continue-indicator');
+  const oldIndicator = textboxEl.querySelector(".continue-indicator");
   if (oldIndicator) {
     oldIndicator.remove();
   }
 
   // 先让旧文本淡出
-  textContentEl.classList.add('fade-out');
+  textContentEl.classList.add("fade-out");
 
   // 设定一个延迟来执行文本替换和动画
   setTimeout(() => {
@@ -1386,20 +1602,20 @@ function showNextSentence() {
       // 如果这不是最后一句...
       if (nextIndex < sentences.length - 1) {
         // 显示进度条
-        if (progressBarContainer) progressBarContainer.style.display = 'block';
+        if (progressBarContainer) progressBarContainer.style.display = "block";
 
         // 创建并添加“点击继续”的提示
-        const indicator = document.createElement('div');
-        indicator.className = 'continue-indicator';
-        indicator.textContent = '▼';
+        const indicator = document.createElement("div");
+        indicator.className = "continue-indicator";
+        indicator.textContent = "▼";
         textboxEl.appendChild(indicator);
       } else {
         // 如果是最后一句了，准备显示选项，隐藏进度条
-        if (progressBarContainer) progressBarContainer.style.display = 'none';
+        if (progressBarContainer) progressBarContainer.style.display = "none";
 
-        choices.forEach(choiceText => {
-          const choiceBtn = document.createElement('button');
-          choiceBtn.className = 'dating-game-choice-btn';
+        choices.forEach((choiceText) => {
+          const choiceBtn = document.createElement("button");
+          choiceBtn.className = "dating-game-choice-btn";
           choiceBtn.textContent = choiceText;
           choiceBtn.onclick = () => {
             if (datingGameState.isNsfwMode) {
@@ -1412,11 +1628,14 @@ function showNextSentence() {
         });
 
         // 添加“自由输入”按钮
-        const inputBtn = document.createElement('button');
-        inputBtn.className = 'dating-game-choice-btn input-action';
-        inputBtn.textContent = '自定义行动...';
+        const inputBtn = document.createElement("button");
+        inputBtn.className = "dating-game-choice-btn input-action";
+        inputBtn.textContent = "自定义行动...";
         inputBtn.onclick = async () => {
-          const userInput = await showCustomPrompt('你的行动', '请输入你想说的话或想做的事：');
+          const userInput = await showCustomPrompt(
+            "你的行动",
+            "请输入你想说的话或想做的事：",
+          );
           if (userInput && userInput.trim()) {
             if (datingGameState.isNsfwMode) {
               triggerNsfwScene(userInput.trim());
@@ -1430,7 +1649,7 @@ function showNextSentence() {
     }
 
     // 让新文本淡入
-    textContentEl.classList.remove('fade-out');
+    textContentEl.classList.remove("fade-out");
 
     // 所有操作完成后，解锁，允许下一次点击
     datingGameState.isSwitchingSentence = false;
@@ -1444,16 +1663,16 @@ async function endDate() {
   if (!datingGameState.isActive) return;
 
   // 弹出选择框，让用户决定如何结束
-  const choice = await showChoiceModal('结束约会', [
-    { text: '生成并记录约会', value: 'record' },
-    { text: '直接结束不记录', value: 'discard' },
+  const choice = await showChoiceModal("结束约会", [
+    { text: "生成并记录约会", value: "record" },
+    { text: "直接结束不记录", value: "discard" },
   ]);
 
   // 根据用户的选择执行不同操作
-  if (choice === 'record') {
+  if (choice === "record") {
     // 如果选择“记录”，就显示结算卡片
     showDatingSummaryCard();
-  } else if (choice === 'discard') {
+  } else if (choice === "discard") {
     // 如果选择“不记录”，就直接结束并返回聊天列表
     finalizeAndExitDate();
   }
@@ -1466,13 +1685,13 @@ async function endDate() {
 async function finalizeAndExitDate() {
   if (!datingGameState.isActive) return;
   stopDatingBgm(); // 结束约会时，必须停止BGM
-  const bgmBtn = document.getElementById('dating-bgm-btn');
-  if (bgmBtn) bgmBtn.style.display = 'none'; // 隐藏BGM按钮
+  const bgmBtn = document.getElementById("dating-bgm-btn");
+  if (bgmBtn) bgmBtn.style.display = "none"; // 隐藏BGM按钮
   const chat = state.chats[datingGameState.characterId];
   if (chat) {
     const endMessage = {
-      role: 'system',
-      type: 'pat_message',
+      role: "system",
+      type: "pat_message",
       content: `你和“${chat.name}”在“${datingGameState.scene.name}”的约会结束了。`,
       timestamp: Date.now(),
     };
@@ -1481,7 +1700,8 @@ async function finalizeAndExitDate() {
   }
 
   // 隐藏进度条
-  document.getElementById('dating-completion-bar-container').style.display = 'none';
+  document.getElementById("dating-completion-bar-container").style.display =
+    "none";
 
   // 重置游戏状态
   datingGameState = {
@@ -1493,7 +1713,7 @@ async function finalizeAndExitDate() {
     lust: 0,
     extraWorldBookIds: [],
     completion: 0,
-    currentStoryText: '',
+    currentStoryText: "",
     currentSentenceIndex: -1,
     sentences: [],
     isSwitchingSentence: false,
@@ -1501,10 +1721,10 @@ async function finalizeAndExitDate() {
   };
 
   // 隐藏结算卡片（如果它还开着）
-  document.getElementById('dating-summary-overlay').classList.remove('visible');
+  document.getElementById("dating-summary-overlay").classList.remove("visible");
 
   // 返回聊天列表并刷新
-  showScreen('chat-list-screen');
+  showScreen("chat-list-screen");
   await renderChatList();
 }
 
@@ -1512,7 +1732,7 @@ async function finalizeAndExitDate() {
  * 打开约会场景设置弹窗
  */
 async function openDatingSettingsModal() {
-  const modal = document.getElementById('dating-game-settings-modal');
+  const modal = document.getElementById("dating-game-settings-modal");
   const chat = state.chats[datingGameState.characterId];
   if (!chat) return;
 
@@ -1520,46 +1740,54 @@ async function openDatingSettingsModal() {
   currentDatingUISettings = JSON.parse(
     JSON.stringify(
       chat.settings.datingUISettings || {
-        prompt: '',
-        style: '',
-        backgroundUrl: '',
+        prompt: "",
+        style: "",
+        backgroundUrl: "",
         spriteGroupId: null,
-        sprite: { url: '', x: 50, y: 100, size: 80 },
+        sprite: { url: "", x: 50, y: 100, size: 80 },
       },
     ),
   );
 
   // 填充弹窗内容
-  document.getElementById('dating-prompt-input').value = currentDatingUISettings.prompt;
-  document.getElementById('dating-style-input').value = currentDatingUISettings.style;
-  document.getElementById('dating-bg-url-input').value = currentDatingUISettings.backgroundUrl;
+  document.getElementById("dating-prompt-input").value =
+    currentDatingUISettings.prompt;
+  document.getElementById("dating-style-input").value =
+    currentDatingUISettings.style;
+  document.getElementById("dating-bg-url-input").value =
+    currentDatingUISettings.backgroundUrl;
 
   // 调用渲染函数
   await renderDatingSpriteGroupSelector();
   await renderDatingPresetSelector();
-  const datingWbContainer = document.getElementById('dating-wb-checkboxes-container');
-  datingWbContainer.innerHTML = ''; // 清空旧选项
+  const datingWbContainer = document.getElementById(
+    "dating-wb-checkboxes-container",
+  );
+  datingWbContainer.innerHTML = ""; // 清空旧选项
 
   const allWorldBooks = window.state.worldBooks || [];
   const linkedIds = new Set(datingGameState.extraWorldBookIds || []);
 
   if (allWorldBooks.length > 0) {
-    allWorldBooks.forEach(book => {
+    allWorldBooks.forEach((book) => {
       const isChecked = linkedIds.has(book.id);
-      const label = document.createElement('label');
-      label.innerHTML = `<input type="checkbox" value="${book.id}" ${isChecked ? 'checked' : ''}> ${book.name}`;
+      const label = document.createElement("label");
+      label.innerHTML = `<input type="checkbox" value="${book.id}" ${isChecked ? "checked" : ""}> ${book.name}`;
       datingWbContainer.appendChild(label);
     });
   } else {
-    datingWbContainer.innerHTML = '<p style="color: #888; font-size: 12px; text-align: center;">没有可用的世界书</p>';
+    datingWbContainer.innerHTML =
+      '<p style="color: #888; font-size: 12px; text-align: center;">没有可用的世界书</p>';
   }
 
   // 辅助函数，更新顶部显示的数量
   function updateDatingWbDisplay() {
-    const checkedBoxes = datingWbContainer.querySelectorAll('input:checked');
-    const displayText = document.querySelector('#dating-wb-multiselect .selected-options-text');
+    const checkedBoxes = datingWbContainer.querySelectorAll("input:checked");
+    const displayText = document.querySelector(
+      "#dating-wb-multiselect .selected-options-text",
+    );
     if (checkedBoxes.length === 0) {
-      displayText.textContent = '-- 点击选择额外世界观 --';
+      displayText.textContent = "-- 点击选择额外世界观 --";
     } else {
       displayText.textContent = `已选择 ${checkedBoxes.length} 个世界观`;
     }
@@ -1567,13 +1795,17 @@ async function openDatingSettingsModal() {
 
   // 绑定事件
   updateDatingWbDisplay(); // 初始化显示
-  datingWbContainer.addEventListener('change', updateDatingWbDisplay);
-  const characterDatingWbIds = new Set(currentDatingUISettings.linkedWorldBookIds || []);
+  datingWbContainer.addEventListener("change", updateDatingWbDisplay);
+  const characterDatingWbIds = new Set(
+    currentDatingUISettings.linkedWorldBookIds || [],
+  );
 
   // 2. 根据角色设置，勾选复选框
   if (characterDatingWbIds.size > 0) {
-    const allCheckboxes = datingWbContainer.querySelectorAll('input[type="checkbox"]');
-    allCheckboxes.forEach(cb => {
+    const allCheckboxes = datingWbContainer.querySelectorAll(
+      'input[type="checkbox"]',
+    );
+    allCheckboxes.forEach((cb) => {
       if (characterDatingWbIds.has(cb.value)) {
         cb.checked = true;
       }
@@ -1584,27 +1816,32 @@ async function openDatingSettingsModal() {
   updateDatingWbDisplay();
 
   // 处理下拉框的展开/收起
-  const datingWbSelectBox = document.querySelector('#dating-wb-multiselect .select-box');
+  const datingWbSelectBox = document.querySelector(
+    "#dating-wb-multiselect .select-box",
+  );
   const newDatingWbSelectBox = datingWbSelectBox.cloneNode(true);
-  datingWbSelectBox.parentNode.replaceChild(newDatingWbSelectBox, datingWbSelectBox);
+  datingWbSelectBox.parentNode.replaceChild(
+    newDatingWbSelectBox,
+    datingWbSelectBox,
+  );
 
-  newDatingWbSelectBox.addEventListener('click', e => {
+  newDatingWbSelectBox.addEventListener("click", (e) => {
     e.stopPropagation();
-    datingWbContainer.classList.toggle('visible');
-    newDatingWbSelectBox.classList.toggle('expanded');
+    datingWbContainer.classList.toggle("visible");
+    newDatingWbSelectBox.classList.toggle("expanded");
   });
 
   // 点击外部关闭下拉框 (这个监听器可以放在init里，但这里为了完整性也加上)
-  document.addEventListener('click', e => {
-    if (!document.getElementById('dating-wb-multiselect').contains(e.target)) {
-      datingWbContainer.classList.remove('visible');
-      newDatingWbSelectBox.classList.remove('expanded');
+  document.addEventListener("click", (e) => {
+    if (!document.getElementById("dating-wb-multiselect").contains(e.target)) {
+      datingWbContainer.classList.remove("visible");
+      newDatingWbSelectBox.classList.remove("expanded");
     }
   });
 
   // 新增代码块结束 ▲▲▲
 
-  modal.classList.add('visible');
+  modal.classList.add("visible");
 }
 
 /**
@@ -1614,38 +1851,40 @@ function applyDatingUISettings() {
   if (!currentDatingUISettings) return;
 
   // 应用背景图
-  const backgroundEl = document.getElementById('dating-game-background');
+  const backgroundEl = document.getElementById("dating-game-background");
   if (currentDatingUISettings.backgroundUrl) {
     backgroundEl.style.backgroundImage = `url(${currentDatingUISettings.backgroundUrl})`;
   } else {
     // 如果没有设置，可以恢复到场景默认图或一个通用背景
     const imagePrompt =
       datingGameState.scene.imagePrompt +
-      ', vertical, phone wallpaper, cinematic lighting, masterpiece, best quality, beautiful anime style art';
+      ", vertical, phone wallpaper, cinematic lighting, masterpiece, best quality, beautiful anime style art";
     generateAndLoadImage(imagePrompt)
-      .then(imageUrl => {
+      .then((imageUrl) => {
         backgroundEl.style.backgroundImage = `url(${imageUrl})`;
       })
       .catch(() => {
-        backgroundEl.style.backgroundColor = '#1c1e26';
+        backgroundEl.style.backgroundColor = "#1c1e26";
       });
   }
 
   // 应用立绘
-  const spriteContainer = document.getElementById('dating-game-sprite-container');
-  const spriteImg = document.getElementById('dating-game-sprite');
+  const spriteContainer = document.getElementById(
+    "dating-game-sprite-container",
+  );
+  const spriteImg = document.getElementById("dating-game-sprite");
   const sprite = currentDatingUISettings.sprite;
   if (sprite.url) {
     spriteImg.src = sprite.url;
-    spriteContainer.style.display = 'block';
+    spriteContainer.style.display = "block";
     spriteContainer.style.left = `${sprite.x}%`;
     spriteContainer.style.bottom = `${100 - sprite.y}%`;
     spriteContainer.style.width = `${sprite.size}%`;
     // 根据Y坐标调整transform，使立绘的“脚”能贴住设定的位置
     spriteContainer.style.transform = `translateX(-50%) translateY(${100 - sprite.y}%)`;
   } else {
-    spriteImg.src = '';
-    spriteContainer.style.display = 'none';
+    spriteImg.src = "";
+    spriteContainer.style.display = "none";
   }
 }
 
@@ -1656,8 +1895,10 @@ async function saveDatingSettings() {
   // 新增代码块开始 ▼▼▼
 
   // 1. 从UI中收集所有被勾选的世界书ID
-  const checkedBooks = document.querySelectorAll('#dating-wb-checkboxes-container input:checked');
-  const selectedBookIds = Array.from(checkedBooks).map(cb => cb.value);
+  const checkedBooks = document.querySelectorAll(
+    "#dating-wb-checkboxes-container input:checked",
+  );
+  const selectedBookIds = Array.from(checkedBooks).map((cb) => cb.value);
 
   // 2. 将这些ID保存到当前角色的约会设置中
   currentDatingUISettings.linkedWorldBookIds = selectedBookIds;
@@ -1669,19 +1910,29 @@ async function saveDatingSettings() {
   const chat = state.chats[datingGameState.characterId];
 
   // 从UI读取所有设置值
-  currentDatingUISettings.prompt = document.getElementById('dating-prompt-input').value.trim();
-  currentDatingUISettings.style = document.getElementById('dating-style-input').value.trim();
-  currentDatingUISettings.backgroundUrl = document.getElementById('dating-bg-url-input').value.trim();
+  currentDatingUISettings.prompt = document
+    .getElementById("dating-prompt-input")
+    .value.trim();
+  currentDatingUISettings.style = document
+    .getElementById("dating-style-input")
+    .value.trim();
+  currentDatingUISettings.backgroundUrl = document
+    .getElementById("dating-bg-url-input")
+    .value.trim();
 
   // 保存选中的立绘组ID
-  const selectedSpriteGroupId = document.getElementById('dating-sprite-group-select').value;
-  currentDatingUISettings.spriteGroupId = selectedSpriteGroupId ? parseInt(selectedSpriteGroupId) : null;
+  const selectedSpriteGroupId = document.getElementById(
+    "dating-sprite-group-select",
+  ).value;
+  currentDatingUISettings.spriteGroupId = selectedSpriteGroupId
+    ? parseInt(selectedSpriteGroupId)
+    : null;
 
   // 立绘位置和大小的保存逻辑保持不变 (但我们现在不再在这里保存立绘URL了)
   currentDatingUISettings.sprite.x = 50;
   currentDatingUISettings.sprite.y = 100;
   currentDatingUISettings.sprite.size = 80;
-  currentDatingUISettings.sprite.url = ''; // URL由AI动态决定，这里不保存
+  currentDatingUISettings.sprite.url = ""; // URL由AI动态决定，这里不保存
 
   // 确保角色的settings对象存在
   if (!chat.settings) chat.settings = {};
@@ -1691,8 +1942,10 @@ async function saveDatingSettings() {
 
   // 应用并关闭弹窗
   applyDatingUISettings();
-  document.getElementById('dating-game-settings-modal').classList.remove('visible');
-  alert('场景设置已保存！');
+  document
+    .getElementById("dating-game-settings-modal")
+    .classList.remove("visible");
+  alert("场景设置已保存！");
 }
 
 /**
@@ -1700,20 +1953,22 @@ async function saveDatingSettings() {
  * @param {'bg' | 'sprite'} type - 上传类型
  */
 function handleDatingImageUpload(type) {
-  const inputId = type === 'bg' ? 'dating-bg-upload-input' : 'dating-sprite-upload-input';
-  const urlInputId = type === 'bg' ? 'dating-bg-url-input' : 'dating-sprite-url-input';
+  const inputId =
+    type === "bg" ? "dating-bg-upload-input" : "dating-sprite-upload-input";
+  const urlInputId =
+    type === "bg" ? "dating-bg-url-input" : "dating-sprite-url-input";
   document.getElementById(inputId).click();
 
-  document.getElementById(inputId).onchange = async e => {
+  document.getElementById(inputId).onchange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const dataUrl = await new Promise(resolve => {
+      const dataUrl = await new Promise((resolve) => {
         const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
+        reader.onload = (e) => resolve(e.target.result);
         reader.readAsDataURL(file);
       });
       document.getElementById(urlInputId).value = dataUrl;
-      if (type === 'bg') currentDatingUISettings.backgroundUrl = dataUrl;
+      if (type === "bg") currentDatingUISettings.backgroundUrl = dataUrl;
       else currentDatingUISettings.sprite.url = dataUrl;
       applyDatingUISettings();
     }
@@ -1726,14 +1981,14 @@ function handleDatingImageUpload(type) {
  */
 async function handleDatingReroll() {
   if (!datingGameState.isActive || datingGameState.storyHistory.length === 0) {
-    alert('还没有可以重Roll的内容哦！');
+    alert("还没有可以重Roll的内容哦！");
     return;
   }
 
   // 找到最后一次用户的行动
   let lastUserActionIndex = -1;
   for (let i = datingGameState.storyHistory.length - 1; i >= 0; i--) {
-    if (datingGameState.storyHistory[i].startsWith('【你的选择】')) {
+    if (datingGameState.storyHistory[i].startsWith("【你的选择】")) {
       lastUserActionIndex = i;
       break;
     }
@@ -1742,13 +1997,18 @@ async function handleDatingReroll() {
   // 如果找不到用户的行动（比如刚开始），就重Roll第一段剧情
   if (lastUserActionIndex === -1) {
     datingGameState.storyHistory = [];
-    await triggerDatingStory('start');
+    await triggerDatingStory("start");
     return;
   }
 
   // 截取历史记录，回到用户做出选择之前的状态
-  const lastUserAction = datingGameState.storyHistory[lastUserActionIndex].replace('【你的选择】: ', '');
-  datingGameState.storyHistory = datingGameState.storyHistory.slice(0, lastUserActionIndex);
+  const lastUserAction = datingGameState.storyHistory[
+    lastUserActionIndex
+  ].replace("【你的选择】: ", "");
+  datingGameState.storyHistory = datingGameState.storyHistory.slice(
+    0,
+    lastUserActionIndex,
+  );
 
   // 重新触发AI，使用户的最后一次行动再次生效
   await triggerDatingStory(lastUserAction);
@@ -1757,10 +2017,10 @@ async function handleDatingReroll() {
 // --- 以下是预设管理功能 ---
 
 async function renderDatingPresetSelector() {
-  const select = document.getElementById('dating-preset-select');
+  const select = document.getElementById("dating-preset-select");
   const presets = await db.datingPresets.toArray();
   select.innerHTML = '<option value="">-- 自定义 --</option>';
-  presets.forEach(p => {
+  presets.forEach((p) => {
     select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
   });
 }
@@ -1771,34 +2031,42 @@ async function renderDatingPresetSelector() {
  * 【完整修复版】处理约会预设选择
  */
 async function handleDatingPresetSelect() {
-  const select = document.getElementById('dating-preset-select');
+  const select = document.getElementById("dating-preset-select");
   const presetId = parseInt(select.value);
 
   // 获取世界书复选框的容器
-  const datingWbContainer = document.getElementById('dating-wb-checkboxes-container');
-  const wbCheckboxes = datingWbContainer.querySelectorAll('input[type="checkbox"]');
+  const datingWbContainer = document.getElementById(
+    "dating-wb-checkboxes-container",
+  );
+  const wbCheckboxes = datingWbContainer.querySelectorAll(
+    'input[type="checkbox"]',
+  );
 
   if (!presetId) {
     // 如果选择“自定义”，则清空所有相关UI
-    document.getElementById('dating-prompt-input').value = '';
-    document.getElementById('dating-style-input').value = '';
-    document.getElementById('dating-bg-url-input').value = '';
-    document.getElementById('dating-sprite-group-select').value = '';
+    document.getElementById("dating-prompt-input").value = "";
+    document.getElementById("dating-style-input").value = "";
+    document.getElementById("dating-bg-url-input").value = "";
+    document.getElementById("dating-sprite-group-select").value = "";
 
     // ★★★ 新增：清空世界书复选框 ★★★
-    wbCheckboxes.forEach(cb => (cb.checked = false));
+    wbCheckboxes.forEach((cb) => (cb.checked = false));
   } else {
     const preset = await db.datingPresets.get(presetId);
     if (preset && preset.settings) {
       const loadedSettings = preset.settings;
-      document.getElementById('dating-prompt-input').value = loadedSettings.prompt || '';
-      document.getElementById('dating-style-input').value = loadedSettings.style || '';
-      document.getElementById('dating-bg-url-input').value = loadedSettings.backgroundUrl || '';
-      document.getElementById('dating-sprite-group-select').value = loadedSettings.spriteGroupId || '';
+      document.getElementById("dating-prompt-input").value =
+        loadedSettings.prompt || "";
+      document.getElementById("dating-style-input").value =
+        loadedSettings.style || "";
+      document.getElementById("dating-bg-url-input").value =
+        loadedSettings.backgroundUrl || "";
+      document.getElementById("dating-sprite-group-select").value =
+        loadedSettings.spriteGroupId || "";
 
       // ★★★ 新增：根据预设，勾选世界书 ★★★
       const linkedIds = new Set(loadedSettings.extraWorldBookIds || []);
-      wbCheckboxes.forEach(cb => {
+      wbCheckboxes.forEach((cb) => {
         cb.checked = linkedIds.has(cb.value);
       });
     }
@@ -1806,10 +2074,12 @@ async function handleDatingPresetSelect() {
 
   // ★★★ 统一更新UI显示 ★★★
   // 无论是清空还是加载，最后都更新一下显示
-  const checkedBoxes = datingWbContainer.querySelectorAll('input:checked');
-  const displayText = document.querySelector('#dating-wb-multiselect .selected-options-text');
+  const checkedBoxes = datingWbContainer.querySelectorAll("input:checked");
+  const displayText = document.querySelector(
+    "#dating-wb-multiselect .selected-options-text",
+  );
   if (checkedBoxes.length === 0) {
-    displayText.textContent = '-- 点击选择额外世界观 --';
+    displayText.textContent = "-- 点击选择额外世界观 --";
   } else {
     displayText.textContent = `已选择 ${checkedBoxes.length} 个世界观`;
   }
@@ -1822,90 +2092,119 @@ async function handleDatingPresetSelect() {
  * 【完整修复版】打开并管理约会场景预设
  */
 async function openDatingPresetManager() {
-  const select = document.getElementById('dating-preset-select');
+  const select = document.getElementById("dating-preset-select");
   const selectedId = select.value ? parseInt(select.value) : null;
 
-  const choice = await showCustomChoiceModal('管理场景预设', [
-    { text: '💾 保存当前为新预设', value: 'save', class: 'primary' },
-    { text: '🔄 更新选中预设', value: 'update', disabled: !selectedId },
-    { text: '🗑️ 删除选中预设', value: 'delete', disabled: !selectedId, class: 'danger' },
+  const choice = await showCustomChoiceModal("管理场景预设", [
+    { text: "💾 保存当前为新预设", value: "save", class: "primary" },
+    { text: "🔄 更新选中预设", value: "update", disabled: !selectedId },
+    {
+      text: "🗑️ 删除选中预设",
+      value: "delete",
+      disabled: !selectedId,
+      class: "danger",
+    },
   ]);
 
-  if (choice === 'save') {
-    const name = await showCustomPrompt('保存预设', '请输入预设名称：');
+  if (choice === "save") {
+    const name = await showCustomPrompt("保存预设", "请输入预设名称：");
     if (name && name.trim()) {
       // ★★★ 新增：保存时，获取当前选中的世界书 ★★★
-      const checkedBooks = document.querySelectorAll('#dating-wb-checkboxes-container input:checked');
-      const extraWorldBookIds = Array.from(checkedBooks).map(cb => cb.value);
+      const checkedBooks = document.querySelectorAll(
+        "#dating-wb-checkboxes-container input:checked",
+      );
+      const extraWorldBookIds = Array.from(checkedBooks).map((cb) => cb.value);
 
       const currentSettings = {
-        prompt: document.getElementById('dating-prompt-input').value.trim(),
-        style: document.getElementById('dating-style-input').value.trim(),
-        backgroundUrl: document.getElementById('dating-bg-url-input').value.trim(),
-        spriteGroupId: document.getElementById('dating-sprite-group-select').value
-          ? parseInt(document.getElementById('dating-sprite-group-select').value)
+        prompt: document.getElementById("dating-prompt-input").value.trim(),
+        style: document.getElementById("dating-style-input").value.trim(),
+        backgroundUrl: document
+          .getElementById("dating-bg-url-input")
+          .value.trim(),
+        spriteGroupId: document.getElementById("dating-sprite-group-select")
+          .value
+          ? parseInt(
+              document.getElementById("dating-sprite-group-select").value,
+            )
           : null,
         extraWorldBookIds: extraWorldBookIds, // ★★★ 将世界书ID保存到预设里 ★★★
       };
 
-      await db.datingPresets.add({ name: name.trim(), settings: currentSettings });
+      await db.datingPresets.add({
+        name: name.trim(),
+        settings: currentSettings,
+      });
       await renderDatingPresetSelector(); // 刷新下拉框
-      alert('预设已保存！');
+      alert("预设已保存！");
     }
-  } else if (choice === 'update') {
+  } else if (choice === "update") {
     if (selectedId) {
       // ★★★ 新增：更新时，也要获取当前选中的世界书 ★★★
-      const checkedBooks = document.querySelectorAll('#dating-wb-checkboxes-container input:checked');
-      const extraWorldBookIds = Array.from(checkedBooks).map(cb => cb.value);
+      const checkedBooks = document.querySelectorAll(
+        "#dating-wb-checkboxes-container input:checked",
+      );
+      const extraWorldBookIds = Array.from(checkedBooks).map((cb) => cb.value);
 
       const currentSettings = {
-        prompt: document.getElementById('dating-prompt-input').value.trim(),
-        style: document.getElementById('dating-style-input').value.trim(),
-        backgroundUrl: document.getElementById('dating-bg-url-input').value.trim(),
-        spriteGroupId: document.getElementById('dating-sprite-group-select').value
-          ? parseInt(document.getElementById('dating-sprite-group-select').value)
+        prompt: document.getElementById("dating-prompt-input").value.trim(),
+        style: document.getElementById("dating-style-input").value.trim(),
+        backgroundUrl: document
+          .getElementById("dating-bg-url-input")
+          .value.trim(),
+        spriteGroupId: document.getElementById("dating-sprite-group-select")
+          .value
+          ? parseInt(
+              document.getElementById("dating-sprite-group-select").value,
+            )
           : null,
         extraWorldBookIds: extraWorldBookIds, // ★★★ 更新时也保存 ★★★
       };
       await db.datingPresets.update(selectedId, { settings: currentSettings });
-      alert('预设已更新！');
+      alert("预设已更新！");
     }
-  } else if (choice === 'delete') {
+  } else if (choice === "delete") {
     if (selectedId) {
       const presetToDelete = await db.datingPresets.get(selectedId);
-      const confirmed = await showCustomConfirm('确认删除', `确定要删除预设 "${presetToDelete.name}" 吗？`, {
-        confirmButtonClass: 'btn-danger',
-      });
+      const confirmed = await showCustomConfirm(
+        "确认删除",
+        `确定要删除预设 "${presetToDelete.name}" 吗？`,
+        {
+          confirmButtonClass: "btn-danger",
+        },
+      );
       if (confirmed) {
         await db.datingPresets.delete(selectedId);
         await renderDatingPresetSelector(); // 刷新下拉框
         // 清空输入框
-        document.getElementById('dating-prompt-input').value = '';
-        document.getElementById('dating-style-input').value = '';
-        document.getElementById('dating-bg-url-input').value = '';
-        document.getElementById('dating-sprite-group-select').value = '';
+        document.getElementById("dating-prompt-input").value = "";
+        document.getElementById("dating-style-input").value = "";
+        document.getElementById("dating-bg-url-input").value = "";
+        document.getElementById("dating-sprite-group-select").value = "";
         // ★★★ 新增：删除预设后，也清空世界书选择 ★★★
-        document.querySelectorAll('#dating-wb-checkboxes-container input:checked').forEach(cb => (cb.checked = false));
-        document.querySelector('#dating-wb-multiselect .selected-options-text').textContent =
-          '-- 点击选择额外世界观 --';
+        document
+          .querySelectorAll("#dating-wb-checkboxes-container input:checked")
+          .forEach((cb) => (cb.checked = false));
+        document.querySelector(
+          "#dating-wb-multiselect .selected-options-text",
+        ).textContent = "-- 点击选择额外世界观 --";
 
-        alert('预设已删除。');
+        alert("预设已删除。");
       }
     }
   }
 }
 // 这是一个新的辅助函数，请把它也加到 date.js 里
 async function showCustomChoiceModal(title, options) {
-  return new Promise(resolve => {
-    const modal = document.getElementById('preset-actions-modal');
-    const footer = modal.querySelector('.custom-modal-footer');
-    footer.innerHTML = '';
+  return new Promise((resolve) => {
+    const modal = document.getElementById("preset-actions-modal");
+    const footer = modal.querySelector(".custom-modal-footer");
+    footer.innerHTML = "";
 
-    options.forEach(opt => {
-      const button = document.createElement('button');
+    options.forEach((opt) => {
+      const button = document.createElement("button");
       button.textContent = opt.text;
       button.onclick = () => {
-        modal.classList.remove('visible');
+        modal.classList.remove("visible");
         resolve(opt.value);
       };
       if (opt.disabled) button.disabled = true;
@@ -1913,16 +2212,17 @@ async function showCustomChoiceModal(title, options) {
       footer.appendChild(button);
     });
 
-    const cancelButton = document.createElement('button');
-    cancelButton.textContent = '取消';
-    cancelButton.style.cssText = 'margin-top: 8px; border-radius: 8px; background-color: #f0f0f0;';
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "取消";
+    cancelButton.style.cssText =
+      "margin-top: 8px; border-radius: 8px; background-color: #f0f0f0;";
     cancelButton.onclick = () => {
-      modal.classList.remove('visible');
+      modal.classList.remove("visible");
       resolve(null);
     };
     footer.appendChild(cancelButton);
 
-    modal.classList.add('visible');
+    modal.classList.add("visible");
   });
 }
 
@@ -1932,11 +2232,11 @@ async function showCustomChoiceModal(title, options) {
  * 渲染约会设置中"立绘组"的下拉选择器
  */
 async function renderDatingSpriteGroupSelector() {
-  const select = document.getElementById('dating-sprite-group-select');
+  const select = document.getElementById("dating-sprite-group-select");
   select.innerHTML = '<option value="">-- 不使用立绘 --</option>'; // 默认选项
 
   const groups = await db.datingSpriteGroups.toArray();
-  groups.forEach(group => {
+  groups.forEach((group) => {
     select.innerHTML += `<option value="${group.id}">${group.name}</option>`;
   });
 
@@ -1951,16 +2251,18 @@ async function renderDatingSpriteGroupSelector() {
  */
 async function openSpriteGroupManager() {
   await renderSpriteGroupManagerList();
-  document.getElementById('sprite-group-manager-modal').classList.add('visible');
+  document
+    .getElementById("sprite-group-manager-modal")
+    .classList.add("visible");
 }
 
 /**
  * 在管理器中渲染立绘组列表
  */
 async function renderSpriteGroupManagerList() {
-  const container = document.getElementById('sprite-group-list-container');
-  container.innerHTML = '';
-  const groups = await db.datingSpriteGroups.orderBy('name').toArray();
+  const container = document.getElementById("sprite-group-list-container");
+  container.innerHTML = "";
+  const groups = await db.datingSpriteGroups.orderBy("name").toArray();
 
   if (groups.length === 0) {
     container.innerHTML =
@@ -1968,9 +2270,9 @@ async function renderSpriteGroupManagerList() {
     return;
   }
 
-  groups.forEach(group => {
-    const item = document.createElement('div');
-    item.className = 'sprite-group-list-item';
+  groups.forEach((group) => {
+    const item = document.createElement("div");
+    item.className = "sprite-group-list-item";
     item.innerHTML = `
                             <span class="group-name">${group.name}</span>
                             <div class="group-actions">
@@ -1988,31 +2290,34 @@ async function renderSpriteGroupManagerList() {
  */
 async function openSpriteEditor(groupId = null) {
   editingSpriteGroupId = groupId;
-  const modal = document.getElementById('sprite-editor-modal');
-  const titleEl = document.getElementById('sprite-editor-title');
-  const nameInput = document.getElementById('sprite-group-name-input');
-  const listEditor = document.getElementById('sprite-list-editor');
+  const modal = document.getElementById("sprite-editor-modal");
+  const titleEl = document.getElementById("sprite-editor-title");
+  const nameInput = document.getElementById("sprite-group-name-input");
+  const listEditor = document.getElementById("sprite-list-editor");
 
-  listEditor.innerHTML = ''; // 清空旧的立绘
+  listEditor.innerHTML = ""; // 清空旧的立绘
 
   if (groupId) {
     // 编辑模式
     const group = await db.datingSpriteGroups.get(groupId);
-    const sprites = await db.datingSprites.where('groupId').equals(groupId).toArray();
+    const sprites = await db.datingSprites
+      .where("groupId")
+      .equals(groupId)
+      .toArray();
     titleEl.textContent = `编辑立绘组: ${group.name}`;
     nameInput.value = group.name;
-    sprites.forEach(sprite => {
+    sprites.forEach((sprite) => {
       listEditor.appendChild(createSpriteEditCard(sprite));
     });
   } else {
     // 新建模式
-    titleEl.textContent = '新建立绘组';
-    nameInput.value = '';
+    titleEl.textContent = "新建立绘组";
+    nameInput.value = "";
     // 默认创建一个空的立绘卡片
     listEditor.appendChild(createSpriteEditCard());
   }
 
-  modal.classList.add('visible');
+  modal.classList.add("visible");
 }
 
 /**
@@ -2021,8 +2326,8 @@ async function openSpriteEditor(groupId = null) {
  * @returns {HTMLElement}
  */
 function createSpriteEditCard(sprite = {}) {
-  const card = document.createElement('div');
-  card.className = 'sprite-edit-card';
+  const card = document.createElement("div");
+  card.className = "sprite-edit-card";
   card.dataset.spriteId = sprite.id || `new_${Date.now()}_${Math.random()}`;
 
   // 为 x, y, size 提供默认值
@@ -2032,18 +2337,18 @@ function createSpriteEditCard(sprite = {}) {
 
   // 在HTML中加入了三个滑块和数值显示
   card.innerHTML = `
-                        <div class="preview-container" style="background-image: url(${sprite.url || ''})"></div>
+                        <div class="preview-container" style="background-image: url(${sprite.url || ""})"></div>
                         <div class="fields-container">
                             <div class="form-group" style="margin:0;">
                                 <label>描述 (用于AI识别)</label>
-                                <textarea class="sprite-desc-input" rows="2">${sprite.description || ''}</textarea>
+                                <textarea class="sprite-desc-input" rows="2">${sprite.description || ""}</textarea>
                             </div>
                             <div class="form-group" style="margin:0;">
                                 <label>图片 (URL或本地上传)</label>
                                 <div class="bg-upload-container">
                                     <button class="form-button-secondary upload-sprite-btn" style="margin-top:0;">上传</button>
                                     <input class="sprite-url-input" type="text" value="${
-                                      sprite.url || ''
+                                      sprite.url || ""
                                     }" placeholder="或粘贴URL">
                                 </div>
                             </div>
@@ -2067,21 +2372,26 @@ function createSpriteEditCard(sprite = {}) {
                     `;
 
   // 为卡片内的按钮绑定事件
-  card.querySelector('.delete-sprite-btn').onclick = () => card.remove();
-  card.querySelector('.upload-sprite-btn').onclick = () => handleSpriteImageUpload(card);
-  card.querySelector('.sprite-url-input').oninput = e => {
-    card.querySelector('.preview-container').style.backgroundImage = `url(${e.target.value})`;
+  card.querySelector(".delete-sprite-btn").onclick = () => card.remove();
+  card.querySelector(".upload-sprite-btn").onclick = () =>
+    handleSpriteImageUpload(card);
+  card.querySelector(".sprite-url-input").oninput = (e) => {
+    card.querySelector(".preview-container").style.backgroundImage =
+      `url(${e.target.value})`;
   };
 
   // 为新滑块绑定事件，实时更新旁边的数值显示
-  card.querySelectorAll('.position-controls input[type="range"]').forEach(slider => {
-    slider.addEventListener('input', () => {
-      const valueSpan = slider.previousElementSibling.querySelector('.pos-value');
-      if (valueSpan) {
-        valueSpan.textContent = `${slider.value}%`;
-      }
+  card
+    .querySelectorAll('.position-controls input[type="range"]')
+    .forEach((slider) => {
+      slider.addEventListener("input", () => {
+        const valueSpan =
+          slider.previousElementSibling.querySelector(".pos-value");
+        if (valueSpan) {
+          valueSpan.textContent = `${slider.value}%`;
+        }
+      });
     });
-  });
 
   return card;
 }
@@ -2091,19 +2401,20 @@ function createSpriteEditCard(sprite = {}) {
  * @param {HTMLElement} cardElement - 对应的立绘编辑卡片
  */
 function handleSpriteImageUpload(cardElement) {
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.accept = 'image/*';
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "image/*";
   fileInput.onchange = async () => {
     const file = fileInput.files[0];
     if (file) {
-      const dataUrl = await new Promise(resolve => {
+      const dataUrl = await new Promise((resolve) => {
         const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
+        reader.onload = (e) => resolve(e.target.result);
         reader.readAsDataURL(file);
       });
-      cardElement.querySelector('.sprite-url-input').value = dataUrl;
-      cardElement.querySelector('.preview-container').style.backgroundImage = `url(${dataUrl})`;
+      cardElement.querySelector(".sprite-url-input").value = dataUrl;
+      cardElement.querySelector(".preview-container").style.backgroundImage =
+        `url(${dataUrl})`;
     }
   };
   fileInput.click();
@@ -2113,9 +2424,9 @@ function handleSpriteImageUpload(cardElement) {
  * 保存整个立绘组（包括所有立绘）
  */
 async function saveSpriteGroup() {
-  const name = document.getElementById('sprite-group-name-input').value.trim();
+  const name = document.getElementById("sprite-group-name-input").value.trim();
   if (!name) {
-    alert('立绘组名称不能为空！');
+    alert("立绘组名称不能为空！");
     return;
   }
 
@@ -2129,25 +2440,29 @@ async function saveSpriteGroup() {
   }
 
   // 准备更新的立绘数据
-  const spriteCards = document.querySelectorAll('#sprite-list-editor .sprite-edit-card');
+  const spriteCards = document.querySelectorAll(
+    "#sprite-list-editor .sprite-edit-card",
+  );
   const spritesToSave = [];
   let hasError = false;
 
-  spriteCards.forEach(card => {
-    const description = card.querySelector('.sprite-desc-input').value.trim();
-    const url = card.querySelector('.sprite-url-input').value.trim();
+  spriteCards.forEach((card) => {
+    const description = card.querySelector(".sprite-desc-input").value.trim();
+    const url = card.querySelector(".sprite-url-input").value.trim();
 
     // 从新增的滑块中读取 x, y, size 的值
-    const x = parseInt(card.querySelector('.sprite-x-slider').value);
-    const y = parseInt(card.querySelector('.sprite-y-slider').value);
-    const size = parseInt(card.querySelector('.sprite-size-slider').value);
+    const x = parseInt(card.querySelector(".sprite-x-slider").value);
+    const y = parseInt(card.querySelector(".sprite-y-slider").value);
+    const size = parseInt(card.querySelector(".sprite-size-slider").value);
 
     if (!description || !url) {
       hasError = true;
     }
 
     spritesToSave.push({
-      id: card.dataset.spriteId.startsWith('new_') ? undefined : parseInt(card.dataset.spriteId),
+      id: card.dataset.spriteId.startsWith("new_")
+        ? undefined
+        : parseInt(card.dataset.spriteId),
       groupId: groupId,
       description,
       url,
@@ -2159,26 +2474,30 @@ async function saveSpriteGroup() {
   });
 
   if (hasError) {
-    alert('存在描述或图片URL为空的立绘，请填写完整！');
+    alert("存在描述或图片URL为空的立绘，请填写完整！");
     return;
   }
 
   // 使用事务，一次性更新所有数据
-  await db.transaction('rw', db.datingSprites, async () => {
-    await db.datingSprites.where('groupId').equals(groupId).delete();
+  await db.transaction("rw", db.datingSprites, async () => {
+    await db.datingSprites.where("groupId").equals(groupId).delete();
     await db.datingSprites.bulkAdd(spritesToSave);
   });
 
   // 关闭弹窗并刷新UI
-  document.getElementById('sprite-editor-modal').classList.remove('visible');
+  document.getElementById("sprite-editor-modal").classList.remove("visible");
   await renderSpriteGroupManagerList();
   await renderDatingSpriteGroupSelector();
 
-  if (document.getElementById('dating-game-settings-modal').classList.contains('visible')) {
-    document.getElementById('dating-sprite-group-select').value = groupId;
+  if (
+    document
+      .getElementById("dating-game-settings-modal")
+      .classList.contains("visible")
+  ) {
+    document.getElementById("dating-sprite-group-select").value = groupId;
   }
 
-  alert('立绘组已保存！');
+  alert("立绘组已保存！");
 }
 
 /**
@@ -2187,25 +2506,38 @@ async function saveSpriteGroup() {
  */
 async function deleteSpriteGroup(groupId) {
   const group = await db.datingSpriteGroups.get(groupId);
-  const confirmed = await showCustomConfirm('删除立绘组', `确定要删除立绘组 "${group.name}" 吗？此操作不可恢复。`, {
-    confirmButtonClass: 'btn-danger',
-  });
+  const confirmed = await showCustomConfirm(
+    "删除立绘组",
+    `确定要删除立绘组 "${group.name}" 吗？此操作不可恢复。`,
+    {
+      confirmButtonClass: "btn-danger",
+    },
+  );
   if (confirmed) {
-    await db.transaction('rw', db.datingSpriteGroups, db.datingSprites, db.datingPresets, async () => {
-      // 删除该组下的所有立绘
-      await db.datingSprites.where('groupId').equals(groupId).delete();
-      // 删除立绘组本身
-      await db.datingSpriteGroups.delete(groupId);
-      // 找到所有引用了这个立绘组的约会预设，并将它们的引用清空
-      const presetsToUpdate = await db.datingPresets.where('settings.spriteGroupId').equals(groupId).toArray();
-      for (const preset of presetsToUpdate) {
-        preset.settings.spriteGroupId = null;
-        await db.datingPresets.put(preset);
-      }
-    });
+    await db.transaction(
+      "rw",
+      db.datingSpriteGroups,
+      db.datingSprites,
+      db.datingPresets,
+      async () => {
+        // 删除该组下的所有立绘
+        await db.datingSprites.where("groupId").equals(groupId).delete();
+        // 删除立绘组本身
+        await db.datingSpriteGroups.delete(groupId);
+        // 找到所有引用了这个立绘组的约会预设，并将它们的引用清空
+        const presetsToUpdate = await db.datingPresets
+          .where("settings.spriteGroupId")
+          .equals(groupId)
+          .toArray();
+        for (const preset of presetsToUpdate) {
+          preset.settings.spriteGroupId = null;
+          await db.datingPresets.put(preset);
+        }
+      },
+    );
     await renderSpriteGroupManagerList();
     await renderDatingSpriteGroupSelector();
-    alert('立绘组已删除。');
+    alert("立绘组已删除。");
   }
 }
 /* 约会立绘功能核心函数结束 */
@@ -2214,41 +2546,41 @@ async function deleteSpriteGroup(groupId) {
  * 当约会结束时，显示结算卡片，并自动保存到历史记录
  * @param {string} [finalStory=""] - 约会的最后一段剧情文本
  */
-async function showDatingSummaryCard(finalStory = '') {
-  const overlay = document.getElementById('dating-summary-overlay');
-  const card = document.querySelector('.dating-summary-card');
-  const cardInner = document.querySelector('.dating-summary-card-inner');
-  const cardFront = document.querySelector('.card-front');
-  const avatarEl = document.getElementById('summary-card-avatar');
-  const ratingEl = document.getElementById('summary-card-rating');
-  const historyEl = document.getElementById('summary-card-history');
+async function showDatingSummaryCard(finalStory = "") {
+  const overlay = document.getElementById("dating-summary-overlay");
+  const card = document.querySelector(".dating-summary-card");
+  const cardInner = document.querySelector(".dating-summary-card-inner");
+  const cardFront = document.querySelector(".card-front");
+  const avatarEl = document.getElementById("summary-card-avatar");
+  const ratingEl = document.getElementById("summary-card-rating");
+  const historyEl = document.getElementById("summary-card-history");
 
-  document.getElementById('summary-share-btn').style.display = 'block';
+  document.getElementById("summary-share-btn").style.display = "block";
 
-  card.classList.remove('is-flipped');
-  cardFront.classList.remove('romantic', 'passionate', 'perfect');
+  card.classList.remove("is-flipped");
+  cardFront.classList.remove("romantic", "passionate", "perfect");
 
   const romance = datingGameState.romance;
   const lust = datingGameState.lust;
   const completion = datingGameState.completion;
-  let ratingText = '';
-  let cardClass = '';
-  let finalRatingType = 'anticipation';
+  let ratingText = "";
+  let cardClass = "";
+  let finalRatingType = "anticipation";
 
   if (romance >= 100 && lust >= 100 && completion >= 100) {
-    ratingText = '完美之夜 🎊';
-    cardClass = 'perfect';
-    finalRatingType = 'perfect';
+    ratingText = "完美之夜 🎊";
+    cardClass = "perfect";
+    finalRatingType = "perfect";
   } else if (romance >= 100) {
-    ratingText = '浪漫之夜 ❤️';
-    cardClass = 'romantic';
-    finalRatingType = 'romantic';
+    ratingText = "浪漫之夜 ❤️";
+    cardClass = "romantic";
+    finalRatingType = "romantic";
   } else if (lust >= 100) {
-    ratingText = '激情之夜 ⭐';
-    cardClass = 'passionate';
-    finalRatingType = 'passionate';
+    ratingText = "激情之夜 ⭐";
+    cardClass = "passionate";
+    finalRatingType = "passionate";
   } else {
-    ratingText = '期待之夜';
+    ratingText = "期待之夜";
   }
 
   const character = state.chats[datingGameState.characterId];
@@ -2258,7 +2590,12 @@ async function showDatingSummaryCard(finalStory = '') {
     cardFront.classList.add(cardClass);
   }
 
-  const fullHistory = [...datingGameState.storyHistory, `【旁白】: ${finalStory}`].join('\n\n').replace(/\n/g, '<br>');
+  const fullHistory = [
+    ...datingGameState.storyHistory,
+    `【旁白】: ${finalStory}`,
+  ]
+    .join("\n\n")
+    .replace(/\n/g, "<br>");
   historyEl.innerHTML = `<p>${fullHistory}</p>`;
 
   // 暂存数据，以便分享
@@ -2279,12 +2616,12 @@ async function showDatingSummaryCard(finalStory = '') {
       timestamp: Date.now(), // 加上一个保存时的时间戳
     };
     await db.datingHistory.add(historyRecord);
-    console.log('约会结算卡片已保存到历史库:', historyRecord);
+    console.log("约会结算卡片已保存到历史库:", historyRecord);
   } catch (error) {
-    console.error('保存约会结算卡片失败:', error);
+    console.error("保存约会结算卡片失败:", error);
   }
 
-  overlay.classList.add('visible');
+  overlay.classList.add("visible");
 }
 
 /**
@@ -2297,9 +2634,10 @@ async function shareDatingSummary() {
   const chat = state.chats[currentDatingSummary.characterId];
   if (!chat) return;
 
-  const storyForEdit = [...currentDatingSummary.storyHistory, `【旁白】: ${currentDatingSummary.finalStory}`].join(
-    '\n',
-  );
+  const storyForEdit = [
+    ...currentDatingSummary.storyHistory,
+    `【旁白】: ${currentDatingSummary.finalStory}`,
+  ].join("\n");
   const contentForEditing = `
                         [约会记录]
                         约会场所: ${currentDatingSummary.sceneName}
@@ -2310,8 +2648,8 @@ async function shareDatingSummary() {
 
   // 创建一个特殊的消息对象，它将作为聊天记录被保存
   const summaryMessage = {
-    role: 'user', // 标记为用户发出的消息
-    type: 'dating_summary_card', // 自定义的新消息类型，用于识别
+    role: "user", // 标记为用户发出的消息
+    type: "dating_summary_card", // 自定义的新消息类型，用于识别
     timestamp: Date.now(),
 
     // 这个 content 字段就是你想要的，当编辑这条消息时，就会显示这里的文本
@@ -2334,9 +2672,9 @@ async function shareDatingSummary() {
   await db.chats.put(chat);
 
   // 给出成功提示，并关闭结算卡片、结束约会
-  await showCustomAlert('分享成功', '你们的约会记录已发送给Ta！');
+  await showCustomAlert("分享成功", "你们的约会记录已发送给Ta！");
 
-  document.getElementById('dating-summary-overlay').classList.remove('visible');
+  document.getElementById("dating-summary-overlay").classList.remove("visible");
   finalizeAndExitDate(); // 这个函数会处理后续的清理工作
   currentDatingSummary = null; // 清理临时数据
 }
@@ -2346,46 +2684,53 @@ async function shareDatingSummary() {
  * @param {object} payload - 从聊天记录消息中解析出的卡片数据
  */
 function reopenDatingSummary(payload) {
-  const overlay = document.getElementById('dating-summary-overlay');
-  const card = document.querySelector('.dating-summary-card');
-  const cardInner = document.querySelector('.dating-summary-card-inner');
-  const cardFront = document.querySelector('.card-front');
-  const avatarEl = document.getElementById('summary-card-avatar');
-  const ratingEl = document.getElementById('summary-card-rating');
-  const historyEl = document.getElementById('summary-card-history');
+  const overlay = document.getElementById("dating-summary-overlay");
+  const card = document.querySelector(".dating-summary-card");
+  const cardInner = document.querySelector(".dating-summary-card-inner");
+  const cardFront = document.querySelector(".card-front");
+  const avatarEl = document.getElementById("summary-card-avatar");
+  const ratingEl = document.getElementById("summary-card-rating");
+  const historyEl = document.getElementById("summary-card-history");
 
   // 重置卡片状态
-  card.classList.remove('is-flipped');
-  cardFront.classList.remove('romantic', 'passionate', 'perfect');
-  cardFront.style.background = '';
+  card.classList.remove("is-flipped");
+  cardFront.classList.remove("romantic", "passionate", "perfect");
+  cardFront.style.background = "";
 
   // 从 payload 中恢复数据并填充到UI元素中
   avatarEl.src = payload.avatarUrl;
   ratingEl.textContent = payload.rating;
-  if (payload.ratingType && payload.ratingType !== 'anticipation') {
+  if (payload.ratingType && payload.ratingType !== "anticipation") {
     cardFront.classList.add(payload.ratingType);
   }
 
-  const fullHistory = [...payload.storyHistory, `【旁白】: ${payload.finalStory}`].join('\n\n').replace(/\n/g, '<br>');
+  const fullHistory = [
+    ...payload.storyHistory,
+    `【旁白】: ${payload.finalStory}`,
+  ]
+    .join("\n\n")
+    .replace(/\n/g, "<br>");
   historyEl.innerHTML = `<p>${fullHistory}</p>`;
 
   // 设置卡片背面的标题
-  const cardBackHeader = document.querySelector('.card-back .card-back-header span');
+  const cardBackHeader = document.querySelector(
+    ".card-back .card-back-header span",
+  );
   if (cardBackHeader) {
     cardBackHeader.textContent = `${payload.characterName} - ${payload.sceneName}`;
   }
 
   // 因为只是查看，所以隐藏"分享"按钮
-  document.getElementById('summary-share-btn').style.display = 'none';
+  document.getElementById("summary-share-btn").style.display = "none";
 
-  overlay.classList.add('visible');
+  overlay.classList.add("visible");
 }
 
 /**
  * 打开历史约会界面
  */
 async function openDatingHistory() {
-  showScreen('dating-history-screen');
+  showScreen("dating-history-screen");
   await renderDatingHistory();
 }
 
@@ -2393,11 +2738,14 @@ async function openDatingHistory() {
  * 渲染历史约会列表
  */
 async function renderDatingHistory() {
-  const listEl = document.getElementById('dating-history-list');
-  listEl.innerHTML = '';
+  const listEl = document.getElementById("dating-history-list");
+  listEl.innerHTML = "";
 
   // 从数据库读取所有记录，并按时间倒序排列
-  const records = await db.datingHistory.orderBy('timestamp').reverse().toArray();
+  const records = await db.datingHistory
+    .orderBy("timestamp")
+    .reverse()
+    .toArray();
 
   if (records.length === 0) {
     listEl.innerHTML =
@@ -2406,7 +2754,7 @@ async function renderDatingHistory() {
   }
 
   // 遍历每一条记录，创建对应的卡片并添加到列表中
-  records.forEach(record => {
+  records.forEach((record) => {
     const card = createDatingHistoryCard(record);
     listEl.appendChild(card);
   });
@@ -2418,22 +2766,25 @@ async function renderDatingHistory() {
  * @returns {HTMLElement} - 创建好的卡片DOM元素
  */
 function createDatingHistoryCard(record) {
-  const cardContainer = document.createElement('div');
-  cardContainer.className = 'dating-summary-card'; // 复用结算卡片的样式，很方便！
+  const cardContainer = document.createElement("div");
+  cardContainer.className = "dating-summary-card"; // 复用结算卡片的样式，很方便！
 
   // 根据评级类型设置卡片正面的颜色
-  let cardClass = '';
-  if (record.ratingType === 'romantic') cardClass = 'romantic';
-  else if (record.ratingType === 'passionate') cardClass = 'passionate';
-  else if (record.ratingType === 'perfect') cardClass = 'perfect';
+  let cardClass = "";
+  if (record.ratingType === "romantic") cardClass = "romantic";
+  else if (record.ratingType === "passionate") cardClass = "passionate";
+  else if (record.ratingType === "perfect") cardClass = "perfect";
 
   // 拼接卡片背面的完整约会记录HTML
-  const fullHistoryHtml = [...record.storyHistory, `【旁白】: ${record.finalStory}`]
-    .join('\n\n')
-    .replace(/\n/g, '<br>');
+  const fullHistoryHtml = [
+    ...record.storyHistory,
+    `【旁白】: ${record.finalStory}`,
+  ]
+    .join("\n\n")
+    .replace(/\n/g, "<br>");
 
   // 获取角色名字，如果角色被删了，就显示"未知角色"
-  const charName = state.chats[record.characterId]?.name || '未知角色';
+  const charName = state.chats[record.characterId]?.name || "未知角色";
 
   // 最终拼接成一个完整的、包含正反两面的卡片HTML
   cardContainer.innerHTML = `
@@ -2468,75 +2819,84 @@ function getSceneTypeKeywords(sceneName) {
   const name = sceneName.toLowerCase(); // 转换为小写，方便匹配
 
   const outdoorKeywords = [
-    '公园',
-    '海滩',
-    '山',
-    '森林',
-    '湖',
-    '花园',
-    '夜市',
-    '路边',
-    '街头',
-    'park',
-    'beach',
-    'mountain',
-    'forest',
-    'lake',
-    'garden',
-    'street',
+    "公园",
+    "海滩",
+    "山",
+    "森林",
+    "湖",
+    "花园",
+    "夜市",
+    "路边",
+    "街头",
+    "park",
+    "beach",
+    "mountain",
+    "forest",
+    "lake",
+    "garden",
+    "street",
   ];
   const indoorPublicKeywords = [
-    '咖啡',
-    '书店',
-    '博物馆',
-    '美术馆',
-    '水族馆',
-    '影院',
-    '酒吧',
-    'cafe',
-    'bookstore',
-    'museum',
-    'gallery',
-    'aquarium',
-    'cinema',
-    'bar',
+    "咖啡",
+    "书店",
+    "博物馆",
+    "美术馆",
+    "水族馆",
+    "影院",
+    "酒吧",
+    "cafe",
+    "bookstore",
+    "museum",
+    "gallery",
+    "aquarium",
+    "cinema",
+    "bar",
   ];
-  const loveHotelKeywords = ['情趣', 'love hotel', '主题酒店', 'lovers hotel', '成人旅馆'];
+  const loveHotelKeywords = [
+    "情趣",
+    "love hotel",
+    "主题酒店",
+    "lovers hotel",
+    "成人旅馆",
+  ];
 
   // 优先判断是否为特殊的情趣酒店
-  if (loveHotelKeywords.some(keyword => name.includes(keyword))) {
-    console.log('场景识别为：情趣酒店（已激活特殊重写模式）');
+  if (loveHotelKeywords.some((keyword) => name.includes(keyword))) {
+    console.log("场景识别为：情趣酒店（已激活特殊重写模式）");
     // 将"情趣酒店"翻译成纯粹的、描述性的场景
     return {
       scenePrompt:
-        'an empty luxurious romantic hotel room interior, with a heart-shaped bed or a round bed, mirrors on the ceiling, neon mood lighting, Jacuzzi in room, sensual and intimate atmosphere',
-      styleKeywords: 'romantic, luxurious, intimate, playful',
+        "an empty luxurious romantic hotel room interior, with a heart-shaped bed or a round bed, mirrors on the ceiling, neon mood lighting, Jacuzzi in room, sensual and intimate atmosphere",
+      styleKeywords: "romantic, luxurious, intimate, playful",
     };
   }
 
   // 判断是否为户外场景
-  if (outdoorKeywords.some(keyword => name.includes(keyword))) {
-    console.log('场景识别为：户外');
+  if (outdoorKeywords.some((keyword) => name.includes(keyword))) {
+    console.log("场景识别为：户外");
     return {
       scenePrompt: sceneName,
-      styleKeywords: 'natural lighting, golden hour, beautiful scenery, serene atmosphere, epic sky, wide angle',
+      styleKeywords:
+        "natural lighting, golden hour, beautiful scenery, serene atmosphere, epic sky, wide angle",
     };
   }
 
   // 判断是否为室内公共场所
-  if (indoorPublicKeywords.some(keyword => name.includes(keyword))) {
-    console.log('场景识别为：室内公共场所');
+  if (indoorPublicKeywords.some((keyword) => name.includes(keyword))) {
+    console.log("场景识别为：室内公共场所");
     return {
       scenePrompt: sceneName,
-      styleKeywords: 'cozy interior, ambient lighting, warm and inviting, charming decor, detailed background',
+      styleKeywords:
+        "cozy interior, ambient lighting, warm and inviting, charming decor, detailed background",
     };
   }
 
   // 默认情况，使用用户输入的名称
-  console.log('场景识别为：通用/现代酒店');
+  console.log("场景识别为：通用/现代酒店");
   return {
     scenePrompt: sceneName,
-    styleKeywords: 'modern aesthetic, elegant decor, luxurious interior, clean, bright',
+    styleKeywords:
+      "modern aesthetic, elegant decor, luxurious interior, clean, bright",
   };
 }
 
@@ -2544,198 +2904,261 @@ function getSceneTypeKeywords(sceneName) {
  * 保存用户自定义的约会场景
  */
 async function handleSaveCustomDatingScene() {
-  const name = document.getElementById('scene-name-input').value.trim();
-  const imageUrl = document.getElementById('scene-image-url-input').value.trim();
-  const costStr = document.getElementById('scene-cost-input').value.trim();
+  const name = document.getElementById("scene-name-input").value.trim();
+  const imageUrl = document
+    .getElementById("scene-image-url-input")
+    .value.trim();
+  const costStr = document.getElementById("scene-cost-input").value.trim();
 
   if (!name || !costStr) {
-    alert('场景名称和花费为必填项！');
+    alert("场景名称和花费为必填项！");
     return;
   }
 
   const cost = parseInt(costStr, 10);
   if (isNaN(cost) || cost < 0) {
-    alert('请输入有效的花费金额！');
+    alert("请输入有效的花费金额！");
     return;
   }
 
   const newScene = {
     name: name,
     cost: cost,
-    uid: 'scene_user_' + Date.now(),
+    uid: "scene_user_" + Date.now(),
   };
 
   if (imageUrl) {
-    if (!imageUrl.startsWith('http') && !imageUrl.startsWith('data:image')) {
-      alert('请输入一个有效的网络图片URL！');
+    if (!imageUrl.startsWith("http") && !imageUrl.startsWith("data:image")) {
+      alert("请输入一个有效的网络图片URL！");
       return;
     }
     newScene.imageUrl = imageUrl;
-    newScene.imagePrompt = 'User-provided image';
+    newScene.imagePrompt = "User-provided image";
   } else {
     // 生成AI图像的提示词
     const universalStyle =
-      'photorealistic, 4k, hyperrealistic, cinematic lighting, masterpiece, best quality, ultra detailed, no dark elements, romantic, (no humans:1.5), no people, no characters, empty room, no one';
+      "photorealistic, 4k, hyperrealistic, cinematic lighting, masterpiece, best quality, ultra detailed, no dark elements, romantic, (no humans:1.5), no people, no characters, empty room, no one";
     const promptParts = getSceneTypeKeywords(name);
-    newScene.imageUrl = '';
+    newScene.imageUrl = "";
     newScene.imagePrompt = `${promptParts.scenePrompt}, ${promptParts.styleKeywords}, ${universalStyle}`;
 
-    console.log('【终极版】生成的Image Prompt:', newScene.imagePrompt);
+    console.log("【终极版】生成的Image Prompt:", newScene.imagePrompt);
   }
 
   try {
     await db.datingScenes.add(newScene);
     currentDatingScenes.push(newScene);
-    document.getElementById('create-dating-scene-modal').classList.remove('visible');
+    document
+      .getElementById("create-dating-scene-modal")
+      .classList.remove("visible");
     renderDatingScenes();
-    alert('自定义约会场景已成功创建！');
+    alert("自定义约会场景已成功创建！");
   } catch (error) {
-    console.error('保存自定义约会场景失败:', error);
+    console.error("保存自定义约会场景失败:", error);
     alert(`保存失败: ${error.message}`);
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   // 约会大作战功能事件监听器
-  document.getElementById('date-a-live-app-icon').addEventListener('click', openDatingApp);
-  document.getElementById('refresh-dating-scene-btn').addEventListener('click', refreshDatingScenes);
-  document.getElementById('end-date-btn').addEventListener('click', endDate);
+  document
+    .getElementById("date-a-live-app-icon")
+    .addEventListener("click", openDatingApp);
+  document
+    .getElementById("refresh-dating-scene-btn")
+    .addEventListener("click", refreshDatingScenes);
+  document.getElementById("end-date-btn").addEventListener("click", endDate);
 
   // 使用事件委托处理约会场景卡片的删除和点击事件
-  document.getElementById('dating-scene-content').addEventListener('click', e => {
-    const card = e.target.closest('.dating-scene-card');
-    if (!card) return;
+  document
+    .getElementById("dating-scene-content")
+    .addEventListener("click", (e) => {
+      const card = e.target.closest(".dating-scene-card");
+      if (!card) return;
 
-    const sceneUid = card.dataset.uid;
-    const scene = currentDatingScenes.find(s => s.uid === sceneUid);
-    if (!scene) return;
+      const sceneUid = card.dataset.uid;
+      const scene = currentDatingScenes.find((s) => s.uid === sceneUid);
+      if (!scene) return;
 
-    // 如果点击的是删除按钮
-    if (e.target.classList.contains('dating-scene-delete-btn')) {
-      deleteDatingScene(sceneUid);
-    } else {
-      // 否则点击卡片本身，打开角色选择器
-      openDatingCharacterSelector(scene);
-    }
-  });
+      // 如果点击的是删除按钮
+      if (e.target.classList.contains("dating-scene-delete-btn")) {
+        deleteDatingScene(sceneUid);
+      } else {
+        // 否则点击卡片本身，打开角色选择器
+        openDatingCharacterSelector(scene);
+      }
+    });
 
   // 为文游文本框绑定点击切换下一句的事件
-  document.querySelector('.dating-game-textbox').addEventListener('click', () => {
-    if (
-      datingGameState.isActive &&
-      !datingGameState.isSwitchingSentence &&
-      datingGameState.currentSentenceIndex < datingGameState.sentences.length - 1
-    ) {
-      showNextSentence();
-    }
-  });
+  document
+    .querySelector(".dating-game-textbox")
+    .addEventListener("click", () => {
+      if (
+        datingGameState.isActive &&
+        !datingGameState.isSwitchingSentence &&
+        datingGameState.currentSentenceIndex <
+          datingGameState.sentences.length - 1
+      ) {
+        showNextSentence();
+      }
+    });
 
   // 约会大作战-文游模式UI事件绑定
-  document.getElementById('dating-game-settings-btn').addEventListener('click', openDatingSettingsModal);
-  document.getElementById('dating-game-reroll-btn').addEventListener('click', handleDatingReroll);
+  document
+    .getElementById("dating-game-settings-btn")
+    .addEventListener("click", openDatingSettingsModal);
+  document
+    .getElementById("dating-game-reroll-btn")
+    .addEventListener("click", handleDatingReroll);
 
   // 设置弹窗内的按钮事件
-  document.getElementById('cancel-dating-settings-btn').addEventListener('click', () => {
-    document.getElementById('dating-game-settings-modal').classList.remove('visible');
-    // 取消时恢复到角色已保存的设置
-    const chat = state.chats[datingGameState.characterId];
-    currentDatingUISettings = JSON.parse(JSON.stringify(chat.settings.datingUISettings || {}));
-    applyDatingUISettings();
-  });
-  document.getElementById('save-dating-settings-btn').addEventListener('click', saveDatingSettings);
+  document
+    .getElementById("cancel-dating-settings-btn")
+    .addEventListener("click", () => {
+      document
+        .getElementById("dating-game-settings-modal")
+        .classList.remove("visible");
+      // 取消时恢复到角色已保存的设置
+      const chat = state.chats[datingGameState.characterId];
+      currentDatingUISettings = JSON.parse(
+        JSON.stringify(chat.settings.datingUISettings || {}),
+      );
+      applyDatingUISettings();
+    });
+  document
+    .getElementById("save-dating-settings-btn")
+    .addEventListener("click", saveDatingSettings);
 
   // 图片上传按钮事件
   document
-    .querySelector('#dating-game-settings-modal .bg-upload-container button')
-    .addEventListener('click', () => handleDatingImageUpload('bg'));
+    .querySelector("#dating-game-settings-modal .bg-upload-container button")
+    .addEventListener("click", () => handleDatingImageUpload("bg"));
   document
-    .querySelector('#dating-game-settings-modal .form-group:nth-of-type(5) .bg-upload-container button')
-    .addEventListener('click', () => handleDatingImageUpload('sprite'));
+    .querySelector(
+      "#dating-game-settings-modal .form-group:nth-of-type(5) .bg-upload-container button",
+    )
+    .addEventListener("click", () => handleDatingImageUpload("sprite"));
 
   // 图片URL输入实时更新
-  document.getElementById('dating-bg-url-input').addEventListener('input', e => {
-    currentDatingUISettings.backgroundUrl = e.target.value.trim();
-    applyDatingUISettings();
-  });
+  document
+    .getElementById("dating-bg-url-input")
+    .addEventListener("input", (e) => {
+      currentDatingUISettings.backgroundUrl = e.target.value.trim();
+      applyDatingUISettings();
+    });
 
   // 约会立绘功能事件监听器
-  document.getElementById('manage-sprite-groups-btn').addEventListener('click', openSpriteGroupManager);
-  document.getElementById('close-sprite-group-manager-btn').addEventListener('click', () => {
-    document.getElementById('sprite-group-manager-modal').classList.remove('visible');
-  });
+  document
+    .getElementById("manage-sprite-groups-btn")
+    .addEventListener("click", openSpriteGroupManager);
+  document
+    .getElementById("close-sprite-group-manager-btn")
+    .addEventListener("click", () => {
+      document
+        .getElementById("sprite-group-manager-modal")
+        .classList.remove("visible");
+    });
 
-  document.getElementById('sprite-group-list-container').addEventListener('click', e => {
-    const target = e.target;
-    if (target.tagName === 'BUTTON' && target.dataset.id) {
-      const action = target.dataset.action;
-      const groupId = parseInt(target.dataset.id);
-      if (action === 'edit') {
-        openSpriteEditor(groupId);
-      } else if (action === 'delete') {
-        deleteSpriteGroup(groupId);
+  document
+    .getElementById("sprite-group-list-container")
+    .addEventListener("click", (e) => {
+      const target = e.target;
+      if (target.tagName === "BUTTON" && target.dataset.id) {
+        const action = target.dataset.action;
+        const groupId = parseInt(target.dataset.id);
+        if (action === "edit") {
+          openSpriteEditor(groupId);
+        } else if (action === "delete") {
+          deleteSpriteGroup(groupId);
+        }
       }
-    }
-  });
+    });
 
-  document.getElementById('create-new-sprite-group-btn').addEventListener('click', () => openSpriteEditor());
+  document
+    .getElementById("create-new-sprite-group-btn")
+    .addEventListener("click", () => openSpriteEditor());
 
-  document.getElementById('cancel-sprite-editor-btn').addEventListener('click', () => {
-    document.getElementById('sprite-editor-modal').classList.remove('visible');
-  });
+  document
+    .getElementById("cancel-sprite-editor-btn")
+    .addEventListener("click", () => {
+      document
+        .getElementById("sprite-editor-modal")
+        .classList.remove("visible");
+    });
 
-  document.getElementById('save-sprite-editor-btn').addEventListener('click', saveSpriteGroup);
+  document
+    .getElementById("save-sprite-editor-btn")
+    .addEventListener("click", saveSpriteGroup);
 
-  document.getElementById('add-new-sprite-btn').addEventListener('click', () => {
-    document.getElementById('sprite-list-editor').appendChild(createSpriteEditCard());
-  });
+  document
+    .getElementById("add-new-sprite-btn")
+    .addEventListener("click", () => {
+      document
+        .getElementById("sprite-list-editor")
+        .appendChild(createSpriteEditCard());
+    });
 
   // 约会预设功能按钮事件
-  document.getElementById('dating-preset-select').addEventListener('change', handleDatingPresetSelect);
-  document.getElementById('manage-dating-presets-btn').addEventListener('click', openDatingPresetManager);
+  document
+    .getElementById("dating-preset-select")
+    .addEventListener("change", handleDatingPresetSelect);
+  document
+    .getElementById("manage-dating-presets-btn")
+    .addEventListener("click", openDatingPresetManager);
 
   // 约会结算卡片事件绑定
-  const summaryCard = document.querySelector('.dating-summary-card');
-  const summaryCardBackBtn = document.getElementById('summary-flip-back-btn');
+  const summaryCard = document.querySelector(".dating-summary-card");
+  const summaryCardBackBtn = document.getElementById("summary-flip-back-btn");
 
   // 点击卡片正面或背面的返回按钮触发翻转
-  summaryCard.addEventListener('click', e => {
+  summaryCard.addEventListener("click", (e) => {
     // 确保点击的不是分享或关闭按钮
-    if (!e.target.closest('button')) {
-      summaryCard.classList.toggle('is-flipped');
+    if (!e.target.closest("button")) {
+      summaryCard.classList.toggle("is-flipped");
     }
   });
-  summaryCardBackBtn.addEventListener('click', e => {
+  summaryCardBackBtn.addEventListener("click", (e) => {
     e.stopPropagation(); // 阻止事件冒泡到父元素
-    summaryCard.classList.remove('is-flipped');
+    summaryCard.classList.remove("is-flipped");
   });
 
   // 分享按钮事件
-  document.getElementById('summary-share-btn').addEventListener('click', shareDatingSummary);
+  document
+    .getElementById("summary-share-btn")
+    .addEventListener("click", shareDatingSummary);
 
   // 关闭按钮事件（支持不同场景）
-  document.getElementById('summary-close-btn').addEventListener('click', async () => {
-    if (datingGameState.isActive) {
-      // 如果在约会中，确认并结束约会
-      const confirmed = await showCustomConfirm('确认关闭', '确定要关闭结算卡片吗？关闭后约会即告结束。', {
-        confirmButtonClass: 'btn-danger',
-      });
-      if (confirmed) {
-        finalizeAndExitDate();
+  document
+    .getElementById("summary-close-btn")
+    .addEventListener("click", async () => {
+      if (datingGameState.isActive) {
+        // 如果在约会中，确认并结束约会
+        const confirmed = await showCustomConfirm(
+          "确认关闭",
+          "确定要关闭结算卡片吗？关闭后约会即告结束。",
+          {
+            confirmButtonClass: "btn-danger",
+          },
+        );
+        if (confirmed) {
+          finalizeAndExitDate();
+        }
+      } else {
+        // 如果只是在单聊里查看分享，直接关闭弹窗
+        document
+          .getElementById("dating-summary-overlay")
+          .classList.remove("visible");
+        // 重置卡片翻转状态
+        const card = document.querySelector(".dating-summary-card");
+        if (card) {
+          card.classList.remove("is-flipped");
+        }
       }
-    } else {
-      // 如果只是在单聊里查看分享，直接关闭弹窗
-      document.getElementById('dating-summary-overlay').classList.remove('visible');
-      // 重置卡片翻转状态
-      const card = document.querySelector('.dating-summary-card');
-      if (card) {
-        card.classList.remove('is-flipped');
-      }
-    }
-  });
+    });
 
   // 聊天记录中的卡片点击事件（事件委托）
-  document.getElementById('chat-messages').addEventListener('click', e => {
-    const chatCard = e.target.closest('.dating-summary-chat-card');
+  document.getElementById("chat-messages").addEventListener("click", (e) => {
+    const chatCard = e.target.closest(".dating-summary-chat-card");
     // 检查 data-timestamp
     if (chatCard && chatCard.dataset.timestamp) {
       try {
@@ -2743,53 +3166,73 @@ document.addEventListener('DOMContentLoaded', () => {
         const chat = state.chats[state.activeChatId];
 
         // 用时间戳从聊天记录里找到那条原始消息
-        const message = chat.history.find(m => m.timestamp === timestamp);
+        const message = chat.history.find((m) => m.timestamp === timestamp);
 
         // 如果找到了，直接用它的 payload
         if (message && message.payload) {
           reopenDatingSummary(message.payload);
         } else {
           // 如果因为某种原因没找到，给提示
-          alert('无法找到对应的约会记录数据。');
+          alert("无法找到对应的约会记录数据。");
         }
       } catch (error) {
-        console.error('打开分享的约会记录失败:', error);
-        alert('打开约会记录时发生未知错误。');
+        console.error("打开分享的约会记录失败:", error);
+        alert("打开约会记录时发生未知错误。");
       }
     }
   });
 
   // 约会历史记录功能事件绑定
-  document.getElementById('dating-history-btn').addEventListener('click', openDatingHistory);
-  document.getElementById('dating-history-back-btn').addEventListener('click', () => showScreen('date-a-live-screen'));
+  document
+    .getElementById("dating-history-btn")
+    .addEventListener("click", openDatingHistory);
+  document
+    .getElementById("dating-history-back-btn")
+    .addEventListener("click", () => showScreen("date-a-live-screen"));
 
   // 使用事件委托为历史列表中的所有卡片绑定翻转事件
-  document.getElementById('dating-history-list').addEventListener('click', e => {
-    // 找到被点击的卡片
-    const card = e.target.closest('.dating-summary-card');
-    if (card) {
-      // 切换 is-flipped 类触发CSS动画
-      card.classList.toggle('is-flipped');
-    }
-  });
+  document
+    .getElementById("dating-history-list")
+    .addEventListener("click", (e) => {
+      // 找到被点击的卡片
+      const card = e.target.closest(".dating-summary-card");
+      if (card) {
+        // 切换 is-flipped 类触发CSS动画
+        card.classList.toggle("is-flipped");
+      }
+    });
 
   // 约会大作战-创建场景功能事件绑定
-  document.getElementById('create-dating-scene-btn').addEventListener('click', () => {
-    // 打开创建弹窗并清空输入框
-    document.getElementById('scene-name-input').value = '';
-    document.getElementById('scene-image-url-input').value = '';
-    document.getElementById('scene-cost-input').value = '';
-    document.getElementById('create-dating-scene-modal').classList.add('visible');
-  });
+  document
+    .getElementById("create-dating-scene-btn")
+    .addEventListener("click", () => {
+      // 打开创建弹窗并清空输入框
+      document.getElementById("scene-name-input").value = "";
+      document.getElementById("scene-image-url-input").value = "";
+      document.getElementById("scene-cost-input").value = "";
+      document
+        .getElementById("create-dating-scene-modal")
+        .classList.add("visible");
+    });
 
-  document.getElementById('cancel-create-scene-btn').addEventListener('click', () => {
-    document.getElementById('create-dating-scene-modal').classList.remove('visible');
-  });
+  document
+    .getElementById("cancel-create-scene-btn")
+    .addEventListener("click", () => {
+      document
+        .getElementById("create-dating-scene-modal")
+        .classList.remove("visible");
+    });
 
-  document.getElementById('save-custom-scene-btn').addEventListener('click', handleSaveCustomDatingScene);
+  document
+    .getElementById("save-custom-scene-btn")
+    .addEventListener("click", handleSaveCustomDatingScene);
   // ▼▼▼ 新增：约会BGM功能事件绑定 ▼▼▼
-  document.getElementById('dating-bgm-btn').addEventListener('click', openDatingBgmModal);
-  document.getElementById('dating-bgm-close-btn').addEventListener('click', () => {
-    document.getElementById('dating-bgm-modal').classList.remove('visible');
-  });
+  document
+    .getElementById("dating-bgm-btn")
+    .addEventListener("click", openDatingBgmModal);
+  document
+    .getElementById("dating-bgm-close-btn")
+    .addEventListener("click", () => {
+      document.getElementById("dating-bgm-modal").classList.remove("visible");
+    });
 });

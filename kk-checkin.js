@@ -4,16 +4,17 @@ let activeKkCharId = null; // 用于追踪正在查看哪个角色的房屋
  * 【总入口】打开“查岗”功能，显示角色选择列表
  */
 async function openKkCheckin() {
-  const listEl = document.getElementById('kk-char-selection-list');
-  listEl.innerHTML = '';
-  const characters = Object.values(state.chats).filter(chat => !chat.isGroup);
+  const listEl = document.getElementById("kk-char-selection-list");
+  listEl.innerHTML = "";
+  const characters = Object.values(state.chats).filter((chat) => !chat.isGroup);
 
   if (characters.length === 0) {
-    listEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">还没有可以查岗的角色</p>';
+    listEl.innerHTML =
+      '<p style="text-align:center; color: var(--text-secondary);">还没有可以查岗的角色</p>';
   } else {
-    characters.forEach(char => {
-      const item = document.createElement('div');
-      item.className = 'character-select-item'; // 复用“查手机”的样式
+    characters.forEach((char) => {
+      const item = document.createElement("div");
+      item.className = "character-select-item"; // 复用“查手机”的样式
       item.dataset.chatId = char.id;
       item.innerHTML = `
                                 <img src="${char.settings.aiAvatar || defaultAvatar}" alt="${char.name}">
@@ -22,7 +23,7 @@ async function openKkCheckin() {
       listEl.appendChild(item);
     });
   }
-  showScreen('kk-char-selection-screen');
+  showScreen("kk-char-selection-screen");
 }
 
 /**
@@ -38,9 +39,9 @@ async function openKkHouseView(charId) {
   if (!chat.houseData) {
     // 【修改点】询问用户是否生成电脑
     const includeComputer = await showCustomConfirm(
-      '生成选项',
-      '是否需要生成电脑内容？\n(包含浏览器历史、私人文件、Steam游戏等)',
-      { confirmText: '必须生成', cancelText: '不需要' },
+      "生成选项",
+      "是否需要生成电脑内容？\n(包含浏览器历史、私人文件、Steam游戏等)",
+      { confirmText: "必须生成", cancelText: "不需要" },
     );
 
     // 将用户的选择传给生成函数
@@ -53,7 +54,7 @@ async function openKkHouseView(charId) {
 
   // 渲染房屋视图
   renderKkHouseView(chat.houseData);
-  showScreen('kk-house-view-screen');
+  showScreen("kk-house-view-screen");
 }
 
 /**
@@ -65,60 +66,70 @@ async function openKkHouseView(charId) {
 async function generateHouseData(charId, includeComputer = true) {
   // 默认为true兼容旧代码
   const chat = state.chats[charId];
-  showGenerationOverlay('正在努力寻找中...');
+  showGenerationOverlay("正在努力寻找中...");
 
   try {
     const { proxyUrl, apiKey, model } = state.apiConfig;
-    if (!proxyUrl || !apiKey || !model) throw new Error('API未配置');
+    if (!proxyUrl || !apiKey || !model) throw new Error("API未配置");
 
-    let worldBookContext = '';
-    if (chat.settings.linkedWorldBookIds && chat.settings.linkedWorldBookIds.length > 0) {
+    let worldBookContext = "";
+    if (
+      chat.settings.linkedWorldBookIds &&
+      chat.settings.linkedWorldBookIds.length > 0
+    ) {
       worldBookContext =
-        '--- 世界观设定 (必须严格遵守) ---\n' +
+        "--- 世界观设定 (必须严格遵守) ---\n" +
         chat.settings.linkedWorldBookIds
-          .map(id => {
-            const book = state.worldBooks.find(b => b.id === id);
-            return book ? `[${book.name}]: ${book.content}` : '';
+          .map((id) => {
+            const book = state.worldBooks.find((b) => b.id === id);
+            return book ? `[${book.name}]: ${book.content}` : "";
           })
-          .join('\n\n');
+          .join("\n\n");
     }
-    const userNickname = chat.settings.myNickname || '我';
+    const userNickname = chat.settings.myNickname || "我";
 
     const recentHistory = chat.history
       .slice(-chat.settings.maxMemory || 20)
-      .map(msg => {
-        const sender = msg.role === 'user' ? userNickname : chat.name;
+      .map((msg) => {
+        const sender = msg.role === "user" ? userNickname : chat.name;
         return `${sender}: ${msg.content}`;
       })
-      .join('\n');
+      .join("\n");
 
-    let linkedMemoryContext = '';
-    if (chat.settings.linkedMemories && chat.settings.linkedMemories.length > 0) {
+    let linkedMemoryContext = "";
+    if (
+      chat.settings.linkedMemories &&
+      chat.settings.linkedMemories.length > 0
+    ) {
       // ... (保持原有的记忆互通逻辑不变) ...
-      const contextPromises = chat.settings.linkedMemories.map(async link => {
+      const contextPromises = chat.settings.linkedMemories.map(async (link) => {
         const linkedChat = state.chats[link.chatId];
-        if (!linkedChat) return '';
+        if (!linkedChat) return "";
         const freshLinkedChat = await db.chats.get(link.chatId);
-        if (!freshLinkedChat) return '';
-        const recentHistory = freshLinkedChat.history.filter(msg => !msg.isHidden).slice(-link.depth);
-        if (recentHistory.length === 0) return '';
+        if (!freshLinkedChat) return "";
+        const recentHistory = freshLinkedChat.history
+          .filter((msg) => !msg.isHidden)
+          .slice(-link.depth);
+        if (recentHistory.length === 0) return "";
         const formattedMessages = recentHistory
-          .map(msg => `  - ${formatMessageForContext(msg, freshLinkedChat)}`)
-          .join('\n');
+          .map((msg) => `  - ${formatMessageForContext(msg, freshLinkedChat)}`)
+          .join("\n");
         return `\n## 附加上下文：来自与“${linkedChat.name}”的最近对话内容 (仅你可见)\n${formattedMessages}`;
       });
       const allContexts = await Promise.all(contextPromises);
-      linkedMemoryContext = allContexts.filter(Boolean).join('\n');
+      linkedMemoryContext = allContexts.filter(Boolean).join("\n");
     }
 
     const npcLibrary = chat.npcLibrary || [];
-    let npcContext = '';
+    let npcContext = "";
     if (npcLibrary.length > 0) {
-      npcContext = '# 你的专属NPC好友列表' + npcLibrary.map(npc => `- **${npc.name}**: ${npc.persona}`).join('\n');
+      npcContext =
+        "# 你的专属NPC好友列表" +
+        npcLibrary.map((npc) => `- **${npc.name}**: ${npc.persona}`).join("\n");
     }
 
-    let computerRulesPrompt = '';
-    let computerJsonExample = '';
+    let computerRulesPrompt = "";
+    let computerJsonExample = "";
 
     if (includeComputer) {
       computerRulesPrompt = `
@@ -195,25 +206,39 @@ async function generateHouseData(charId, includeComputer = true) {
             `;
 
     // ... (后续的API调用请求代码保持不变) ...
-    const messagesForApi = [{ role: 'user', content: systemPrompt }];
+    const messagesForApi = [{ role: "user", content: systemPrompt }];
     let isGemini = proxyUrl === GEMINI_API_URL;
-    let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      systemPrompt,
+      messagesForApi,
+      isGemini,
+    );
 
     const response = isGemini
       ? await fetch(geminiConfig.url, geminiConfig.data)
       : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.8 }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messagesForApi,
+            temperature: 0.8,
+          }),
         });
 
     if (!response.ok) throw new Error(await response.text());
 
     const data = await response.json();
-    const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(
-      /^```json\s*|```$/g,
-      '',
-    );
+    const rawContent = (
+      isGemini
+        ? data.candidates[0].content.parts[0].text
+        : data.choices[0].message.content
+    ).replace(/^```json\s*|```$/g, "");
     const houseData = JSON.parse(rawContent);
 
     // ▼▼▼ 逐张生成图片逻辑 (保持不变) ▼▼▼
@@ -229,11 +254,13 @@ async function generateHouseData(charId, includeComputer = true) {
               console.log(`✅ “${description}”生成成功！`);
               return url;
             } else {
-              throw new Error('生成的图片URL无效');
+              throw new Error("生成的图片URL无效");
             }
           } catch (e) {
-            console.warn(`❌ “${description}”生成失败: ${e.message}。3秒后自动重试...`);
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            console.warn(
+              `❌ “${description}”生成失败: ${e.message}。3秒后自动重试...`,
+            );
+            await new Promise((resolve) => setTimeout(resolve, 3000));
             attempt++;
           }
         }
@@ -241,10 +268,13 @@ async function generateHouseData(charId, includeComputer = true) {
 
       try {
         const currentChat = state.chats[charId];
-        console.log('🚀 开始队列式生成房屋图片...');
+        console.log("🚀 开始队列式生成房屋图片...");
 
         if (houseData.locationImagePrompt) {
-          const locationUrl = await generateWithRetry(houseData.locationImagePrompt, '住所整体外观');
+          const locationUrl = await generateWithRetry(
+            houseData.locationImagePrompt,
+            "住所整体外观",
+          );
           const chatToUpdate = await db.chats.get(charId);
           if (chatToUpdate && chatToUpdate.houseData) {
             chatToUpdate.houseData.locationImageUrl = locationUrl;
@@ -253,9 +283,15 @@ async function generateHouseData(charId, includeComputer = true) {
           if (currentChat && currentChat.houseData) {
             currentChat.houseData.locationImageUrl = locationUrl;
           }
-          const houseScreen = document.getElementById('kk-house-view-screen');
-          if (houseScreen && houseScreen.classList.contains('active') && activeKkCharId === charId) {
-            document.getElementById('kk-house-background').style.backgroundImage = `url(${locationUrl})`;
+          const houseScreen = document.getElementById("kk-house-view-screen");
+          if (
+            houseScreen &&
+            houseScreen.classList.contains("active") &&
+            activeKkCharId === charId
+          ) {
+            document.getElementById(
+              "kk-house-background",
+            ).style.backgroundImage = `url(${locationUrl})`;
           }
         }
 
@@ -263,40 +299,54 @@ async function generateHouseData(charId, includeComputer = true) {
         for (const areaName of areaNames) {
           const area = houseData.areas[areaName];
           if (area.imagePrompt) {
-            const areaUrl = await generateWithRetry(area.imagePrompt, `区域：${areaName}`);
+            const areaUrl = await generateWithRetry(
+              area.imagePrompt,
+              `区域：${areaName}`,
+            );
             const chatToUpdate = await db.chats.get(charId);
-            if (chatToUpdate && chatToUpdate.houseData && chatToUpdate.houseData.areas[areaName]) {
+            if (
+              chatToUpdate &&
+              chatToUpdate.houseData &&
+              chatToUpdate.houseData.areas[areaName]
+            ) {
               chatToUpdate.houseData.areas[areaName].imageUrl = areaUrl;
               await db.chats.put(chatToUpdate);
             }
-            if (currentChat && currentChat.houseData && currentChat.houseData.areas[areaName]) {
+            if (
+              currentChat &&
+              currentChat.houseData &&
+              currentChat.houseData.areas[areaName]
+            ) {
               currentChat.houseData.areas[areaName].imageUrl = areaUrl;
             }
-            const areaScreen = document.getElementById('kk-area-view-screen');
-            const currentAreaNameTitle = document.getElementById('kk-area-name').textContent;
+            const areaScreen = document.getElementById("kk-area-view-screen");
+            const currentAreaNameTitle =
+              document.getElementById("kk-area-name").textContent;
             if (
               areaScreen &&
-              areaScreen.classList.contains('active') &&
+              areaScreen.classList.contains("active") &&
               activeKkCharId === charId &&
               currentAreaNameTitle === areaName
             ) {
-              document.getElementById('kk-area-background').style.backgroundImage = `url(${areaUrl})`;
+              document.getElementById(
+                "kk-area-background",
+              ).style.backgroundImage = `url(${areaUrl})`;
             }
           }
         }
       } catch (imgError) {
-        console.error('后台图片生成流程发生不可恢复的错误:', imgError);
+        console.error("后台图片生成流程发生不可恢复的错误:", imgError);
       }
     })();
     // ▲▲▲ 图片生成逻辑结束 ▲▲▲
 
     return houseData;
   } catch (error) {
-    console.error('生成房屋数据失败:', error);
-    await showCustomAlert('生成失败', `发生错误: ${error.message}`);
+    console.error("生成房屋数据失败:", error);
+    await showCustomAlert("生成失败", `发生错误: ${error.message}`);
     return null;
   } finally {
-    document.getElementById('generation-overlay').classList.remove('visible');
+    document.getElementById("generation-overlay").classList.remove("visible");
   }
 }
 
@@ -305,16 +355,19 @@ async function generateHouseData(charId, includeComputer = true) {
  * @param {object} houseData - 角色的房屋数据
  */
 function renderKkHouseView(houseData) {
-  document.getElementById('kk-house-owner-name').textContent = `${state.chats[activeKkCharId].name}的家`;
-  document.getElementById('kk-house-background').style.backgroundImage = `url(${houseData.locationImageUrl})`;
-  document.getElementById('kk-house-location').textContent = houseData.location;
-  document.getElementById('kk-house-description').textContent = houseData.description;
+  document.getElementById("kk-house-owner-name").textContent =
+    `${state.chats[activeKkCharId].name}的家`;
+  document.getElementById("kk-house-background").style.backgroundImage =
+    `url(${houseData.locationImageUrl})`;
+  document.getElementById("kk-house-location").textContent = houseData.location;
+  document.getElementById("kk-house-description").textContent =
+    houseData.description;
 
-  const areasContainer = document.getElementById('kk-house-areas');
-  areasContainer.innerHTML = '';
+  const areasContainer = document.getElementById("kk-house-areas");
+  areasContainer.innerHTML = "";
   for (const areaName in houseData.areas) {
-    const areaBtn = document.createElement('button');
-    areaBtn.className = 'kk-area-button';
+    const areaBtn = document.createElement("button");
+    areaBtn.className = "kk-area-button";
     areaBtn.textContent = areaName;
     areaBtn.onclick = () => openKkAreaView(areaName);
     areasContainer.appendChild(areaBtn);
@@ -331,18 +384,20 @@ function openKkAreaView(areaName) {
   const areaData = chat.houseData.areas[areaName];
   if (!areaData) return;
 
-  document.getElementById('kk-area-name').textContent = areaName;
-  document.getElementById('kk-area-background').style.backgroundImage = `url(${areaData.imageUrl})`;
-  document.getElementById('kk-area-description').textContent = areaData.description;
+  document.getElementById("kk-area-name").textContent = areaName;
+  document.getElementById("kk-area-background").style.backgroundImage =
+    `url(${areaData.imageUrl})`;
+  document.getElementById("kk-area-description").textContent =
+    areaData.description;
 
-  const itemsGrid = document.getElementById('kk-area-items-grid');
-  itemsGrid.innerHTML = '';
+  const itemsGrid = document.getElementById("kk-area-items-grid");
+  itemsGrid.innerHTML = "";
 
   // ★★★★★ 核心修复在这里 ★★★★★
   // 我们现在遍历的是对象数组，所以要使用 item.name
-  areaData.items.forEach(item => {
-    const itemBtn = document.createElement('button');
-    itemBtn.className = 'kk-item-button';
+  areaData.items.forEach((item) => {
+    const itemBtn = document.createElement("button");
+    itemBtn.className = "kk-item-button";
     // 1. 修复：按钮上显示的文字应该是对象的 name 属性
     itemBtn.textContent = item.name;
 
@@ -353,7 +408,7 @@ function openKkAreaView(areaName) {
   });
   // ★★★★★ 修复结束 ★★★★★
 
-  showScreen('kk-area-view-screen');
+  showScreen("kk-area-view-screen");
 }
 /**
  * 处理“翻找”动作 (修复版：模糊匹配电脑，支持物品分享)
@@ -362,21 +417,25 @@ function handleRummage(areaName, itemName) {
   // 1. 【核心修复】电脑特殊处理
   // 改用 includes，只要名字里包含“电脑”、“笔记本”或“computer”就打开电脑界面
   const lowerName = itemName.toLowerCase();
-  if (lowerName.includes('电脑') || lowerName.includes('computer') || lowerName.includes('笔记本')) {
+  if (
+    lowerName.includes("电脑") ||
+    lowerName.includes("computer") ||
+    lowerName.includes("笔记本")
+  ) {
     openComputer();
     return;
   }
 
   const chat = state.chats[activeKkCharId];
   const area = chat.houseData.areas[areaName];
-  const item = area.items.find(i => i.name === itemName);
+  const item = area.items.find((i) => i.name === itemName);
 
   if (item && item.content) {
     // 2. 获取专用弹窗元素
-    const modal = document.getElementById('kk-item-share-modal');
-    const title = document.getElementById('kk-item-share-title');
-    const contentDiv = document.getElementById('kk-item-share-content');
-    const shareBtn = document.getElementById('kk-item-share-confirm-btn');
+    const modal = document.getElementById("kk-item-share-modal");
+    const title = document.getElementById("kk-item-share-title");
+    const contentDiv = document.getElementById("kk-item-share-content");
+    const shareBtn = document.getElementById("kk-item-share-confirm-btn");
 
     // 3. 填充数据
     title.textContent = `在“${itemName}”里发现`;
@@ -387,15 +446,18 @@ function handleRummage(areaName, itemName) {
     shareBtn.parentNode.replaceChild(newShareBtn, shareBtn);
 
     // 5. 绑定分享事件
-    newShareBtn.addEventListener('click', () => {
+    newShareBtn.addEventListener("click", () => {
       shareKkItemToChat(areaName, itemName, item.content);
-      modal.classList.remove('visible');
+      modal.classList.remove("visible");
     });
 
     // 6. 显示弹窗
-    modal.classList.add('visible');
+    modal.classList.add("visible");
   } else {
-    showCustomAlert(`在“${itemName}”里`, '仔细翻了翻，但什么特别的东西都没发现...');
+    showCustomAlert(
+      `在“${itemName}”里`,
+      "仔细翻了翻，但什么特别的东西都没发现...",
+    );
   }
 }
 
@@ -409,8 +471,8 @@ async function shareKkItemToChat(areaName, itemName, content) {
   if (!chat) return;
 
   const msg = {
-    role: 'user', // 这是用户发出的
-    type: 'kk_item_share',
+    role: "user", // 这是用户发出的
+    type: "kk_item_share",
     timestamp: Date.now(),
     payload: {
       areaName: areaName,
@@ -423,7 +485,7 @@ async function shareKkItemToChat(areaName, itemName, content) {
   chat.history.push(msg);
   await db.chats.put(chat);
 
-  showNotification(activeKkCharId, '线索已发送到聊天');
+  showNotification(activeKkCharId, "线索已发送到聊天");
 }
 
 /**
@@ -434,27 +496,34 @@ async function handleResetKkHouse() {
   if (!activeKkCharId) return;
 
   const confirmed = await showCustomConfirm(
-    '确认重新生成',
-    '你确定要重新生成这个家吗？所有现有的区域和物品都将被覆盖，此操作不可撤销。',
-    { confirmButtonClass: 'btn-danger' },
+    "确认重新生成",
+    "你确定要重新生成这个家吗？所有现有的区域和物品都将被覆盖，此操作不可撤销。",
+    { confirmButtonClass: "btn-danger" },
   );
 
   if (confirmed) {
     // 【修改点】询问用户是否生成电脑
-    const includeComputer = await showCustomConfirm('生成选项', '这次生成需要包含电脑吗？', {
-      confirmText: '必须生成',
-      cancelText: '不需要',
-    });
+    const includeComputer = await showCustomConfirm(
+      "生成选项",
+      "这次生成需要包含电脑吗？",
+      {
+        confirmText: "必须生成",
+        cancelText: "不需要",
+      },
+    );
 
     const chat = state.chats[activeKkCharId];
     // 将用户的选择传给生成函数
-    const generatedData = await generateHouseData(activeKkCharId, includeComputer);
+    const generatedData = await generateHouseData(
+      activeKkCharId,
+      includeComputer,
+    );
 
     if (generatedData) {
       chat.houseData = generatedData; // 用新数据覆盖旧数据
       await db.chats.put(chat); // 保存到数据库
       renderKkHouseView(chat.houseData); // 重新渲染界面
-      alert('一个全新的家已经生成！');
+      alert("一个全新的家已经生成！");
     }
   }
 }
@@ -467,22 +536,23 @@ async function handleContinueKkSearch() {
   if (!activeKkCharId) return;
   const chat = state.chats[activeKkCharId];
   if (!chat || !chat.houseData) {
-    alert('还没有为这个角色生成家，请先“重新翻找”一次。');
+    alert("还没有为这个角色生成家，请先“重新翻找”一次。");
     return;
   }
 
-  showGenerationOverlay('正在努力寻找中...');
+  showGenerationOverlay("正在努力寻找中...");
 
   try {
     const { proxyUrl, apiKey, model } = state.apiConfig;
-    if (!proxyUrl || !apiKey || !model) throw new Error('API未配置');
+    if (!proxyUrl || !apiKey || !model) throw new Error("API未配置");
 
     // 准备一个只包含现有物品名的上下文，告诉AI不要重复
-    let existingItemsContext = '# 已有物品 (请生成与之不同的新物品或发现)\n';
+    let existingItemsContext = "# 已有物品 (请生成与之不同的新物品或发现)\n";
     for (const areaName in chat.houseData.areas) {
       const area = chat.houseData.areas[areaName];
       existingItemsContext += `## ${areaName}:\n`;
-      existingItemsContext += area.items.map(item => `- ${item.name}`).join('\n') + '\n';
+      existingItemsContext +=
+        area.items.map((item) => `- ${item.name}`).join("\n") + "\n";
     }
 
     const systemPrompt = `
@@ -518,31 +588,45 @@ async function handleContinueKkSearch() {
 			  }
 			}
 			`;
-    const messagesForApi = [{ role: 'user', content: systemPrompt }];
+    const messagesForApi = [{ role: "user", content: systemPrompt }];
     let isGemini = proxyUrl === GEMINI_API_URL;
-    let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      systemPrompt,
+      messagesForApi,
+      isGemini,
+    );
 
     const response = isGemini
       ? await fetch(geminiConfig.url, geminiConfig.data)
       : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.9 }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messagesForApi,
+            temperature: 0.9,
+          }),
         });
 
     if (!response.ok) throw new Error(await response.text());
 
     const data = await response.json();
-    const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(
-      /^```json\s*|```$/g,
-      '',
-    );
+    const rawContent = (
+      isGemini
+        ? data.candidates[0].content.parts[0].text
+        : data.choices[0].message.content
+    ).replace(/^```json\s*|```$/g, "");
     const newItemsData = JSON.parse(rawContent);
 
     // 将AI返回的新物品/发现合并到旧数据中
     for (const key in newItemsData) {
       // 如果是电脑数据
-      if (key === 'computer') {
+      if (key === "computer") {
         const computerUpdates = newItemsData.computer;
         for (const subKey in computerUpdates) {
           // ★★★ 这里是核心合并逻辑 ★★★
@@ -551,7 +635,10 @@ async function handleContinueKkSearch() {
             chat.houseData.computer[subKey] = [];
           }
           // 确保两个都是数组再合并
-          if (Array.isArray(chat.houseData.computer[subKey]) && Array.isArray(computerUpdates[subKey])) {
+          if (
+            Array.isArray(chat.houseData.computer[subKey]) &&
+            Array.isArray(computerUpdates[subKey])
+          ) {
             chat.houseData.computer[subKey].push(...computerUpdates[subKey]);
           }
         }
@@ -563,12 +650,12 @@ async function handleContinueKkSearch() {
     }
 
     await db.chats.put(chat);
-    alert('翻找出了更多新东西！现在可以进入区域或电脑查看了。');
+    alert("翻找出了更多新东西！现在可以进入区域或电脑查看了。");
   } catch (error) {
-    console.error('继续翻找失败:', error);
-    await showCustomAlert('操作失败', `发生错误: ${error.message}`);
+    console.error("继续翻找失败:", error);
+    await showCustomAlert("操作失败", `发生错误: ${error.message}`);
   } finally {
-    document.getElementById('generation-overlay').classList.remove('visible');
+    document.getElementById("generation-overlay").classList.remove("visible");
   }
 }
 /**
@@ -578,10 +665,10 @@ async function handleContinueKkSearch() {
  * @param {string} sourceCategory - 来源分类（如“电脑浏览器”、“Steam库”）
  */
 function openComputerItemShareModal(itemName, content, sourceCategory) {
-  const modal = document.getElementById('kk-item-share-modal');
-  const title = document.getElementById('kk-item-share-title');
-  const contentDiv = document.getElementById('kk-item-share-content');
-  const shareBtn = document.getElementById('kk-item-share-confirm-btn');
+  const modal = document.getElementById("kk-item-share-modal");
+  const title = document.getElementById("kk-item-share-title");
+  const contentDiv = document.getElementById("kk-item-share-content");
+  const shareBtn = document.getElementById("kk-item-share-confirm-btn");
 
   // 1. 填充数据
   title.textContent = `分享：${itemName}`;
@@ -592,14 +679,14 @@ function openComputerItemShareModal(itemName, content, sourceCategory) {
   shareBtn.parentNode.replaceChild(newShareBtn, shareBtn);
 
   // 3. 绑定分享事件
-  newShareBtn.addEventListener('click', () => {
+  newShareBtn.addEventListener("click", () => {
     // 调用你已有的分享函数
-    shareKkItemToChat('电脑', `${sourceCategory} - ${itemName}`, content);
-    modal.classList.remove('visible');
+    shareKkItemToChat("电脑", `${sourceCategory} - ${itemName}`, content);
+    modal.classList.remove("visible");
   });
 
   // 4. 显示弹窗
-  modal.classList.add('visible');
+  modal.classList.add("visible");
 }
 
 /**
@@ -607,27 +694,29 @@ function openComputerItemShareModal(itemName, content, sourceCategory) {
  * 复用 kk-file-explorer-modal 来显示列表
  */
 function showComputerContentList(title, itemsArray, categoryName) {
-  const listEl = document.getElementById('kk-file-list');
-  const modal = document.getElementById('kk-file-explorer-modal');
+  const listEl = document.getElementById("kk-file-list");
+  const modal = document.getElementById("kk-file-explorer-modal");
 
   // 修改弹窗标题（临时修改，关闭时没关系）
-  modal.querySelector('.modal-header span').textContent = title;
+  modal.querySelector(".modal-header span").textContent = title;
 
-  listEl.innerHTML = ''; // 清空列表
+  listEl.innerHTML = ""; // 清空列表
 
   if (!itemsArray || itemsArray.length === 0) {
-    listEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">空空如也</p>';
+    listEl.innerHTML =
+      '<p style="text-align:center; color: var(--text-secondary);">空空如也</p>';
   } else {
-    itemsArray.forEach(itemStr => {
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'kk-file-item'; // 复用文件项样式
-      itemDiv.style.cursor = 'pointer';
+    itemsArray.forEach((itemStr) => {
+      const itemDiv = document.createElement("div");
+      itemDiv.className = "kk-file-item"; // 复用文件项样式
+      itemDiv.style.cursor = "pointer";
       itemDiv.textContent = itemStr;
 
       // 点击列表项，弹出分享框
-      itemDiv.addEventListener('click', () => {
+      itemDiv.addEventListener("click", () => {
         // 对于纯字符串列表，物品名简略显示，内容显示完整
-        const shortName = itemStr.length > 10 ? itemStr.substring(0, 10) + '...' : itemStr;
+        const shortName =
+          itemStr.length > 10 ? itemStr.substring(0, 10) + "..." : itemStr;
         openComputerItemShareModal(shortName, itemStr, categoryName);
       });
 
@@ -635,24 +724,26 @@ function showComputerContentList(title, itemsArray, categoryName) {
     });
   }
 
-  modal.classList.add('visible');
+  modal.classList.add("visible");
 }
 
 function openComputer() {
   const chat = state.chats[activeKkCharId];
-  document.getElementById('kk-computer-header').querySelector('span').textContent = `${chat.name}的电脑`;
+  document
+    .getElementById("kk-computer-header")
+    .querySelector("span").textContent = `${chat.name}的电脑`;
 
-  const desktop = document.getElementById('kk-computer-desktop');
+  const desktop = document.getElementById("kk-computer-desktop");
   // 使用Flexbox布局来更好地排列图标
-  desktop.style.display = 'flex';
-  desktop.style.flexWrap = 'wrap';
-  desktop.style.gap = '20px';
-  desktop.style.padding = '20px';
-  desktop.style.alignContent = 'flex-start';
+  desktop.style.display = "flex";
+  desktop.style.flexWrap = "wrap";
+  desktop.style.gap = "20px";
+  desktop.style.padding = "20px";
+  desktop.style.alignContent = "flex-start";
 
   // 获取电脑数据，用于动态显示文件名
   const computerData = chat.houseData?.computer || {};
-  const secretFolderName = computerData.secret_folder?.fileName || '加密文件夹';
+  const secretFolderName = computerData.secret_folder?.fileName || "加密文件夹";
 
   desktop.innerHTML = `
 			        <div class="kk-desktop-icon" id="kk-browser-icon" title="浏览器">
@@ -678,7 +769,7 @@ function openComputer() {
 			        </div>
 			    `;
 
-  document.getElementById('kk-computer-modal').classList.add('visible');
+  document.getElementById("kk-computer-modal").classList.add("visible");
 }
 
 /**
@@ -687,24 +778,27 @@ function openComputer() {
 function openFileExplorer() {
   const computerData = state.chats[activeKkCharId]?.houseData?.computer;
   const files = computerData?.local_files || [];
-  const listEl = document.getElementById('kk-file-list');
-  listEl.innerHTML = '';
+  const listEl = document.getElementById("kk-file-list");
+  listEl.innerHTML = "";
 
   if (files.length === 0) {
-    listEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">这个文件夹是空的</p>';
+    listEl.innerHTML =
+      '<p style="text-align:center; color: var(--text-secondary);">这个文件夹是空的</p>';
   } else {
-    files.forEach(file => {
-      const item = document.createElement('div');
-      item.className = 'kk-file-item';
+    files.forEach((file) => {
+      const item = document.createElement("div");
+      item.className = "kk-file-item";
       item.textContent = file.fileName;
 
       // --- ▼▼▼ 这就是本次修复的核心代码 ▼▼▼ ---
 
       // 1. 让鼠标悬浮时显示为可点击的手指形状
-      item.style.cursor = 'pointer';
+      item.style.cursor = "pointer";
       // 2. 将文件名和文件内容存储到元素的 data-* 属性中，方便之后读取
       item.dataset.fileName = file.fileName;
-      item.dataset.fileContent = encodeURIComponent(file.content || '（文件内容为空）');
+      item.dataset.fileContent = encodeURIComponent(
+        file.content || "（文件内容为空）",
+      );
 
       // --- ▲▲▲ 核心代码结束 ▲▲▲ ---
 
@@ -712,81 +806,87 @@ function openFileExplorer() {
     });
   }
 
-  document.getElementById('kk-file-explorer-modal').classList.add('visible');
+  document.getElementById("kk-file-explorer-modal").classList.add("visible");
 }
 
-/**
- * 【修复版】打开专用的文件内容查看器 (带底部按钮栏 - Flex布局修复)
- */
 function openFileViewer(fileName, fileContent) {
   // 1. 填充标题和内容
-  document.getElementById('kk-file-viewer-title').textContent = fileName;
+  document.getElementById("kk-file-viewer-title").textContent = fileName;
   const decodedContent = decodeURIComponent(fileContent);
-  document.getElementById('kk-file-viewer-content').textContent = decodedContent;
 
-  const modal = document.getElementById('kk-file-viewer-modal');
-  const modalContent = modal.querySelector('.modal-content');
+  const contentEl = document.getElementById("kk-file-viewer-content");
+  contentEl.textContent = decodedContent;
+
+  // ▼▼▼▼▼▼▼▼▼▼ 修改开始 ▼▼▼▼▼▼▼▼▼▼
+  // 强制设置字体颜色为深灰色 (解决看不见的问题)
+  contentEl.style.color = "#333333";
+  // 建议加上这个，保留文本的换行和空格格式
+  contentEl.style.whiteSpace = "pre-wrap";
+  // ▲▲▲▲▲▲▲▲▲▲ 修改结束 ▲▲▲▲▲▲▲▲▲▲
+
+  const modal = document.getElementById("kk-file-viewer-modal");
+  const modalContent = modal.querySelector(".modal-content");
 
   // ★★★ 修复关键 1：强制弹窗容器使用 Flex 列布局 ★★★
-  modalContent.style.display = 'flex';
-  modalContent.style.flexDirection = 'column';
-  modalContent.style.overflow = 'hidden'; // 防止外层出现滚动条
+  modalContent.style.display = "flex";
+  modalContent.style.flexDirection = "column";
+  modalContent.style.overflow = "hidden"; // 防止外层出现滚动条
 
   // 2. 检查是否已经有底部栏(footer)，如果没有就创建一个
-  let footer = modalContent.querySelector('.modal-footer');
+  let footer = modalContent.querySelector(".modal-footer");
   if (!footer) {
-    footer = document.createElement('div');
-    footer.className = 'modal-footer';
+    footer = document.createElement("div");
+    footer.className = "modal-footer";
 
     // ★★★ 修复关键 2：移除 absolute 定位，使用标准流布局 ★★★
     // flex-shrink: 0 确保底部栏不会被压缩
     footer.style.cssText =
-      'padding: 10px 15px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px; background: #fff; flex-shrink: 0; border-radius: 0 0 12px 12px;';
+      "padding: 10px 15px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px; background: #fff; flex-shrink: 0; border-radius: 0 0 12px 12px;";
 
     // ★★★ 修复关键 3：调整内容区域样式 ★★★
-    const body = modalContent.querySelector('.modal-body');
+    const body = modalContent.querySelector(".modal-body");
     if (body) {
       // 移除旧的硬编码高度计算
-      body.style.height = 'auto';
+      body.style.height = "auto";
       // 让内容区自动占据剩余空间
-      body.style.flex = '1';
+      body.style.flex = "1";
       // 确保内容区内部可以滚动
-      body.style.overflowY = 'auto';
-      body.style.padding = '15px';
+      body.style.overflowY = "auto";
+      body.style.padding = "15px";
     }
 
     modalContent.appendChild(footer);
   }
 
   // 3. 清空旧按钮，重新生成
-  footer.innerHTML = '';
+  footer.innerHTML = "";
 
   // -- 创建[关闭]按钮 --
-  const closeBtn = document.createElement('button');
-  closeBtn.textContent = '关闭';
-  closeBtn.className = 'cancel';
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "关闭";
+  closeBtn.className = "cancel";
   closeBtn.onclick = closeFileViewer;
 
   // -- 创建[分享]按钮 --
-  const shareBtn = document.createElement('button');
-  shareBtn.textContent = '分享给Ta';
-  shareBtn.className = 'save';
+  const shareBtn = document.createElement("button");
+  shareBtn.textContent = "分享给Ta";
+  shareBtn.className = "save";
   shareBtn.onclick = () => {
-    openComputerItemShareModal(fileName, decodedContent, '电脑私人文件');
+    openComputerItemShareModal(fileName, decodedContent, "电脑私人文件");
   };
 
   // 4. 添加到底部栏
   footer.appendChild(closeBtn);
   footer.appendChild(shareBtn);
 
-  modal.classList.add('visible');
+  modal.classList.add("visible");
 }
 
 /**
  * 【全新】关闭文件内容查看器
  */
 function closeFileViewer() {
-  document.getElementById('kk-file-viewer-modal').classList.remove('visible');
+  document.getElementById("kk-file-viewer-modal").classList.remove("visible");
 }
 // ▼▼▼ 【全新】kk查岗-Steam功能核心函数 ▼▼▼
 
@@ -795,7 +895,7 @@ function closeFileViewer() {
  */
 function openSteamScreen() {
   renderSteamScreen();
-  document.getElementById('kk-steam-modal').classList.add('visible');
+  document.getElementById("kk-steam-modal").classList.add("visible");
 }
 
 /**
@@ -805,8 +905,8 @@ function renderSteamScreen() {
   if (!activeKkCharId) return;
   const computerData = state.chats[activeKkCharId]?.houseData?.computer;
   const games = computerData?.steam_games || [];
-  const listEl = document.getElementById('kk-steam-games-list');
-  listEl.innerHTML = '';
+  const listEl = document.getElementById("kk-steam-games-list");
+  listEl.innerHTML = "";
 
   if (games.length === 0) {
     listEl.innerHTML =
@@ -821,10 +921,10 @@ function renderSteamScreen() {
 
     // ... 前面的代码不变 ...
     games.forEach((game, index) => {
-      const itemEl = document.createElement('div');
-      itemEl.className = 'character-data-item';
+      const itemEl = document.createElement("div");
+      itemEl.className = "character-data-item";
       // 增加点击手势
-      itemEl.style.cursor = 'pointer';
+      itemEl.style.cursor = "pointer";
 
       itemEl.innerHTML = `
                 <div class="title">${game.name}</div>
@@ -833,11 +933,15 @@ function renderSteamScreen() {
             `;
 
       // 【新增】绑定点击事件：点击卡片本身触发分享
-      itemEl.addEventListener('click', e => {
+      itemEl.addEventListener("click", (e) => {
         // 如果点击的是删除按钮，不要触发分享
-        if (e.target.classList.contains('item-delete-btn')) return;
+        if (e.target.classList.contains("item-delete-btn")) return;
 
-        openComputerItemShareModal(game.name, `游玩时长: ${game.playtime}`, 'Steam游戏库');
+        openComputerItemShareModal(
+          game.name,
+          `游玩时长: ${game.playtime}`,
+          "Steam游戏库",
+        );
       });
 
       listEl.appendChild(itemEl);
@@ -852,17 +956,19 @@ async function generateMoreSteamGames() {
   if (!activeKkCharId) return;
   const chat = state.chats[activeKkCharId];
   if (!chat.houseData?.computer) {
-    alert('请先为角色生成一次完整的房屋数据。');
+    alert("请先为角色生成一次完整的房屋数据。");
     return;
   }
 
-  document.getElementById('generation-overlay').classList.add('visible');
+  document.getElementById("generation-overlay").classList.add("visible");
 
   try {
     const { proxyUrl, apiKey, model } = state.apiConfig;
-    if (!proxyUrl || !apiKey || !model) throw new Error('API未配置');
+    if (!proxyUrl || !apiKey || !model) throw new Error("API未配置");
 
-    const existingGames = (chat.houseData.computer.steam_games || []).map(g => g.name).join(', ');
+    const existingGames = (chat.houseData.computer.steam_games || [])
+      .map((g) => g.name)
+      .join(", ");
     const prompt = `
 			# 任务
 			你是一个游戏数据生成器。请根据角色“${chat.name}”的人设，为他/她的Steam游戏库生成2-3款【全新的】PC游戏记录。
@@ -871,7 +977,7 @@ async function generateMoreSteamGames() {
 			${chat.settings.aiPersona}
 
 			# 已有游戏 (请不要重复生成以下游戏)
-			${existingGames || '无'}
+			${existingGames || "无"}
 
 			# JSON输出格式 (必须严格遵守)
 			{
@@ -881,25 +987,39 @@ async function generateMoreSteamGames() {
 			  ]
 			}
 			`;
-    const messagesForApi = [{ role: 'user', content: prompt }];
+    const messagesForApi = [{ role: "user", content: prompt }];
     let isGemini = proxyUrl === GEMINI_API_URL;
-    let geminiConfig = toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini);
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      prompt,
+      messagesForApi,
+      isGemini,
+    );
 
     const response = isGemini
       ? await fetch(geminiConfig.url, geminiConfig.data)
       : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.9 }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messagesForApi,
+            temperature: 0.9,
+          }),
         });
 
     if (!response.ok) throw new Error(await response.text());
 
     const data = await response.json();
-    const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(
-      /^```json\s*|```$/g,
-      '',
-    );
+    const rawContent = (
+      isGemini
+        ? data.candidates[0].content.parts[0].text
+        : data.choices[0].message.content
+    ).replace(/^```json\s*|```$/g, "");
     const newData = JSON.parse(rawContent);
 
     if (newData.steam_games && Array.isArray(newData.steam_games)) {
@@ -909,15 +1029,15 @@ async function generateMoreSteamGames() {
       chat.houseData.computer.steam_games.push(...newData.steam_games);
       await db.chats.put(chat);
       renderSteamScreen();
-      alert('已添加新的游戏记录！');
+      alert("已添加新的游戏记录！");
     } else {
-      throw new Error('AI返回的数据格式不正确。');
+      throw new Error("AI返回的数据格式不正确。");
     }
   } catch (error) {
-    console.error('生成更多游戏失败:', error);
-    await showCustomAlert('生成失败', `发生错误: ${error.message}`);
+    console.error("生成更多游戏失败:", error);
+    await showCustomAlert("生成失败", `发生错误: ${error.message}`);
   } finally {
-    document.getElementById('generation-overlay').classList.remove('visible');
+    document.getElementById("generation-overlay").classList.remove("visible");
   }
 }
 // ▲▲▲ 新增函数结束 ▲▲▲
@@ -929,18 +1049,24 @@ async function openSurveillanceView(charId) {
   if (!charId) return;
   const chat = state.chats[charId];
   if (!chat || !chat.houseData) {
-    alert('找不到角色的房屋数据，请先生成房屋。');
+    alert("找不到角色的房屋数据，请先生成房屋。");
     return;
   }
 
-  document.getElementById('kk-monitor-title').textContent = `${chat.name}的监控中心`;
+  document.getElementById("kk-monitor-title").textContent =
+    `${chat.name}的监控中心`;
 
   const fiveMinutes = 5 * 60 * 1000;
   const surveillance = chat.houseData.surveillanceData;
 
-  if (!surveillance || !surveillance.feeds || Date.now() - (surveillance.timestamp || 0) > fiveMinutes) {
+  if (
+    !surveillance ||
+    !surveillance.feeds ||
+    Date.now() - (surveillance.timestamp || 0) > fiveMinutes
+  ) {
     try {
-      const newSurveillanceData = await generateInitialSurveillanceFeeds(charId);
+      const newSurveillanceData =
+        await generateInitialSurveillanceFeeds(charId);
       if (newSurveillanceData) {
         // ★★★ 核心修改：保存完整的对象，包含时间戳、位置和画面数据 ★★★
         chat.houseData.surveillanceData = {
@@ -951,20 +1077,20 @@ async function openSurveillanceView(charId) {
         await db.chats.put(chat);
         renderSurveillanceView(chat.houseData.surveillanceData); // 渲染新数据
       } else {
-        document.getElementById('kk-monitor-grid').innerHTML =
+        document.getElementById("kk-monitor-grid").innerHTML =
           '<p style="text-align:center; color: #8a8a8a;">无法生成监控画面。</p>';
       }
     } catch (error) {
-      await showCustomAlert('生成失败', `生成监控画面时出错: ${error.message}`);
+      await showCustomAlert("生成失败", `生成监控画面时出错: ${error.message}`);
       return;
     }
   } else {
-    console.log('从缓存加载监控画面。');
+    console.log("从缓存加载监控画面。");
     // ★★★ 核心修改：直接将保存的完整对象传给渲染函数 ★★★
     renderSurveillanceView(surveillance);
   }
 
-  showScreen('kk-monitor-screen');
+  showScreen("kk-monitor-screen");
 }
 
 /**
@@ -974,31 +1100,33 @@ async function openSurveillanceView(charId) {
  */
 async function generateInitialSurveillanceFeeds(charId) {
   const chat = state.chats[charId];
-  showGenerationOverlay('正在接入监控信号...');
+  showGenerationOverlay("正在接入监控信号...");
 
   try {
     const { proxyUrl, apiKey, model } = state.apiConfig;
-    if (!proxyUrl || !apiKey || !model) throw new Error('API未配置');
+    if (!proxyUrl || !apiKey || !model) throw new Error("API未配置");
 
     // 提取世界书、聊天记录和用户人设作为上下文
     const worldBookContext = (
       await Promise.all(
-        (chat.settings.linkedWorldBookIds || []).map(async id => {
+        (chat.settings.linkedWorldBookIds || []).map(async (id) => {
           const book = await db.worldBooks.get(id);
-          return book ? `\n## 世界书: ${book.name}\n${book.content}` : '';
+          return book ? `\n## 世界书: ${book.name}\n${book.content}` : "";
         }),
       )
-    ).join('');
+    ).join("");
 
     const recentHistory = chat.history
       .slice(-10)
-      .map(msg => {
-        const sender = msg.role === 'user' ? chat.settings.myNickname || '我' : chat.name;
+      .map((msg) => {
+        const sender =
+          msg.role === "user" ? chat.settings.myNickname || "我" : chat.name;
         return `${sender}: ${msg.content}`;
       })
-      .join('\n');
+      .join("\n");
 
-    const userPersona = state.chats[charId]?.settings?.myPersona || '一个普通的观察者。';
+    const userPersona =
+      state.chats[charId]?.settings?.myPersona || "一个普通的观察者。";
 
     const areaNames = Object.keys(chat.houseData.areas);
 
@@ -1010,12 +1138,12 @@ async function generateInitialSurveillanceFeeds(charId) {
 			- 角色名: ${chat.name}
 			- 角色人设: ${chat.settings.aiPersona}
 			- 观察者(用户)人设: ${userPersona}
-			${worldBookContext || ''}
+			${worldBookContext || ""}
 			- 最近的聊天记录 (供你参考情景):
 			${recentHistory}
 
 			# 住所布局
-			角色当前的住所包含以下区域: ${areaNames.join('、 ')}
+			角色当前的住所包含以下区域: ${areaNames.join("、 ")}
 
 			# 核心规则
 			1.  **视角**: 你的描述必须是【客观、冷静的第三人称视角】，就像一个真正的监控摄像头记录的画面。
@@ -1043,33 +1171,47 @@ async function generateInitialSurveillanceFeeds(charId) {
 			}
 			`;
 
-    const messagesForApi = [{ role: 'user', content: systemPrompt }];
+    const messagesForApi = [{ role: "user", content: systemPrompt }];
     let isGemini = proxyUrl === GEMINI_API_URL;
-    let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      systemPrompt,
+      messagesForApi,
+      isGemini,
+    );
 
     const response = isGemini
       ? await fetch(geminiConfig.url, geminiConfig.data)
       : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.8 }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messagesForApi,
+            temperature: 0.8,
+          }),
         });
 
     if (!response.ok) throw new Error(`API请求失败: ${await response.text()}`);
 
     const data = await response.json();
-    const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(
-      /^```json\s*|```$/g,
-      '',
-    );
+    const rawContent = (
+      isGemini
+        ? data.candidates[0].content.parts[0].text
+        : data.choices[0].message.content
+    ).replace(/^```json\s*|```$/g, "");
     const surveillanceData = JSON.parse(rawContent);
 
     return surveillanceData;
   } catch (error) {
-    console.error('生成监控画面失败:', error);
+    console.error("生成监控画面失败:", error);
     throw error;
   } finally {
-    document.getElementById('generation-overlay').classList.remove('visible');
+    document.getElementById("generation-overlay").classList.remove("visible");
   }
 }
 
@@ -1078,15 +1220,16 @@ async function generateInitialSurveillanceFeeds(charId) {
  * @param {object} surveillanceData - 包含角色位置和画面的完整对象
  */
 function renderSurveillanceView(surveillanceData) {
-  const gridEl = document.getElementById('kk-monitor-grid');
-  gridEl.innerHTML = '';
+  const gridEl = document.getElementById("kk-monitor-grid");
+  gridEl.innerHTML = "";
   const chat = state.chats[activeKkCharId];
   if (!chat) return;
 
   const { characterLocation, feeds } = surveillanceData;
 
   if (!feeds || Object.keys(feeds).length === 0) {
-    gridEl.innerHTML = '<p style="text-align:center; color: #8a8a8a;">无法加载监控画面。</p>';
+    gridEl.innerHTML =
+      '<p style="text-align:center; color: #8a8a8a;">无法加载监控画面。</p>';
     return;
   }
 
@@ -1095,19 +1238,19 @@ function renderSurveillanceView(surveillanceData) {
     const area = chat.houseData.areas[areaName];
     const isCharacterPresent = feedData.isCharacterPresent;
 
-    const feedEl = document.createElement('div');
-    feedEl.className = 'kk-monitor-item';
+    const feedEl = document.createElement("div");
+    feedEl.className = "kk-monitor-item";
     // 将区域名存到 data-* 属性中，方便事件委托时获取
     feedEl.dataset.areaName = areaName;
 
     if (area && area.imageUrl) {
       feedEl.style.backgroundImage = `url(${area.imageUrl})`;
     } else {
-      feedEl.style.backgroundColor = '#333';
+      feedEl.style.backgroundColor = "#333";
     }
 
     if (areaName === characterLocation) {
-      feedEl.classList.add('active-character-location');
+      feedEl.classList.add("active-character-location");
     }
 
     // 只有当角色在该区域时，才显示互动按钮
@@ -1118,7 +1261,7 @@ function renderSurveillanceView(surveillanceData) {
 			                <button class="monitor-btn" data-action="continue" title="继续监控">➡️</button>
 			                <button class="monitor-btn" data-action="speak" title="对话">🎤</button>
 			            </div>`
-      : '';
+      : "";
 
     feedEl.innerHTML = `
 			            <div class="monitor-header">
@@ -1140,10 +1283,10 @@ function renderSurveillanceView(surveillanceData) {
  * 增加了变声器设置面板
  */
 async function handleMonitorInteraction(areaName, action, feedElement) {
-  const contentTextElement = feedElement.querySelector('.monitor-content-text');
+  const contentTextElement = feedElement.querySelector(".monitor-content-text");
   const currentContent = contentTextElement.textContent; // 获取当前画面内容
 
-  if (action === 'speak') {
+  if (action === "speak") {
     // ... (变声器HTML定义部分保持不变) ...
     const extraHtml = `
         <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #eee; text-align: left;">
@@ -1162,22 +1305,30 @@ async function handleMonitorInteraction(areaName, action, feedElement) {
         </div>
         `;
 
-    let tempVoiceSettings = { enabled: false, identity: '' };
+    let tempVoiceSettings = { enabled: false, identity: "" };
 
-    const promptPromise = showCustomPrompt(`对【${areaName}】喊话`, '请输入你想说的话：', '', 'text', extraHtml);
+    const promptPromise = showCustomPrompt(
+      `对【${areaName}】喊话`,
+      "请输入你想说的话：",
+      "",
+      "text",
+      extraHtml,
+    );
 
     setTimeout(() => {
-      const toggle = document.getElementById('monitor-voice-toggle');
-      const container = document.getElementById('monitor-voice-input-container');
-      const identityInput = document.getElementById('monitor-voice-identity');
+      const toggle = document.getElementById("monitor-voice-toggle");
+      const container = document.getElementById(
+        "monitor-voice-input-container",
+      );
+      const identityInput = document.getElementById("monitor-voice-identity");
 
       if (toggle && container && identityInput) {
-        toggle.addEventListener('change', e => {
+        toggle.addEventListener("change", (e) => {
           tempVoiceSettings.enabled = e.target.checked;
-          container.style.display = e.target.checked ? 'block' : 'none';
+          container.style.display = e.target.checked ? "block" : "none";
           if (e.target.checked) identityInput.focus();
         });
-        identityInput.addEventListener('input', e => {
+        identityInput.addEventListener("input", (e) => {
           tempVoiceSettings.identity = e.target.value;
         });
       }
@@ -1187,13 +1338,19 @@ async function handleMonitorInteraction(areaName, action, feedElement) {
 
     if (userInput && userInput.trim()) {
       // ★★★ 核心修改点：在最后增加传入 currentContent ★★★
-      await generateMonitorDialogue(areaName, userInput, contentTextElement, tempVoiceSettings, currentContent);
+      await generateMonitorDialogue(
+        areaName,
+        userInput,
+        contentTextElement,
+        tempVoiceSettings,
+        currentContent,
+      );
     }
   } else {
     // Reroll 和 Continue 逻辑
     const newContent = await generateMonitorUpdate(
       areaName,
-      action === 'continue' ? currentContent : null, // Continue会传入当前内容
+      action === "continue" ? currentContent : null, // Continue会传入当前内容
       contentTextElement,
     );
     if (newContent) {
@@ -1213,7 +1370,7 @@ async function generateMonitorUpdate(areaName, context, textElement) {
   const chat = state.chats[activeKkCharId];
   if (!chat) return null;
 
-  textElement.innerHTML = '<i>正在刷新信号...</i>';
+  textElement.innerHTML = "<i>正在刷新信号...</i>";
 
   const { proxyUrl, apiKey, model } = state.apiConfig;
   if (!proxyUrl || !apiKey || !model) {
@@ -1222,7 +1379,7 @@ async function generateMonitorUpdate(areaName, context, textElement) {
   }
 
   // ★★★ 核心修改：优化Prompt，区分“继续”和“重Roll” ★★★
-  let promptInstructions = '';
+  let promptInstructions = "";
   if (context) {
     // 这种情况是点击了“继续”箭头
     promptInstructions = `
@@ -1255,20 +1412,37 @@ async function generateMonitorUpdate(areaName, context, textElement) {
 
   try {
     let isGemini = proxyUrl === GEMINI_API_URL;
-    let messagesForApi = [{ role: 'user', content: prompt }];
-    let geminiConfig = toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini);
+    let messagesForApi = [{ role: "user", content: prompt }];
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      prompt,
+      messagesForApi,
+      isGemini,
+    );
 
     const response = isGemini
       ? await fetch(geminiConfig.url, geminiConfig.data)
       : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.9 }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messagesForApi,
+            temperature: 0.9,
+          }),
         });
 
     if (!response.ok) throw new Error(await response.text());
     const data = await response.json();
-    return (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).trim();
+    return (
+      isGemini
+        ? data.candidates[0].content.parts[0].text
+        : data.choices[0].message.content
+    ).trim();
   } catch (error) {
     textElement.innerHTML = `<i style="color: #ff8a80;">信号中断: ${error.message}</i>`;
     return null;
@@ -1283,26 +1457,36 @@ async function generateMonitorUpdate(areaName, context, textElement) {
  * @param {object} voiceSettings - 变声器设置
  * @param {string} currentContext - ★新增参数：对话发生前的画面描述
  */
-async function generateMonitorDialogue(areaName, userInput, textElement, voiceSettings, currentContext) {
+async function generateMonitorDialogue(
+  areaName,
+  userInput,
+  textElement,
+  voiceSettings,
+  currentContext,
+) {
   const chat = state.chats[activeKkCharId];
   if (!chat) return;
 
-  textElement.innerHTML = '<i>等待对方回应...</i>';
+  textElement.innerHTML = "<i>等待对方回应...</i>";
 
   const { proxyUrl, apiKey, model } = state.apiConfig;
   if (!proxyUrl || !apiKey || !model) {
-    textElement.innerHTML = '<i style="color: #ff8a80;">麦克风故障: API未配置</i>';
+    textElement.innerHTML =
+      '<i style="color: #ff8a80;">麦克风故障: API未配置</i>';
     return;
   }
 
-  const userNickname = chat.settings.myNickname || state.qzoneSettings.nickname || '我';
-  const userPersona = chat.settings.myPersona || '没有特定人设，普通用户。';
+  const userNickname =
+    chat.settings.myNickname || state.qzoneSettings.nickname || "我";
+  const userPersona = chat.settings.myPersona || "没有特定人设，普通用户。";
 
-  let soundSourceDescription = '';
-  let uiSourceLabel = '';
+  let soundSourceDescription = "";
+  let uiSourceLabel = "";
 
   if (voiceSettings && voiceSettings.enabled) {
-    const identity = voiceSettings.identity ? voiceSettings.identity.trim() : '陌生人';
+    const identity = voiceSettings.identity
+      ? voiceSettings.identity.trim()
+      : "陌生人";
     soundSourceDescription = `监控扬声器里传来一个**经过变声处理的、陌生的声音**。这个声音听起来像是一个【${identity}】。那个声音对你说：“${userInput}”。\n【重要指令】：你完全没有听出这是${userNickname}的声音。`;
     uiSourceLabel = `(伪装成: ${identity})`;
   } else {
@@ -1316,7 +1500,7 @@ async function generateMonitorDialogue(areaName, userInput, textElement, voiceSe
     你现在是角色“${chat.name}”，你正在【${areaName}】里。
     
     # 此时此刻的状态 (上下文)
-    就在刚才，**${currentContext || '你在房间里发呆'}**。
+    就在刚才，**${currentContext || "你在房间里发呆"}**。
     
     # 突发事件
     突然，${soundSourceDescription}
@@ -1333,20 +1517,37 @@ async function generateMonitorDialogue(areaName, userInput, textElement, voiceSe
 
   try {
     let isGemini = proxyUrl === GEMINI_API_URL;
-    let messagesForApi = [{ role: 'user', content: prompt }];
-    let geminiConfig = toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini);
+    let messagesForApi = [{ role: "user", content: prompt }];
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      prompt,
+      messagesForApi,
+      isGemini,
+    );
 
     const response = isGemini
       ? await fetch(geminiConfig.url, geminiConfig.data)
       : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.8 }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messagesForApi,
+            temperature: 0.8,
+          }),
         });
 
     if (!response.ok) throw new Error(await response.text());
     const data = await response.json();
-    const aiResponse = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).trim();
+    const aiResponse = (
+      isGemini
+        ? data.candidates[0].content.parts[0].text
+        : data.choices[0].message.content
+    ).trim();
 
     textElement.innerHTML = `“${userInput}” <i style="font-size:12px; opacity:0.8;">${uiSourceLabel}</i><br><br>${aiResponse}`;
   } catch (error) {
@@ -1363,13 +1564,13 @@ async function generateSurveillanceUpdate(charId) {
   const chat = state.chats[charId];
   if (!chat || !chat.houseData) return null;
 
-  showGenerationOverlay('正在刷新所有监控...');
+  showGenerationOverlay("正在刷新所有监控...");
 
   const lastSurveillance = chat.houseData.surveillanceData;
 
   try {
     const { proxyUrl, apiKey, model } = state.apiConfig;
-    if (!proxyUrl || !apiKey || !model) throw new Error('API未配置');
+    if (!proxyUrl || !apiKey || !model) throw new Error("API未配置");
 
     const systemPrompt = `
 			# 任务
@@ -1392,32 +1593,46 @@ async function generateSurveillanceUpdate(charId) {
 			现在，请生成下一秒的完整监控数据。
 			`;
 
-    const messagesForApi = [{ role: 'user', content: systemPrompt }];
+    const messagesForApi = [{ role: "user", content: systemPrompt }];
     let isGemini = proxyUrl === GEMINI_API_URL;
-    let geminiConfig = toGeminiRequestData(model, apiKey, systemPrompt, messagesForApi, isGemini);
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      systemPrompt,
+      messagesForApi,
+      isGemini,
+    );
 
     const response = isGemini
       ? await fetch(geminiConfig.url, geminiConfig.data)
       : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.8 }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messagesForApi,
+            temperature: 0.8,
+          }),
         });
 
     if (!response.ok) throw new Error(await response.text());
 
     const data = await response.json();
-    const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).replace(
-      /^```json\s*|```$/g,
-      '',
-    );
+    const rawContent = (
+      isGemini
+        ? data.candidates[0].content.parts[0].text
+        : data.choices[0].message.content
+    ).replace(/^```json\s*|```$/g, "");
     return JSON.parse(rawContent);
   } catch (error) {
-    console.error('刷新监控画面失败:', error);
-    await showCustomAlert('刷新失败', `发生错误: ${error.message}`);
+    console.error("刷新监控画面失败:", error);
+    await showCustomAlert("刷新失败", `发生错误: ${error.message}`);
     return null;
   } finally {
-    document.getElementById('generation-overlay').classList.remove('visible');
+    document.getElementById("generation-overlay").classList.remove("visible");
   }
 }
 /**
@@ -1425,17 +1640,17 @@ async function generateSurveillanceUpdate(charId) {
  * @param {string} text - 要显示的加载提示文字
  */
 function showGenerationOverlay(text) {
-  const overlay = document.getElementById('generation-overlay');
-  const textElement = document.getElementById('generation-text');
+  const overlay = document.getElementById("generation-overlay");
+  const textElement = document.getElementById("generation-text");
   if (textElement) {
     textElement.textContent = text;
   }
-  overlay.classList.add('visible');
+  overlay.classList.add("visible");
 }
 /* ================= KK查岗 - 沉浸式衣帽间 ================= */
 
 // 当前选中的标签页
-let activeWardrobeCategory = '上装';
+let activeWardrobeCategory = "上装";
 
 // 1. 更新搭配对象，增加新分类
 let currentOutfit = {
@@ -1456,16 +1671,16 @@ async function openKkWardrobe() {
 
   // 检查是否有房屋数据
   if (!chat || !chat.houseData) {
-    alert('请先点击“开始翻找”生成房屋数据后，再查看衣柜。');
+    alert("请先点击“开始翻找”生成房屋数据后，再查看衣柜。");
     return;
   }
 
   // 检查是否有衣柜数据，没有则生成
   if (!chat.houseData.wardrobe) {
     const confirmed = await showCustomConfirm(
-      '发现衣柜',
+      "发现衣柜",
       `你推开了卧室的衣柜门...\n\n里面空荡荡的，要让AI生成${chat.name}的衣服吗？`,
-      { confirmText: '生成衣柜' },
+      { confirmText: "生成衣柜" },
     );
     if (confirmed) {
       await generateWardrobeData(activeKkCharId);
@@ -1475,19 +1690,27 @@ async function openKkWardrobe() {
   }
 
   // 初始化界面状态
-  currentOutfit = { 头饰: null, 上装: null, 下装: null, 鞋子: null, 首饰: null, 特殊: null };
-  document.getElementById('wardrobe-reaction-bubble').style.display = 'none';
-  document.getElementById('wardrobe-try-on-btn').disabled = true;
-  document.getElementById('wardrobe-try-on-btn').textContent = '让Ta穿上';
+  currentOutfit = {
+    头饰: null,
+    上装: null,
+    下装: null,
+    鞋子: null,
+    首饰: null,
+    特殊: null,
+  };
+  document.getElementById("wardrobe-reaction-bubble").style.display = "none";
+  document.getElementById("wardrobe-try-on-btn").disabled = true;
+  document.getElementById("wardrobe-try-on-btn").textContent = "让Ta穿上";
 
   // 设置头像
-  document.getElementById('wardrobe-char-avatar').src = chat.settings.aiAvatar || defaultAvatar;
+  document.getElementById("wardrobe-char-avatar").src =
+    chat.settings.aiAvatar || defaultAvatar;
 
   // 1. 更新搭配槽位 (HTML)
-  const displayContainer = document.getElementById('current-outfit-display');
+  const displayContainer = document.getElementById("current-outfit-display");
 
   // 清除旧的悬浮按钮（如果之前生成过，防止残留）
-  const oldFloatBtn = document.getElementById('wardrobe-history-floating-btn');
+  const oldFloatBtn = document.getElementById("wardrobe-history-floating-btn");
   if (oldFloatBtn) oldFloatBtn.remove();
 
   displayContainer.innerHTML = `
@@ -1500,7 +1723,9 @@ async function openKkWardrobe() {
     `;
 
   // 2. 更新分类标签页 (HTML)
-  const tabsContainer = document.querySelector('#wardrobe-inventory-area .wardrobe-tabs');
+  const tabsContainer = document.querySelector(
+    "#wardrobe-inventory-area .wardrobe-tabs",
+  );
   tabsContainer.innerHTML = `
         <div class="wardrobe-tab active" data-cat="头饰">头饰</div>
         <div class="wardrobe-tab" data-cat="上装">上装</div>
@@ -1512,13 +1737,13 @@ async function openKkWardrobe() {
 
   // ★★★★★ 修复重点：插入独立工具栏 ★★★★★
   // 我们找到 Inventory Area (库存区域)，把按钮插在 标签页(tabs) 的正上方
-  const inventoryArea = document.getElementById('wardrobe-inventory-area');
+  const inventoryArea = document.getElementById("wardrobe-inventory-area");
 
   // 检查是否已经创建了工具栏容器
-  let toolbar = document.getElementById('wardrobe-toolbar-row');
+  let toolbar = document.getElementById("wardrobe-toolbar-row");
   if (!toolbar) {
-    toolbar = document.createElement('div');
-    toolbar.id = 'wardrobe-toolbar-row';
+    toolbar = document.createElement("div");
+    toolbar.id = "wardrobe-toolbar-row";
     // 样式：右对齐，留一点内边距，放在标准流中
     toolbar.style.cssText = `
           display: flex; 
@@ -1532,10 +1757,10 @@ async function openKkWardrobe() {
   }
 
   // 清空工具栏并添加按钮
-  toolbar.innerHTML = '';
+  toolbar.innerHTML = "";
 
-  const historyBtn = document.createElement('button');
-  historyBtn.innerHTML = '📜 历史搭配';
+  const historyBtn = document.createElement("button");
+  historyBtn.innerHTML = "📜 历史搭配";
   // 按钮样式：小巧一点，不喧宾夺主
   historyBtn.style.cssText = `
       background: rgba(0, 0, 0, 0.05);
@@ -1552,11 +1777,11 @@ async function openKkWardrobe() {
   // ★★★★★ 修复结束 ★★★★★
 
   // 重置当前标签页为“上装”
-  activeWardrobeCategory = '上装';
+  activeWardrobeCategory = "上装";
 
   // 渲染
   renderWardrobeUI();
-  showScreen('kk-wardrobe-screen');
+  showScreen("kk-wardrobe-screen");
 }
 
 /**
@@ -1567,36 +1792,36 @@ function renderWardrobeUI() {
   const items = chat.houseData.wardrobe || [];
 
   // 1. 更新顶部搭配槽的显示
-  const slots = document.querySelectorAll('.outfit-slot');
-  slots.forEach(slot => {
+  const slots = document.querySelectorAll(".outfit-slot");
+  slots.forEach((slot) => {
     const type = slot.dataset.type;
     const selectedItem = currentOutfit[type];
 
     if (selectedItem) {
-      slot.classList.add('filled');
+      slot.classList.add("filled");
       slot.innerHTML = selectedItem.icon;
       // 点击槽位可以取消选择
       slot.onclick = () => selectCloth(type, null);
     } else {
-      slot.classList.remove('filled');
-      slot.innerHTML = '';
+      slot.classList.remove("filled");
+      slot.innerHTML = "";
       slot.onclick = null;
     }
   });
 
   // 2. 更新“穿上”按钮状态 (至少选一件)
-  const hasSelection = Object.values(currentOutfit).some(v => v !== null);
-  const btn = document.getElementById('wardrobe-try-on-btn');
+  const hasSelection = Object.values(currentOutfit).some((v) => v !== null);
+  const btn = document.getElementById("wardrobe-try-on-btn");
   btn.disabled = !hasSelection;
 
   // 3. 渲染底部库存网格
-  const grid = document.getElementById('wardrobe-grid');
-  grid.innerHTML = '';
+  const grid = document.getElementById("wardrobe-grid");
+  grid.innerHTML = "";
 
   // 筛选当前标签页的衣服
-  const filteredItems = items.filter(item => {
-    if (activeWardrobeCategory === '其他') {
-      return !['上装', '下装', '配饰', '特殊'].includes(item.category);
+  const filteredItems = items.filter((item) => {
+    if (activeWardrobeCategory === "其他") {
+      return !["上装", "下装", "配饰", "特殊"].includes(item.category);
     }
     return item.category === activeWardrobeCategory;
   });
@@ -1605,25 +1830,31 @@ function renderWardrobeUI() {
     grid.innerHTML =
       '<p style="grid-column:1/-1; text-align:center; color:#999; margin-top:20px;">这个分类下没有衣服哦</p>';
   } else {
-    filteredItems.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'cloth-card';
+    filteredItems.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "cloth-card";
 
       // 检查是否被选中
-      if (currentOutfit[item.category] && currentOutfit[item.category].name === item.name) {
-        card.classList.add('selected');
+      if (
+        currentOutfit[item.category] &&
+        currentOutfit[item.category].name === item.name
+      ) {
+        card.classList.add("selected");
       }
 
       card.innerHTML = `
-                <div class="cloth-icon">${item.icon || '👕'}</div>
+                <div class="cloth-icon">${item.icon || "👕"}</div>
                 <div class="cloth-name">${item.name}</div>
                 <div class="cloth-desc">${item.description}</div>
             `;
 
       // 点击卡片：选中或取消
-      card.addEventListener('click', () => {
+      card.addEventListener("click", () => {
         // 如果已经选中，则取消；否则选中
-        if (currentOutfit[item.category] && currentOutfit[item.category].name === item.name) {
+        if (
+          currentOutfit[item.category] &&
+          currentOutfit[item.category].name === item.name
+        ) {
           selectCloth(item.category, null);
         } else {
           selectCloth(item.category, item);
@@ -1635,8 +1866,8 @@ function renderWardrobeUI() {
   }
 
   // 4. 更新标签页高亮
-  document.querySelectorAll('.wardrobe-tab').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.cat === activeWardrobeCategory);
+  document.querySelectorAll(".wardrobe-tab").forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.cat === activeWardrobeCategory);
   });
 }
 
@@ -1646,8 +1877,8 @@ function renderWardrobeUI() {
 function selectCloth(category, item) {
   currentOutfit[category] = item;
   // 隐藏之前的反应气泡，因为搭配变了
-  document.getElementById('wardrobe-reaction-bubble').style.display = 'none';
-  document.getElementById('wardrobe-try-on-btn').textContent = '让Ta穿上';
+  document.getElementById("wardrobe-reaction-bubble").style.display = "none";
+  document.getElementById("wardrobe-try-on-btn").textContent = "让Ta穿上";
   renderWardrobeUI();
 }
 
@@ -1659,33 +1890,45 @@ async function handleTryOn() {
   if (!chat) return;
 
   // 1. 收集选中的衣服
-  const selectedItems = Object.values(currentOutfit).filter(i => i !== null);
+  const selectedItems = Object.values(currentOutfit).filter((i) => i !== null);
   if (selectedItems.length === 0) return;
 
   // 2. 界面进入加载状态
-  const btn = document.getElementById('wardrobe-try-on-btn');
+  const btn = document.getElementById("wardrobe-try-on-btn");
   btn.disabled = true;
-  btn.textContent = '正在换装...';
-  document.getElementById('wardrobe-comment-bubble').style.display = 'none';
-  const bubble = document.getElementById('wardrobe-reaction-bubble');
-  bubble.style.display = 'none';
+  btn.textContent = "正在换装...";
+  document.getElementById("wardrobe-comment-bubble").style.display = "none";
+  const bubble = document.getElementById("wardrobe-reaction-bubble");
+  bubble.style.display = "none";
 
   try {
     // --- 构建搭配描述 ---
-    const outfitNames = selectedItems.map(i => i.name).join(' + ');
-    const outfitDesc = selectedItems.map(i => `【${i.category}】${i.name} (${i.description})`).join(' + ');
+    const outfitNames = selectedItems.map((i) => i.name).join(" + ");
+    const outfitDesc = selectedItems
+      .map((i) => `【${i.category}】${i.name} (${i.description})`)
+      .join(" + ");
 
     // --- 步骤 A: 更新心声 (保持原逻辑) ---
     if (!chat.latestInnerVoice) {
-      chat.latestInnerVoice = { clothing: '', behavior: '', thoughts: '', naughtyThoughts: '' };
+      chat.latestInnerVoice = {
+        clothing: "",
+        behavior: "",
+        thoughts: "",
+        naughtyThoughts: "",
+      };
     }
     chat.latestInnerVoice.clothing = `穿着${outfitNames}`;
     if (!chat.innerVoiceHistory) chat.innerVoiceHistory = [];
-    chat.innerVoiceHistory.push({ ...chat.latestInnerVoice, timestamp: Date.now() });
+    chat.innerVoiceHistory.push({
+      ...chat.latestInnerVoice,
+      timestamp: Date.now(),
+    });
 
     const hiddenComments = selectedItems
-      .map(i => (i.charComment ? `(关于${i.name}的内心想法: ${i.charComment})` : ''))
-      .join(' ');
+      .map((i) =>
+        i.charComment ? `(关于${i.name}的内心想法: ${i.charComment})` : "",
+      )
+      .join(" ");
 
     const prompt = `
         # 场景
@@ -1706,20 +1949,37 @@ async function handleTryOn() {
     // 4. 调用API
     const { proxyUrl, apiKey, model } = state.apiConfig;
     let isGemini = proxyUrl === GEMINI_API_URL;
-    const messagesForApi = [{ role: 'user', content: prompt }];
-    let geminiConfig = toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini);
+    const messagesForApi = [{ role: "user", content: prompt }];
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      prompt,
+      messagesForApi,
+      isGemini,
+    );
 
     const response = isGemini
       ? await fetch(geminiConfig.url, geminiConfig.data)
       : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.9 }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messagesForApi,
+            temperature: 0.9,
+          }),
         });
 
-    if (!response.ok) throw new Error('API请求失败');
+    if (!response.ok) throw new Error("API请求失败");
     const data = await response.json();
-    const reactionText = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content).trim();
+    const reactionText = (
+      isGemini
+        ? data.candidates[0].content.parts[0].text
+        : data.choices[0].message.content
+    ).trim();
 
     // ================== ★★★ 新增：保存历史搭配记录 ★★★ ==================
     if (!chat.houseData.wardrobeHistory) {
@@ -1741,32 +2001,40 @@ async function handleTryOn() {
 
     // 为了防止记录无限膨胀，只保留最近50条
     if (chat.houseData.wardrobeHistory.length > 50) {
-      chat.houseData.wardrobeHistory = chat.houseData.wardrobeHistory.slice(0, 50);
+      chat.houseData.wardrobeHistory = chat.houseData.wardrobeHistory.slice(
+        0,
+        50,
+      );
     }
 
     // 立即保存到数据库，确保记录不丢失
     await db.chats.put(chat);
-    console.log('已保存搭配历史:', historyEntry);
+    console.log("已保存搭配历史:", historyEntry);
     // ====================================================================
 
     // --- 步骤 B: 弹出确认框 (保持原逻辑) ---
     const now = Date.now();
     const wantToDiscuss = await showCustomConfirm(
-      '换装完成',
+      "换装完成",
       `${chat.name} 换上了【${outfitNames}】并说道：\n\n“${reactionText}”\n\n要去聊天界面和Ta继续讨论这套搭配吗？`,
-      { confirmText: '去讨论', cancelText: '就在这看' },
+      { confirmText: "去讨论", cancelText: "就在这看" },
     );
 
     if (wantToDiscuss) {
       const eventMsg = {
-        role: 'system',
-        type: 'pat_message',
+        role: "system",
+        type: "pat_message",
         content: `[你为 ${chat.name} 换上了：${outfitNames}]`,
         timestamp: now,
       };
-      const aiMsg = { role: 'assistant', senderName: chat.name, content: reactionText, timestamp: now + 1 };
+      const aiMsg = {
+        role: "assistant",
+        senderName: chat.name,
+        content: reactionText,
+        timestamp: now + 1,
+      };
       const hiddenInstruction = {
-        role: 'system',
+        role: "system",
         content: `[系统提示：用户刚刚在衣帽间为你换上了【${outfitDesc}】。你的当前服装已更新。请基于这个新造型和用户继续对话。]`,
         timestamp: now + 2,
         isHidden: true,
@@ -1775,13 +2043,13 @@ async function handleTryOn() {
       await db.chats.put(chat);
       openChat(activeKkCharId);
     } else {
-      bubble.querySelector('.content').textContent = reactionText;
-      bubble.style.display = 'block';
-      btn.textContent = '已换装';
+      bubble.querySelector(".content").textContent = reactionText;
+      bubble.style.display = "block";
+      btn.textContent = "已换装";
     }
   } catch (error) {
-    console.error('试穿失败:', error);
-    alert('换装失败了，可能是因为衣服太紧（API错误）...');
+    console.error("试穿失败:", error);
+    alert("换装失败了，可能是因为衣服太紧（API错误）...");
   } finally {
     btn.disabled = false;
   }
@@ -1808,49 +2076,54 @@ function renderWardrobeUI() {
   const items = chat.houseData.wardrobe || [];
 
   // 1. 更新顶部搭配槽的显示
-  const slots = document.querySelectorAll('.outfit-slot');
-  slots.forEach(slot => {
+  const slots = document.querySelectorAll(".outfit-slot");
+  slots.forEach((slot) => {
     const type = slot.dataset.type;
     const selectedItem = currentOutfit[type];
 
     if (selectedItem) {
-      slot.classList.add('filled');
+      slot.classList.add("filled");
       // 如果有图片，显示图片；否则显示 emoji
       if (selectedItem.imageUrl) {
         slot.innerHTML = `<img src="${selectedItem.imageUrl}" style="width:100%; height:100%; object-fit:contain;">`;
       } else {
-        slot.innerHTML = selectedItem.icon || '👕';
+        slot.innerHTML = selectedItem.icon || "👕";
       }
       slot.onclick = () => selectCloth(type, null);
     } else {
-      slot.classList.remove('filled');
+      slot.classList.remove("filled");
       slot.innerHTML = slot.dataset.placeholder; // 显示占位文字
       slot.onclick = null;
     }
   });
 
   // 2. 更新“穿上”按钮状态
-  const hasSelection = Object.values(currentOutfit).some(v => v !== null);
-  const btn = document.getElementById('wardrobe-try-on-btn');
+  const hasSelection = Object.values(currentOutfit).some((v) => v !== null);
+  const btn = document.getElementById("wardrobe-try-on-btn");
   if (btn) btn.disabled = !hasSelection;
 
   // 3. 渲染底部库存网格
-  const grid = document.getElementById('wardrobe-grid');
-  grid.innerHTML = '';
+  const grid = document.getElementById("wardrobe-grid");
+  grid.innerHTML = "";
 
-  const filteredItems = items.filter(item => item.category === activeWardrobeCategory);
+  const filteredItems = items.filter(
+    (item) => item.category === activeWardrobeCategory,
+  );
 
   if (filteredItems.length === 0) {
     grid.innerHTML =
       '<p style="grid-column:1/-1; text-align:center; color:#999; margin-top:20px;">这个分类下没有衣服哦</p>';
   } else {
-    filteredItems.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'cloth-card';
+    filteredItems.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "cloth-card";
 
       // 检查是否被选中
-      if (currentOutfit[item.category] && currentOutfit[item.category].name === item.name) {
-        card.classList.add('selected');
+      if (
+        currentOutfit[item.category] &&
+        currentOutfit[item.category].name === item.name
+      ) {
+        card.classList.add("selected");
       }
 
       // 图片显示逻辑
@@ -1858,7 +2131,7 @@ function renderWardrobeUI() {
       if (item.imageUrl) {
         visualContent = `<img src="${item.imageUrl}" class="cloth-img" style="width:100%; height:80px; object-fit:contain; border-radius:4px;" loading="lazy">`;
       } else {
-        visualContent = `<div class="cloth-icon" style="font-size:40px;">${item.icon || '👕'}</div>`;
+        visualContent = `<div class="cloth-icon" style="font-size:40px;">${item.icon || "👕"}</div>`;
       }
 
       card.innerHTML = `
@@ -1867,8 +2140,11 @@ function renderWardrobeUI() {
             `;
 
       // 点击卡片：选中或取消
-      card.addEventListener('click', () => {
-        if (currentOutfit[item.category] && currentOutfit[item.category].name === item.name) {
+      card.addEventListener("click", () => {
+        if (
+          currentOutfit[item.category] &&
+          currentOutfit[item.category].name === item.name
+        ) {
           selectCloth(item.category, null);
         } else {
           selectCloth(item.category, item);
@@ -1880,8 +2156,8 @@ function renderWardrobeUI() {
   }
 
   // 4. 更新标签页高亮
-  document.querySelectorAll('.wardrobe-tab').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.cat === activeWardrobeCategory);
+  document.querySelectorAll(".wardrobe-tab").forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.cat === activeWardrobeCategory);
   });
 }
 
@@ -1891,23 +2167,25 @@ function renderWardrobeUI() {
 function selectCloth(category, item) {
   currentOutfit[category] = item;
 
-  const commentBubble = document.getElementById('wardrobe-comment-bubble');
-  const reactionBubble = document.getElementById('wardrobe-reaction-bubble');
-  const tryOnBtn = document.getElementById('wardrobe-try-on-btn');
+  const commentBubble = document.getElementById("wardrobe-comment-bubble");
+  const reactionBubble = document.getElementById("wardrobe-reaction-bubble");
+  const tryOnBtn = document.getElementById("wardrobe-try-on-btn");
 
   // 隐藏试穿反应，显示物品看法
-  reactionBubble.style.display = 'none';
-  commentBubble.style.display = 'block';
+  reactionBubble.style.display = "none";
+  commentBubble.style.display = "block";
 
   if (item) {
     // 如果选中了衣服，显示该衣服的评论
-    commentBubble.querySelector('.content').innerHTML = `<strong>${item.name}</strong><br>"${item.charComment}"`;
+    commentBubble.querySelector(".content").innerHTML =
+      `<strong>${item.name}</strong><br>"${item.charComment}"`;
   } else {
     // 如果取消选择，显示默认提示
-    commentBubble.querySelector('.content').textContent = '（在身上比划了一下...）';
+    commentBubble.querySelector(".content").textContent =
+      "（在身上比划了一下...）";
   }
 
-  tryOnBtn.textContent = '让Ta穿上';
+  tryOnBtn.textContent = "让Ta穿上";
   renderWardrobeUI();
 }
 
@@ -1916,11 +2194,11 @@ function selectCloth(category, item) {
  */
 async function generateWardrobeData(charId) {
   const chat = state.chats[charId];
-  showGenerationOverlay('正在偷偷打开衣柜...');
+  showGenerationOverlay("正在偷偷打开衣柜...");
 
   try {
     const { proxyUrl, apiKey, model } = state.apiConfig;
-    if (!proxyUrl || !apiKey || !model) throw new Error('API未配置');
+    if (!proxyUrl || !apiKey || !model) throw new Error("API未配置");
 
     const prompt = `
         # 任务
@@ -1956,23 +2234,40 @@ async function generateWardrobeData(charId) {
         }
         `;
 
-    const messagesForApi = [{ role: 'user', content: prompt }];
+    const messagesForApi = [{ role: "user", content: prompt }];
     let isGemini = proxyUrl === GEMINI_API_URL;
-    let geminiConfig = toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini);
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      prompt,
+      messagesForApi,
+      isGemini,
+    );
 
     const response = isGemini
       ? await fetch(geminiConfig.url, geminiConfig.data)
       : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.85 }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messagesForApi,
+            temperature: 0.85,
+          }),
         });
 
     if (!response.ok) throw new Error(await response.text());
 
     const data = await response.json();
-    const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content)
-      .replace(/^```json\s*|```$/g, '')
+    const rawContent = (
+      isGemini
+        ? data.candidates[0].content.parts[0].text
+        : data.choices[0].message.content
+    )
+      .replace(/^```json\s*|```$/g, "")
       .trim();
 
     const result = JSON.parse(rawContent);
@@ -1984,7 +2279,7 @@ async function generateWardrobeData(charId) {
 
       // 2. --- 逐个生成图片并实时保存 (串行队列) ---
       const total = result.wardrobe.length;
-      const overlayText = document.getElementById('generation-text');
+      const overlayText = document.getElementById("generation-text");
 
       for (let i = 0; i < total; i++) {
         const item = chat.houseData.wardrobe[i]; // 直接操作 chat 对象里的数据引用
@@ -2009,22 +2304,26 @@ async function generateWardrobeData(charId) {
         }
 
         // 可选：稍微延迟一下，防止请求过快
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 500));
       }
 
-      alert('衣柜整理完毕！');
+      alert("衣柜整理完毕！");
       // 如果当前还在衣柜界面，刷新一下图片显示
-      if (document.getElementById('kk-wardrobe-screen').classList.contains('active')) {
+      if (
+        document
+          .getElementById("kk-wardrobe-screen")
+          .classList.contains("active")
+      ) {
         renderWardrobeUI();
       }
     } else {
-      throw new Error('AI返回数据格式错误');
+      throw new Error("AI返回数据格式错误");
     }
   } catch (error) {
-    console.error('生成衣柜失败:', error);
-    await showCustomAlert('生成失败', `错误: ${error.message}`);
+    console.error("生成衣柜失败:", error);
+    await showCustomAlert("生成失败", `错误: ${error.message}`);
   } finally {
-    document.getElementById('generation-overlay').classList.remove('visible');
+    document.getElementById("generation-overlay").classList.remove("visible");
   }
 }
 
@@ -2035,14 +2334,16 @@ async function generateMoreWardrobeData() {
   if (!activeKkCharId) return;
   const chat = state.chats[activeKkCharId];
 
-  showGenerationOverlay('正在去商场进货...');
+  showGenerationOverlay("正在去商场进货...");
 
   try {
     const { proxyUrl, apiKey, model } = state.apiConfig;
-    if (!proxyUrl || !apiKey || !model) throw new Error('API未配置');
+    if (!proxyUrl || !apiKey || !model) throw new Error("API未配置");
 
     // 获取现有衣服名称，避免重复
-    const existingClothes = (chat.houseData.wardrobe || []).map(i => i.name).join(', ');
+    const existingClothes = (chat.houseData.wardrobe || [])
+      .map((i) => i.name)
+      .join(", ");
 
     const prompt = `
         # 任务
@@ -2066,22 +2367,39 @@ async function generateMoreWardrobeData() {
         }
         `;
 
-    const messagesForApi = [{ role: 'user', content: prompt }];
+    const messagesForApi = [{ role: "user", content: prompt }];
     let isGemini = proxyUrl === GEMINI_API_URL;
-    let geminiConfig = toGeminiRequestData(model, apiKey, prompt, messagesForApi, isGemini);
+    let geminiConfig = toGeminiRequestData(
+      model,
+      apiKey,
+      prompt,
+      messagesForApi,
+      isGemini,
+    );
 
     const response = isGemini
       ? await fetch(geminiConfig.url, geminiConfig.data)
       : await fetch(`${proxyUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({ model: model, messages: messagesForApi, temperature: 0.9 }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messagesForApi,
+            temperature: 0.9,
+          }),
         });
 
     if (!response.ok) throw new Error(await response.text());
     const data = await response.json();
-    const rawContent = (isGemini ? data.candidates[0].content.parts[0].text : data.choices[0].message.content)
-      .replace(/^```json\s*|```$/g, '')
+    const rawContent = (
+      isGemini
+        ? data.candidates[0].content.parts[0].text
+        : data.choices[0].message.content
+    )
+      .replace(/^```json\s*|```$/g, "")
       .trim();
     const result = JSON.parse(rawContent);
 
@@ -2097,7 +2415,7 @@ async function generateMoreWardrobeData() {
 
       // 2. --- 逐个生成图片并实时保存 ---
       const total = result.new_items.length;
-      const overlayText = document.getElementById('generation-text');
+      const overlayText = document.getElementById("generation-text");
 
       for (let i = 0; i < total; i++) {
         // 定位到刚刚添加进去的那个物品
@@ -2114,10 +2432,10 @@ async function generateMoreWardrobeData() {
             item.imageUrl = url; // 更新内存引用
             await db.chats.put(chat); // ★★★ 实时保存 ★★★
           } catch (e) {
-            console.error('图片生成失败', e);
+            console.error("图片生成失败", e);
           }
         }
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 500));
       }
 
       // 刷新界面
@@ -2125,10 +2443,10 @@ async function generateMoreWardrobeData() {
       alert(`成功添加了 ${result.new_items.length} 件新衣服！`);
     }
   } catch (error) {
-    console.error('添加衣服失败:', error);
-    await showCustomAlert('添加失败', error.message);
+    console.error("添加衣服失败:", error);
+    await showCustomAlert("添加失败", error.message);
   } finally {
-    document.getElementById('generation-overlay').classList.remove('visible');
+    document.getElementById("generation-overlay").classList.remove("visible");
   }
 }
 
@@ -2136,12 +2454,12 @@ async function generateMoreWardrobeData() {
 // 绑定新按钮的事件 (请把这段加在 init() 的事件绑定区域)
 // =======================================================
 // 绑定“添加衣服”按钮
-const addClothBtn = document.getElementById('kk-wardrobe-add-btn');
+const addClothBtn = document.getElementById("kk-wardrobe-add-btn");
 if (addClothBtn) {
   // 防止重复绑定，先移除旧的
   const newBtn = addClothBtn.cloneNode(true);
   addClothBtn.parentNode.replaceChild(newBtn, addClothBtn);
-  newBtn.addEventListener('click', generateMoreWardrobeData);
+  newBtn.addEventListener("click", generateMoreWardrobeData);
 }
 /**
  * 【新增】打开历史搭配记录列表
@@ -2149,26 +2467,28 @@ if (addClothBtn) {
 function openWardrobeHistory() {
   const chat = state.chats[activeKkCharId];
   if (!chat || !chat.houseData || !chat.houseData.wardrobeHistory) {
-    showCustomAlert('暂无记录', '还没有进行过换装搭配哦。');
+    showCustomAlert("暂无记录", "还没有进行过换装搭配哦。");
     return;
   }
 
   const historyList = chat.houseData.wardrobeHistory;
-  const listEl = document.getElementById('kk-file-list'); // 复用文件列表容器
-  const modal = document.getElementById('kk-file-explorer-modal'); // 复用通用列表弹窗
+  const listEl = document.getElementById("kk-file-list"); // 复用文件列表容器
+  const modal = document.getElementById("kk-file-explorer-modal"); // 复用通用列表弹窗
 
   // 修改弹窗标题
-  modal.querySelector('.modal-header span').textContent = `${chat.name}的穿搭日记`;
-  listEl.innerHTML = '';
+  modal.querySelector(".modal-header span").textContent =
+    `${chat.name}的穿搭日记`;
+  listEl.innerHTML = "";
 
   if (historyList.length === 0) {
-    listEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">暂无记录</p>';
+    listEl.innerHTML =
+      '<p style="text-align:center; color: var(--text-secondary);">暂无记录</p>';
   } else {
-    historyList.forEach(entry => {
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'kk-file-item'; // 复用样式
+    historyList.forEach((entry) => {
+      const itemDiv = document.createElement("div");
+      itemDiv.className = "kk-file-item"; // 复用样式
       itemDiv.style.cssText =
-        'cursor: pointer; display: flex; flex-direction: column; gap: 5px; padding: 10px; border-bottom: 1px solid #eee;';
+        "cursor: pointer; display: flex; flex-direction: column; gap: 5px; padding: 10px; border-bottom: 1px solid #eee;";
 
       // 格式化时间
       const timeStr = new Date(entry.timestamp).toLocaleString();
@@ -2179,12 +2499,12 @@ function openWardrobeHistory() {
                 </div>
                 <div style="font-weight:bold; color:#333;">${entry.summary}</div>
                 <div style="font-size:13px; color:#666; font-style:italic;">“${entry.reaction.substring(0, 30)}${
-        entry.reaction.length > 30 ? '...' : ''
-      }”</div>
+                  entry.reaction.length > 30 ? "..." : ""
+                }”</div>
             `;
 
       // 点击查看详情
-      itemDiv.addEventListener('click', () => {
+      itemDiv.addEventListener("click", () => {
         showHistoryDetail(entry);
       });
 
@@ -2192,7 +2512,7 @@ function openWardrobeHistory() {
     });
   }
 
-  modal.classList.add('visible');
+  modal.classList.add("visible");
 }
 
 /**
@@ -2200,12 +2520,12 @@ function openWardrobeHistory() {
  */
 function showHistoryDetail(entry) {
   // 这里我们复用“物品分享弹窗”来显示详情，简单快捷
-  const modal = document.getElementById('kk-item-share-modal');
-  const title = document.getElementById('kk-item-share-title');
-  const contentDiv = document.getElementById('kk-item-share-content');
-  const shareBtn = document.getElementById('kk-item-share-confirm-btn');
+  const modal = document.getElementById("kk-item-share-modal");
+  const title = document.getElementById("kk-item-share-title");
+  const contentDiv = document.getElementById("kk-item-share-content");
+  const shareBtn = document.getElementById("kk-item-share-confirm-btn");
 
-  title.textContent = '搭配详情';
+  title.textContent = "搭配详情";
 
   // 构建详情内容
   let detailHtml = `
@@ -2225,11 +2545,15 @@ function showHistoryDetail(entry) {
   const newShareBtn = shareBtn.cloneNode(true);
   shareBtn.parentNode.replaceChild(newShareBtn, shareBtn);
 
-  newShareBtn.textContent = '分享/回顾';
+  newShareBtn.textContent = "分享/回顾";
   newShareBtn.onclick = () => {
-    shareKkItemToChat('历史记录', `回顾了之前的造型：${entry.summary}`, `当时的评价：${entry.reaction}`);
-    modal.classList.remove('visible');
+    shareKkItemToChat(
+      "历史记录",
+      `回顾了之前的造型：${entry.summary}`,
+      `当时的评价：${entry.reaction}`,
+    );
+    modal.classList.remove("visible");
   };
 
-  modal.classList.add('visible');
+  modal.classList.add("visible");
 }

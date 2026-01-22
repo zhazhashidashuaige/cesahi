@@ -26375,129 +26375,367 @@ input:checked + .slider::after {
 }
 /* 1. 萌系弹窗样式 */
 #bug-report-modal .modal-content {
-    background-color: #fff0f6; /* 浅粉色背景 */
-    border: 3px solid #ffadd2; /* 深粉色边框 */
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(255, 107, 129, 0.2);
+  background-color: #fff0f6; /* 浅粉色背景 */
+  border: 3px solid #ffadd2; /* 深粉色边框 */
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(255, 107, 129, 0.2);
 }
 
 #bug-report-modal .modal-header {
-    background-color: #ffadd2;
-    color: white;
-    border-bottom: none;
-    border-radius: 16px 16px 0 0;
-    font-size: 18px;
-    font-weight: bold;
+  background-color: #ffadd2;
+  color: white;
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 /* 2. 日志显示区域：像一张处方单 */
 #error-log-viewer {
-    width: 100%;
-    height: 100%;
-    background-color: #ffffff;
-    color: #ff4d4f; /* 报错用红色字体 */
-    font-family: 'Consolas', 'Menlo', monospace;
-    font-size: 12px;
-    line-height: 1.6;
-    padding: 15px;
-    box-sizing: border-box;
-    border: 2px dashed #ffccc7; /* 虚线边框 */
-    border-radius: 12px;
-    resize: none;
-    outline: none;
-    white-space: pre-wrap;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  color: #ff4d4f; /* 报错用红色字体 */
+  font-family: "Consolas", "Menlo", monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 15px;
+  box-sizing: border-box;
+  border: 2px dashed #ffccc7; /* 虚线边框 */
+  border-radius: 12px;
+  resize: none;
+  outline: none;
+  white-space: pre-wrap;
 }
 
 /* 3. 按钮美化 */
 .nurse-btn {
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    transition: transform 0.2s;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.2s;
 }
-.nurse-btn:active { transform: scale(0.95); }
+.nurse-btn:active {
+  transform: scale(0.95);
+}
 
-.nurse-btn-copy { background: #5cdbd3; color: white; } /* 蓝绿色 */
-.nurse-btn-clear { background: #fff; color: #ff85c0; border: 1px solid #ff85c0; }
-.nurse-btn-close { background: #ff7875; color: white; }
+.nurse-btn-copy {
+  background: #5cdbd3;
+  color: white;
+} /* 蓝绿色 */
+.nurse-btn-clear {
+  background: #fff;
+  color: #ff85c0;
+  border: 1px solid #ff85c0;
+}
+.nurse-btn-close {
+  background: #ff7875;
+  color: white;
+}
 /* 系统弹窗容器样式 */
 #notification-bar {
-    position: fixed;
-    top: 20px; /* 距离顶部稍微留点空隙，类似iOS灵动岛下方 */
-    left: 50%;
-    transform: translateX(-50%) translateY(-200%); /* 默认隐藏在屏幕上方 */
-    width: 90%;
-    max-width: 360px;
-    background: rgba(255, 255, 255, 0.95); /* 轻微透明的白色背景 */
-    backdrop-filter: blur(10px); /* 毛玻璃特效 */
-    border-radius: 16px; /* 圆角卡片 */
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 2px 5px rgba(0,0,0,0.05); /* 柔和的阴影 */
-    z-index: 10000; /* 确保在最顶层 */
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    gap: 12px; /* 头像和文字的间距 */
-    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* 弹性动画 */
-    cursor: pointer;
-    border: 1px solid rgba(0,0,0,0.05);
+  position: fixed;
+  top: 20px; /* 距离顶部稍微留点空隙，类似iOS灵动岛下方 */
+  left: 50%;
+  transform: translateX(-50%) translateY(-200%); /* 默认隐藏在屏幕上方 */
+  width: 90%;
+  max-width: 360px;
+  background: rgba(255, 255, 255, 0.95); /* 轻微透明的白色背景 */
+  backdrop-filter: blur(10px); /* 毛玻璃特效 */
+  border-radius: 16px; /* 圆角卡片 */
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.12),
+    0 2px 5px rgba(0, 0, 0, 0.05); /* 柔和的阴影 */
+  z-index: 10000; /* 确保在最顶层 */
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px; /* 头像和文字的间距 */
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* 弹性动画 */
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* 弹窗激活时的状态 */
 #notification-bar.visible {
-    transform: translateX(-50%) translateY(0); /* 滑入屏幕 */
+  transform: translateX(-50%) translateY(0); /* 滑入屏幕 */
 }
 
 /* 弹窗头像样式 */
 #notification-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%; /* 圆形头像 */
-    object-fit: cover; /* 防止图片变形 */
-    border: 1px solid rgba(0,0,0,0.1);
-    flex-shrink: 0; /* 防止被挤压 */
-    background-color: #eee;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%; /* 圆形头像 */
+  object-fit: cover; /* 防止图片变形 */
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  flex-shrink: 0; /* 防止被挤压 */
+  background-color: #eee;
 }
 
 /* 弹窗内容区域 */
 #notification-content {
-    flex: 1; /* 占满剩余空间 */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow: hidden; /* 防止文字溢出 */
+  flex: 1; /* 占满剩余空间 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden; /* 防止文字溢出 */
 }
 
 /* 名字样式 */
 #notification-content .name {
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 消息内容样式 */
 #notification-content .message {
-    font-size: 12px;
-    color: #666;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; /* 文字太长显示省略号 */
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* 文字太长显示省略号 */
 }
 
 /* --- 夜间模式适配 (如果有夜间模式的话) --- */
 .dark-mode #notification-bar {
-    background: rgba(30, 30, 30, 0.95);
-    border-color: rgba(255,255,255,0.1);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  background: rgba(30, 30, 30, 0.95);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
 .dark-mode #notification-content .name {
-    color: #f0f0f0;
+  color: #f0f0f0;
 }
 .dark-mode #notification-content .message {
-    color: #aaa;
+  color: #aaa;
+}
+/* === 番茄钟音乐按钮 (萌系风格) === */
+#pomodoro-music-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    #ff9a9e 0%,
+    #fecfef 100%
+  ); /* 樱花粉渐变 */
+  border: 2px solid #fff;
+  box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+  color: white;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 弹性动画 */
+  cursor: pointer;
+  padding: 0;
+}
+
+#pomodoro-music-btn:hover {
+  transform: scale(1.1) rotate(15deg);
+  box-shadow: 0 6px 20px rgba(255, 154, 158, 0.6);
+}
+
+#pomodoro-music-btn:active {
+  transform: scale(0.95);
+}
+
+/* === 番茄钟音乐面板 (萌系唱片机风格) === */
+.moe-music-modal-content {
+  background-color: #fffafb; /* 极淡的粉白背景 */
+  border-radius: 24px !important;
+  border: 4px solid #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.moe-music-header {
+  background: linear-gradient(
+    to right,
+    #a18cd1 0%,
+    #fbc2eb 100%
+  ); /* 紫粉渐变 */
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  letter-spacing: 1px;
+  border-bottom: none;
+}
+
+/* 播放器主体 */
+.pomo-player-container {
+  padding: 20px;
+  background: #fff;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* 旋转唱片封面 */
+.pomo-disc-wrapper {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 15px;
+  position: relative;
+}
+
+.pomo-disc {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #333; /* 黑胶底色 */
+  padding: 4px; /* 唱片边框厚度 */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  animation: rotate-disc 10s linear infinite;
+  animation-play-state: paused;
+}
+
+.pomo-disc.playing {
+  animation-play-state: running;
+}
+
+.pomo-disc img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+}
+
+@keyframes rotate-disc {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 歌曲信息 */
+.pomo-track-info h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+.pomo-track-info p {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: #888;
+}
+
+/* 播放控制按钮组 */
+.pomo-controls-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  margin-top: 15px;
+}
+
+.pomo-ctrl-btn {
+  background: none;
+  border: none;
+  color: #a18cd1;
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.pomo-play-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); /* 清新蓝绿 */
+  color: white;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(132, 250, 176, 0.4);
+}
+
+.pomo-ctrl-btn:active,
+.pomo-play-btn:active {
+  transform: scale(0.9);
+}
+
+/* 播放列表 */
+.pomo-playlist {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 15px;
+  background-color: #fffafb;
+}
+
+.pomo-playlist-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  background: white;
+  border: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pomo-playlist-item:hover {
+  transform: translateX(5px);
+  border-color: #fbc2eb;
+}
+
+.pomo-playlist-item.active {
+  background: #fff0f5;
+  border-color: #ff9a9e;
+}
+
+.pomo-playlist-item.active .title {
+  color: #ff9a9e;
+  font-weight: bold;
+}
+
+.pomo-playlist-item .index {
+  font-size: 12px;
+  color: #ccc;
+  width: 25px;
+}
+
+.pomo-playlist-item .info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.pomo-playlist-item .title {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #555;
+}
+
+.pomo-playlist-item .artist {
+  font-size: 11px;
+  color: #999;
+}
+
+.playing-icon-gif {
+  width: 15px;
+  height: 15px;
+  display: none;
+}
+.pomo-playlist-item.active .playing-icon-gif {
+  display: block;
 }

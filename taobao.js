@@ -231,33 +231,26 @@ function selectGenericImagePrompt(productName) {
   return finalPrompt;
 }
 
-/**
- * 为Prompt生成并加载图片 (支持 API Key)
- * @param {string} prompt - 用于生成图片的英文提示词
- * @returns {Promise<string>} - 返回一个Promise，它最终会resolve为一个有效的图片URL
- */
 async function generateAndLoadImage(prompt) {
   while (true) {
     try {
       const encodedPrompt = encodeURIComponent(prompt);
-      // 生成随机种子，保证每次不同
       const seed = Math.floor(Math.random() * 100000);
 
       // 1. 获取 API Key (从全局状态获取)
       const pollApiKey = state.apiConfig.pollinationsApiKey;
+      console.log(`正在使用 API Key: ${pollApiKey}`);
 
-      // 2. 构建基础 URL (加了 nologo=true 去水印，通常加Key后支持更好)
-      const primaryUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=640&seed=${seed}&nologo=true`;
+      // 2. 构建基础 URL
+      let primaryUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=640&seed=${seed}&model=flux`;
 
       // === 分支 A: 如果有 API Key，使用 fetch 发送带 Header 的请求 ===
       if (pollApiKey) {
+        primaryUrl += `&key=${pollApiKey}`;
+        console.log(`使用带Key的URL: ${primaryUrl}`);
         console.log("正在使用 Pollinations API Key 生成图片...");
-
         const response = await fetch(primaryUrl, {
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${pollApiKey}`, // 关键：在这里放入 Key
-          },
         });
 
         if (!response.ok) {
@@ -267,10 +260,10 @@ async function generateAndLoadImage(prompt) {
         // 获取二进制数据并转换为 Blob URL
         const blob = await response.blob();
         const objectUrl = URL.createObjectURL(blob);
-        return objectUrl; // 返回 Blob URL (例如: blob:http://...)
+        return objectUrl; // 返回 Blob URL
       }
 
-      // === 分支 B: 如果没有 API Key，走原来的公开接口逻辑 (直接加载图片) ===
+      // === 分支 B: 如果没有 API Key 或 API Key 请求失败，走原来的公开接口逻辑 ===
 
       // 定义加载器辅助函数
       const loadImage = (url) =>
@@ -281,11 +274,9 @@ async function generateAndLoadImage(prompt) {
           img.onerror = () => reject(new Error(`URL加载失败: ${url}`));
         });
 
-      // 尝试加载
       const imageUrl = await loadImage(primaryUrl).catch(async () => {
         console.warn(`主URL加载失败，尝试备用URL for: ${prompt}`);
-        // 备用镜像源
-        const fallbackUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=640&seed=${seed}&nologo=true`;
+        const fallbackUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=640&seed=${seed}`;
         return await loadImage(fallbackUrl);
       });
 
