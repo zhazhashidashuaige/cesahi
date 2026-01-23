@@ -26739,3 +26739,792 @@ input:checked + .slider::after {
 .pomo-playlist-item.active .playing-icon-gif {
   display: block;
 }
+/* 确保网格布局正确 */
+#ls-album-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 一行3个，或者根据你的需求调整 */
+  gap: 10px;
+  padding: 15px;
+}
+
+/* 强制相册项有高度 */
+.ls-album-item {
+  aspect-ratio: 1 / 1; /* 保持正方形 */
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f0f0f0; /* 给个灰色背景，防止加载失败时全白看不见 */
+}
+
+/* 删除按钮定位 */
+.ls-photo-delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 10; /* 确保在图片上面 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* === 情侣空间照片详情页 - 萌系美化 === */
+
+/* 1. 弹窗容器 */
+.ls-photo-modal-content {
+  background-color: #fff0f3 !important; /* 浅粉色背景 */
+  border-radius: 24px !important;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 90%;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(255, 143, 171, 0.3) !important;
+  border: 3px solid #fff;
+}
+
+/* 2. 头部 */
+.ls-photo-modal-header {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  padding: 15px 20px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #fff;
+}
+.ls-photo-modal-header .close-btn {
+  background: rgba(255, 255, 255, 0.3);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  transition: 0.2s;
+}
+.ls-photo-modal-header .close-btn:hover {
+  background: rgba(255, 255, 255, 0.6);
+  transform: rotate(90deg);
+}
+
+/* 3. 中间内容区 */
+.ls-photo-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-image: radial-gradient(
+    #ffdde1 10%,
+    transparent 10%
+  ); /* 波点背景 */
+  background-size: 20px 20px;
+}
+
+/* 4. 拍立得风格照片容器 */
+.ls-polaroid-container {
+  background: white;
+  padding: 12px 12px 20px 12px;
+  border-radius: 8px;
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(0, 0, 0, 0.02);
+  transform: rotate(-2deg); /* 微微倾斜，更俏皮 */
+  margin-bottom: 25px;
+  text-align: center;
+  transition: transform 0.3s;
+}
+.ls-polaroid-container:hover {
+  transform: rotate(0deg) scale(1.02);
+}
+
+.ls-photo-wrapper {
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #eee;
+  background: #f8f8f8;
+}
+.ls-photo-wrapper img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.ls-photo-desc {
+  font-size: 15px;
+  color: #555;
+  margin-top: 15px;
+  font-family:
+    "Comic Sans MS", "Chalkboard SE", sans-serif; /* 尝试用可爱字体 */
+  line-height: 1.5;
+}
+
+.ls-photo-date {
+  font-size: 12px;
+  color: #bbb;
+  margin-top: 5px;
+}
+
+/* 5. 评论区 */
+.ls-comments-section-title {
+  font-size: 14px;
+  color: #ff8fa3;
+  font-weight: bold;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ls-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 单条评论项 */
+.ls-photo-comment-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.ls-photo-comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.ls-photo-comment-bubble {
+  background: white;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border-top-left-radius: 2px; /* 气泡尖角 */
+  position: relative;
+  box-shadow: 0 2px 8px rgba(255, 143, 171, 0.1);
+  font-size: 13px;
+  color: #444;
+  line-height: 1.4;
+  flex: 1;
+}
+.ls-photo-comment-item.is-me .ls-photo-comment-bubble {
+  background: #ffeff4;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 2px;
+  color: #d63384;
+}
+.ls-photo-comment-item.is-me {
+  flex-direction: row-reverse; /* 我发的在右边 */
+}
+
+.ls-comment-author {
+  font-size: 11px;
+  color: #aaa;
+  margin-bottom: 2px;
+  display: block;
+}
+
+/* 6. 底部输入栏 */
+.ls-photo-modal-footer {
+  padding: 12px;
+  background: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+}
+
+#ls-photo-comment-input {
+  flex: 1;
+  background: #f0f2f5;
+  border: 2px solid transparent;
+  padding: 10px 15px;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.3s;
+}
+#ls-photo-comment-input:focus {
+  background: #fff;
+  border-color: #ffb7b2;
+  box-shadow: 0 0 0 3px rgba(255, 183, 178, 0.2);
+}
+
+#ls-photo-comment-send-btn {
+  background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(255, 154, 158, 0.4);
+  transition: transform 0.1s;
+}
+#ls-photo-comment-send-btn:active {
+  transform: scale(0.95);
+}
+/* =========================================
+   🐰 兔k记账 - 全新高级萌系主题
+   ========================================= */
+
+/* 定义专属变量 */
+:root {
+  --tukey-primary: #ff9a9e; /* 樱花粉 */
+  --tukey-primary-light: #fecfef; /* 浅粉 */
+  --tukey-accent: #a18cd1; /* 梦幻紫 */
+  --tukey-success: #84fab0; /* 收入/资产绿 */
+  --tukey-bg: #fffafb; /* 极其浅的粉白背景 */
+  --tukey-text-main: #5d4037; /* 暖深棕字体 */
+  --tukey-text-light: #9e8a70; /* 浅棕字体 */
+  --tukey-card-shadow: 0 8px 24px rgba(255, 154, 158, 0.15); /* 柔和的粉色投影 */
+  --tukey-radius: 20px; /* 统一大圆角 */
+}
+
+/* 1. 全局容器背景 */
+#tukey-accounting-screen {
+  background-color: var(--tukey-bg) !important;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif; /* 确保字体圆润 */
+}
+
+/* 2. 头部美化 */
+#tukey-accounting-screen .header {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+#tukey-accounting-screen .header span {
+  color: var(--tukey-text-main);
+  font-weight: 600;
+}
+
+/* 3. 钱包视图 - 资产卡片 (高级渐变 + 玻璃质感) */
+#wallet-summary-card {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  border-radius: var(--tukey-radius);
+  padding: 25px;
+  margin: 15px;
+  color: white;
+  box-shadow: 0 10px 30px rgba(255, 154, 158, 0.4);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 增加一点可爱的装饰圆圈背景 */
+#wallet-summary-card::before {
+  content: "";
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+}
+
+.summary-item.net-assets .label {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: normal;
+}
+.summary-item.net-assets .value {
+  font-size: 32px;
+  font-weight: 700;
+  margin-top: 5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.summary-details {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px 20px;
+  border-radius: 12px;
+}
+.summary-details .summary-item {
+  display: flex;
+  flex-direction: column;
+}
+.summary-details .label {
+  font-size: 12px;
+  opacity: 0.9;
+}
+.summary-details .value {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* 4. 账户列表美化 */
+.tukey-account-category-card {
+  background: #fff;
+  border-radius: 16px;
+  margin: 15px;
+  padding: 5px 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.category-header {
+  padding: 12px 15px;
+  border-bottom: 1px dashed #f0f0f0;
+}
+.category-title {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--tukey-text-light);
+  font-weight: bold;
+}
+
+.tukey-account-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.tukey-account-item:active {
+  background-color: #fff0f5;
+}
+
+.account-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.account-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px; /* 圆角矩形图标更现代 */
+  padding: 6px;
+  background-color: #f8f9fa; /* 浅灰底托底图片 */
+  box-sizing: border-box;
+  object-fit: contain;
+}
+.account-name {
+  font-size: 15px;
+  color: var(--tukey-text-main);
+  font-weight: 500;
+}
+.account-balance-and-type {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.account-balance {
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--tukey-text-main);
+}
+.account-type-name {
+  font-size: 11px;
+  color: #ccc;
+  margin-top: 2px;
+}
+
+/* 5. 悬浮按钮 (FAB) - 萌系加成 */
+#add-new-account-fab,
+#tukey-add-record-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  box-shadow: 0 4px 15px rgba(255, 154, 158, 0.5);
+  border: 2px solid white; /* 增加白边显得更精致 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  bottom: 90px; /* 避开底部导航栏 */
+  right: 20px;
+  z-index: 100;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 弹性动画 */
+}
+#add-new-account-fab:active,
+#tukey-add-record-btn:active {
+  transform: scale(0.9) rotate(90deg);
+}
+#add-new-account-fab svg,
+#tukey-add-record-btn::before {
+  color: white;
+}
+/* 记一笔按钮的加号 */
+#tukey-add-record-btn {
+  color: white;
+  font-size: 30px;
+  font-weight: 300;
+  padding-bottom: 4px; /* 微调加号位置 */
+}
+
+/* 6. 记账群聊列表 (气泡美化) */
+#tukey-records-list {
+  background-color: var(--tukey-bg) !important;
+  padding: 15px;
+}
+
+/* 包装器，用于头像和气泡的布局 */
+.tukey-record-wrapper.user-record {
+  display: flex;
+  justify-content: flex-end; /* 用户消息靠右 */
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+/* 头像样式 */
+.record-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  order: 2; /* 头像在右边 */
+}
+
+/* 记账气泡样式 */
+.tukey-record-bubble {
+  background: #fff;
+  border-radius: 18px 4px 18px 18px; /* 右上角尖角 */
+  padding: 12px 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  min-width: 180px;
+  max-width: 70%;
+  order: 1; /* 气泡在头像左边 */
+  position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+/* 收入/支出的颜色区分条 */
+.tukey-record-bubble.expense {
+  border-left: 4px solid #ff9a9e;
+}
+.tukey-record-bubble.income {
+  border-left: 4px solid #84fab0;
+}
+
+.record-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #eee;
+}
+.record-category-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+.record-category-name {
+  font-size: 14px;
+  color: var(--tukey-text-main);
+  font-weight: bold;
+}
+
+.record-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.record-amount {
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "DIN Alternate", sans-serif; /* 数字字体 */
+}
+.tukey-record-bubble.expense .record-amount {
+  color: var(--tukey-text-main);
+}
+.tukey-record-bubble.income .record-amount {
+  color: #4caf50;
+}
+
+.record-remarks {
+  font-size: 13px;
+  color: var(--tukey-text-light);
+  margin-right: 10px;
+}
+
+.record-footer {
+  font-size: 10px;
+  color: #ccc;
+  text-align: right;
+}
+
+/* 7. AI 回复气泡美化 */
+.tukey-replies-container {
+  background: transparent;
+  padding: 0;
+  margin-top: -10px; /* 紧贴上一条 */
+  margin-bottom: 20px;
+  margin-right: 50px; /* 给用户头像留空 */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* 靠右对齐 */
+}
+
+.tukey-reply-item {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: row-reverse; /* AI头像在右，气泡在左（看起来像群聊里的其他人回复我）*/
+  /* 但等等，群聊逻辑应该是：我是右边，其他人是左边。
+       这里修正：记账记录是我发的（右边），AI回复是AI发的（左边）。
+    */
+  flex-direction: row;
+  align-self: flex-start; /* AI回复整体靠左 */
+  margin-top: 10px;
+  max-width: 85%;
+}
+
+/* 修正后的 AI 回复样式 */
+.tukey-replies-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* AI 回复靠左 */
+  margin-top: 5px;
+  padding-left: 10px;
+}
+
+.tukey-reply-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  animation: slideInLeft 0.3s ease;
+}
+
+.reply-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-right: 10px;
+  border: 1px solid #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.reply-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.reply-sender-name {
+  font-size: 11px;
+  color: var(--tukey-text-light);
+  margin-bottom: 2px;
+  margin-left: 4px;
+}
+
+.reply-bubble {
+  background: #fff;
+  padding: 10px 14px;
+  border-radius: 4px 18px 18px 18px; /* 左上角尖角 */
+  font-size: 14px;
+  color: var(--tukey-text-main);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  line-height: 1.5;
+}
+
+/* 8. 记账输入卡片 (Keyboard/Modal) */
+#tukey-record-input-card {
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.1);
+}
+.type-selector {
+  background: #f5f5f5;
+  padding: 4px;
+  border-radius: 20px;
+}
+.type-selector .type-btn {
+  border-radius: 16px;
+  font-size: 14px;
+  color: #888;
+}
+.type-selector .type-btn.active {
+  background: #fff;
+  color: var(--tukey-primary);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  font-weight: bold;
+}
+
+/* 金额输入区 */
+.input-fields {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+.amount-input-wrapper {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+.currency-symbol {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--tukey-text-main);
+}
+#tukey-card-amount-input {
+  font-size: 36px;
+  font-family: "DIN Alternate", sans-serif;
+  font-weight: bold;
+  color: var(--tukey-text-main);
+  border: none;
+  background: transparent;
+  width: 100%;
+  margin-left: 10px;
+}
+#tukey-card-amount-input::placeholder {
+  color: #eee;
+}
+
+/* 分类网格 */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px 10px;
+  padding: 10px 0;
+}
+.tukey-category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  opacity: 0.6;
+  transition: all 0.2s;
+}
+.tukey-category-item.selected {
+  opacity: 1;
+  transform: scale(1.1);
+}
+.tukey-category-item img {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 14px;
+  box-sizing: border-box;
+}
+.tukey-category-item.selected img {
+  background: var(--tukey-primary-light);
+}
+.tukey-category-item span {
+  font-size: 11px;
+}
+
+/* 底部按钮 */
+#tukey-save-from-card-btn {
+  background: linear-gradient(135deg, #ff9a9e, #fecfef);
+  border: none;
+  border-radius: 20px;
+  color: #fff; /* 这里要用白色 */
+  font-weight: bold;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 10px rgba(255, 154, 158, 0.4);
+}
+
+/* 9. 底部导航栏 */
+#tukey-bottom-nav {
+  border-top: none;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tukey-nav-item span {
+  font-size: 10px;
+  margin-top: 2px;
+}
+.tukey-nav-item.active svg path {
+  fill: var(--tukey-primary);
+}
+.tukey-nav-item.active span {
+  color: var(--tukey-primary);
+  font-weight: bold;
+}
+
+/* 动画效果 */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+/* 兔k记账重Roll按钮样式 */
+.tukey-reroll-btn {
+  font-size: 12px;
+  color: #888;
+  cursor: pointer;
+  margin-top: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  transition: all 0.2s;
+  align-self: flex-start; /* 让按钮靠左对齐 */
+}
+
+.tukey-reroll-btn:hover {
+  background-color: #fff;
+  color: #007bff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.tukey-replies-container {
+  /* 确保容器是列布局，方便我们把按钮放在回复下面 */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* 兔k记账重Roll按钮样式 */
+.tukey-reroll-btn {
+  font-size: 12px;
+  color: #888;
+  cursor: pointer;
+  margin-top: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  transition: all 0.2s;
+  align-self: flex-start; /* 让按钮靠左对齐 */
+}
+
+.tukey-reroll-btn:hover {
+  background-color: #fff;
+  color: #007bff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.tukey-replies-container {
+  /* 确保容器是列布局，方便我们把按钮放在回复下面 */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

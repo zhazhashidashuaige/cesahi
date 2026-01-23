@@ -15095,6 +15095,50 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         </div>
       </div>
     </div>
+    <!-- 在 body 结束标签前，其他 modal 的旁边添加 -->
+
+    <!-- 情侣空间-照片详情与评论弹窗 (萌系升级版) -->
+    <div id="ls-photo-detail-modal" class="modal">
+      <div class="modal-content ls-photo-modal-content">
+        <!-- 1. 顶部标题栏 -->
+        <div class="ls-photo-modal-header">
+          <span>✨ 甜蜜瞬间 ✨</span>
+          <span id="ls-photo-detail-close-btn" class="close-btn">×</span>
+        </div>
+
+        <!-- 2. 中间滚动区域 -->
+        <div class="ls-photo-modal-body">
+          <!-- 图片展示区 (类似拍立得风格) -->
+          <div class="ls-polaroid-container">
+            <div class="ls-photo-wrapper">
+              <img id="ls-photo-detail-img" src="" alt="照片" />
+            </div>
+            <div id="ls-photo-detail-desc" class="ls-photo-desc"></div>
+            <div id="ls-photo-detail-meta" class="ls-photo-date"></div>
+          </div>
+
+          <!-- 评论区标题 -->
+          <div class="ls-comments-section-title">
+            <span class="icon">💬</span> 悄悄话
+          </div>
+
+          <!-- 评论列表 -->
+          <div id="ls-photo-comments-list" class="ls-comments-list">
+            <!-- JS生成评论 -->
+          </div>
+        </div>
+
+        <!-- 3. 底部输入栏 -->
+        <div class="ls-photo-modal-footer">
+          <input
+            type="text"
+            id="ls-photo-comment-input"
+            placeholder="写下你的想法( •̀ ω •́ )✧..."
+          />
+          <button id="ls-photo-comment-send-btn">发送</button>
+        </div>
+      </div>
+    </div>
 
     <div id="inner-voice-modal" class="modal">
       <!-- 心声主面板 -->
@@ -24955,7 +24999,23 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             await db.chats.put(chat);
             return triggerAiResponse(); // 再次调用自己，让Char进行回应
           }
-          // --- 塔罗牌解读逻辑结束 ---
+
+          let lsPhotosContext = "";
+          if (
+            chat.loversSpaceData &&
+            chat.loversSpaceData.photos &&
+            chat.loversSpaceData.photos.length > 0
+          ) {
+            // 只取最近的 3 张照片给 AI 看
+            const recentPhotos = chat.loversSpaceData.photos.slice(-3);
+            lsPhotosContext = "\n\n# 情侣相册最近的照片 (你可以评论它们):\n";
+            recentPhotos.forEach((p) => {
+              const hasCommented =
+                p.comments && p.comments.some((c) => c.author === chat.name);
+              const status = hasCommented ? "[你已评论]" : "[你未评论]";
+              lsPhotosContext += `- (时间戳/ID: ${p.timestamp}) 描述: "${p.description}" ${status}\n`;
+            });
+          }
 
           let weiboContextForActiveChat = "";
           try {
@@ -26173,6 +26233,7 @@ ${libraryList}
 			- **发说说**: \`{"type": "ls_moment", "content": "我想对你说的话..."}\`
 			- **评论说说**: \`{"type": "ls_comment", "momentIndex": 0, "commentText": "你的评论..."}\` (momentIndex: 0代表最新一条)
 			- **发照片**: \`{"type": "ls_photo", "description": "对照片的文字描述..."}\`
+      - **评论照片**: \`{"type": "ls_photo_comment", "photoTimestamp": (照片的时间戳), "commentText": "你的评论..."}\`
 			- **提问**: \`{"type": "ls_ask_question", "questionText": "你想问的问题..."}\`
 			- **回答**: \`{"type": "ls_answer_question", "questionId": "q_123456789", "answerText": "你的回答..."}\`
 			- **写情书/回信**: \`{"type": "ls_letter", "content": "情书的正文内容..."}\` (收到情书后必须用此指令回信)
@@ -26182,7 +26243,7 @@ ${libraryList}
 			-   **分享游戏**:\`{"type": "ls_share", "shareType": "game", "title": "游戏名", "summary": "游戏简介...", "thoughts": "在这里写下你分享这款游戏的感想/感谢..."}\`
 			-   **写日记**: \`{"type": "ls_diary_entry", "emoji": "emoji表情", "diary": "今天发生了什么..."}\`
 			### **【第六部分：当前上下文信息】**
-
+ ${lsPhotosContext}
 			- **对话者(用户)角色设定**:
 			${chat.settings.myPersona}
 
@@ -28048,6 +28109,63 @@ ${libraryList}
                     );
                   }
                   continue; // 继续处理AI可能返回的其他指令
+                }
+                case "ls_photo_comment": {
+                  const { photoTimestamp, commentText } = msgData;
+                  console.log("🔍 [调试] 收到AI评论照片指令:", msgData);
+
+                  if (chat.loversSpaceData && chat.loversSpaceData.photos) {
+                    // 1. 查找照片 (使用 == 而不是 === 以兼容字符串/数字格式的时间戳)
+                    const targetPhoto = chat.loversSpaceData.photos.find(
+                      (p) => p.timestamp == photoTimestamp,
+                    );
+
+                    if (targetPhoto) {
+                      // 2. 确保评论数组存在
+                      if (!targetPhoto.comments) targetPhoto.comments = [];
+
+                      // 3. 添加评论对象
+                      targetPhoto.comments.push({
+                        author: chat.name, // 使用当前角色名
+                        text: commentText,
+                        timestamp: Date.now(),
+                      });
+
+                      console.log(`✅ [成功] AI评论已写入内存: ${commentText}`);
+
+                      // 4. 【重要】保存到数据库 (这是关键，否则刷新就没了)
+                      await db.chats.put(chat);
+
+                      // 5. 【UI刷新】检查当前是否正好打开了这张照片的详情页
+                      const detailModal = document.getElementById(
+                        "ls-photo-detail-modal",
+                      );
+
+                      // 检查弹窗是否可见
+                      if (
+                        detailModal &&
+                        detailModal.classList.contains("visible")
+                      ) {
+                        // 获取当前弹窗正在查看的照片时间戳
+                        const currentViewingTimestamp =
+                          detailModal.dataset.currentTimestamp;
+
+                        // 如果正在看的就是这张照片，立即重绘评论列表
+                        if (currentViewingTimestamp == photoTimestamp) {
+                          console.log(
+                            "🔄 [UI刷新] 当前正查看该照片，立即刷新评论区",
+                          );
+                          renderLSPhotoComments(targetPhoto);
+                        }
+                      }
+                    } else {
+                      console.warn(
+                        "❌ [失败] 未找到对应时间戳的照片:",
+                        photoTimestamp,
+                      );
+                    }
+                  }
+                  continue; // 这是一个后台操作，跳过生成普通聊天气泡
                 }
 
                 case "ls_letter": {

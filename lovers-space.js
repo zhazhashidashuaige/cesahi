@@ -1113,9 +1113,10 @@ function renderLSPhotos(photos, chat) {
         ? photo.url
         : "https://i.postimg.cc/KYr2qRCK/1.jpg";
 
-    // 构建照片项HTML，包含背景图片和删除按钮
+    // 修改点：使用 img 标签代替 background-image，并确保样式正确
     item.innerHTML = `
-            <div class="cover" style="background-image: url(${imageUrl});">
+            <div class="cover" style="position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 8px;">
+                <img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
                 <button class="ls-photo-delete-btn">×</button>
             </div>
         `;
@@ -1123,6 +1124,146 @@ function renderLSPhotos(photos, chat) {
     listEl.appendChild(item);
   });
 }
+// --- 新增函数开始 ---
+
+/**
+ * 打开照片详情评论弹窗
+ * @param {number} timestamp - 照片的时间戳ID
+ */
+async function openLSPhotoDetail(timestamp) {
+  const chat = state.chats[activeLoversSpaceCharId];
+  if (!chat || !chat.loversSpaceData || !chat.loversSpaceData.photos) return;
+
+  const photo = chat.loversSpaceData.photos.find(
+    (p) => p.timestamp === timestamp,
+  );
+  if (!photo) return;
+
+  // 1. 填充基本信息
+  const imgEl = document.getElementById("ls-photo-detail-img");
+  // 兼容 text_image 类型
+  if (photo.type === "text_image") {
+    imgEl.src = "https://i.postimg.cc/KYr2qRCK/1.jpg"; // 默认文字图背景
+  } else {
+    imgEl.src = photo.url;
+  }
+
+  document.getElementById("ls-photo-detail-desc").textContent =
+    photo.description || "（没有描述）";
+  document.getElementById("ls-photo-detail-meta").textContent =
+    formatPostTimestamp(photo.timestamp);
+
+  // 2. 暂存当前查看的照片时间戳，供发送按钮使用
+  document.getElementById("ls-photo-detail-modal").dataset.currentTimestamp =
+    timestamp;
+
+  // 3. 渲染评论
+  renderLSPhotoComments(photo);
+
+  // 4. 显示弹窗
+  document.getElementById("ls-photo-detail-modal").classList.add("visible");
+}
+
+/**
+ * 渲染照片评论列表 (萌系版 - 带头像)
+ */
+function renderLSPhotoComments(photo) {
+  const listEl = document.getElementById("ls-photo-comments-list");
+  listEl.innerHTML = "";
+
+  if (!photo.comments || photo.comments.length === 0) {
+    listEl.innerHTML =
+      '<div style="text-align:center; color:#eda; padding:20px; font-size:13px;">(｡•́︿•̀｡) 还没有人评论呢，快来抢沙发~</div>';
+    return;
+  }
+
+  const chat = state.chats[activeLoversSpaceCharId];
+  // 获取"我"的名字
+  const myNickname = chat.settings.myNickname || "我";
+
+  photo.comments.forEach((comment) => {
+    const item = document.createElement("div");
+    const isMe = comment.author === myNickname;
+
+    // 设置样式类名
+    item.className = `ls-photo-comment-item ${isMe ? "is-me" : ""}`;
+
+    // 确定头像
+    let avatarSrc = defaultAvatar;
+    if (isMe) {
+      avatarSrc = chat.settings.myAvatar || defaultAvatar;
+    } else if (comment.author === chat.name) {
+      avatarSrc = chat.settings.aiAvatar || defaultAvatar;
+    }
+
+    item.innerHTML = `
+            <img src="${avatarSrc}" class="ls-photo-comment-avatar">
+            <div class="ls-photo-comment-bubble">
+                <span class="ls-comment-author">${comment.author}</span>
+                ${comment.text}
+            </div>
+        `;
+    listEl.appendChild(item);
+  });
+
+  // 自动滚动到底部
+  setTimeout(() => {
+    listEl.scrollTop = listEl.scrollHeight;
+  }, 100);
+}
+
+/**
+ * 处理发送照片评论
+ */
+async function handleSendLSPhotoComment() {
+  const modal = document.getElementById("ls-photo-detail-modal");
+  const timestamp = parseInt(modal.dataset.currentTimestamp);
+  const input = document.getElementById("ls-photo-comment-input");
+  const text = input.value.trim();
+
+  if (!text) return alert("请输入评论内容");
+  if (!activeLoversSpaceCharId) return;
+
+  const chat = state.chats[activeLoversSpaceCharId];
+  const photo = chat.loversSpaceData.photos.find(
+    (p) => p.timestamp === timestamp,
+  );
+  if (!photo) return;
+
+  // 1. 初始化评论数组
+  if (!photo.comments) photo.comments = [];
+
+  // 2. 添加评论
+  const myNickname = chat.settings.myNickname || "我";
+  photo.comments.push({
+    author: myNickname,
+    text: text,
+    timestamp: Date.now(),
+  });
+
+  // 3. 保存并刷新
+  await db.chats.put(chat);
+  renderLSPhotoComments(photo);
+  input.value = ""; // 清空输入框
+
+  // 4. 【核心】触发AI回复
+  // 构造一条系统消息通知AI
+  const photoDesc = photo.description || "一张照片";
+  const hiddenMessage = {
+    role: "system",
+    content: `[系统提示：用户评论了情侣空间的一张照片。
+        照片描述：“${photoDesc}”。
+        用户的评论：“${text}”。
+        请你以"${chat.name}"的身份，针对这张照片和用户的评论进行回应。]`,
+    timestamp: Date.now(),
+    isHidden: true,
+  };
+
+  chat.history.push(hiddenMessage);
+  await db.chats.put(chat); // 再次保存聊天记录
+}
+
+// --- 新增函数结束 ---
 
 /**
  * 打开创建说说的弹窗
@@ -3677,29 +3818,19 @@ function initLoversSpace() {
 
   // 情侣空间相册事件监听
   document.getElementById("ls-album-list").addEventListener("click", (e) => {
+    // 1. 查找被点击的项目
     const item = e.target.closest(".ls-album-item");
     if (!item) return;
 
     const timestamp = parseInt(item.dataset.timestamp);
     if (isNaN(timestamp)) return;
 
-    // 检查点击的是否是删除按钮
+    // 2. 检查点击的是否是删除按钮
     if (e.target.classList.contains("ls-photo-delete-btn")) {
       handleDeleteLSPhoto(timestamp);
     } else {
-      // 否则，就是点击了图片本身，执行查看描述的逻辑
-      const chat = state.chats[activeLoversSpaceCharId];
-      if (chat && chat.loversSpaceData && chat.loversSpaceData.photos) {
-        const photo = chat.loversSpaceData.photos.find(
-          (p) => p.timestamp === timestamp,
-        );
-        if (photo) {
-          showCustomAlert(
-            `照片描述 (${formatPostTimestamp(photo.timestamp)})`,
-            photo.description,
-          );
-        }
-      }
+      // 3. 【修改点】点击图片本身，打开新的详情评论弹窗
+      openLSPhotoDetail(timestamp);
     }
   });
 
@@ -4406,9 +4537,16 @@ function initLoversSpace() {
   document
     .getElementById("pomo-music-play")
     .addEventListener("click", togglePomoMusic);
+  // --- 绑定照片详情弹窗事件 ---
+  document
+    .getElementById("ls-photo-detail-close-btn")
+    .addEventListener("click", () => {
+      document
+        .getElementById("ls-photo-detail-modal")
+        .classList.remove("visible");
+    });
 
-  // 3. (可选) 修改暂停逻辑：休息时是否要自动暂停音乐？
-  // 这取决于你的设计。目前代码中休息时会暂停音乐。如果你想休息时音乐继续，
-  // 可以修改 togglePomodoroPause 函数，删掉 `pomodoroState.bgmAudio.pause()`。
-  // 建议：保持休息时暂停音乐，或者在音乐面板里让用户自己决定。
+  document
+    .getElementById("ls-photo-comment-send-btn")
+    .addEventListener("click", handleSendLSPhotoComment);
 }
