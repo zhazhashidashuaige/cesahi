@@ -53306,18 +53306,16 @@ ${libraryList}
           }
         };
         /* ==================================================
-   【Dock栏三击触发版】桌面拖拽系统
-   触发方式：连续点击底部Dock栏（包含图标区域）3次
+   【全屏三击触发版】桌面拖拽系统
+   触发方式：在主屏幕任意位置（非弹窗/非设置页）连续点击 3 次
+   修复内容：包含对第二页组件位置的逻辑兼容
    ================================================== */
         function initDesktopManager() {
           const homeScreen = document.getElementById("home-screen");
           const doneBtn = document.getElementById("desktop-edit-done-btn");
           const sliderContainer = document.querySelector(".home-screen-slider");
 
-          // --- 【新增】获取 Dock 栏元素 ---
-          const dockBar = document.getElementById("desktop-dock");
-
-          // 创建“重置布局”按钮 (保持原有逻辑)
+          // 创建“重置布局”按钮
           let resetBtn = document.getElementById("desktop-reset-layout-btn");
           if (!resetBtn) {
             resetBtn = document.createElement("div");
@@ -53341,18 +53339,17 @@ ${libraryList}
             homeScreen.appendChild(resetBtn);
           }
 
-          // 定义所有可拖拽的目标选择器
+          // 定义所有可拖拽的目标
           const selector =
             ".home-page .desktop-app-icon, .home-page .custom-widget-container, #new-custom-widget, #profile-widget, #desktop-widget-column, #center-avatar-wrapper, .draggable-group";
 
           let isEditMode = false;
-          let longPressTimer = null;
           let dragItem = null;
           let originalParent = null;
           let shiftX = 0;
           let shiftY = 0;
 
-          // --- 核心：初始化ID ---
+          // --- 初始化ID ---
           const assignStableIds = () => {
             document.querySelectorAll(selector).forEach((el, index) => {
               if (!el.id) {
@@ -53369,53 +53366,76 @@ ${libraryList}
             });
           };
           assignStableIds();
-          setTimeout(restoreLayout, 200);
+
+          // 延迟恢复布局，并应用CSS居中修复
+          setTimeout(() => {
+            restoreLayout();
+            // 强制刷新一次第二页组件的位置，确保CSS生效
+            const centerWidget = document.getElementById(
+              "center-avatar-wrapper",
+            );
+            if (centerWidget && centerWidget.style.position !== "absolute") {
+              // 如果没有被拖拽过（没有保存绝对定位），则清除内联样式，让CSS的居中生效
+              centerWidget.style.left = "";
+              centerWidget.style.top = "";
+              centerWidget.style.transform = "";
+            }
+          }, 200);
 
           // ============================================================
-          // ★★★ 【重点修改】隐形触发逻辑：三击 Dock 栏进入编辑模式 ★★★
+          // ★★★ 【重点修改】全屏三击逻辑 ★★★
           // ============================================================
-          if (dockBar) {
-            let clickCount = 0;
-            let clickTimer = null;
+          let clickCount = 0;
+          let clickTimer = null;
 
-            // 允许通过点击 Dock 栏触发，无论是点在空白处还是图标上
-            // 注意：如果是点在图标上，前两次点击可能会触发打开APP，这是无法完全避免的，
-            // 除非我们拦截所有点击并延迟执行，但这会影响体验。
-            // 建议用户点击 Dock 栏图标之间的缝隙。
-            dockBar.addEventListener(
-              "click",
-              (e) => {
-                // 只有非编辑模式下才检测三击
-                if (isEditMode) return;
+          // 我们把监听器绑在 homeScreen 上，覆盖整个桌面区域
+          homeScreen.addEventListener(
+            "click",
+            (e) => {
+              // 1. 如果已经在编辑模式，不处理
+              // 2. 如果点击的是“完成”或“重置”按钮，不处理
+              if (
+                isEditMode ||
+                e.target.id === "desktop-edit-done-btn" ||
+                e.target.id === "desktop-reset-layout-btn"
+              )
+                return;
 
-                clickCount++;
+              // 3. 计数
+              clickCount++;
 
-                if (clickCount === 1) {
-                  clickTimer = setTimeout(() => {
-                    clickCount = 0; // 500ms内没点够次数，归零
-                  }, 500);
-                }
+              // 第一次点击开启计时器
+              if (clickCount === 1) {
+                clickTimer = setTimeout(() => {
+                  clickCount = 0; // 500ms 内没点够3次，归零
+                }, 500);
+              }
 
-                if (clickCount >= 3) {
-                  clearTimeout(clickTimer);
-                  clickCount = 0;
+              // 达到3次
+              if (clickCount >= 3) {
+                clearTimeout(clickTimer);
+                clickCount = 0;
 
-                  // 阻止冒泡，防止第三次点击误触图标打开App
-                  e.preventDefault();
-                  e.stopPropagation();
+                // 震动反馈
+                if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
 
-                  if (navigator.vibrate) navigator.vibrate([50, 50, 50]); // 震动提示
-                  enterEditMode(); // 进入编辑模式
-                }
-              },
-              true,
-            ); // 使用捕获阶段(true)来优先处理点击
-          }
+                // 阻止这次点击可能引发的 APP 打开等行为
+                e.preventDefault();
+                e.stopPropagation();
+
+                enterEditMode();
+              }
+            },
+            true,
+          ); // 使用捕获阶段 (true)，确保比 APP 图标的点击事件先触发
+
           // ============================================================
 
-          // --- 拖拽逻辑 (保持逻辑不变，只负责拖拽) ---
+          // --- 拖拽逻辑 ---
+          // 这里去掉了原来的长按计时器，只保留拖拽
           const handleInputDown = (e) => {
-            // 排除按钮
+            if (!isEditMode) return; // 只有编辑模式下才允许拖拽
+
             if (
               e.target.id === "desktop-edit-done-btn" ||
               e.target.id === "desktop-reset-layout-btn"
@@ -53423,21 +53443,15 @@ ${libraryList}
               return;
 
             let target = e.target.closest(selector);
-            // 处理嵌套结构
             if (target && target.parentElement.closest(selector)) {
               target = target.parentElement.closest(selector);
             }
 
-            if (!target) return;
-
-            // 只有在编辑模式下才允许拖拽！
-            // 移除了原来的长按进入编辑模式的代码，完全依赖Dock栏三击
-            if (isEditMode) {
+            if (target) {
               prepareDrag(e, target);
             }
           };
 
-          // 绑定事件到滑动容器
           sliderContainer.addEventListener("mousedown", handleInputDown);
           sliderContainer.addEventListener("touchstart", handleInputDown, {
             passive: false,
@@ -53445,12 +53459,19 @@ ${libraryList}
 
           // --- 准备拖拽 ---
           function prepareDrag(e, item) {
-            e.preventDefault(); // 阻止默认行为（如滚动）
+            e.preventDefault();
             dragItem = item;
             const rect = dragItem.getBoundingClientRect();
             originalParent = dragItem.parentNode;
 
-            // 确保父级定位
+            // 修复：拖拽时如果是居中的组件，先计算出它当前的实际像素位置，转为 absolute left/top
+            // 否则一拖动，transform: translate(-50%, -50%) 会导致坐标突变
+            if (dragItem.id === "center-avatar-wrapper") {
+              dragItem.style.transform = "none"; // 暂时移除 CSS 居中变换
+              dragItem.style.left = rect.left + "px"; // 固化当前视觉位置
+              dragItem.style.top = rect.top + "px";
+            }
+
             const parentStyle = window.getComputedStyle(originalParent);
             if (parentStyle.position === "static") {
               originalParent.style.position = "relative";
@@ -53471,8 +53492,8 @@ ${libraryList}
             dragItem.style.height = rect.height + "px";
             dragItem.style.left = rect.left + "px";
             dragItem.style.top = rect.top + "px";
-            dragItem.style.margin = "0";
-            dragItem.style.transform = "none";
+            dragItem.style.margin = "0"; // 清除 margin
+            dragItem.style.transform = "none"; // 清除 transform
 
             document.addEventListener("mousemove", onDragMove);
             document.addEventListener("touchmove", onDragMove, {
@@ -53521,6 +53542,11 @@ ${libraryList}
               dragItem.style.top = relativeTop + "px";
               dragItem.style.width = rect.width + "px";
               dragItem.style.height = rect.height + "px";
+              dragItem.style.margin = "0"; // 确保放回后也没有margin
+              dragItem.style.transform = "none"; // 确保放回后没有transform
+
+              // 特殊处理：如果是居中组件，被拖动后，它就变成了普通绝对定位组件
+              // 不需要额外操作，上面的 left/top 已经固化了它的位置
 
               if (
                 originalParent.clientHeight < 50 &&
@@ -53539,37 +53565,29 @@ ${libraryList}
             document.removeEventListener("touchend", onDragEnd);
           }
 
-          // --- 模式切换 ---
           function enterEditMode() {
             isEditMode = true;
             homeScreen.classList.add("editing-mode");
-            doneBtn.style.display = "block"; // 显示完成按钮
-
-            // 显示重置按钮
+            doneBtn.style.display = "block";
             const resetBtn = document.getElementById(
               "desktop-reset-layout-btn",
             );
             if (resetBtn) resetBtn.style.display = "block";
-
             document.addEventListener("click", blockClickInEditMode, true);
           }
 
-          // 完成按钮事件
           doneBtn.addEventListener("click", () => {
             isEditMode = false;
             homeScreen.classList.remove("editing-mode");
             doneBtn.style.display = "none";
-
             const resetBtn = document.getElementById(
               "desktop-reset-layout-btn",
             );
             if (resetBtn) resetBtn.style.display = "none";
-
             document.removeEventListener("click", blockClickInEditMode, true);
             saveLayout();
           });
 
-          // 重置按钮事件
           resetBtn.addEventListener("click", async () => {
             if (confirm("确定要重置所有布局吗？页面将刷新。")) {
               if (window.state && window.state.globalSettings) {
@@ -53580,21 +53598,13 @@ ${libraryList}
             }
           });
 
-          // 编辑模式下阻止默认点击（防止误触打开APP）
           function blockClickInEditMode(e) {
             if (
               e.target.id === "desktop-edit-done-btn" ||
               e.target.id === "desktop-reset-layout-btn"
             )
               return;
-
-            // 允许点击 Dock 栏本身，否则无法退出
-            if (e.target.closest("#desktop-dock") && isEditMode) {
-              // e.preventDefault();
-            }
-
             if (isEditMode) {
-              // 阻止所有其他点击，只允许拖拽
               e.stopPropagation();
               e.preventDefault();
             }
@@ -53607,8 +53617,13 @@ ${libraryList}
             const layoutData = {};
             const items = document.querySelectorAll(selector);
             items.forEach((item) => {
-              // 只保存被改为 absolute 的元素
-              if (item.id && item.style.position === "absolute") {
+              // 检查：只有当元素被明确设为 absolute 时才保存位置
+              // 这可以兼容第一步CSS里写的初始居中状态（没有absolute left/top）
+              if (
+                item.id &&
+                item.style.position === "absolute" &&
+                item.style.left
+              ) {
                 layoutData[item.id] = {
                   left: item.style.left,
                   top: item.style.top,
@@ -53640,9 +53655,11 @@ ${libraryList}
                   el.style.width = pos.width;
                   el.style.height = pos.height;
                   el.style.margin = "0";
+                  // 如果读取到了自定义位置，就必须移除 CSS 里的 transform 居中
                   el.style.transform = "none";
                   el.style.bottom = "auto";
                   el.style.right = "auto";
+
                   const parent = el.parentNode;
                   if (parent) {
                     const parentStyle = window.getComputedStyle(parent);
