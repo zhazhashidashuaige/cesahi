@@ -176,7 +176,14 @@ async function loadAndDisplaySceneImage(scene) {
 
   // 2. 如果没有URL，说明需要生成
   try {
-    const imageUrl = await generateAndLoadImage(scene.imagePrompt);
+    // 使用全局生图函数，指定尺寸以适配约会卡片
+    const imageUrl = await window.generatePollinationsImage(scene.imagePrompt, {
+      width: 1024,
+      height: 640,
+      model: "flux",
+      nologo: true,
+    });
+
     // 生成成功后，更新UI
     if (document.body.contains(imageContainer)) {
       imageContainer.innerHTML = `<img src="${imageUrl}" alt="${scene.name}">`;
@@ -184,7 +191,9 @@ async function loadAndDisplaySceneImage(scene) {
 
     // 关键：将新生成的URL保存回数据库！
     scene.imageUrl = imageUrl;
-    await db.datingScenes.update(scene.uid, { imageUrl: imageUrl });
+    await db.datingScenes.update(scene.uid, {
+      imageUrl: imageUrl,
+    });
     console.log(`为场景 "${scene.name}" 生成并保存了新图片。`);
   } catch (error) {
     console.error(`场景 "${scene.name}" 图片渲染失败:`, error);
@@ -216,7 +225,6 @@ async function deleteDatingScene(sceneUid) {
   }
 }
 
-// 处理场景图片生成和加载
 async function processSceneImages(newScenes) {
   const contentEl = document.getElementById("dating-scene-content");
 
@@ -225,7 +233,17 @@ async function processSceneImages(newScenes) {
     contentEl.appendChild(card);
 
     try {
-      const imageUrl = await generateAndLoadImage(scene.imagePrompt);
+      // 使用全局生图函数
+      const imageUrl = await window.generatePollinationsImage(
+        scene.imagePrompt,
+        {
+          width: 1024,
+          height: 640,
+          model: "flux",
+          nologo: true,
+        },
+      );
+
       const imageContainer = card.querySelector(
         ".dating-scene-image-container",
       );
@@ -261,72 +279,6 @@ function createDatingSceneCard(scene) {
                     </div>
                 `;
   return card;
-}
-// 生成并加载图片 (修改版：解决Chrome Header/Referer限制)
-async function generateAndLoadImage(prompt) {
-  while (true) {
-    try {
-      const encodedPrompt = encodeURIComponent(prompt);
-      const seed = Math.floor(Math.random() * 100000);
-
-      // 1. 获取 API Key (从全局状态获取，兼容 window.state)
-      const pollApiKey = window.state?.apiConfig?.pollinationsApiKey;
-
-      // 2. 构建基础 URL (根据你的要求使用 flux 模型)
-      // 加上 nologo=true 参数，去水印
-      let primaryUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=640&seed=${seed}&model=flux&nologo=true`;
-
-      // === 分支 A: 如果有 API Key，使用 fetch 发送请求获取 Blob ===
-      if (pollApiKey) {
-        // 将 Key 拼接到 URL 参数中 (根据你提供的参考代码逻辑)
-        primaryUrl += `&key=${pollApiKey}`;
-        console.log("正在使用 Pollinations API Key 生成图片...");
-
-        const response = await fetch(primaryUrl, {
-          method: "GET",
-          // 注意：由于 Key 已经在 URL 中了，通常不需要再加 Header，
-          // 这样可以避免 Chrome 发送预检请求 (OPTIONS) 导致的 CORS 问题
-        });
-
-        if (!response.ok) {
-          throw new Error(`API请求失败: ${response.status}`);
-        }
-
-        // 获取二进制数据并转换为 Blob URL
-        // 这种方式浏览器认为是本地资源，不会有跨域引用问题
-        const blob = await response.blob();
-        const objectUrl = URL.createObjectURL(blob);
-        return objectUrl; // 返回 Blob URL
-      }
-
-      // === 分支 B: 如果没有 API Key，走原来的公开接口逻辑 (Image加载) ===
-
-      // 定义内部加载器辅助函数
-      const loadImage = (url) =>
-        new Promise((resolve, reject) => {
-          const img = new Image();
-          img.src = url;
-          img.onload = () => resolve(url);
-          img.onerror = () => reject(new Error(`URL加载失败: ${url}`));
-        });
-
-      // 尝试加载
-      const imageUrl = await loadImage(primaryUrl).catch(async () => {
-        console.warn(`主URL加载失败，尝试备用URL for: ${prompt}`);
-        // 备用地址
-        const fallbackUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=640&seed=${seed}&model=flux&nologo=true`;
-        return await loadImage(fallbackUrl);
-      });
-
-      // 如果成功加载，返回 URL
-      return imageUrl;
-    } catch (error) {
-      // 如果彻底失败（Fetch失败 或 Image加载失败）
-      console.error(`图片生成失败，将在3秒后重试。错误: ${error.message}`);
-      // 等待3秒钟，然后循环继续，开始下一次尝试 (无限重试机制)
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-    }
-  }
 }
 
 /**
@@ -880,7 +832,15 @@ async function startDatingScene(scene, targetCharId) {
     const imagePrompt =
       scene.imagePrompt +
       ", vertical, phone wallpaper, cinematic lighting, masterpiece, best quality, beautiful anime style art";
-    generateAndLoadImage(imagePrompt)
+
+    // 使用全局生图函数
+    window
+      .generatePollinationsImage(imagePrompt, {
+        width: 1024,
+        height: 640,
+        model: "flux",
+        nologo: true,
+      })
       .then((imageUrl) => {
         backgroundEl.style.backgroundImage = `url(${imageUrl})`;
       })
@@ -1859,12 +1819,21 @@ function applyDatingUISettings() {
     const imagePrompt =
       datingGameState.scene.imagePrompt +
       ", vertical, phone wallpaper, cinematic lighting, masterpiece, best quality, beautiful anime style art";
-    generateAndLoadImage(imagePrompt)
+
+    // 使用全局生图函数
+    window
+      .generatePollinationsImage(imagePrompt, {
+        width: 1024,
+        height: 640,
+        model: "flux",
+        nologo: true,
+      })
       .then((imageUrl) => {
         backgroundEl.style.backgroundImage = `url(${imageUrl})`;
       })
-      .catch(() => {
-        backgroundEl.style.backgroundColor = "#1c1e26";
+      .catch((error) => {
+        console.error("生成背景失败:", error);
+        backgroundEl.style.backgroundColor = "#1c1e26"; // 失败时的备用背景
       });
   }
 

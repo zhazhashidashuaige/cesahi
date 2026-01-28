@@ -144,6 +144,7 @@
       <div id="lock-screen-background-blur" style="display: none"></div>
 
       <div id="home-screen" class="screen active">
+        <div id="desktop-edit-done-btn">完成</div>
         <div class="home-screen-slider">
           <!-- 第一页，把原来的内容都放进来 -->
           <div class="home-page">
@@ -379,8 +380,10 @@
                 <span class="label">X社交</span>
               </div>
 
-              <div id="center-avatar-wrapper">
-                <!-- 原来的头像，放在了新容器的中心 -->
+              <!-- 第二页中间的组合组件 -->
+              <!-- 给最外层 Wrapper 加个 class "draggable-group" 方便我们识别 -->
+              <div id="center-avatar-wrapper" class="draggable-group">
+                <!-- 原来的头像容器 -->
                 <div
                   id="second-page-center-avatar"
                   class="custom-widget-container"
@@ -388,19 +391,19 @@
                   <div class="widget-circle-uploader">
                     <img
                       id="widget-image-4"
-                      src="https://i.postimg.cc/qRqpK5kP/anime-avatar.jpg"
+                      src="..."
                       class="editable-image"
                       title="点击更换图片"
                     />
                   </div>
                 </div>
 
-                <!-- 头像下方的可编辑文字框 -->
+                <!-- 头像下方的文字 -->
                 <div id="avatar-subtitle" class="editable-text">
                   点击编辑文字
                 </div>
 
-                <!-- 头像四个角的可编辑气泡 -->
+                <!-- 四个角的气泡 -->
                 <div class="corner-bubble editable-text" id="bubble-top-left">
                   左上角
                 </div>
@@ -5612,6 +5615,7 @@
               </div>
             </div>
 
+            <!-- 原有代码 -->
             <div class="form-group">
               <label for="max-memory">上下文记忆条数</label>
               <input
@@ -5620,6 +5624,33 @@
                 value="10"
                 class="moe-input"
               />
+            </div>
+
+            <div class="form-group">
+              <label>回复条数区间 (Min - Max)</label>
+              <div style="display: flex; gap: 10px; align-items: center">
+                <input
+                  type="number"
+                  id="min-reply-count-input"
+                  class="moe-input"
+                  min="1"
+                  placeholder="最小"
+                  style="text-align: center"
+                />
+                <span>至</span>
+                <input
+                  type="number"
+                  id="max-reply-count-input"
+                  class="moe-input"
+                  min="1"
+                  placeholder="最大"
+                  style="text-align: center"
+                />
+                <span>条</span>
+              </div>
+              <p style="font-size: 12px; color: #999; margin-top: 5px">
+                建议设置: 单聊 2-5，群聊 3-8。
+              </p>
             </div>
 
             <div class="info-tags">
@@ -15139,6 +15170,188 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         </div>
       </div>
     </div>
+    <!-- 情侣空间 - 分享详情专用弹窗 (Ver 2.0 萌系版) -->
+    <div id="ls-share-detail-modal" class="modal">
+      <div class="modal-content ls-share-card-container">
+        <!-- 1. 顶部装饰区 -->
+        <div class="ls-share-header-bg"></div>
+
+        <!-- 2. 头像与徽章 (核心视觉) -->
+        <div class="ls-share-avatar-wrapper">
+          <img id="ls-share-char-avatar" src="" class="ls-share-avatar-img" />
+          <!-- 类型徽章 -->
+          <div class="ls-share-badge" id="ls-share-badge-icon">🎬</div>
+        </div>
+
+        <!-- 3. 内容区域 -->
+        <div class="ls-share-content-body">
+          <!-- 推荐语气泡 (像是在说话) -->
+          <div class="ls-share-speech-bubble">
+            <div class="bubble-arrow"></div>
+            <p id="ls-share-thoughts">在这里显示 TA 的感想...</p>
+          </div>
+
+          <!-- 作品信息卡片 -->
+          <div class="ls-share-info-box">
+            <h3 id="ls-share-detail-title">作品标题</h3>
+            <span class="ls-share-pill" id="ls-share-type-text">电影</span>
+            <div class="ls-share-divider"></div>
+            <div class="ls-share-summary-text" id="ls-share-summary">
+              这里是作品的简介内容...
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. 底部按钮 -->
+        <div class="ls-share-footer-action">
+          <button id="ls-share-detail-close-btn">收到安利 (o´ω`o)ﾉ</button>
+        </div>
+      </div>
+    </div>
+    <!-- 莫兰迪风娃娃机充值弹窗 -->
+    <div id="claw-machine-modal" class="modal">
+      <!-- 容器背景改为透明，去除默认阴影 -->
+      <div
+        class="modal-content"
+        style="
+          background: transparent;
+          box-shadow: none;
+          border: none;
+          padding: 0;
+          width: 380px;
+          height: 720px;
+          overflow: visible;
+          display: flex;
+          justify-content: center;
+        "
+      >
+        <div id="claw-machine-body" class="morandi-style">
+          <!-- ★★★ 顶部功能栏：左关闭、中标题、右刷新 ★★★ -->
+          <div class="machine-header-bar">
+            <!-- 左侧：关闭按钮 (移到这里，远离刷新) -->
+            <div class="action-group left">
+              <button
+                id="close-claw-machine"
+                class="icon-btn close-header-btn"
+                title="退出娃娃机"
+              >
+                ✕
+              </button>
+            </div>
+
+            <!-- 中间：标题 + 设置按钮 -->
+            <div class="title-group">
+              <div class="header-title">✨ LUCK BOX ✨</div>
+              <button
+                id="claw-manage-btn"
+                class="icon-btn settings-btn"
+                title="管理娃娃库"
+              >
+                ⚙️
+              </button>
+            </div>
+
+            <!-- 右侧：刷新按钮 -->
+            <div class="action-group right">
+              <button
+                id="claw-restart-btn"
+                class="icon-btn refresh-btn"
+                title="刷新/换一批"
+              >
+                ↻
+              </button>
+            </div>
+          </div>
+
+          <!-- 概率仪表盘 -->
+          <div class="prob-dashboard">
+            <div class="pie-chart-wrapper">
+              <div id="prob-pie-chart" class="pie-chart"></div>
+              <div class="pie-hole"></div>
+            </div>
+            <div id="prob-legend" class="chart-legend"></div>
+          </div>
+
+          <!-- 玻璃仓 -->
+          <div class="machine-window glass-effect">
+            <div class="reflection-light"></div>
+            <div id="machine-claw">
+              <div class="claw-line"></div>
+              <div class="claw-hand">
+                <div class="claw-finger left"></div>
+                <div class="claw-finger right"></div>
+              </div>
+            </div>
+            <div id="doll-pool"></div>
+            <div class="machine-chute">PUT</div>
+          </div>
+
+          <!-- 控制台 -->
+          <div class="machine-controls glass-effect">
+            <div class="control-group">
+              <div class="joystick-base">
+                <div id="machine-joystick" class="joystick-stick">
+                  <div class="joystick-ball"></div>
+                </div>
+              </div>
+            </div>
+            <div class="display-screen">
+              <span class="label">COINS</span>
+              <span id="claw-machine-balance" class="value">0.00</span>
+            </div>
+            <div class="btn-group">
+              <button id="claw-grab-btn" class="pearl-btn">GO</button>
+            </div>
+          </div>
+
+          <div class="machine-base"></div>
+
+          <!-- 注意：原来的底部悬浮关闭按钮代码已经删除了 -->
+        </div>
+      </div>
+    </div>
+    <div id="doll-manager-modal" class="modal">
+      <div class="modal-content" style="height: 70%">
+        <div class="modal-header">
+          <span>管理娃娃图鉴</span>
+          <div class="header-actions">
+            <button id="add-doll-btn" class="action-button">添加</button>
+            <button
+              id="reset-dolls-btn"
+              class="action-button"
+              style="margin-right: 5px"
+            >
+              重置默认
+            </button>
+          </div>
+        </div>
+        <div class="modal-body" style="background: #f5f5f5; padding: 15px">
+          <div
+            id="doll-manager-grid"
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+              gap: 10px;
+            "
+          >
+            <!-- JS动态生成 -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="save" id="close-doll-manager-btn" style="width: 100%">
+            完成
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- 隐藏的文件上传控件 -->
+    <input
+      type="file"
+      id="doll-upload-input"
+      accept="image/*"
+      multiple
+      hidden
+    />
 
     <div id="inner-voice-modal" class="modal">
       <!-- 心声主面板 -->
@@ -17688,7 +17901,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
         function initDatabase(userId) {
           // 数据库名带上用户ID，实现每个人数据隔离
           db = new Dexie("GeminiChatDB");
-          db.version(61).stores({
+          db.version(62).stores({
             // 版本号从 51 升级到 52
             chats:
               "&id, isGroup, groupId, ownerId, isPinned, characterPhoneData, latestInnerVoice, innerVoiceHistory, loversSpaceData.emotionDiaries, settings.summary, settings.weiboNickname, settings.innerVoiceHideHeaderBorder, settings.innerVoiceAdopterLabelFormat, interactionStats, unlockedSymbols, settings.selectedIntimacyBadge",
@@ -17753,6 +17966,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             tukeyCustomConfig: "&id",
             auroraBooks: "++id, title, content, addedAt",
             passerbyAvatars: "++id, url",
+            clawMachineDolls: "++id, url",
           });
           // 到这里加下面三行
           window.db = db;
@@ -25233,10 +25447,64 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
               // 决策流程结束，必须返回，不再执行后续的通用聊天逻辑
               return;
             }
-
-            const historySlice = chat.history
+            // 1. 获取最近的历史记录
+            let historySlice = chat.history
               .filter((msg) => !msg.isTemporary)
-              .slice(-chat.settings.maxMemory); // 1. 【修复】把这行加回来！
+              .slice(-chat.settings.maxMemory);
+
+            // ======================= [修复开始] =======================
+            // 防止情书死循环逻辑：
+            // 遍历历史记录，如果发现“催写情书”的指令，检查它后面是否已经跟了AI的情书回复。
+            // 如果已经回复过，就将该系统指令标记为“跳过”，不再发给AI。
+
+            // 用于存储需要过滤掉的消息的时间戳
+            const timestampsToSkip = new Set();
+
+            for (let i = 0; i < historySlice.length; i++) {
+              const msg = historySlice[i];
+
+              // 检查是否是那是条催写情书的系统消息
+              if (
+                msg.role === "system" &&
+                msg.content &&
+                msg.content.includes("ls_letter") &&
+                msg.content.includes("写一封回信")
+              ) {
+                // 找到了指令，现在往后找有没有AI的回复
+                let hasReplied = false;
+                for (let j = i + 1; j < historySlice.length; j++) {
+                  const nextMsg = historySlice[j];
+                  // 检查是否是AI发的，且内容包含 ls_letter 指令
+                  if (nextMsg.role === "assistant") {
+                    // 简单判断文本内容或JSON结构
+                    const contentStr =
+                      typeof nextMsg.content === "string"
+                        ? nextMsg.content
+                        : JSON.stringify(nextMsg.content);
+                    if (
+                      contentStr.includes('"type": "ls_letter"') ||
+                      contentStr.includes('"type":"ls_letter"')
+                    ) {
+                      hasReplied = true;
+                      break;
+                    }
+                  }
+                }
+
+                // 如果已经回复过了，就把这条系统指令加入跳过列表
+                if (hasReplied) {
+                  timestampsToSkip.add(msg.timestamp);
+                  console.log(
+                    "检测到已完成的情书指令，已从上下文中移除，防止重复触发。",
+                  );
+                }
+              }
+            }
+
+            // 过滤掉不再需要的指令
+            historySlice = historySlice.filter(
+              (msg) => !timestampsToSkip.has(msg.timestamp),
+            );
 
             // --- 红包状态实时播报模块 ---
             let redPacketContext = "";
@@ -25540,7 +25808,11 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			你的任务: 请你阅读并理解这个帖子。在接下来的回复中，你【必须】使用 'forum_comment' 指令对这个帖子发表你的看法或疑问。
 			`;
             }
-
+            const replyRange = chat.settings.replyCountRange || {
+              min: 2,
+              max: 5,
+            };
+            const replyCountInstruction = `每次回复的消息数量应控制在【${replyRange.min} 到 ${replyRange.max} 条】之间。`;
             if (chat.isGroup) {
               const countdownContext = await getCountdownContext(chatId); // <--- 把chatId传进去
               const streakContext = await getStreakContext(chat); // <-- 全新添加：获取火花状态
@@ -25572,7 +25844,7 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
 			# 角色
 			你是一个群聊AI，负责扮演【除了用户以外】的所有角色。
 			# 【对话节奏铁律 (至关重要！)】
-			你的回复【必须】模拟真人的打字和思考习惯。不要一次性发送一大段文字，你应该将你想说的话，拆分成【多条、简短的】消息气泡来发送，每条消息最好不要超过30个字。这会让对话看起来更自然、更真实。
+			你的回复【必须】模拟真人的打字和思考习惯。不要一次性发送一大段文字，你应该将你想说的话，拆分成${replyCountInstruction}条消息气泡来发送，每条消息最好不要超过30个字。这会让对话看起来更自然、更真实。
 			**角色回复顺序不固定，可以交叉回复，例如角色A、角色B、角色B、角色A、角色C这样的交叉顺序。不一定要一个人全部说完了才轮到下一个人。角色之间【必须】有互动对话。**
 			# 【【【身份铁律：这是最高指令，必须严格遵守】】】
 			1.  **核心任务**: 你的唯一任务是扮演且仅能扮演下方“群成员列表”中明确列出的角色。
@@ -25986,7 +26258,6 @@ ${libraryList}
                 console.error("加载饿了么菜单失败:", error);
                 elemeContext += "【注意：饿了么菜单加载失败。】";
               }
-
               systemPrompt = `### **【第一部分：角色核心设定】**
 
 			你现在将扮演一个名为“**${chat.name}**”的角色。
@@ -26026,7 +26297,8 @@ ${libraryList}
 
 			**2. "chatResponse" 键:**
 			- **类型**: JSON数组 []。
-			- **内容**: 包含一条或多条你希望发送给用户的消息对象。这允许你模拟真人的聊天习惯，一次性发送多条短消息。
+			- **内容**: 你的回复【必须】模拟真人的打字和思考习惯。不要一次性发送一大段文字，你应该将你想说的话，拆分成【多条、简短的】消息气泡来发送。
+**${replyCountInstruction}** 
 			- **格式**: 消息对象的具体格式见下方的【第五部分：可使用的操作指令】。
 
             **3. "innerVoice" 键:**
@@ -32160,6 +32432,11 @@ ${libraryList}
           const timeSinceLastMessage = lastMessage
             ? Math.floor((Date.now() - lastMessage.timestamp) / 60000)
             : infinity;
+          const replyRange = chat.settings.replyCountRange || {
+            min: 2,
+            max: 5,
+          };
+          const replyCountInstruction = `本次行动你必须连续发送【${replyRange.min} 到 ${replyRange.max} 条】消息。`;
           const systemPrompt = `
 			# 任务
 			你现在【就是】角色 "${chat.name}"。这是一个秘密的、后台的独立行动。你的所有思考和决策都必须以 "${
@@ -32169,7 +32446,7 @@ ${libraryList}
         timeSinceLastMessage,
       )}分钟没有互动了。你的任务是回顾你们最近的对话，并根据你的人设，【自然地延续对话】或【开启一个新的、相关的话题】来主动联系用户。
 			# 【对话节奏铁律 (至关重要！)】
-			你的回复【必须】模拟真人的打字和思考习惯。你应该将你想说的话，拆分成【多条、简短的】消息气泡来发送，绝对不要一次性发送一大段文字。每条消息最好不要超过30个字，这会让对话看起来更自然、更真实。
+			你的回复【必须】模拟真人的打字和思考习惯。你应该将你想说的话，拆分成${replyCountInstruction}条，绝对不要一次性发送一大段文字！** 每条消息最好不要超过30个字，这会让对话看起来更自然、更真实。
 			# 【【【输出铁律：这是最高指令】】】
 			你的回复【必须且只能】是一个严格的JSON数组格式的字符串，必须多发几条，禁止全部杂糅在一条，是在线上，例如 \`[{"type": "text", "content": "你好呀"}]\`。
 			【绝对禁止】返回任何JSON以外的文本、解释、分析或你自己的思考过程。你不是分析师，你就是角色本人。
@@ -35156,6 +35433,21 @@ ${libraryList}
 			`;
           }
 
+          // ================= [修改开始] =================
+          // 1. 尝试获取摄像头画面
+          let cameraFrame = null;
+          if (isVisualMode && chat.settings.useRealCamera) {
+            const userVideoSelector = videoCallState.isUserMain
+              ? "#video-main-view video"
+              : "#video-pip-view video";
+            const userVideoEl = document.querySelector(userVideoSelector);
+
+            if (userVideoEl) {
+              cameraFrame = captureVideoFrame(userVideoEl);
+            }
+          }
+
+          // 2. 构建发送给 API 的消息列表
           const messagesForApi = [
             ...videoCallState.callHistory.map((h) => ({
               role: h.role,
@@ -35163,12 +35455,39 @@ ${libraryList}
             })),
           ];
 
-          if (videoCallState.callHistory.length === 0) {
-            const firstLineTrigger =
-              videoCallState.initiator === "user"
-                ? `*你按下了接听键...*`
-                : `*对方按下了接听键...*`;
-            messagesForApi.push({ role: "user", content: firstLineTrigger });
+          // 3. 如果成功截取到了画面，将其作为最新的一条 User 消息（或附加到最新消息）发送给 AI
+          if (cameraFrame) {
+            console.log("已截取摄像头画面，正在发送给AI...");
+
+            // 构造带图片的消息内容
+            const imageMessageContent = [
+              {
+                type: "text",
+                text: userInput
+                  ? userInput
+                  : "（用户正在看着你，这是他当前的摄像头画面）",
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: cameraFrame,
+                },
+              },
+            ];
+
+            messagesForApi.push({
+              role: "user",
+              content: imageMessageContent,
+            });
+          } else {
+            // 如果没截图（比如没开摄像头），如果历史记录为空，需要发一个触发词
+            if (videoCallState.callHistory.length === 0 && !userInput) {
+              const firstLineTrigger =
+                videoCallState.initiator === "user"
+                  ? `*你按下了接听键...*`
+                  : `*对方按下了接听键...*`;
+              messagesForApi.push({ role: "user", content: firstLineTrigger });
+            }
           }
 
           try {
@@ -36704,7 +37023,11 @@ ${libraryList}
               .filter((msg) => msg.type === "summary")
               .map((s) => s.content)
               .join("\n");
-
+            const replyRange = chat.settings.replyCountRange || {
+              min: 3,
+              max: 8,
+            }; // 群聊默认多一点
+            const replyCountInstruction = `本次后台互动，生成的总消息条数应控制在【${replyRange.min} 到 ${replyRange.max} 条】之间。`;
             // updated by lrq 251027
             const systemPrompt = `
 			# 任务
@@ -36713,7 +37036,7 @@ ${libraryList}
       )} 分钟，用户(昵称: "${chat.settings.myNickname || "我"}")不在线。
 			你的任务是根据下方每个角色的人设，在他们之间【自发地】生成一段自然的对话。
 			# 【对话节奏铁律 (至关重要！)】
-			你的回复【必须】模拟真人的打字和思考习惯。你应该将你想说的话，拆分成【多条、简短的】消息气泡来发送，**绝对不要一次性发送一大段文字！** 每条消息最好不要超过30个字，这会让对话看起来更自然、更真实。
+			你的回复【必须】模拟真人的打字和思考习惯。你应该将你想说的话，拆分成${replyCountInstruction}条消息气泡来发送，**绝对不要一次性发送一大段文字！** 每条消息最好不要超过30个字，这会让对话看起来更自然、更真实。
 			**角色回复顺序不固定，可以交叉回复，例如角色A、角色B、角色B、角色A、角色C这样的交叉顺序。不一定要一个人全部说完了才轮到下一个人。角色之间【必须】有互动对话。**
 			# 核心规则
 			1.  **【【【身份铁律】】】**: 用户【绝对不在场】。你【绝对不能】生成与用户对话的内容。整段对话必须是AI角色之间的互动。你的唯一任务是扮演【且仅能扮演】下方“群成员列表”中明确列出的角色。【绝对禁止】扮演任何未在“群成员列表”中出现的角色。
@@ -52892,6 +53215,457 @@ ${libraryList}
           const index = Math.abs(hash) % lib.length;
           return lib[index].url;
         };
+        /**
+         * 统一的 Pollinations 生图函数 (从 Taobao, Date, XHS 提取并合并)
+         * 优先使用 API Key，支持无限重试机制
+         * @param {string} prompt - 英文提示词
+         * @param {object} options - 配置项 { width, height, model, seed, nologo }
+         * @returns {Promise<string>} - 返回图片地址 (Blob URL 或 公网 URL)
+         */
+        window.generatePollinationsImage = async function (
+          prompt,
+          options = {},
+        ) {
+          const {
+            width = 1024,
+            height = 1024,
+            model = "flux",
+            seed = Math.floor(Math.random() * 100000),
+            nologo = false,
+          } = options;
+
+          console.log(
+            `[Global Image Gen] Prompt: ${prompt}, Options:`,
+            options,
+          );
+
+          while (true) {
+            try {
+              const encodedPrompt = encodeURIComponent(prompt);
+              // 尝试获取全局 state，如果不存在则为 null
+              const currentApiConfig =
+                window.state && window.state.apiConfig
+                  ? window.state.apiConfig
+                  : null;
+              const pollApiKey = currentApiConfig
+                ? currentApiConfig.pollinationsApiKey
+                : null;
+
+              // 构建基础参数
+              let queryParams = `width=${width}&height=${height}&seed=${seed}&model=${model}`;
+              if (nologo) queryParams += "&nologo=true";
+
+              // 1. === 有 API Key 的情况 ===
+              if (pollApiKey) {
+                const primaryUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?${queryParams}&key=${pollApiKey}`;
+                console.log(
+                  `[Global Image Gen] 使用 API Key 请求: ${primaryUrl}`,
+                );
+
+                const response = await fetch(primaryUrl, { method: "GET" });
+
+                if (!response.ok) {
+                  throw new Error(`API Key 请求失败: ${response.status}`);
+                }
+
+                const blob = await response.blob();
+                // 将 Blob 转为 Base64 以便存储和持久化加载 (解决 blob:null 报错问题)
+                return await new Promise((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => resolve(reader.result);
+                  reader.onerror = reject;
+                  reader.readAsDataURL(blob);
+                });
+              }
+
+              // 2. === 无 API Key (公开接口) 的情况 ===
+              // 定义加载器
+              const loadImage = (url) =>
+                new Promise((resolve, reject) => {
+                  const img = new Image();
+                  img.src = url;
+                  img.onload = () => resolve(url);
+                  img.onerror = () => reject(new Error(`图片加载失败: ${url}`));
+                });
+
+              // 优先尝试 gen.pollinations.ai
+              const primaryUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?${queryParams}`;
+
+              return await loadImage(primaryUrl).catch(async () => {
+                console.warn(`[Global Image Gen] 主接口失败，尝试备用接口...`);
+                // 备用接口 pollinations.ai/p/
+                const fallbackUrl = `https://pollinations.ai/p/${encodedPrompt}?${queryParams}`;
+                return await loadImage(fallbackUrl);
+              });
+            } catch (error) {
+              console.error(
+                `[Global Image Gen] 生成失败，5秒后自动重试... 错误: ${error.message}`,
+              );
+              await new Promise((resolve) => setTimeout(resolve, 5000));
+            }
+          }
+        };
+        /* ==================================================
+   【终极修复版 V6】桌面拖拽系统 (精准坐标修复)
+   解决第一页乱跑问题：强制父级定位参考 + 边框偏移修正
+   ================================================== */
+
+        function initDesktopManager() {
+          const homeScreen = document.getElementById("home-screen");
+          const doneBtn = document.getElementById("desktop-edit-done-btn");
+          const sliderContainer = document.querySelector(".home-screen-slider");
+
+          // 1. 创建“重置布局”按钮
+          let resetBtn = document.getElementById("desktop-reset-layout-btn");
+          if (!resetBtn) {
+            resetBtn = document.createElement("div");
+            resetBtn.id = "desktop-reset-layout-btn";
+            resetBtn.textContent = "重置布局";
+            resetBtn.style.cssText = `
+            position: absolute;
+            top: 50px;
+            right: 80px; 
+            background: rgba(255, 59, 48, 0.9);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 10000;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            display: none; 
+        `;
+            homeScreen.appendChild(resetBtn);
+          }
+
+          // 定义所有可拖拽的目标选择器
+          const selector =
+            ".home-page .desktop-app-icon, .home-page .custom-widget-container, #new-custom-widget, #profile-widget, #desktop-widget-column, #center-avatar-wrapper, .draggable-group";
+
+          let isEditMode = false;
+          let longPressTimer = null;
+          let dragItem = null;
+          let originalParent = null;
+          let originalNextSibling = null;
+
+          let shiftX = 0;
+          let shiftY = 0;
+
+          // --- 核心：初始化ID ---
+          const assignStableIds = () => {
+            document.querySelectorAll(selector).forEach((el, index) => {
+              if (!el.id) {
+                const label = el.querySelector(".label");
+                const innerImg = el.querySelector("img[id^='icon-img-']");
+
+                if (innerImg && innerImg.id) {
+                  el.id = "wrapper_" + innerImg.id;
+                } else if (label) {
+                  el.id = "auto_pos_" + label.innerText.trim();
+                } else {
+                  el.id = "auto_pos_idx_" + index;
+                }
+              }
+            });
+          };
+          assignStableIds();
+
+          // 延迟恢复布局，确保DOM渲染完毕
+          setTimeout(restoreLayout, 200);
+
+          // --- 绑定事件 ---
+          const handleInputDown = (e) => {
+            if (
+              e.target.id === "desktop-edit-done-btn" ||
+              e.target.id === "desktop-reset-layout-btn"
+            )
+              return;
+
+            let target = e.target.closest(selector);
+            if (target && target.parentElement.closest(selector)) {
+              target = target.parentElement.closest(selector);
+            }
+
+            if (!target) return;
+
+            if (isEditMode) {
+              prepareDrag(e, target);
+            } else {
+              longPressTimer = setTimeout(() => {
+                enterEditMode();
+                prepareDrag(e, target);
+                if (navigator.vibrate) navigator.vibrate(50);
+              }, 800);
+            }
+          };
+
+          sliderContainer.addEventListener("mousedown", handleInputDown);
+          sliderContainer.addEventListener("touchstart", handleInputDown, {
+            passive: false,
+          });
+
+          const cancelLongPress = () => {
+            if (longPressTimer) {
+              clearTimeout(longPressTimer);
+              longPressTimer = null;
+            }
+          };
+          ["mousemove", "touchmove", "mouseup", "touchend"].forEach((evt) =>
+            sliderContainer.addEventListener(evt, cancelLongPress),
+          );
+
+          // --- 准备拖拽 ---
+          function prepareDrag(e, item) {
+            e.preventDefault();
+            dragItem = item;
+
+            // 关键：拖拽开始前，先获取该元素当前的真实尺寸
+            const rect = dragItem.getBoundingClientRect();
+
+            // 记录原始父亲和兄弟
+            originalParent = dragItem.parentNode;
+            originalNextSibling = dragItem.nextSibling;
+
+            // 如果该父容器还没有定位属性，给它加上，防止后续计算出错
+            // (第一页的容器通常是 static 的，这会导致 absolute 相对 body 定位，产生偏移)
+            const parentStyle = window.getComputedStyle(originalParent);
+            if (parentStyle.position === "static") {
+              originalParent.style.position = "relative";
+            }
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            shiftX = clientX - rect.left;
+            shiftY = clientY - rect.top;
+
+            // 将元素挂载到 body，使用 fixed 定位，保证拖拽流畅且不被遮挡
+            document.body.appendChild(dragItem);
+            dragItem.classList.add("is-dragging-active");
+
+            dragItem.style.position = "fixed";
+            dragItem.style.zIndex = "99999";
+            // 强制锁定宽高，防止脱离 Flex 容器后变形
+            dragItem.style.width = rect.width + "px";
+            dragItem.style.height = rect.height + "px";
+            dragItem.style.left = rect.left + "px";
+            dragItem.style.top = rect.top + "px";
+            dragItem.style.margin = "0";
+            dragItem.style.transform = "none";
+
+            document.addEventListener("mousemove", onDragMove);
+            document.addEventListener("touchmove", onDragMove, {
+              passive: false,
+            });
+            document.addEventListener("mouseup", onDragEnd);
+            document.addEventListener("touchend", onDragEnd);
+          }
+
+          // --- 拖拽移动 ---
+          function onDragMove(e) {
+            if (!dragItem) return;
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            dragItem.style.left = clientX - shiftX + "px";
+            dragItem.style.top = clientY - shiftY + "px";
+          }
+
+          // --- 拖拽结束 (关键坐标转换) ---
+          function onDragEnd() {
+            if (dragItem && originalParent) {
+              dragItem.classList.remove("is-dragging-active");
+
+              // 1. 获取当前悬浮位置 (Fixed)
+              const rect = dragItem.getBoundingClientRect();
+
+              // 2. 获取原父容器位置
+              const parentRect = originalParent.getBoundingClientRect();
+
+              // 3. 获取父容器的边框宽度 (防止偏移累积)
+              const parentStyle = window.getComputedStyle(originalParent);
+              const borderLeft = parseFloat(parentStyle.borderLeftWidth) || 0;
+              const borderTop = parseFloat(parentStyle.borderTopWidth) || 0;
+
+              // 4. 计算相对坐标 = (元素屏幕坐标 - 父容器屏幕坐标 - 父容器左边框 - 滚动条偏移)
+              const relativeLeft =
+                rect.left -
+                parentRect.left -
+                borderLeft +
+                originalParent.scrollLeft;
+              const relativeTop =
+                rect.top -
+                parentRect.top -
+                borderTop +
+                originalParent.scrollTop;
+
+              // 5. 放回父容器
+              // 注意：第一页通常是流式布局，一旦放回去可能会把别的元素挤跑
+              // 但既然是“自定义位置”，我们就强制它是 absolute
+              originalParent.appendChild(dragItem); // 这里直接 append，不再插回原位置，因为我们要绝对定位它
+
+              // 6. 应用新样式
+              dragItem.style.position = "absolute";
+              dragItem.style.zIndex = "";
+              dragItem.style.left = relativeLeft + "px";
+              dragItem.style.top = relativeTop + "px";
+              // 保持拖拽时的宽高，防止变回原来的大小
+              dragItem.style.width = rect.width + "px";
+              dragItem.style.height = rect.height + "px";
+
+              // 特殊处理：防止父容器因 absolute 子元素而高度塌陷
+              if (
+                originalParent.clientHeight < 50 &&
+                originalParent.id !== "phone-screen"
+              ) {
+                originalParent.style.minHeight = "100px"; // 给个最小高度撑住
+              }
+
+              dragItem = null;
+              originalParent = null;
+              originalNextSibling = null;
+            }
+
+            document.removeEventListener("mousemove", onDragMove);
+            document.removeEventListener("touchmove", onDragMove);
+            document.removeEventListener("mouseup", onDragEnd);
+            document.removeEventListener("touchend", onDragEnd);
+          }
+
+          // --- 模式切换 ---
+          function enterEditMode() {
+            isEditMode = true;
+            homeScreen.classList.add("editing-mode");
+            doneBtn.style.display = "block";
+            resetBtn.style.display = "block";
+            document.addEventListener("click", blockClickInEditMode, true);
+          }
+
+          doneBtn.addEventListener("click", () => {
+            isEditMode = false;
+            homeScreen.classList.remove("editing-mode");
+            doneBtn.style.display = "none";
+            resetBtn.style.display = "none";
+            document.removeEventListener("click", blockClickInEditMode, true);
+            saveLayout();
+          });
+
+          resetBtn.addEventListener("click", async () => {
+            if (confirm("确定要重置所有布局吗？页面将刷新。")) {
+              if (window.state && window.state.globalSettings) {
+                window.state.globalSettings.desktopLayoutV2 = null;
+                await window.db.globalSettings.put(window.state.globalSettings);
+                location.reload();
+              }
+            }
+          });
+
+          function blockClickInEditMode(e) {
+            if (
+              e.target.id === "desktop-edit-done-btn" ||
+              e.target.id === "desktop-reset-layout-btn"
+            )
+              return;
+            if (isEditMode) {
+              e.stopPropagation();
+              e.preventDefault();
+            }
+          }
+
+          // --- 保存布局 ---
+          async function saveLayout() {
+            if (!window.db || !window.state) return;
+            assignStableIds();
+
+            const layoutData = {};
+            const items = document.querySelectorAll(selector);
+
+            items.forEach((item) => {
+              // 只保存那些确实被改成 absolute 的元素
+              if (item.id && item.style.position === "absolute") {
+                layoutData[item.id] = {
+                  left: item.style.left,
+                  top: item.style.top,
+                  width: item.style.width,
+                  height: item.style.height,
+                  // 记录父级ID，防止跨层级恢复找不到家（高级功能预留）
+                  parentId: item.parentNode.id || null,
+                };
+              }
+            });
+
+            window.state.globalSettings.desktopLayoutV2 = layoutData;
+            await window.db.globalSettings.put(window.state.globalSettings);
+            console.log("布局已保存 (V6)");
+            alert("布局已保存！");
+          }
+
+          // --- 恢复布局 ---
+          async function restoreLayout() {
+            if (!window.db || !window.state || !window.state.globalSettings) {
+              setTimeout(restoreLayout, 500);
+              return;
+            }
+
+            const layoutData = window.state.globalSettings.desktopLayoutV2;
+            if (layoutData) {
+              console.log("恢复布局 (V6)...");
+              assignStableIds();
+
+              for (const [id, pos] of Object.entries(layoutData)) {
+                const el = document.getElementById(id);
+                if (el) {
+                  // 1. 强制设为 absolute
+                  el.style.position = "absolute";
+                  el.style.left = pos.left;
+                  el.style.top = pos.top;
+                  el.style.width = pos.width;
+                  el.style.height = pos.height;
+                  el.style.margin = "0"; // 清除 margin 干扰
+                  el.style.transform = "none";
+                  el.style.bottom = "auto";
+                  el.style.right = "auto";
+
+                  // 2. 关键：确保父级是 relative
+                  const parent = el.parentNode;
+                  if (parent) {
+                    const parentStyle = window.getComputedStyle(parent);
+                    if (parentStyle.position === "static") {
+                      parent.style.position = "relative";
+                    }
+                    // 防止塌陷
+                    if (
+                      parent.clientHeight < 50 &&
+                      parent.id !== "phone-screen"
+                    ) {
+                      parent.style.minHeight = "100px";
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        function captureVideoFrame(videoElement) {
+          if (!videoElement || videoElement.paused || videoElement.ended)
+            return null;
+          try {
+            const canvas = document.createElement("canvas");
+            // 限制一下尺寸，防止token消耗过大或传输过慢，宽设置为 512px 左右足够了
+            const scale = 512 / videoElement.videoWidth;
+            canvas.width = 512;
+            canvas.height = videoElement.videoHeight * scale;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            // 返回 jpeg 格式，质量 0.6
+            return canvas.toDataURL("image/jpeg", 0.6);
+          } catch (e) {
+            console.error("截图失败:", e);
+            return null;
+          }
+        }
 
         // 4. 初始化函数 init()
         // ===================================================================
@@ -55174,6 +55948,17 @@ ${libraryList}
                 (isGroup ? defaultMyGroupAvatar : defaultAvatar);
               document.getElementById("max-memory").value =
                 chat.settings.maxMemory;
+              const defaultMin = chat.isGroup ? 3 : 2;
+              const defaultMax = chat.isGroup ? 8 : 5;
+              const savedRange = chat.settings.replyCountRange || {
+                min: defaultMin,
+                max: defaultMax,
+              };
+
+              document.getElementById("min-reply-count-input").value =
+                savedRange.min;
+              document.getElementById("max-reply-count-input").value =
+                savedRange.max;
               // 记忆互通功能 - UI渲染逻辑
               const memoryLinkSelectBox = document.querySelector(
                 "#memory-link-multiselect .select-box",
@@ -55836,6 +56621,27 @@ ${libraryList}
 
               chat.settings.maxMemory =
                 parseInt(document.getElementById("max-memory").value) || 10;
+              const minReply =
+                parseInt(
+                  document.getElementById("min-reply-count-input").value,
+                ) || 1;
+              const maxReply =
+                parseInt(
+                  document.getElementById("max-reply-count-input").value,
+                ) || 5;
+
+              if (minReply > maxReply) {
+                alert("回复条数：最小值不能大于最大值！已自动修正。");
+                chat.settings.replyCountRange = {
+                  min: maxReply,
+                  max: minReply,
+                }; // 交换
+              } else {
+                chat.settings.replyCountRange = {
+                  min: minReply,
+                  max: maxReply,
+                };
+              }
 
               chat.settings.timePerceptionEnabled = document.getElementById(
                 "time-perception-toggle",
@@ -61963,6 +62769,7 @@ ${libraryList}
           initLoversSpace();
           initTaobao();
           initTukeyAccounting();
+          initDesktopManager();
 
           // ===================================================================
           // 5. 启动！

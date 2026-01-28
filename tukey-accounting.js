@@ -1963,44 +1963,45 @@ async function renderDailyDetailView(accountId) {
         recordTime.getMinutes(),
       ).padStart(2, "0")}`;
 
-      // ▼▼▼ 【美化修改】使用了 Flex 布局容器，加入了 SVG 垃圾桶图标 ▼▼▼
+      // ▼▼▼ 找到 renderDailyDetailView 函数内的 forEach 循环，替换 transactionsHtml 生成部分 ▼▼▼
+
       transactionsHtml += `
-                <div class="report-record-item" style="display: flex; align-items: center; margin-bottom: 12px;">
-                    <!-- 气泡主体，设置 flex-grow: 1 让它占满剩余空间 -->
-                    <div class="tukey-record-bubble ${
-                      rec.type
-                    }" style="flex-grow: 1; margin-right: 10px; margin-bottom: 0;"> 
-                        <div class="record-header">
-                            <img src="${categoryIcon}" class="record-category-icon" alt="${rec.category}">
-                            <span class="record-category-name">${rec.category}</span>
-                        </div>
-                        <div class="record-body">
-                            <span class="record-remarks">${rec.remarks || "无备注"}</span>
-                            <span class="record-amount">${rec.type === "expense" ? "-" : "+"} ¥${rec.amount.toFixed(
-                              2,
-                            )}</span>
-                        </div>
-                        <div class="record-footer">
-                            <span>${rec.accountName}</span> · <span>${timeString}</span>
-                        </div>
-                    </div>
-                    
-                    <!-- 美化后的删除按钮 -->
-                    <button class="delete-record-btn" data-id="${rec.id}" title="删除"
-                            style="flex-shrink: 0; width: 36px; height: 36px; border: none; 
-                                   background-color: rgba(255, 59, 48, 0.08); border-radius: 10px; 
-                                   display: flex; align-items: center; justify-content: center; 
-                                   color: #ff3b30; cursor: pointer; transition: all 0.2s;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
-                    </button>
+    <div class="report-record-item">
+        <!-- 气泡主体 -->
+        <div class="tukey-record-bubble ${rec.type}"> 
+            <div class="record-main-row">
+                <!-- 左侧：图标和分类 -->
+                <div class="record-icon-wrapper">
+                    <img src="${categoryIcon}" class="record-category-icon" alt="${rec.category}">
                 </div>
-            `;
-      // ▲▲▲ 修改结束 ▲▲▲
+                
+                <!-- 中间：分类名和备注 -->
+                <div class="record-info-col">
+                    <div class="record-category-name">${rec.category}</div>
+                    ${rec.remarks ? `<div class="record-remarks">${rec.remarks}</div>` : ""}
+                    <div class="record-meta">
+                        <span>${rec.accountName}</span> · <span>${timeString}</span>
+                    </div>
+                </div>
+
+                <!-- 右侧：金额 -->
+                <div class="record-amount-col">
+                    <span class="record-amount">${rec.type === "expense" ? "-" : "+"}</span>
+                    <span class="record-amount-num">${rec.amount.toFixed(2)}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 删除按钮 (悬浮显示) -->
+        <button class="delete-record-btn" data-id="${rec.id}" title="删除">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+        </button>
+    </div>
+`;
+      // ▲▲▲ 替换结束 ▲▲▲
     });
 
     const dayGroup = document.createElement("div");

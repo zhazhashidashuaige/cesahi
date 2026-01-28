@@ -235,6 +235,64 @@ async function searchTencentMusic(name) {
     return [];
   }
 }
+/**
+ * 【新增】打开高级分享详情弹窗 (萌系版 - 带头像)
+ */
+function openAdvancedShareDetail(shareData) {
+  const modal = document.getElementById("ls-share-detail-modal");
+  const contentBox = modal.querySelector(".modal-content");
+
+  // 元素获取
+  const avatarEl = document.getElementById("ls-share-char-avatar");
+  const iconEl = document.getElementById("ls-share-badge-icon");
+  const titleEl = document.getElementById("ls-share-detail-title");
+  const tagEl = document.getElementById("ls-share-type-text");
+  const summaryEl = document.getElementById("ls-share-summary");
+  const thoughtsEl = document.getElementById("ls-share-thoughts");
+
+  // 1. 获取当前角色的头像
+  // activeLoversSpaceCharId 是一个全局变量，记录了当前正在查看哪个情侣空间
+  const chat = state.chats[activeLoversSpaceCharId];
+  if (chat) {
+    avatarEl.src = chat.settings.aiAvatar || defaultAvatar;
+  } else {
+    avatarEl.src = defaultAvatar;
+  }
+
+  // 配置数据 (定义图标、文字和配色主题)
+  const configMap = {
+    movie: { icon: "🎬", label: "电影推荐", class: "theme-movie" },
+    book: { icon: "📖", label: "好书分享", class: "theme-book" },
+    game: { icon: "🎮", label: "游戏安利", class: "theme-game" },
+  };
+
+  // 如果类型未知，默认用电影样式
+  const config = configMap[shareData.shareType] || configMap.movie;
+
+  // 2. 清除旧的主题Class，添加新的主题Class
+  contentBox.classList.remove("theme-movie", "theme-book", "theme-game");
+  contentBox.classList.add(config.class);
+
+  // 3. 填充内容
+  iconEl.textContent = config.icon;
+  titleEl.textContent = shareData.title || "未知标题";
+  tagEl.textContent = config.label;
+
+  // 如果有作者/歌手信息，加到标题后面
+  if (shareData.artist) {
+    titleEl.textContent += ` - ${shareData.artist}`;
+  }
+
+  // 简介内容
+  summaryEl.textContent = shareData.summary || "（Ta很神秘，没有写下简介...）";
+
+  // 感想内容 - "Char说..."
+  thoughtsEl.textContent =
+    shareData.thoughts || `推荐给你看看《${shareData.title}》！`;
+
+  // 4. 显示弹窗
+  modal.classList.add("visible");
+}
 
 /**
  * 显示选择操作模态框
@@ -1015,16 +1073,17 @@ function renderLSMoments(moments, chat) {
 }
 
 /**
- * 渲染"分享"列表
+ * 渲染"分享"列表 (萌系升级版)
  * @param {Array} shares - 分享数组
  * @param {object} chat - 聊天对象
  */
 function renderLSShares(shares, chat) {
   const listEl = document.getElementById("ls-shares-list");
   listEl.innerHTML = "";
+
   if (!shares || shares.length === 0) {
     listEl.innerHTML =
-      '<p class="ls-empty-placeholder">这里还没有任何分享哦~</p>';
+      '<div class="ls-empty-state"><span style="font-size:40px;">🎐</span><p>还没有任何分享哦~<br>点击右下角分享一部喜欢的电影吧！</p></div>';
     return;
   }
 
@@ -1033,56 +1092,93 @@ function renderLSShares(shares, chat) {
     item.className = "ls-list-item ls-share-item";
     item.dataset.shareData = JSON.stringify(share);
 
-    const typeText =
-      { song: "歌曲", movie: "电影", book: "书籍", game: "游戏" }[
-        share.shareType
-      ] || "分享";
-    const authorName =
-      share.author === "user" ? chat.settings.myNickname || "我" : chat.name;
+    // 1. 确定是谁分享的，获取对应头像
+    const isUser = share.author === "user";
+    const authorName = isUser ? chat.settings.myNickname || "我" : chat.name;
+    const avatarSrc = isUser
+      ? chat.settings.myAvatar || defaultAvatar
+      : chat.settings.aiAvatar || defaultAvatar;
 
-    // 构建分享摘要HTML
-    let summaryHtml = "";
+    // 2. 定义不同类型的可爱风格配置
+    const styleConfig = {
+      song: {
+        icon: "🎵",
+        color: "#FFF0F5",
+        border: "#FFB7B2",
+        label: "分享了歌曲",
+      }, // 粉色系
+      movie: {
+        icon: "🎬",
+        color: "#E3F2FD",
+        border: "#64B5F6",
+        label: "想看电影",
+      }, // 蓝色系
+      book: {
+        icon: "📖",
+        color: "#F1F8E9",
+        border: "#AED581",
+        label: "正在读",
+      }, // 绿色系
+      game: {
+        icon: "🎮",
+        color: "#FFF8E1",
+        border: "#FFB74D",
+        label: "安利游戏",
+      }, // 橙色系
+    };
 
-    // 歌曲显示歌手
+    const config = styleConfig[share.shareType] || styleConfig.song;
+
+    // 3. 构建内容部分
+    let contentHtml = "";
+
+    // 标题部分
+    contentHtml += `<div class="share-card-title">${config.icon} ${share.title}</div>`;
+
+    // 歌手/作者/简介信息
     if (share.shareType === "song" && share.artist) {
-      summaryHtml += `<p style="margin:0; font-weight: 500;"><strong>歌手:</strong> ${share.artist}</p>`;
+      contentHtml += `<div class="share-card-meta">歌手：${share.artist}</div>`;
+    } else if (share.summary) {
+      // 限制字数，防止太长
+      const summaryText =
+        share.summary.length > 60
+          ? share.summary.substring(0, 60) + "..."
+          : share.summary;
+      contentHtml += `<div class="share-card-desc">${summaryText}</div>`;
     }
 
-    // 显示简介
-    if (share.summary) {
-      summaryHtml += `<p style="margin:0; margin-top: 4px;"><strong>简介:</strong> ${share.summary.replace(
-        /\n/g,
-        "<br>",
-      )}</p>`;
-    }
-
-    // 显示感想
+    // 感想部分 (像便签一样贴在下面)
+    let thoughtsHtml = "";
     if (share.thoughts) {
-      summaryHtml += `<p style="margin:0; margin-top: 4px; color: #8a8a8a; font-style: italic;"><strong>感想:</strong> "${share.thoughts}"</p>`;
-    }
-
-    // 默认提示
-    if (!summaryHtml) {
-      summaryHtml = '<p style="margin:0; color: #8a8a8a;">暂无更多信息</p>';
-    }
-
-    // 构建分享项HTML
-    item.innerHTML = `
-            <div class="share-info">
-                <div class="title">
-                    <span class="share-type ${
-                      share.shareType
-                    }">${typeText}</span>
-                    ${share.title}
+      thoughtsHtml = `
+                <div class="share-card-thoughts">
+                    <span class="quote-mark">“</span>
+                    ${share.thoughts}
+                    <span class="quote-mark">”</span>
                 </div>
-                <div class="summary">${summaryHtml}</div>
-                <div class="meta">
-                    由 ${authorName} 分享于 ${formatPostTimestamp(
-                      share.timestamp,
-                    )}
+            `;
+    }
+
+    // 4. 组装整体HTML (带头像的布局)
+    item.innerHTML = `
+            <div class="ls-share-wrapper ${isUser ? "is-me" : ""}">
+                <img src="${avatarSrc}" class="ls-share-avatar" alt="${authorName}">
+                
+                <div class="ls-share-bubble" style="background-color: ${config.color}; border: 2px solid ${config.border};">
+                    <div class="ls-share-header">
+                        <span class="ls-share-label" style="background:${config.border}; color:#fff;">${config.label}</span>
+                        <span class="ls-share-time">${formatPostTimestamp(share.timestamp)}</span>
+                    </div>
+                    
+                    <div class="ls-share-content-box">
+                        ${contentHtml}
+                    </div>
+                    
+                    ${thoughtsHtml}
                 </div>
             </div>
         `;
+
     listEl.appendChild(item);
   });
 }
@@ -4125,7 +4221,7 @@ function initLoversSpace() {
     lsAudioPlayer.currentTime = (clickX / barWidth) * lsAudioPlayer.duration;
   });
 
-  // 拦截情侣空间分享列表的点击事件，不再触发"一起听"
+  // 拦截情侣空间分享列表的点击事件
   document
     .getElementById("ls-shares-list")
     .addEventListener("click", async (e) => {
@@ -4134,25 +4230,32 @@ function initLoversSpace() {
 
       const shareData = JSON.parse(item.dataset.shareData);
 
-      // 如果是歌曲，就调用我们新的播放器函数！
+      // 如果是歌曲，保持原样，打开播放器
       if (shareData.shareType === "song") {
         openLoversSpaceMusicPlayer(shareData);
       }
-      // 其他类型的分享，保持原来的逻辑
-      else if (
-        shareData.shareType === "movie" ||
-        shareData.shareType === "book"
-      ) {
-        await showCustomAlert(
-          `分享详情 - ${shareData.title}`,
-          shareData.thoughts || shareData.summary || "暂无简介",
-        );
-      } else if (shareData.shareType === "game") {
-        // 为游戏分享卡片构建一个更详细的弹窗内容
-        const gameInfo = `游戏名：${shareData.title}\n\n简介：${
-          shareData.summary || "暂无简介"
-        }\n\nTa说："${shareData.thoughts || "一起玩吧！"}"`;
-        await showCustomAlert(`分享的游戏`, gameInfo);
+      // 如果是电影、书籍、游戏，使用新的高级弹窗！
+      else if (["movie", "book", "game"].includes(shareData.shareType)) {
+        openAdvancedShareDetail(shareData); // <--- 这里调用新函数
+      }
+    });
+
+  // 绑定新弹窗的关闭按钮
+  const shareCloseBtn = document.getElementById("ls-share-detail-close-btn");
+  if (shareCloseBtn) {
+    shareCloseBtn.addEventListener("click", () => {
+      document
+        .getElementById("ls-share-detail-modal")
+        .classList.remove("visible");
+    });
+  }
+
+  // 点击新弹窗的遮罩层也能关闭
+  document
+    .getElementById("ls-share-detail-modal")
+    .addEventListener("click", (e) => {
+      if (e.target.id === "ls-share-detail-modal") {
+        e.target.classList.remove("visible");
       }
     });
 
