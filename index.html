@@ -53306,16 +53306,18 @@ ${libraryList}
           }
         };
         /* ==================================================
-   【终极修复版 V6】桌面拖拽系统 (精准坐标修复)
-   解决第一页乱跑问题：强制父级定位参考 + 边框偏移修正
+   【Dock栏三击触发版】桌面拖拽系统
+   触发方式：连续点击底部Dock栏（包含图标区域）3次
    ================================================== */
-
         function initDesktopManager() {
           const homeScreen = document.getElementById("home-screen");
           const doneBtn = document.getElementById("desktop-edit-done-btn");
           const sliderContainer = document.querySelector(".home-screen-slider");
 
-          // 1. 创建“重置布局”按钮
+          // --- 【新增】获取 Dock 栏元素 ---
+          const dockBar = document.getElementById("desktop-dock");
+
+          // 创建“重置布局”按钮 (保持原有逻辑)
           let resetBtn = document.getElementById("desktop-reset-layout-btn");
           if (!resetBtn) {
             resetBtn = document.createElement("div");
@@ -53347,8 +53349,6 @@ ${libraryList}
           let longPressTimer = null;
           let dragItem = null;
           let originalParent = null;
-          let originalNextSibling = null;
-
           let shiftX = 0;
           let shiftY = 0;
 
@@ -53358,7 +53358,6 @@ ${libraryList}
               if (!el.id) {
                 const label = el.querySelector(".label");
                 const innerImg = el.querySelector("img[id^='icon-img-']");
-
                 if (innerImg && innerImg.id) {
                   el.id = "wrapper_" + innerImg.id;
                 } else if (label) {
@@ -53370,12 +53369,53 @@ ${libraryList}
             });
           };
           assignStableIds();
-
-          // 延迟恢复布局，确保DOM渲染完毕
           setTimeout(restoreLayout, 200);
 
-          // --- 绑定事件 ---
+          // ============================================================
+          // ★★★ 【重点修改】隐形触发逻辑：三击 Dock 栏进入编辑模式 ★★★
+          // ============================================================
+          if (dockBar) {
+            let clickCount = 0;
+            let clickTimer = null;
+
+            // 允许通过点击 Dock 栏触发，无论是点在空白处还是图标上
+            // 注意：如果是点在图标上，前两次点击可能会触发打开APP，这是无法完全避免的，
+            // 除非我们拦截所有点击并延迟执行，但这会影响体验。
+            // 建议用户点击 Dock 栏图标之间的缝隙。
+            dockBar.addEventListener(
+              "click",
+              (e) => {
+                // 只有非编辑模式下才检测三击
+                if (isEditMode) return;
+
+                clickCount++;
+
+                if (clickCount === 1) {
+                  clickTimer = setTimeout(() => {
+                    clickCount = 0; // 500ms内没点够次数，归零
+                  }, 500);
+                }
+
+                if (clickCount >= 3) {
+                  clearTimeout(clickTimer);
+                  clickCount = 0;
+
+                  // 阻止冒泡，防止第三次点击误触图标打开App
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  if (navigator.vibrate) navigator.vibrate([50, 50, 50]); // 震动提示
+                  enterEditMode(); // 进入编辑模式
+                }
+              },
+              true,
+            ); // 使用捕获阶段(true)来优先处理点击
+          }
+          // ============================================================
+
+          // --- 拖拽逻辑 (保持逻辑不变，只负责拖拽) ---
           const handleInputDown = (e) => {
+            // 排除按钮
             if (
               e.target.id === "desktop-edit-done-btn" ||
               e.target.id === "desktop-reset-layout-btn"
@@ -53383,52 +53423,34 @@ ${libraryList}
               return;
 
             let target = e.target.closest(selector);
+            // 处理嵌套结构
             if (target && target.parentElement.closest(selector)) {
               target = target.parentElement.closest(selector);
             }
 
             if (!target) return;
 
+            // 只有在编辑模式下才允许拖拽！
+            // 移除了原来的长按进入编辑模式的代码，完全依赖Dock栏三击
             if (isEditMode) {
               prepareDrag(e, target);
-            } else {
-              longPressTimer = setTimeout(() => {
-                enterEditMode();
-                prepareDrag(e, target);
-                if (navigator.vibrate) navigator.vibrate(50);
-              }, 800);
             }
           };
 
+          // 绑定事件到滑动容器
           sliderContainer.addEventListener("mousedown", handleInputDown);
           sliderContainer.addEventListener("touchstart", handleInputDown, {
             passive: false,
           });
 
-          const cancelLongPress = () => {
-            if (longPressTimer) {
-              clearTimeout(longPressTimer);
-              longPressTimer = null;
-            }
-          };
-          ["mousemove", "touchmove", "mouseup", "touchend"].forEach((evt) =>
-            sliderContainer.addEventListener(evt, cancelLongPress),
-          );
-
           // --- 准备拖拽 ---
           function prepareDrag(e, item) {
-            e.preventDefault();
+            e.preventDefault(); // 阻止默认行为（如滚动）
             dragItem = item;
-
-            // 关键：拖拽开始前，先获取该元素当前的真实尺寸
             const rect = dragItem.getBoundingClientRect();
-
-            // 记录原始父亲和兄弟
             originalParent = dragItem.parentNode;
-            originalNextSibling = dragItem.nextSibling;
 
-            // 如果该父容器还没有定位属性，给它加上，防止后续计算出错
-            // (第一页的容器通常是 static 的，这会导致 absolute 相对 body 定位，产生偏移)
+            // 确保父级定位
             const parentStyle = window.getComputedStyle(originalParent);
             if (parentStyle.position === "static") {
               originalParent.style.position = "relative";
@@ -53440,13 +53462,11 @@ ${libraryList}
             shiftX = clientX - rect.left;
             shiftY = clientY - rect.top;
 
-            // 将元素挂载到 body，使用 fixed 定位，保证拖拽流畅且不被遮挡
             document.body.appendChild(dragItem);
             dragItem.classList.add("is-dragging-active");
 
             dragItem.style.position = "fixed";
             dragItem.style.zIndex = "99999";
-            // 强制锁定宽高，防止脱离 Flex 容器后变形
             dragItem.style.width = rect.width + "px";
             dragItem.style.height = rect.height + "px";
             dragItem.style.left = rect.left + "px";
@@ -53472,23 +53492,16 @@ ${libraryList}
             dragItem.style.top = clientY - shiftY + "px";
           }
 
-          // --- 拖拽结束 (关键坐标转换) ---
+          // --- 拖拽结束 ---
           function onDragEnd() {
             if (dragItem && originalParent) {
               dragItem.classList.remove("is-dragging-active");
-
-              // 1. 获取当前悬浮位置 (Fixed)
               const rect = dragItem.getBoundingClientRect();
-
-              // 2. 获取原父容器位置
               const parentRect = originalParent.getBoundingClientRect();
-
-              // 3. 获取父容器的边框宽度 (防止偏移累积)
               const parentStyle = window.getComputedStyle(originalParent);
               const borderLeft = parseFloat(parentStyle.borderLeftWidth) || 0;
               const borderTop = parseFloat(parentStyle.borderTopWidth) || 0;
 
-              // 4. 计算相对坐标 = (元素屏幕坐标 - 父容器屏幕坐标 - 父容器左边框 - 滚动条偏移)
               const relativeLeft =
                 rect.left -
                 parentRect.left -
@@ -53500,31 +53513,24 @@ ${libraryList}
                 borderTop +
                 originalParent.scrollTop;
 
-              // 5. 放回父容器
-              // 注意：第一页通常是流式布局，一旦放回去可能会把别的元素挤跑
-              // 但既然是“自定义位置”，我们就强制它是 absolute
-              originalParent.appendChild(dragItem); // 这里直接 append，不再插回原位置，因为我们要绝对定位它
+              originalParent.appendChild(dragItem);
 
-              // 6. 应用新样式
               dragItem.style.position = "absolute";
               dragItem.style.zIndex = "";
               dragItem.style.left = relativeLeft + "px";
               dragItem.style.top = relativeTop + "px";
-              // 保持拖拽时的宽高，防止变回原来的大小
               dragItem.style.width = rect.width + "px";
               dragItem.style.height = rect.height + "px";
 
-              // 特殊处理：防止父容器因 absolute 子元素而高度塌陷
               if (
                 originalParent.clientHeight < 50 &&
                 originalParent.id !== "phone-screen"
               ) {
-                originalParent.style.minHeight = "100px"; // 给个最小高度撑住
+                originalParent.style.minHeight = "100px";
               }
 
               dragItem = null;
               originalParent = null;
-              originalNextSibling = null;
             }
 
             document.removeEventListener("mousemove", onDragMove);
@@ -53537,20 +53543,33 @@ ${libraryList}
           function enterEditMode() {
             isEditMode = true;
             homeScreen.classList.add("editing-mode");
-            doneBtn.style.display = "block";
-            resetBtn.style.display = "block";
+            doneBtn.style.display = "block"; // 显示完成按钮
+
+            // 显示重置按钮
+            const resetBtn = document.getElementById(
+              "desktop-reset-layout-btn",
+            );
+            if (resetBtn) resetBtn.style.display = "block";
+
             document.addEventListener("click", blockClickInEditMode, true);
           }
 
+          // 完成按钮事件
           doneBtn.addEventListener("click", () => {
             isEditMode = false;
             homeScreen.classList.remove("editing-mode");
             doneBtn.style.display = "none";
-            resetBtn.style.display = "none";
+
+            const resetBtn = document.getElementById(
+              "desktop-reset-layout-btn",
+            );
+            if (resetBtn) resetBtn.style.display = "none";
+
             document.removeEventListener("click", blockClickInEditMode, true);
             saveLayout();
           });
 
+          // 重置按钮事件
           resetBtn.addEventListener("click", async () => {
             if (confirm("确定要重置所有布局吗？页面将刷新。")) {
               if (window.state && window.state.globalSettings) {
@@ -53561,13 +53580,21 @@ ${libraryList}
             }
           });
 
+          // 编辑模式下阻止默认点击（防止误触打开APP）
           function blockClickInEditMode(e) {
             if (
               e.target.id === "desktop-edit-done-btn" ||
               e.target.id === "desktop-reset-layout-btn"
             )
               return;
+
+            // 允许点击 Dock 栏本身，否则无法退出
+            if (e.target.closest("#desktop-dock") && isEditMode) {
+              // e.preventDefault();
+            }
+
             if (isEditMode) {
+              // 阻止所有其他点击，只允许拖拽
               e.stopPropagation();
               e.preventDefault();
             }
@@ -53577,28 +53604,22 @@ ${libraryList}
           async function saveLayout() {
             if (!window.db || !window.state) return;
             assignStableIds();
-
             const layoutData = {};
             const items = document.querySelectorAll(selector);
-
             items.forEach((item) => {
-              // 只保存那些确实被改成 absolute 的元素
+              // 只保存被改为 absolute 的元素
               if (item.id && item.style.position === "absolute") {
                 layoutData[item.id] = {
                   left: item.style.left,
                   top: item.style.top,
                   width: item.style.width,
                   height: item.style.height,
-                  // 记录父级ID，防止跨层级恢复找不到家（高级功能预留）
                   parentId: item.parentNode.id || null,
                 };
               }
             });
-
             window.state.globalSettings.desktopLayoutV2 = layoutData;
             await window.db.globalSettings.put(window.state.globalSettings);
-            console.log("布局已保存 (V6)");
-            alert("布局已保存！");
           }
 
           // --- 恢复布局 ---
@@ -53607,34 +53628,27 @@ ${libraryList}
               setTimeout(restoreLayout, 500);
               return;
             }
-
             const layoutData = window.state.globalSettings.desktopLayoutV2;
             if (layoutData) {
-              console.log("恢复布局 (V6)...");
               assignStableIds();
-
               for (const [id, pos] of Object.entries(layoutData)) {
                 const el = document.getElementById(id);
                 if (el) {
-                  // 1. 强制设为 absolute
                   el.style.position = "absolute";
                   el.style.left = pos.left;
                   el.style.top = pos.top;
                   el.style.width = pos.width;
                   el.style.height = pos.height;
-                  el.style.margin = "0"; // 清除 margin 干扰
+                  el.style.margin = "0";
                   el.style.transform = "none";
                   el.style.bottom = "auto";
                   el.style.right = "auto";
-
-                  // 2. 关键：确保父级是 relative
                   const parent = el.parentNode;
                   if (parent) {
                     const parentStyle = window.getComputedStyle(parent);
                     if (parentStyle.position === "static") {
                       parent.style.position = "relative";
                     }
-                    // 防止塌陷
                     if (
                       parent.clientHeight < 50 &&
                       parent.id !== "phone-screen"
@@ -53647,6 +53661,7 @@ ${libraryList}
             }
           }
         }
+
         function captureVideoFrame(videoElement) {
           if (!videoElement || videoElement.paused || videoElement.ended)
             return null;
