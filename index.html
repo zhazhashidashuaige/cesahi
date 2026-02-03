@@ -19546,64 +19546,86 @@ lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer
             });
 
             backupData.homeScreenState = {
+              // --- 1. 个人资料卡 ---
               "profile-banner-img":
-                document.getElementById("profile-banner-img").src,
+                document.getElementById("profile-banner-img")?.src || "",
               "profile-avatar-img":
-                document.getElementById("profile-avatar-img").src,
-              homeAvatarFrame: document.getElementById("profile-avatar-frame")
-                .src,
+                document.getElementById("profile-avatar-img")?.src || "",
+              homeAvatarFrame:
+                document.getElementById("profile-avatar-frame")?.src || "",
               "profile-username":
-                document.getElementById("profile-username").textContent,
-              "profile-sub-username": document.getElementById(
-                "profile-sub-username",
-              ).textContent,
-              "profile-bio": document.getElementById("profile-bio").textContent,
+                document.getElementById("profile-username")?.textContent ||
+                "你的昵称",
+              "profile-sub-username":
+                document.getElementById("profile-sub-username")?.textContent ||
+                "@your_id",
+              "profile-bio":
+                document.getElementById("profile-bio")?.textContent ||
+                "点击这里编辑你的个性签名",
               "profile-location":
-                document.getElementById("profile-location").innerHTML,
+                document.getElementById("profile-location")?.innerHTML || "",
+
+              // --- 2. 第一页小组件 (保持不变) ---
               "widget-bubble-1":
-                document.getElementById("widget-bubble-1").textContent,
-              "widget-image-1": document.getElementById("widget-image-1").src,
+                document.getElementById("widget-bubble-1")?.textContent ||
+                "点击编辑文字",
+              "widget-image-1":
+                document.getElementById("widget-image-1")?.src || "",
               "widget-subtext-1":
-                document.getElementById("widget-subtext-1").textContent,
+                document.getElementById("widget-subtext-1")?.textContent ||
+                "点击编辑文字",
               "widget-bubble-2":
-                document.getElementById("widget-bubble-2").textContent,
-              "widget-image-2": document.getElementById("widget-image-2").src,
+                document.getElementById("widget-bubble-2")?.textContent ||
+                "点击编辑文字",
+              "widget-image-2":
+                document.getElementById("widget-image-2")?.src || "",
               "widget-subtext-2":
-                document.getElementById("widget-subtext-2").textContent,
-              "widget-image-3": document.getElementById("widget-image-3").src,
+                document.getElementById("widget-subtext-2")?.textContent ||
+                "点击编辑文字",
+
+              // --- 3. 第二页：左侧组合 (图片 + 气泡) ---
+              "widget-image-3":
+                document.getElementById("widget-image-3")?.src || "",
               "second-page-bubble":
-                document.getElementById("second-page-bubble").textContent,
-              "flat-capsule-bubble": document.getElementById(
-                "flat-capsule-bubble",
-              ).textContent,
+                document.getElementById("second-page-bubble")?.textContent ||
+                "点击编辑文字",
+              "flat-capsule-bubble":
+                document.getElementById("flat-capsule-bubble")?.textContent ||
+                "可编辑",
               "circular-bubble":
-                document.getElementById("circular-bubble").textContent,
-              "widget-image-4": document.getElementById("widget-image-4").src,
-              "avatar-subtitle":
-                document.getElementById("avatar-subtitle").textContent,
-              "bubble-top-left":
-                document.getElementById("bubble-top-left").textContent,
-              "bubble-top-right":
-                document.getElementById("bubble-top-right").textContent,
-              "bubble-bottom-left":
-                document.getElementById("bubble-bottom-left").textContent,
-              "bubble-bottom-right": document.getElementById(
-                "bubble-bottom-right",
-              ).textContent,
+                document.getElementById("circular-bubble")?.textContent ||
+                "文字",
+
+              // --- 4. 第二页：透明音乐组件 (核心新增) ---
+              "music-rect-img":
+                document.getElementById("music-rect-img")?.src || "",
+              "music-record-img":
+                document.getElementById("music-record-img")?.src || "",
+              "music-text-line":
+                document.getElementById("music-text-line")?.textContent ||
+                "点击编辑歌名",
+
+              // --- 5. 第二页：月份/头像组合组件 (核心新增) ---
+              "widget-month-display":
+                document.getElementById("widget-month-display")?.textContent ||
+                "12",
               "new-widget-avatar":
-                document.getElementById("new-widget-avatar").src,
+                document.getElementById("new-widget-avatar")?.src || "",
               "new-widget-text-1":
-                document.getElementById("new-widget-text-1").textContent,
+                document.getElementById("new-widget-text-1")?.textContent ||
+                "可编辑文字",
               "new-widget-text-2":
-                document.getElementById("new-widget-text-2").textContent,
+                document.getElementById("new-widget-text-2")?.textContent ||
+                "可编辑文字",
               "new-widget-text-3":
-                document.getElementById("new-widget-text-3").textContent,
-              "widget-month-display": document.getElementById(
-                "widget-month-display",
-              ).textContent,
+                document.getElementById("new-widget-text-3")?.textContent ||
+                "可编辑文字",
+
+              // --- 全局设置 ---
               appIcons: { ...state.globalSettings.appIcons },
               appLabels: { ...state.globalSettings.appLabels },
               wallpaper: state.globalSettings.wallpaper,
+              lockscreenWallpaper: state.globalSettings.lockscreenWallpaper,
             };
 
             const blob = new Blob([JSON.stringify(backupData, null, 2)], {
@@ -43847,18 +43869,6 @@ ${libraryList}
             ).textContent,
             "circular-bubble":
               document.getElementById("circular-bubble").textContent,
-            "widget-image-4": document.getElementById("widget-image-4").src,
-            "avatar-subtitle":
-              document.getElementById("avatar-subtitle").textContent,
-            "bubble-top-left":
-              document.getElementById("bubble-top-left").textContent,
-            "bubble-top-right":
-              document.getElementById("bubble-top-right").textContent,
-            "bubble-bottom-left":
-              document.getElementById("bubble-bottom-left").textContent,
-            "bubble-bottom-right": document.getElementById(
-              "bubble-bottom-right",
-            ).textContent,
             "new-widget-avatar":
               document.getElementById("new-widget-avatar").src,
             "new-widget-text-1":
@@ -43942,18 +43952,6 @@ ${libraryList}
               ).textContent,
               "circular-bubble":
                 document.getElementById("circular-bubble").textContent,
-              "widget-image-4": document.getElementById("widget-image-4").src,
-              "avatar-subtitle":
-                document.getElementById("avatar-subtitle").textContent,
-              "bubble-top-left":
-                document.getElementById("bubble-top-left").textContent,
-              "bubble-top-right":
-                document.getElementById("bubble-top-right").textContent,
-              "bubble-bottom-left":
-                document.getElementById("bubble-bottom-left").textContent,
-              "bubble-bottom-right": document.getElementById(
-                "bubble-bottom-right",
-              ).textContent,
               "new-widget-avatar":
                 document.getElementById("new-widget-avatar").src,
               "new-widget-text-1":
